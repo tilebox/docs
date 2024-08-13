@@ -14,6 +14,18 @@ npm i -g mintlify
 
 2. Install [vale](https://vale.sh/docs/vale-cli/installation/)
 
+And then run the following command once to sync the vale styles
+
+```
+vale sync
+```
+
+3. Set up pre-commit hooks
+
+```
+pre-commit install
+```
+
 ## Previewing changes
 
 Run the following command at the root of your documentation (where mint.json is)
