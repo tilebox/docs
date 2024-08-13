@@ -1,0 +1,21 @@
+---
+title: Authentication
+description: You'll need to authenticate your requests to access the Tilebox API. In this guide, we'll look at how authentication works. Tilebox offers to authenticate your API requests with API keys passed as bearer tokens.
+icon: key
+---
+
+## Creating an API Key
+
+Todo
+
+## Bearer token authentication
+
+Todo
+
+```python
+from tilebox.datasets import Client as DatasetsClient
+from tilebox.workflows import Client as WorkflowsClient
+
+datasets_client = DatasetsClient(token="YOUR_TILEBOX_API_KEY")
+workflows_client = WorkflowsClient(token="YOUR_TILEBOX_API_KEY")
+```

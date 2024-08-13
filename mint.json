@@ -22,12 +22,6 @@
     "name": "Console",
     "url": "https://console.tilebox.com"
   },
-  "tabs": [
-    {
-      "name": "API Reference",
-      "url": "api-reference"
-    }
-  ],
   "anchors": [
     {
       "name": "Console",
@@ -45,33 +39,75 @@
       "group": "Get Started",
       "pages": [
         "introduction",
+        "console",
         "quickstart",
-        "development"
+        "authentication"
       ]
     },
     {
-      "group": "Essentials",
+      "group": "SDKs",
       "pages": [
-        "essentials/markdown",
-        "essentials/code",
-        "essentials/images",
-        "essentials/settings",
-        "essentials/navigation",
-        "essentials/reusable-snippets"
+        {
+          "group": "Python",
+          "icon": "python",
+          "pages": [
+            "sdks/python/introduction",
+            "sdks/python/sample-notebooks",
+            "sdks/python/installation",
+            "sdks/python/xarray",
+            "sdks/python/async",
+            "sdks/python/geometries",
+            "sdks/python/api-reference"
+          ]
+        },
+        {
+          "group": "Go",
+          "icon": "golang",
+          "pages": [
+            "sdks/go/introduction"
+          ]
+        }
       ]
     },
     {
-      "group": "API Documentation",
+      "group": "Datasets",
       "pages": [
-        "api-reference/introduction"
+        "datasets/introduction",
+        "datasets/timeseries",
+        "datasets/collections",
+        "datasets/loading-data"
       ]
     },
     {
-      "group": "Endpoint Examples",
+      "group": "Workflows",
       "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
+        "workflows/introduction",
+        {
+          "group": "Concepts",
+          "pages": [
+            "workflows/tasks",
+            "workflows/jobs",
+            "workflows/task-runners",
+            "workflows/clusters"
+          ]
+        },
+        "workflows/caching",
+        {
+          "group": "Observability",
+          "pages": [
+            "workflows/tracing",
+            "workflows/logging",
+            "workflows/axiom"
+          ]
+        },
+        {
+          "group": "Near-Real Time",
+          "pages": [
+            "workflows/recurring-tasks",
+            "workflows/cron-triggers",
+            "workflows/storage-event-triggers"
+          ]
+        }
       ]
     }
   ],

@@ -1,95 +1,89 @@
 ---
-title: Quill — The Minimalist Theme
+title: Tilebox Documentation
 sidebarTitle: Introduction
-description: Start building awesome documentation in under five minutes with the Quill theme.
+description: Tilebox is a software development kit for accessing, processing and distributing remote sensing satellite data, from raw data to insight. It bridges the gap between the types of software scientists, data scientists and engineers write, and backend systems that software engineers write.
 icon: house
 mode: wide
 ---
 
 import { HeroCard } from '/snippets/components.mdx';
 
-<CardGroup>
+## Modules
+
+Tilebox currently consists of two main modules:
+
+
+<CardGroup cols={3}>
   <HeroCard
-    img="https://raw.githubusercontent.com/mintlify/themes/main/quill/images/setting-up.svg"
-    title="Setting up your docs"
-    description="Everything you need to know about the doc setup process, from start to finish"
-    href="/quickstart"
+    img="/images/tilebox-datasets-hero.svg"
+    title="Datasets"
+    description="A data access module with upstream integrations to space service providers that gives instant data access to scientists through high performance APIs and an intuitive Python client"
+    href="/datasets/introduction"
   />
   <HeroCard
-    img="https://raw.githubusercontent.com/mintlify/themes/main/quill/images/themes.svg"
-    title="Explore themes"
-    description="Explore a variety of themes you can use to spice up the look and feel of your documentation"
-    href="/quickstart"
+    img="/images/tilebox-workflows-hero.svg"
+    title="Workflows"
+    description="A parallel processing engine that allows the intuitive creation of dynamic tasks that can be parallelized out of the box and executed across compute environments – on-premise as well as in auto-scaling clusters in public clouds"
+    href="/workflows/introduction"
   />
 </CardGroup>
 
-## Make it yours
+## Getting Started
 
-Update your docs to your brand and add valuable content for the best user conversion.
+To get started, check out some of the following resources:
 
 <CardGroup cols={3}>
   <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
-  >
-    Customize your docs to your company's colors and brands
-  </Card>
-  <Card
-    title="Reference APIs"
-    icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
-  >
-    Automatically generate endpoints from an OpenAPI spec
-  </Card>
-  <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/components/accordion"
-  >
-    Build interactive features and designs to guide your users
-  </Card>
-</CardGroup>
-
-### Essentials blocks
-
-Building blocks to make your documentation shine.
-
-<CardGroup cols={3}>
-  <Card
-    title="Markdown Syntax"
-    icon="text-size"
-    href="/essentials/markdown"
+    title="Tilebox Console"
+    icon="terminal"
+    href="/console"
     horizontal
   />
   <Card
-    title="Code Blocks"
-    icon="code"
-    href="/essentials/code"
+    title="Create an API Key"
+    icon="key"
+    href="/authentication"
     horizontal
   />
   <Card
-    title="Global Settings"
-    icon="gear"
-    href="/essentials/settings"
-    horizontal
-  />
-  <Card
-    title="Images and Embeds"
-    icon="image"
-    href="/essentials/images"
-    horizontal
-  />
-  <Card
-    title="Navigation"
-    icon="map"
-    href="/essentials/navigation"
-    horizontal
-  />
-  <Card
-    title="Reusable Snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
     horizontal
   />
 </CardGroup>
+
+## Guides
+
+Or start by exploring some of the following guides:
+
+<CardGroup cols={2}>
+  <Card
+    title="Timeseries Datasets"
+    icon="database"
+    href="/datasets/introduction"
+  >
+    Read about timeseries datasets and how they are structured.
+  </Card>
+  <Card
+    title="Loading Data"
+    icon="download"
+    href="/datasets/loading-data"
+  >
+    Learn how to query and load data from a dataset.
+  </Card>
+  <Card
+    title="Implement Tasks"
+    icon="laptop-code"
+    href="/workflows/tasks"
+  >
+    Understand and learn how to implement tasks using the Tilebox Workflow Orchestrator.
+  </Card>
+  <Card
+    title="Setting up Task Runners"
+    icon="network-wired"
+    href="/workflows/task-runners">
+    Learn how to deploy Task runners, enabling you to run workflows in a parallelized, distributed fashion.
+  </Card>
+</CardGroup>
+
