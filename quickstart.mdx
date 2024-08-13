@@ -6,18 +6,78 @@ icon: rocket
 
 ## Start in a Notebook
 
-Coming soon
+Check out the provided [Sample Notebooks](sdks/python/sample-notebooks) that you can use to get started with the Tilebox API.
+They provide a step-by-step guide to using the API and cover a wide variety of the features supported by Tilebox Python clients.
+You can also use the notebooks as a starting point for your own projects.
 
-### Start on your device
+## Start on your device
 
-Coming soon
+If you prefer to work locally in your device, the steps below help you get started.
 
-<AccordionGroup>
-  <Accordion icon="github" title="Clone your docs locally">
-    Some text
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Preview changes">
-    More text
-  </Accordion>
-</AccordionGroup>
+<Steps>
+  <Step title="Install packages">
+    Install the Tilebox python packages. The easiest way to do this is using `pip`.
+    ```
+    pip install tilebox-datasets tilebox-workflows
+    ```
+  </Step>
+  <Step title="Create an API key">
+    Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), heading to [Settings -> API Keys](https://console.tilebox.com/settings/api-keys) and clicking on the "Create API Key" button.
+  </Step>
+  <Step title="Query data">
+    Use the datasets client to query data from a dataset.
 
+    ```python
+    from tilebox.datasets import Client
+
+    client = Client(token="YOUR_TILEBOX_API_KEY")
+    
+    # select an open data dataset
+    datasets = client.datasets()
+    dataset = datasets.open_data.asf.sentinel2_msi
+
+    # and load data from a collection in a given time range
+    collection = dataset.collection("S2A_S2MSI1C")
+    data_january_2022 = collection.load(("2022-01-01", "2022-02-01"))
+    ```
+  </Step>
+  <Step title="Run a workflow task">
+    Use the workflows client to create and submit a task.
+
+    ```python
+    from tilebox.workflows import Client, Task
+
+    class MyFirstTask(Task):
+      def execute(self):
+        print("Hello World from my first Tilebox task!")
+
+    client = Client(token="YOUR_TILEBOX_API_KEY")
+
+    # submit a job
+    jobs = client.jobs()
+    jobs.submit("my-very-first-job", MyFirstTask(), "some-compute-cluster")
+
+    # and run it
+    runner = client.runner("some-compute-cluster", tasks=[MyFirstTask])
+    runner.run_all()
+    ```
+  </Step>
+  <Step title="Explore further">
+    Check out the following guides to learn more about the individual modules that make up Tilebox:
+    
+    <CardGroup cols={2}>
+      <Card
+        title="Datasets Quickstart"
+        icon="database"
+        href="/datasets/introduction#quickstart"
+        horizontal
+      />
+      <Card
+        title="Workflows Quickstart"
+        icon="network-wired"
+        href="/workflows/introduction#quickstart"
+        horizontal
+      />
+    </CardGroup>
+  </Step>
+</Steps>

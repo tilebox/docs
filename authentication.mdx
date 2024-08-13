@@ -6,11 +6,15 @@ icon: key
 
 ## Creating an API key
 
-Coming soon
+If you don't have an API key yet, head over to the [Tilebox Console](https://console.tilebox.com/settings/api-keys) to create one.
+
+<Info>
+Always keep your API Keys safe and deactivate them if you suspect that they may have been compromised.
+</Info>
 
 ## Bearer token authentication
 
-Coming soon
+Bearer tokens are the main form of authentication for the Tilebox API. You need to pass your API key as the token parameter when creating an instance of your client.
 
 ```python
 from tilebox.datasets import Client as DatasetsClient
@@ -19,3 +23,7 @@ from tilebox.workflows import Client as WorkflowsClient
 datasets_client = DatasetsClient(token="YOUR_TILEBOX_API_KEY")
 workflows_client = WorkflowsClient(token="YOUR_TILEBOX_API_KEY")
 ```
+
+<Tip>
+If you configure your API key as an environment variable called `TILEBOX_API_KEY`, you can omit the token parameter when creating a client.
+</Tip>
