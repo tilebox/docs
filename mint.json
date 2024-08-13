@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Quill Starter Kit",
+  "name": "Tilebox Docs",
   "theme": "quill",
   "logo": {
     "dark": "/logo/dark.svg",
@@ -8,19 +8,19 @@
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#09090b",
+    "primary": "#f43f5e",
     "light": "#FAFAFA",
     "dark": "#09090b"
   },
   "topbarLinks": [
     {
       "name": "Support",
-      "url": "mailto:hi@mintlify.com"
+      "url": "mailto:support@tilebox.com"
     }
   ],
   "topbarCtaButton": {
-    "name": "Dashboard",
-    "url": "https://dashboard.mintlify.com"
+    "name": "Console",
+    "url": "https://console.tilebox.com"
   },
   "tabs": [
     {
@@ -30,19 +30,14 @@
   ],
   "anchors": [
     {
-      "name": "Documentation",
-      "icon": "book-open-cover",
-      "url": "https://mintlify.com/docs"
-    },
-    {
-      "name": "Blog",
-      "icon": "newspaper",
-      "url": "https://mintlify.com/blog"
+      "name": "Console",
+      "icon": "terminal",
+      "url": "https://tilebox.com/console"
     },
     {
       "name": "Community",
-      "icon": "slack",
-      "url": "https://mintlify.com/community"
+      "icon": "discord",
+      "url": "https://tilebox.com/"
     }
   ],
   "navigation": [
@@ -80,9 +75,14 @@
       ]
     }
   ],
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": false,
+    "raiseIssue": false
+  },
   "footerSocials": {
-    "x": "https://x.com/mintlify",
-    "github": "https://github.com/mintlify",
-    "linkedin": "https://www.linkedin.com/company/mintsearch"
+    "x": "https://x.com/tileboxio",
+    "github": "https://github.com/tilebox",
+    "linkedin": "https://www.linkedin.com/company/tilebox-io"
   }
 }
