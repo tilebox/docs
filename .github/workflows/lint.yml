@@ -10,3 +10,5 @@ jobs:
         with:
           lfs: true
       - uses: errata-ai/vale-action@reviewdog
+        with:
+          fail_on_error: true
