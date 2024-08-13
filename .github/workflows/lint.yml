@@ -1,0 +1,12 @@
+name: Lint Text
+on: [pull_request]
+
+jobs:
+  vale:
+    name: Run Vale Linter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: errata-ai/vale-action@reviewdog
