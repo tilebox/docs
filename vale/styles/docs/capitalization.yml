@@ -1,0 +1,11 @@
+extends: substitution
+message: "Pay attention to capitalization. Consider using '%s' instead of '%s'."
+ignorecase: false
+level: warning
+action:
+  name: replace
+swap:
+  (?:\w+) Dataset: dataset
+  (?:\w+) Datasets: datasets
+  (?:\w+) Workflows: workflows
+  (?:\w+) tilebox: Tilebox
