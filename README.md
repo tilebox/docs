@@ -33,3 +33,17 @@ Run the following command at the root of your documentation (where mint.json is)
 ```
 mintlify dev
 ```
+
+## Checking for issues
+
+To run the vale linter locally, and check for issues, run the following command
+
+```
+vale .
+```
+
+Checking for broken links
+
+```
+mintlify broken-links
+```
