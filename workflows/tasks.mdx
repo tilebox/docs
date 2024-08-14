@@ -1,0 +1,659 @@
+---
+title: Understanding and Creating Tasks
+sidebarTitle: Tasks
+icon: laptop-code
+---
+
+<Accordion title="What is a Task?">
+At its core, a Task is the smallest unit of work, designed to perform a specific operation. Each task represents a discrete operation or
+process that can be executed, such as processing data, performing calculations or managing resources. They can function independently or
+as components of a complex, interrelated set of connected tasks - a Workflow. Tasks are defined by their code, their inputs and
+their dependencies on other tasks. Creating tasks involves defining the input parameters as well as specifying the action to be
+taken during its execution.
+</Accordion>
+
+## Creating a Task
+
+Creating a task in Tilebox can be achieved by defining a class that extends the `Task` base class and implements the `execute` method.
+The `execute` method is the entry point for the task and is where the task's logic is defined. It's called when the task
+is executed and performs the task's operation.
+
+<CodeGroup>
+    ```python Python (Sync)
+    from tilebox.workflows import Task, ExecutionContext
+
+    class MyFirstTask(Task):
+        def execute(self, context: ExecutionContext):
+            print(f"Hello World!")
+    ```
+    ```python Python (Async)
+    from tilebox.workflows.aio import Task, ExecutionContext
+
+    class MyFirstTask(Task):
+        async def execute(self, context: ExecutionContext):
+            print(f"Hello World!")
+    ```
+</CodeGroup>
+
+This example showcases a simple task that prints `"Hello World!"` to the console. The key components of this task are:
+
+<AccordionGroup>
+    <Accordion title="class MyFirstTask(Task)">
+        `MyFirstTask` is a subclass of the `Task` class. This is the base class for all defined tasks. It provides the basic structure
+        for a task. Inheriting from `Task` automatically makes the class a `dataclass`, which is useful [for specifying inputs](#task-inputs).
+        Additionally, by inheriting from `Task`, the task is also automatically assigned an [identifier based on the class name](#task-identifiers).
+    </Accordion>
+    <Accordion title="def execute">
+        The `execute` method is the entry point for the execution of the task. This is where the task's logic is defined. It's called when the task
+        is executed and performs the task's operation.
+    </Accordion>
+    <Accordion title="context: ExecutionContext">
+        The `context` argument is an `ExecutionContext` instance, which provides
+        access to an API for submitting new tasks as part of the same job, as well as access to a [shared cache](/workflows/caches) and features such
+        as [logging](/workflows/observability).
+    </Accordion>
+</AccordionGroup>
+
+<Note>
+    The code samples on this page do not show how the task is actually executed, but don't worry, that is covered in the [next section on task runners](/workflows/task-runners).
+    The reason for this is that the execution of tasks is a separate concern from the implementation of tasks.
+</Note>
+
+## Input Parameters
+
+Tasks often require input parameters to perform their operation. These inputs can be simple values or complex data structures.
+By inheriting from the `Task` class, the task is automatically converted to a python `dataclass`. This means that input parameters
+can be defined as class attributes.
+
+<Info>
+    Tasks need to be **serializable to JSON**, because they may be distributed across a cluster of [task runners](/workflows/task-runners).
+</Info>
+
+Supported types for input parameters are:
+- Basic types such as `str`, `int`, `float`, `bool`
+- Lists and dictionaries of basic types
+- Nested data classes that are again JSON-serializable
+
+<CodeGroup>
+    ```python Python (Sync)
+    class ParametrizableTask(Task):
+        message: str
+        number: int
+        data: dict[str, str]
+
+        def execute(self, context: ExecutionContext):
+            print(self.message * self.number)
+
+    task = ParametrizableTask("Hello", 3, {"key": "value"})
+    ```
+    ```python Python (Async)
+    class ParametrizableTask(Task):
+        message: str
+        number: int
+        data: dict[str, str]
+
+        async def execute(self, context: ExecutionContext):
+            print(self.message * self.number)
+
+    task = ParametrizableTask("Hello", 3, {"key": "value"})
+    ```
+</CodeGroup>
+
+## Task Composition and subtasks
+
+Until now tasks have only performed a single operation. But tasks can be much more powerful than that.
+**Tasks can submit other tasks as their subtasks.** This enables a modular design of workflows,
+where complex operations are broken down into simpler, manageable pieces. And as an added bonus, the execution of subtasks is automatically
+parallelized whenever possible.
+
+<CodeGroup>
+```python Python (Sync)
+class ParentTask(Task):
+    num_subtasks: int
+
+    def execute(self, context: ExecutionContext) -> None:
+        for i in range(self.num_subtasks):
+            context.submit_subtask(ChildTask(i))
+
+class ChildTask(Task):
+    index: int
+
+    def execute(self, context: ExecutionContext) -> None:
+        print(f"Executing ChildTask {self.index}")
+
+task = ParentTask(5)  # submitting this task will result in 5 ChildTasks being executed as well
+```
+```python Python (Async)
+class ParentTask(Task):
+    num_subtasks: int
+
+    async def execute(self, context: ExecutionContext) -> None:
+        for i in range(self.num_subtasks):
+            context.submit_subtask(ChildTask(i))
+
+class ChildTask(Task):
+    index: int
+
+    async def execute(self, context: ExecutionContext) -> None:
+        print(f"Executing ChildTask {self.index}")
+
+task = ParentTask(5)  # submitting this task will result in 5 ChildTasks being executed as well
+```
+</CodeGroup>
+
+In the preceding example, a `ParentTask` that submits `ChildTask` tasks as subtasks is defined. The number of subtasks to be submitted
+is determined by the `num_subtasks` attribute of the `ParentTask`. The `submit_subtask` method takes an instance of a task as its argument.
+This means that the task to be submitted as a subtask must be instantiated with concrete parameters before it can be submitted.
+
+<Info>
+    By submitting a task as a subtask, the execution of the subtask is scheduled as part of the same job as the parent task. Compared to
+    just calling the subtask's `execute` method directly, this allows for the subtask to be executed on a different machine, or even in parallel
+    with other subtasks. To learn more about how tasks are executed, see the section on [task runners](/workflows/task-runners).
+</Info>
+
+### Larger subtasks Example
+
+As an example of how task composition can be used to build a larger workflow a practical example might be helpful.
+The workflow is capable of downloading a certain number of random dog images from the internet. The [Dog API](https://thedogapi.com/) can be
+used to get the URLs of random dog images and then download them. Implementing a workflow such as this using Task Composition could look like this:
+
+<CodeGroup title="Task Composition">
+    ```python Python (Sync)
+    import httpx  # pip install httpx
+    from pathlib import Path
+
+    class DownloadRandomDogImages(Task):
+        num_images: int
+
+        def execute(self, context: ExecutionContext) -> None:
+            url = f"https://api.thedogapi.com/v1/images/search?limit={self.num_images}"
+            response = httpx.get(url)
+            for dog_image in response.json():
+                context.submit_subtask(DownloadImage(dog_image["url"]))
+
+    class DownloadImage(Task):
+        url: str
+
+        def execute(self, context: ExecutionContext) -> None:
+            file = Path("dogs") / self.url.split("/")[-1]
+            response = httpx.get(self.url)
+            with file.open("wb") as file:
+                file.write(response.content)
+    ```
+    ```python Python (Async)
+    import httpx  # pip install httpx
+    from pathlib import Path
+
+    class DownloadRandomDogImages(Task):
+        num_images: int
+
+        async def execute(self, context: ExecutionContext) -> None:
+            url = f"https://api.thedogapi.com/v1/images/search?limit={self.num_images}"
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                for dog_image in response.json()[:self.num_images]:
+                    context.submit_subtask(DownloadImage(dog_image["url"]))
+
+    class DownloadImage(Task):
+        url: str
+
+        async def execute(self, context: ExecutionContext) -> None:
+            file = Path("dogs") / self.url.split("/")[-1]
+            async with httpx.AsyncClient() as client:
+                response = await client.get(self.url)
+            with file.open("wb") as file:
+                file.write(response.content)
+    ```
+</CodeGroup>
+
+This larger example consists of the following tasks:
+
+<AccordionGroup>
+    <Accordion title="DownloadRandomDogImages">
+    `DownloadRandomDogImages` is a task that fetches a certain number of random dog images URLs from an API. It then
+    submits a `DownloadImage` task for each image URL it receives
+    </Accordion>
+    <Accordion title="DownloadImage">
+    `DownloadImage` is a task that downloads an image from a given URL and saves it to a file.
+    </Accordion>
+</AccordionGroup>
+
+Together, these tasks form a workflow that downloads a certain number of random dog images from the internet. The relationship between the two tasks, and the fact that they together form a workflow, is implicit in the fact that `DownloadRandomDogImages` submits `DownloadImage` tasks as subtasks.
+
+Visualizing the execution of a workflow that uses these tasks could look like a tree of tasks, where the `DownloadRandomDogImages` task is the root and the `DownloadImage` tasks are the leaves. For example, when downloading five random dog images, the following tasks are executed.
+
+<CodeGroup>
+```python Python (Sync)
+from tilebox.workflows import Client
+
+client = Client()
+jobs = client.jobs()
+job = jobs.submit(
+    "download-dog-images",
+    DownloadRandomDogImages(5),
+    "dev-cluster",
+)
+jobs.display(job)
+```
+```python Python (Async)
+from tilebox.workflows.aio import Client
+
+client = Client()
+jobs = await client.jobs()
+job = await jobs.submit(
+    "download-dog-images",
+    DownloadRandomDogImages(5),
+    "dev-cluster",
+)
+await jobs.display(job)
+```
+</CodeGroup>
+
+<Frame>
+    <img src="/assets/workflows/download-dog-images.svg" alt="Download Dog Images Workflow" />
+</Frame>
+
+In total six tasks are executed. The `DownloadRandomDogImages` task and five `DownloadImage` tasks. The `DownloadImage` tasks can be executed in parallel, as they are independent of one another. Assuming that more than one task runner is available, the **Tilebox Workflow Orchestrator automatically parallelizes** the execution of the `DownloadImage` tasks.
+
+<Tip>
+    Check out [job_client.display](/workflows/jobs#visualization) to learn how this visualization was automatically generated from the task executions.
+</Tip>
+
+Currently, a limit of `64` subtasks per task is imposed. This is to discourage the creation of workflows where individual tasks submit a large number of subtasks, as this can lead to performance issues - since those individual tasks are not parallelized. If you need to submit more than `64` subtasks, consider using [recursive subtask submission](#recursive-subtasks) instead.
+
+## Recursive subtasks
+
+Tasks can submit other tasks as subtasks, and this allows for the creation of complex workflows. Sometimes a tasks input is a list, whose
+elements can be **mapped** to individual subtasks, whose outputs oftentimes are then aggregated in a **reduce** step. This is a common pattern in
+workflows, called **MapReduce**.
+But often times the initial map step - submitting the individual subtasks - is already an expensive operation. And since this
+happens within a single task execution, it's not further parallelizable. This can be a bottleneck for the entire workflow.
+
+Fortunately, Tilebox Workflows offers a way to resolve this issue by using **recursive subtask submission**. A task can not only submit other tasks as subtasks, but it can also submit an instance of itself as a subtask. This allows for a recursive decomposition of a task into smaller subtasks.
+
+As an example, the `RecursiveTask` below is a perfectly valid task that recursively submits smaller instances of itself as subtasks.
+
+<CodeGroup title="Recursive Subtasks">
+    ```python Python (Sync)
+    class RecursiveTask(Task):
+        num: int
+
+        def execute(self, context: ExecutionContext) -> None:
+            print(f"Executing RecursiveTask with num={self.num}")
+            if self.num >= 2:
+                context.submit_subtask(RecursiveTask(self.num // 2))
+    ```
+    ```python Python (Async)
+    class RecursiveTask(Task):
+        num: int
+
+        async def execute(self, context: ExecutionContext) -> None:
+            print(f"Executing RecursiveTask with num={self.num}")
+            if self.num >= 2:
+                context.submit_subtask(RecursiveTask(self.num // 2))
+    ```
+</CodeGroup>
+
+### Recursive subtask Example
+
+One example where this is useful is the [random dog images workflow](#larger-subtasks-example) defined earlier. While the previous implementation
+was already downloading images in parallel, the initial orchestration of the individual download tasks was not parallelized. That's the case because
+`DownloadRandomDogImages`, the root task of the workflow, currently fetches a certain number of random dog images URLs and only once all URLs
+are fetched, the individual download tasks for each of those images are submitted.
+If a large number of images is to be downloaded, first a query to the Dog API is made to return all those image URLs
+before any downloads can begin. This is not ideal, as it means that the `DownloadRandomDogImages` task is a bottleneck for the entire workflow.
+
+As an improvement, recursive subtask submission can be used to decompose a `DownloadRandomDogImages` task with a large number
+of images into two smaller `DownloadRandomDogImages` tasks, each one fetching half of the images. This is then recursively
+applied, decomposing tasks into even smaller tasks, until a certain threshold is reached, at which point the Dog API is now directly
+queried for the image URLs.
+This way, there is no initial wait for the Dog API to return all the image URLs before image downloads can be started. Instead, the first images start
+downloading as soon as the first image URLs are retrieved.
+
+An implementation of this recursive subtask submission could look like this:
+
+<CodeGroup title="Task Composition">
+    ```python Python (Sync)
+    class DownloadRandomDogImages(Task):
+        num_images: int
+
+        def execute(self, context: ExecutionContext) -> None:
+            if self.num_images > 4:
+                half = self.num_images // 2
+                remaining = self.num_images - half  # account for odd numbers
+                context.submit_subtask(DownloadRandomDogImages(half))
+                context.submit_subtask(DownloadRandomDogImages(remaining))
+            else:
+                url = f"https://api.thedogapi.com/v1/images/search?limit={self.num_images}"
+                response = httpx.get(url)
+                for dog_image in response.json()[:self.num_images]:
+                    context.submit_subtask(DownloadImage(dog_image["url"]))
+    ```
+    ```python Python (Async)
+    class DownloadRandomDogImages(Task):
+        num_images: int
+
+        async def execute(self, context: ExecutionContext) -> None:
+            if self.num_images > 4:
+                half = self.num_images // 2
+                remaining = self.num_images - half  # account for uneven numbers
+                context.submit_subtask(DownloadRandomDogImages(half))
+                context.submit_subtask(DownloadRandomDogImages(remaining))
+            else:
+                url = f"https://api.thedogapi.com/v1/images/search?limit={self.num_images}"
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(url)
+                    for dog_image in response.json()[:self.num_images]:
+                        context.submit_subtask(DownloadImage(dog_image["url"]))
+    ```
+</CodeGroup>
+
+With this implementation, downloading a large number of images (e.g. 9) results in the following tasks being executed:
+
+<Frame>
+    <img src="/assets/workflows/download-dog-images-recursive.svg" alt="Download Dog Images Workflow implemented recursively" />
+</Frame>
+
+## Retry Handling
+
+By default, when a task fails to execute, they are marked as failed.
+In some cases, it might be beneficial to retry the task a certain number of times before marking it as failed.
+This can be useful for tasks that are dependent on external services, which might be temporarily unavailable.
+Tilebox Workflows offers a way to specify the number of retries for a task by using the `max_retries` argument of the `submit_subtask` method.
+
+In the example below, the `RootTask` submits a `FlakyTask` as a subtask with a `max_retries` of `5`.
+If the `FlakyTask` then fails, the same runner or any other one may pick it up again for up to 5 times before eventually being marked as failed.
+
+<CodeGroup title="Submitting Subtasks">
+    ```python Python (Sync)
+    import random
+
+    class RootTask(Task):
+        def execute(self, context: ExecutionContext) -> None:
+            context.submit_subtask(FlakyTask(), max_retries=5)
+
+    class FlakyTask(Task):
+        def execute(self, context: ExecutionContext) -> None:
+            print(f"Executing FlakyTask")
+
+            if random.random() < 0.1:
+                raise Exception("FlakyTask failed randomly")
+
+    task = RootTask()
+    ```
+    ```python Python (Async)
+    import random
+
+    class RootTask(Task):
+        async def execute(self, context: ExecutionContext) -> None:
+            context.submit_subtask(FlakyTask(), max_retries=5)
+
+    class FlakyTask(Task):
+        async def execute(self, context: ExecutionContext) -> None:
+            print(f"Executing FlakyTask")
+
+            if random.random() < 0.1:
+                raise Exception("FlakyTask failed randomly")
+
+    task = RootTask()
+    ```
+</CodeGroup>
+
+## Dependencies
+
+Up until now all tasks were independent of one another. But often, tasks have dependencies on other tasks. For example, a task that processes data might depend on a task that fetches the data.
+**Tasks can express their dependencies on other tasks** by using the `depends_on` argument of the `submit_subtask` method. A dependency between two tasks means that the dependent task is only executed after the task it depends on has been successfully executed.
+
+<Note>
+    The `depends_on` argument accepts a list of tasks, which means that a task can depend on a variable number of other tasks.
+</Note>
+
+A workflow that has tasks with dependencies on other tasks is implemented as follows:
+
+<CodeGroup title="Task Composition">
+    ```python Python (Sync)
+    class RootTask(Task):
+        def execute(self, context: ExecutionContext) -> None:
+            first_task = context.submit_subtask(PrintTask("Executing first"))
+            second_task = context.submit_subtask(PrintTask("Executing second"), depends_on=[first_task])
+            third_task = context.submit_subtask(PrintTask("Executing last"), depends_on=[second_task])
+
+    class PrintTask(Task):
+        message: str
+
+        def execute(self, context: ExecutionContext) -> None:
+            print(self.message)
+    ```
+    ```python Python (Async)
+    class RootTask(Task):
+        async def execute(self, context: ExecutionContext) -> None:
+            first_task = context.submit_subtask(PrintTask("Executing first"))
+            second_task = context.submit_subtask(PrintTask("Executing second"), depends_on=[first_task])
+            third_task = context.submit_subtask(PrintTask("Executing last"), depends_on=[second_task])
+
+    class PrintTask(Task):
+        message: str
+
+        async def execute(self, context: ExecutionContext) -> None:
+            print(self.message)
+    ```
+</CodeGroup>
+
+The `RootTask` submits three `PrintTask` tasks as subtasks. Those tasks are dependent on one another, meaning that the
+second task is only be executed after the first task has been successfully executed, and the third task is only
+executed after the second task has been successfully executed.
+This results in the tasks being executed sequentially.
+
+<Note>
+    If a task that's being depended on submits subtasks, those subtasks are also executed before any dependent task.
+</Note>
+
+### Dependencies Example
+
+As a practical example, below is a workflow that fetches news articles from an API and then processes them using [News API](https://newsapi.org/).
+
+<CodeGroup title="Task Dependencies">
+    ```python Python (Sync)
+    from pathlib import Path
+    import json
+    from collections import Counter
+    import httpx  # pip install httpx
+
+    class NewsWorkflow(Task):
+        category: str
+        max_articles: int
+
+        def execute(self, context: ExecutionContext) -> None:
+            fetch_task = context.submit_subtask(FetchNews(self.category, self.max_articles))
+            context.submit_subtask(PrintHeadlines(), depends_on=[fetch_task])
+            context.submit_subtask(MostFrequentAuthors(), depends_on=[fetch_task])
+
+    class FetchNews(Task):
+        category: str
+        max_articles: int
+
+        def execute(self, context: ExecutionContext) -> None:
+            url = f"https://newsapi.org/v2/top-headlines?category={self.category}&pageSize={self.max_articles}&country=us&apiKey=API_KEY"
+            news = httpx.get(url).json()
+            # check out our documentation page on caches to learn
+            # about a better way of passing data between tasks
+            Path("news.json").write_text(json.dumps(news))
+
+    class PrintHeadlines(Task):
+        def execute(self, context: ExecutionContext) -> None:
+            news = json.loads(Path("news.json").read_text())
+            for article in news["articles"]:
+                print(f"{article['publishedAt'][:10]}: {article['title']}")
+
+    class MostFrequentAuthors(Task):
+        def execute(self, context: ExecutionContext) -> None:
+            news = json.loads(Path("news.json").read_text())
+            authors = [article["author"] for article in news["articles"]]
+            for author, count in Counter(authors).most_common():
+                print(f"Author {author} has written {count} articles")
+
+    # now submit a job, and then visualize it
+    job = job_client.submit("process-news",
+        NewsWorkflow(category="science", max_articles=5)
+    )
+    job_client.visualize(job, direction="right")
+    ```
+</CodeGroup>
+
+```plaintext Output
+2024-02-15: NASA selects ultraviolet astronomy mission but delays its launch two years - SpaceNews
+2024-02-15: SpaceX launches Space Force mission from Cape Canaveral - Orlando Sentinel
+2024-02-14: Saturn's largest moon most likely uninhabitable - Phys.org
+2024-02-14: AI Unveils Mysteries of Unknown Proteins' Functions - Neuroscience News
+2024-02-14: Anthropologists' research unveils early stone plaza in the Andes - Phys.org
+Author Jeff Foust has written 1 articles
+Author Richard Tribou has written 1 articles
+Author Jeff Renaud has written 1 articles
+Author Neuroscience News has written 1 articles
+Author Science X has written 1 articles
+```
+
+<Frame>
+    <img src="/assets/workflows/process-news.svg" alt="Process News Workflow" />
+</Frame>
+
+This workflow consists of four tasks:
+
+| Task | Dependencies | Description |
+| --- | --- | --- |
+| NewsWorkflow | - | The root task of the workflow. It spawns the other tasks and correctly sets up the dependencies between them. |
+| FetchNews | - | A task that fetches the news articles from the API. It writes the result to a file, which is then read by dependent tasks. |
+| PrintHeadlines | FetchNews | A task that prints the headlines of the news articles to the console. |
+| MostFrequentAuthors | FetchNews | A task that counts the number of articles each author has written and prints the result to the console. |
+
+One important aspect to note is that there is no dependency between the `PrintHeadlines` and `MostFrequentAuthors` tasks.
+This means that they can be executed in parallel, which is exactly what the Tilebox Workflow Orchestrator does, if more than one
+task runner is available.
+
+<Tip>
+    In this example, the results of the `FetchNews` task were written to a file. This is not the recommended way of
+    passing data between tasks. When a workflow is executed on a distributed cluster, the existence of a file written by a dependent
+    task cannot be guaranteed. Instead, it's recommend to use a [shared cache](/workflows/caches).
+</Tip>
+
+## Task Identifiers
+
+A task identifier is a unique string that the Tilebox Workflow Orchestrator
+uses to identify the task. It's what [task runners](/workflows/task-runners) use to determine which task class to select for
+deserializing the task input and executing the task. The identifier is also used as the default name in visualizations of the
+execution of a job as a tree of tasks.
+
+If not otherwise specified, the identifier of a task is the class name. For example, the identifier of the `PrintHeadlines` task
+in the previous example is `"PrintHeadlines"`. This is great for quick prototyping, but it's not recommended for production use.
+The reason is that if the class name of a task changes, the identifier of the task changes as well. This can lead to problems
+when refactoring or changing the codebase. Additionally, it makes it impossible to create different Tasks that share the same class name.
+
+To solve this problem, Tilebox Workflows offers a way to explicitly specify the identifier of a task. This is done by overriding the
+`identifier` method of the `Task` class. The `identifier` method should return a unique string that identifies the task.
+This way, the identifier of a task is decoupled from the class name and can be changed without having to rename the task class.
+Additionally, it allows for different tasks to have the same class name, as long as they have different identifiers.
+The `identifier` method can also be used to specify a version number for the task. This is
+why it must return a tuple of two strings, where the first string is the identifier and the second string is the version number.
+See the section on [semantic versioning](#semantic-versioning) down below for more information.
+
+<CodeGroup title="Overriding the Task Identifier">
+    ```python Python (Sync)
+    class MyTask(Task):
+        def execute(self, context: ExecutionContext) -> None:
+            pass
+
+    # MyTask has the identifier "MyTask" and the default version of "v0.0"
+
+    class MyTask2(Task):
+        @staticmethod
+        def identifier() -> tuple[str, str]:
+            return "tilebox.com/example_workflow/MyTask", "v1.0"
+
+        def execute(self, context: ExecutionContext) -> None:
+            pass
+
+    # MyTask2 has the identifier "tilebox.com/example_workflow/MyTask" and the version "v1.0"
+    ```
+    ```python Python (Async)
+    class MyTask(Task):
+        async def execute(self, context: ExecutionContext) -> None:
+            pass
+
+    # MyTask has the identifier "MyTask" and the default version of "v0.0"
+
+    class MyTask2(Task):
+        @staticmethod
+        def identifier() -> tuple[str, str]:
+            return "tilebox.com/example_workflow/MyTask", "v0.0"
+
+        async def execute(self, context: ExecutionContext) -> None:
+            pass
+
+    # MyTask2 has the identifier "tilebox.com/example_workflow/MyTask" and the version "v1.0"
+    ```
+</CodeGroup>
+
+<Note>
+    The `identifier` method is required to either be a `classmethod` or a `staticmethod`, which means that it can be called
+    without instantiating the class.
+</Note>
+
+## Semantic Versioning
+
+As you might have noticed in the previous section, the `identifier` method can return a tuple of two strings, where the first
+string is the identifier and the second string is the version number. This allows for semantic versioning of tasks.
+
+Versioning tasks is important for managing changes to the task's execution method. It allows for the introduction of new features,
+bug fixes and other changes to the task, while ensuring that existing workflows continue to work as expected. Additionally, it
+allows for different versions of a task to coexist, which is useful for rolling out changes gradually without interrupting
+a production deployment.
+
+Versioning is useful due to the distributed nature of Tilebox Workflows. When a task is submitted as part of a job, the version
+of the task it's submitted from is recorded. It may be different from the version of the task available on the task runner
+that executes the task.
+
+Assigning a version number to a task is done by overriding the `identifier` method of the task class.
+It should return a tuple of two strings, where the first string is the [identifier](#task-identifiers) and the second string is the version number.
+The version number must match the pattern `vX.Y`, where `X` and `Y` are non-negative integers. `X` is the major version number and `Y` is the minor version number.
+
+As an example, below is a task that has the identifier `"tilebox.com/example_workflow/MyTask"` and the version `"v1.3"`:
+
+<CodeGroup title="Overriding the Task Identifier">
+    ```python Python (Sync)
+    class MyTask(Task):
+        @staticmethod
+        def identifier() -> tuple[str, str]:
+            return "tilebox.com/example_workflow/MyTask", "v1.3"
+
+        def execute(self, context: ExecutionContext) -> None:
+            pass
+    ```
+    ```python Python (Async)
+    class MyTask(Task):
+        @staticmethod
+        def identifier() -> tuple[str, str]:
+            return "tilebox.com/example_workflow/MyTask", "v1.3"
+
+        async def execute(self, context: ExecutionContext) -> None:
+            pass
+    ```
+</CodeGroup>
+
+When task runners execute a task, they need to have a task with a matching identifier string and a compatible version number registered.
+A compatible version number is a version number where the major version number of the task on the task runner is equal to the major
+version number of the task that was submitted, and the minor version number of the task on the task runner is equal to or greater
+than the minor version number of the task that was submitted.
+
+A few examples of compatible version numbers are:
+
+- `MyTask` is submitted as part of a job. The version of `MyTask` on the machine submitting the job is `"v1.3"`.
+- A task runner that has version `"v1.3"` of `MyTask` deployed would execute this task.
+- A task runner that has version `"v1.5"` of `MyTask` deployed would also execute this task.
+- A task runner that has version `"v1.2"` of `MyTask` deployed would not execute this task, as the minor version number is lower than the minor version number of the task that was submitted.
+- A task runner that has version `"v2.5"` of `MyTask` deployed would not execute this task, as the major version number is different from the major version number of the task that was submitted.
+
+## Conclusion
+
+Tasks are the foundation upon which Tilebox Workflows are built. By understanding how to create and manage tasks, you're equipped to leverage the full
+power of Tilebox to automate and optimize your workflows. Experiment with defining your own tasks, utilizing subtasks, managing dependencies,
+and employing semantic versioning to develop robust, efficient workflows.
