@@ -1,4 +1,61 @@
 ---
-title: Introduction
-description: Learn about Tilebox Workflows
+title: Tilebox Workflows
+sidebarTitle: Introduction
+description: Tilebox Workflows, or the Tilebox workflow orchestrator is a parallel processing engine that allows an intuitive creation of dynamic tasks that can be parallelized out of the box and executed across compute environments or on-premise as well as in auto-scaling clusters in public clouds.
+icon: network-wired
+mode: wide
 ---
+
+This section offers different guides that showcase ways how the Tilebox workflow orchestrator can be used.
+Learn how to:
+
+<CardGroup cols={2}>
+    <Card title="Create Tasks" icon="laptop-code" href="/workflows/tasks" horizontal>
+        Create tasks using the Tilebox Workflow Orchestrator.
+    </Card>
+    <Card title="Submit Jobs" icon="network-wired" href="/workflows/jobs" horizontal>
+        Learn how to submit jobs to the workflow orchestrator, which is the process of scheduling tasks for execution.
+    </Card>
+    <Card title="Set up Task Runners" icon="circle-nodes" href="/workflows/task-runners" horizontal>
+        Learn how to set up task runners to execute tasks in a distributed fashion.
+    </Card>
+    <Card title="Gain insights through observability" icon="eye" href="/workflows/observability" horizontal>
+        Learn how to gain insights into task executions through observability features such as tracing and logging.
+    </Card>
+    <Card title="Configure shared data access" icon="down-left-and-up-right-to-center" href="/workflows/caches" horizontal>
+        Learn how to configure shared data access for all tasks of a job using caches.
+    </Card>
+</CardGroup>
+
+## Terminology
+
+Before diving into the details of the Tilebox Workflows, here is some common terminology that is used throughout this section.
+
+<AccordionGroup>
+    <Accordion title="Tasks">
+        Tasks are the fundamental units of work within the Tilebox Workflow orchestrator. Each task represents a discrete operation or process that can
+        be executed independently or as part of a larger workflow. Tasks are defined by their execute method, their inputs and their dependencies on other
+        tasks. Implementing tasks involves defining the input parameters as well as specifying the action to be taken during its execution.
+    </Accordion>
+    <Accordion title="Jobs">
+        A job is a concrete execution of a workflow with specific input parameters. A job outlines the work to be
+        achieved, comprising many tasks that may run in parallel or in sequence, depending on their dependencies.
+        Submitting a job involves instantiating a root Task with concrete input parameters which then may trigger the execution of
+        other tasks of the same workflow in the same job.
+    </Accordion>
+    <Accordion title="Task Runners">
+        Task runners are the execution agents within the Tilebox Workflows ecosystem that carry out the tasks. Task runners can be deployed
+        in different compute environments, including on-premise servers and cloud-based auto-scaling clusters. They are responsible for executing
+        tasks as scheduled by the workflow orchestrator, ensuring that each task has the necessary resources and environment to run effectively.
+    </Accordion>
+    <Accordion title="Observability">
+        Observability refers to a feature set within Tilebox Workflows that provides visibility into the execution of tasks and jobs.
+        Observability tools, such as tracing and logging, allow users to track performance, diagnose issues, and gain insights into
+        the operation of their jobs. This enables efficient troubleshooting and optimization of tasks and workflows.
+    </Accordion>
+    <Accordion title="Caches">
+        Caches are shared data storage that can be used to store and retrieve data across tasks of a single job. Caches are used to store
+        intermediate results, and to share data between tasks that are part of the same job. They are a key feature for enabling
+        out-of-the-box distributed computing and reducing the need for redundant data processing.
+    </Accordion>
+</AccordionGroup>

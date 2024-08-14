@@ -42,7 +42,12 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": ["introduction", "console", "quickstart", "authentication"]
+      "pages": [
+        "introduction",
+        "console",
+        "quickstart",
+        "authentication"
+      ]
     },
     {
       "group": "SDKs",
@@ -62,7 +67,9 @@
         {
           "group": "Go",
           "icon": "golang",
-          "pages": ["sdks/go/introduction"]
+          "pages": [
+            "sdks/go/introduction"
+          ]
         }
       ]
     },
@@ -82,16 +89,32 @@
         "workflows/introduction",
         {
           "group": "Concepts",
-          "pages": ["workflows/tasks", "workflows/jobs", "workflows/task-runners", "workflows/clusters"]
+          "icon": "circle-nodes",
+          "pages": [
+            "workflows/tasks",
+            "workflows/jobs",
+            "workflows/task-runners",
+            "workflows/clusters"
+          ]
         },
-        "workflows/caching",
+        "workflows/caches",
         {
           "group": "Observability",
-          "pages": ["workflows/tracing", "workflows/logging", "workflows/axiom"]
+          "icon": "eye",
+          "pages": [
+            "workflows/tracing",
+            "workflows/logging",
+            "workflows/axiom"
+          ]
         },
         {
           "group": "Near-Real Time",
-          "pages": ["workflows/recurring-tasks", "workflows/cron-triggers", "workflows/storage-event-triggers"]
+          "icon": "bolt-lightning",
+          "pages": [
+            "workflows/recurring-tasks",
+            "workflows/cron-triggers",
+            "workflows/storage-event-triggers"
+          ]
         }
       ]
     },
