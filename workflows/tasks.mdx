@@ -362,7 +362,11 @@ This can be useful for tasks that are dependent on external services, which migh
 Tilebox Workflows offers a way to specify the number of retries for a task by using the `max_retries` argument of the `submit_subtask` method.
 
 In the example below, the `RootTask` submits a `FlakyTask` as a subtask with a `max_retries` of `5`.
-If the `FlakyTask` then fails, the same runner or any other one may pick it up again for up to 5 times before eventually being marked as failed.
+If the `FlakyTask` then fails, it gets retried for up to 5 times before eventually being marked as failed.
+
+<Note>
+The failed task may be picked up by any available runner and not necessarily the same one that it failed on.
+</Note>
 
 <CodeGroup title="Submitting Subtasks">
     ```python Python (Sync)
