@@ -1,1 +1,18 @@
+# (?i) makes the regex case-insensitive, see https://vale.sh/docs/topics/vocab/#case-sensitivity
+
 Tilebox
+(?i)Xarray
+NumPy
+(?i)async
+(?i)antimeridian
+Datalore
+Colab
+Tropomi
+georeferenced
+Fortran
+Zarr
+datetime
+accessor
+Pipenv
+Opendata
+APIs

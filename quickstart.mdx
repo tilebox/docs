@@ -28,6 +28,7 @@ If you prefer to work locally in your device, the steps below help you get start
       <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
       <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
     </Frame>
+
   </Step>
   <Step title="Query data">
     Use the datasets client to query data from a dataset.
@@ -36,8 +37,8 @@ If you prefer to work locally in your device, the steps below help you get start
     from tilebox.datasets import Client
 
     client = Client(token="YOUR_TILEBOX_API_KEY")
-    
-    # select an open data dataset
+
+    # select an Opendata dataset
     datasets = client.datasets()
     dataset = datasets.open_data.asf.sentinel2_msi
 
@@ -45,6 +46,7 @@ If you prefer to work locally in your device, the steps below help you get start
     collection = dataset.collection("S2A_S2MSI1C")
     data_january_2022 = collection.load(("2022-01-01", "2022-02-01"))
     ```
+
   </Step>
   <Step title="Run a workflow task">
     Use the workflows client to create and submit a task.
@@ -70,6 +72,7 @@ If you prefer to work locally in your device, the steps below help you get start
     <Note>
       For this snippet to work you need to have a cluster already created. Check out the guide on [clusters](/workflows/clusters) to learn how to create one.
     </Note>
+
   </Step>
   <Step title="Explore further">
     Check out the following guides to learn more about the individual modules that make up Tilebox:

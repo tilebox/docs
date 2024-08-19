@@ -1,0 +1,103 @@
+---
+title: Sample Notebooks
+description: Sample code that is maintained and available to use and learn from.
+icon: notebook
+---
+
+To get the hang of the Python client quickly and effortlessly this is a list of use-cases and sample notebooks.
+
+Each notebook can be executed from top to bottom, and does not require any setup.
+
+## Quick Link
+
+Check out some example notebooks prepared in this shared [Google Drive Folder](https://drive.google.com/drive/folders/1I7G35LLeB2SmKQJFsyhpSVNyZK9uOeJt).
+
+<Note>
+  Within Drive you can right click a notebook and select "Open with -> Google Colaboratory" to open it in an interactive
+  Google Colab environment.
+</Note>
+
+## Notebook Overview
+
+The Tilebox ERS Opendata Demo is a good starting point to get familiar with the Python client, and recommended for everyone who wants to use the client.
+
+- [Tilebox ERS Opendata Demo](https://colab.research.google.com/drive/1LTYhLKy8m9psMhu0DvANs7hyS3ViVpas)
+
+This notebook shows how to use the Python client to query metadata from the ERS-SAR Opendata dataset.
+Then it shows how to filter the results based on geographical location, and then download the product data for a specific granule.
+
+- [Tilebox S5P Tropomi Methane Data Access](https://colab.research.google.com/drive/1eVYARNFnTIeQqBs6gqeay01EDvRk2EI4)
+
+This notebook shows how to use the Python client to query the S5P Tropomi Opendata dataset for Methane products.
+Then it shows how to download and access the corresponding product file, and finally how to plot methane data in a georeferenced map plot.
+
+Cells are executed one-by-one by typing `Shift+Enter` (see [Interactive Environment](/tools/jupyter)), most commonly used libraries are pre-installed.
+
+<Note>All the demo notebooks require python 3.10 or upwards.</Note>
+
+## Interactive Environments
+
+Jupyter, Google Colab or JetBrains Datalore are interactive environments that make developing and sharing algorithmic code simple and accessible.
+They allow to work in notebooks, which are documents that contains both code and rich text elements, such as figures, links, equations, and more.
+Notebooks don't need any setup and can be shared with others.
+
+<AccordionGroup>
+  <Accordion title="Jupyter" icon="jupyter">
+    [Jupyter notebooks](https://jupyter.org/) are the original interactive environment for Python. They are great to
+    work with, but require a local installation.
+  </Accordion>
+  <Accordion title="Google Colab" icon="colab">
+    [Google Colab](https://colab.research.google.com/) is a free tool that offers a hosted interactive Python
+    environment. Google Colab is great to connect to local Jupyter instances, and to share code using Google
+    credentials, or within organizations that use Google Workspace.
+  </Accordion>
+  <Accordion title="JetBrains Datalore" icon="datalore">
+    [JetBrains Datalore](https://datalore.jetbrains.com/) is a free and convenient way to collaboratively test, develop
+    and share Python code and algorithms. It comes with secret management built in, so you can store your credentials
+    and share notebooks. Datalore comes with the advanced JetBrains syntax highlighting and autocompletion software
+    developers are used to. Note that it currently supports only Python 3.8, which is not compatible with the Tilebox
+    Python client.
+  </Accordion>
+</AccordionGroup>
+
+Seeing that Colab is a hosted, free tool that supports all requirements including Python ≥3.10, it's recommended to use Colab.
+
+## Installing Packages
+
+From within your interactive environment you can install missing packages via pip in "magic" cells started with
+an exclamation mark.
+
+```bash
+# pip is already installed in your interactive environment
+!pip3 install ....
+```
+
+All APIs or commands that require authentication can be used through client libraries that hide the tokens, such that
+notebooks can be shared without sharing personal credentials.
+
+## Executing Code
+
+Code can be executed by pressing the play button in the top left corner of the cell, or by pressing `Shift + Enter`.
+While the code is running the cell show a spinning icon, and when the code is done the icon is replaced by
+a number. This number indicates the order in which the cells were executed. The output of the cell is shown below
+the code.
+
+## Authorization
+
+When sharing notebooks it's important to not share your Tilebox API key by using it directly.
+Instead, there are two methods to use the Tilebox Python client in interactive environments.
+Using environment variables, or interactively.
+
+```python Using environment variables to store your API key
+# first define an environment variable "TILEBOX_API_KEY" which contains your API key
+import os
+token = os.getenv("TILEBOX_API_KEY")
+```
+
+**Interactive** authorization is possible by using the builtin `getpass` module. It prompts the user for the API key
+when running the code, which is stored in memory and again is not shared with other users when a notebook is shared.
+
+```python Interactively providing your API key
+from getpass import getpass
+token = getpass("API key:")
+```

@@ -1,0 +1,196 @@
+---
+title: Installation
+description: In this section we look at the various options that are available for installing the Tilebox python client.
+icon: box
+---
+
+import { PythonPackageOverview, PipInstall, PoetryInstall, PipenvInstall } from "@/components/PythonInstall";
+
+# Installation
+
+This section describes the options that are available for installing the Tilebox python clients.
+
+<Note>
+  Before you can make requests to the Tilebox API, you need an API key. Please go to
+  [console.tilebox.com](https://console.tilebox.com/settings/api-keys) to create an API key.
+</Note>
+
+## Pre-requisites
+
+- Python 3.10 or higher
+
+## Private Python Package Index
+
+To conveniently and still privately allow the installation of the Tilebox Python clients as well as of user-generated packages, we offer a private PyPI server.
+
+The server is located at **[https://pypi.tilebox.com/](https://pypi.tilebox.com/)** and is accessible with the personal API key of the user.
+You can find out more about this private PyPI instance [on our documentation page about this service](/python/installation#private-python-package-index).
+
+For installing the Tilebox client packages, there are multiples options available, depending on your preferred package manager.
+Below are examples for a few popular package managers, namely `pip`, `poetry` and `pipenv`.
+
+## Package overview
+
+The Tilebox Python clients are split into several packages that work together. The main package for the data access module
+is called `tilebox-datasets`. The main package for the workflow orchestrator is called `tilebox-workflows`.
+
+Additionally, there are other, dataset specific packages, which are (optional) dependencies of `tilebox-datasets` and
+are required for specific functionality when accessing certain datasets. This modular approach allows to keep any dataset
+specific logic out of the main package, and instead provide it as a separate package which only authorized users
+have access to.
+
+To get the full capability of the Tilebox Python clients,the recommended way is to install all the packages
+listed below.
+
+<PythonPackageOverview />
+
+## Pip
+
+To install your Tilebox packages using pip from our private PyPI, run the following command, which uses basic authentication
+with the API key as password:
+
+<PipInstall />
+
+<Note>
+  The flag `-U` stands for `--upgrade`, and ensures that the latest version of the package is installed in case you
+  already have an older version installed.
+</Note>
+
+## Poetry
+
+To install private packages using Poetry, first add the repository as a supplemental source to your `pyproject.toml`.
+
+<CodeGroup>
+
+```txt Poetry CLI
+poetry source add --priority=supplemental tilebox https://pypi.tilebox.com/
+```
+
+```txt Inside pyproject.toml
+[[tool.poetry.source]] name = "tilebox" url = "https://pypi.tilebox.com"
+priority = "explicit"
+```
+
+</CodeGroup>
+
+Then add your Tilebox API key as authentication token to poetry. You can either add it to the poetry keyring
+(recommended) or add an environment variable.
+
+<CodeGroup>
+```sh Poetry Keyring
+poetry config http-basic.tilebox __token__ YOUR_TILEBOX_API_KEY
+```
+
+```sh Environment Variable
+export POETRY_PYPI_TOKEN_TILEBOX=YOUR_TILEBOX_API_KEY
+```
+
+</CodeGroup>
+
+<Note>
+  This ensures the token is not visible in the `pyproject.toml` file, so you can safely commit it to your repository.
+  The token is applicable to all poetry projects that define a source with the name `tilebox`.
+</Note>
+
+Then you can install the packages like any other package using an explicit source parameter.
+
+<PoetryInstall />
+
+Poetry comes with great documentation on the topic, located
+at [https://python-poetry.org/docs/repositories/#using-a-private-repository](https://python-poetry.org/docs/repositories/#using-a-private-repository).
+
+<Note>Make sure to keep your Tilebox client packages up to date by running `poetry update` regularly.</Note>
+
+## Pipenv
+
+To install private packages using Pipenv, add the new index to the `Pipfile`, like so, making sure to pass the token as
+an environment variable: `export TILEBOX_API_KEY=YOUR_TILEBOX_API_KEY`
+
+```
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[[source]]
+url = "https://-:${TILEBOX_API_KEY}@pypi.tilebox.com"
+verify_ssl = true
+name = "tilebox"
+```
+
+Pipenv allows to select which index to use for which package by adding e.g. `index="tilebox"` to the properties dictionary
+of a package.
+
+Example:
+
+<PipenvInstall />
+
+Pipenv documentation on private repositories is located
+at [https://pipenv-fork.readthedocs.io/en/latest/advanced.html](https://pipenv-fork.readthedocs.io/en/latest/advanced.html).
+
+<Note>Make sure to keep your Tilebox client packages up to date by running `pipenv update` regularly.</Note>
+
+## Browsing packages
+
+You can browse packages or package versions by
+visiting [https://pypi.tilebox.com/](https://pypi.tilebox.com/) in any browser, and passing your access
+API key as a password.
+
+<Note>
+  The username is not relevant in the authentication process. If your browser asks for a username, you can enter any
+  string, e.g. `-`.
+</Note>
+
+## Troubleshooting
+
+### Installation and Lock issues
+
+Tools like `poetry` and `pipenv` create lock files to ensure that the same versions of packages are installed across
+different environments. Sometimes, locking issues can occur, which often show up as cryptic error messages.
+Below is an example of a couple of such messages:
+
+```
+[pipenv.exceptions.ResolutionFailure]: Warning: Your dependencies could not be resolved. You likely have a mismatch in your sub-dependencies.
+    raise RuntimeError("Failed to lock Pipfile.lock!")
+RuntimeError: Failed to lock Pipfile.lock!
+
+[pipenv.exceptions.InstallError]: ERROR: No matching distribution found for tilebox-datasets
+ERROR: Couldn't install package: [Requirement(...)]
+
+ERROR: Could not find a version that satisfies the requirement tilebox-datasets (from versions: none)
+ERROR: No matching distribution found for tilebox-datasets
+
+CRITICAL:pipenv.patched.pip._internal.resolution.resolvelib.factory:Ignored the following versions that require a different python
+version: 1.11.0 Requires-Python `<3.13,>=3.9`; 1.11.0rc1 Requires-Python `<3.13,>=3.9`
+```
+
+In case you encounter such issues, follow these steps to resolve them:
+
+1. Double check the python version you are using. The Tilebox Python clients require Python 3.10 or higher.
+   You can run `python --version` to check your python version.
+2. Make sure you have the right Tilebox API key configured for the tool you are using. The API key is required to access
+   the private PyPI server. You can find your API keys at [console.tilebox.com](https://console.tilebox.com/settings/api-keys).
+3. In case a specific package could not be resolved, you can try navigating to [pypi.tilebox.com](https://pypi.tilebox.com/)
+   in your browser and check if it shows up there. If prompted, specify an empty username and your API key as a password.
+4. If none of the preceding help, sometimes removing an existing virtual environment and re-create it can help resolving issues.
+   Depending on the tool you are using, this is done differently. Check out the guides for managing virtual environments for
+   [poetry](https://python-poetry.org/docs/managing-environments/#deleting-the-environments). For `pipenv`, you can
+   run `pipenv --rm` to remove the virtual environment and then `pipenv install` to re-create it.
+5. If you are still encountering issues, please [reach out to us at](mailto:support@tilebox.com).
+
+### Outdated packages
+
+In case your locally installed packages are not up to date, you may encounter warnings like the following:
+
+<WarningNote>
+  Skipped **Opendata** dataset group. You are probably missing the package `tilebox-client-opendata`.
+</WarningNote>
+
+<WarningNote>
+  Skipped **Opendata** dataset **sentinel3_olci**. Your `tilebox-datasets-opendata` package is probably outdated.
+</WarningNote>
+
+These warning indicates that new datasets have been added to Tilebox for which you are missing the corresponding
+client package or the version of the installed client package is outdated.
+To fix this, simply run the installation commands described earlier again to update existing and install
+missing packages.

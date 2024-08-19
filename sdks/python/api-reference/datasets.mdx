@@ -1,0 +1,338 @@
+---
+title: Timeseries Dataset API reference
+description: In this section we look at the public API related to timeseries datasets and how you can use it.
+icon: database
+---
+
+Here is an overview of the available API in the Tilebox Python client related to timeseries datasets. This page is intended
+as a quick reference to look up the API. For more detailed information about each function, please refer to the
+dedicated pages for [Collections](/timeseries/collections) and [Loading Data](/timeseries/loading-data).
+
+## Listing all datasets
+
+<Row>
+    <Col>
+        All available datasets can be listed using the `datasets` method on your Tilebox datasets client.
+
+        ### Possible Warnings
+        <Properties>
+            <Property name="Missing package" type="Failed to instantiate <some> datasets. You are probably missing the package tilebox-client-<some>.">
+                In case you are encountering a warning such as this, please refer to our [troubleshooting installation guide](/python/installation#troubleshooting).
+            </Property>
+        </Properties>
+    </Col>
+    <Col sticky>
+        <CodeGroup>
+            ```python Python (Sync)
+            from tilebox.datasets import Client
+
+            client = Client()
+            datasets = client.datasets()
+            ```
+            ```python Python (Async)
+            from tilebox.datasets.aio import Client
+
+            client = Client()
+            datasets = await client.datasets()
+            ```
+        </CodeGroup>
+    </Col>
+
+</Row>
+
+## Accessing a dataset
+
+<Row>
+  <Col>
+    Once you have listed all available datasets, you can access a specific dataset by it's name from the datasets
+    object.
+  </Col>
+  <Col sticky>
+    <CodeGroup>
+
+```python Python (Sync)
+dataset = datasets.open_data.asf.sentinel1_sar # or any other dataset available to you
+```
+
+```python Python (Async)
+dataset = datasets.open_data.asf.sentinel1_sar # or any other dataset available to you
+```
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+## Listing collections
+
+<Row>
+    <Col>
+        You can list all the collections available for a dataset using the `collections` method on the dataset object.
+
+        ### Parameters
+        <Properties>
+            <Property name="availability" type="bool">
+                Include the availability interval for each collection. The availability interval is a time interval with
+                a start time of the first available data point and an end time of the last available data point in a
+                collection. Defaults to `True`.
+            </Property>
+            <Property name="count" type="bool">
+                Include the number of data points for each collection. Producing an exact count requires a full scan of
+                each collection, which can be slow for large collections. Defaults to `False`.
+            </Property>
+        </Properties>
+    </Col>
+    <Col sticky>
+        <CodeGroup >
+            ```python Python (Sync)
+            collections = dataset.collections(
+                availability = True,
+                count = False,
+            )
+            ```
+            ```python Python (Async)
+            collections = await dataset.collections(
+                availability = True,
+                count = False,
+            )
+            ```
+        </CodeGroup>
+    </Col>
+
+</Row>
+
+---
+
+## Accessing a collection
+
+<Row>
+    <Col>
+        You can access a specific collection by it's name using the `collection` method on the dataset object. This
+        doesn't make any network calls, it just creates a collection object that you can use to access the collection.
+        Therefore this operation is very cheap and will always succeed. If the collection doesn't exist, you will get
+        an error when you try to access data or information for it.
+
+        ### Parameters
+        <Properties>
+            <Property name="name" type="str">
+                The name of the collection to access.
+            </Property>
+        </Properties>
+    </Col>
+    <Col sticky>
+        <CodeGroup >
+            ```python Python (Sync)
+            collections = dataset.collection("My-collection")
+            ```
+            ```python Python (Async)
+            collections = dataset.collection("My-collection")
+            # just creates a collection object, no network calls are made
+            # so no await required
+            ```
+        </CodeGroup>
+    </Col>
+
+</Row>
+
+## Collection information
+
+<Row>
+    <Col>
+        You can access information such as availability and number of available datapoints using the `info` method
+        on a collection object.
+
+        ### Parameters
+        <Properties>
+            <Property name="availability" type="bool">
+                Include the availability interval in the info response. The availability interval is a time interval with
+                a start time of the first available data point and an end time of the last available data point in a
+                collection. Defaults to `True`.
+            </Property>
+            <Property name="count" type="bool">
+                Include the number of data points in the info response. Producing an exact count requires a full scan of
+                the collection, which can be slow for large collections. Defaults to `False`.
+            </Property>
+        </Properties>
+        ### Errors
+        <Properties>
+            <Property name="NotFoundError" type="No such collection Non-existent-Collection">
+                If the collection doesn't exist in the dataset.
+            </Property>
+        </Properties>
+    </Col>
+    <Col sticky>
+        <CodeGroup>
+            ```python Python (Sync)
+            info = collection.info(
+                availability = True,
+                count = False,
+            )
+            ```
+            ```python Python (Async)
+            info = await collection.info(
+                availability = True,
+                count = False,
+            )
+            ```
+        </CodeGroup>
+    </Col>
+
+</Row>
+
+---
+
+## Loading data
+
+<Row>
+    <Col>
+        To load data from a collection for a specific time or time interval, use the `load` method on a collection
+        object. Automatically handles pagination if the requested time interval requires it.
+
+        If no data exists for the requested time or time interval, an empty `xarray.Dataset` is returned.
+
+        Time or time intervals are specified as a TimeScalar. A time scalar is any scalar value that can be interpreted
+        by Tilebox as a specific point in time. Currently this includes either strings in ISO 8601 format or python
+        datetime objects.
+
+        ### Parameters
+        <Properties>
+            <Property name="time_or_interval" type="TimeScalar | TimeInterval | Iterable[TimeScalar]">
+                The time or time interval for which to load data. Can be a single time scalar, a tuple of two
+                time scalars or an array of time scalars.
+
+                Behaviour for each input type:
+                - **TimeScalar**: If a single time scalar is provided, `load` will return all data points for that
+                    exact millisecond.
+                - **TimeInterval**: If a time interval is provided, `load` will return all data points in that interval.
+                    Can either be a tuple of two TimeScalars or a `TimeInterval` object.
+                    In case of a tuple it will be interpreted as an half-open interval `[start, end)`.
+                    In case of a `TimeInterval` object, the `start_exclusive` and `end_inclusive` parameters
+                    can be used to control whether the start and end time are inclusive or exclusive.
+                - **Iterable[TimeScalar]**: If an array of time scalars is provided, `load` will construct a time
+                    interval from the first and last time scalar in the array. In this case both the `start` and `end`
+                    time are inclusive. This is useful for using the output of a previous `load` as input for a
+                    subsequent one.
+            </Property>
+            <Property name="skip_data" type="bool">
+                If `True`, the response will only contain the [Datapoint Metadata](/timeseries/timeseries-data) without
+                the actual dataset specific fields. Defaults to `False`.
+            </Property>
+            <Property name="show_progress" type="bool">
+                If `True`, a progress bar will be displayed when pagination is required to complete the request.
+                Defaults to `False`.
+            </Property>
+        </Properties>
+    </Col>
+    <Col sticky>
+        <CodeGroup >
+            ```python Python (Sync)
+            time = "2023-05-01 12:45:33.423",
+            data = collection.load(time)
+            ```
+            ```python Python (Async)
+            time = "2023-05-01 12:45:33.423",
+            data = await collection.load(time)
+            ```
+        </CodeGroup>
+
+        <CodeGroup>
+            ```python Python (Sync)
+            interval = ("2023-05-01", "2023-08-01")
+            data = collection.load(interval, show_progress=True)
+            ```
+            ```python Python (Async)
+            interval = ("2023-05-01", "2023-08-01")
+            data = await collection.load(interval, show_progress=True)
+            ```
+        </CodeGroup>
+
+        <CodeGroup>
+            ```python Python (Sync)
+            from datetime import datetime
+            from tilebox.clients.core.data import TimeInterval
+
+            # is equivalent to the above example
+            interval = TimeInterval(
+                start = datetime(2023, 5, 1),
+                end = datetime(2023, 8, 1),
+                start_exclusive = False,
+                end_inclusive = False,
+            )
+            data = collection.load(interval, show_progress=True)
+            ```
+            ```python Python (Async)
+            from datetime import datetime
+            from tilebox.clients.core.data import TimeInterval
+
+            # is equivalent to the above example
+            interval = TimeInterval(
+                start = datetime(2023, 5, 1),
+                end = datetime(2023, 8, 1),
+                start_exclusive = False,
+                end_inclusive = False,
+            )
+            data = await collection.load(interval, show_progress=True)
+            ```
+        </CodeGroup>
+
+        <CodeGroup>
+            ```python Python (Sync)
+            meta_data = collection.load(..., skip_data=True)
+            first_50 = collection.load(meta_data.time[:50], skip_data = False)
+            ```
+            ```python Python (Async)
+            meta_data = await collection.load(..., skip_data=True)
+            first_50 = await collection.load(meta_data.time[:50], skip_data = False)
+            ```
+        </CodeGroup>
+    </Col>
+
+</Row>
+
+## Loading a data point
+
+<Row>
+    <Col>
+        To load a single data point from a collection using its `id`, use the `find` method on a collection object.
+
+        ### Parameters
+        <Properties>
+            <Property name="datapoint_id" type="str">
+                The `UUID` of the datapoint to load.
+            </Property>
+            <Property name="skip_data" type="bool">
+                If `True`, the response will only contain the [Metadata fields](/timeseries/datasets#common-fields)
+                without the actual dataset specific fields. Defaults to `False`.
+            </Property>
+        </Properties>
+
+        ### Errors
+        <Properties>
+            <Property name="NotFoundError" type="No such datapoint 0186e6b5-66cc-fcfd-91df-bbbff72499c3">
+                If no data point with the given ID was found in the collection.
+            </Property>
+            <Property name="ValueError" type="Invalid datapoint id: <value> is not a valid UUID">
+                If the given `datapoint_id` is not a valid UUID.
+            </Property>
+        </Properties>
+    </Col>
+    <Col sticky>
+        <CodeGroup>
+            ```python Python (Sync)
+            datapoint_id = "0186d6b6-66cc-fcfd-91df-bbbff72499c3"
+            data = collection.find(
+                datapoint_id,
+                skip_data = False,
+            )
+            ```
+            ```python Python (Async)
+            datapoint_id = "0186d6b6-66cc-fcfd-91df-bbbff72499c3"
+            data = await collection.find(
+                datapoint_id,
+                skip_data = False,
+            )
+            ```
+        </CodeGroup>
+    </Col>
+
+</Row>
