@@ -1,0 +1,242 @@
+---
+title: Async support
+description: In this section we look at async support within the tilebox datasets python client.
+icon: rotate
+---
+
+Tilebox offer a standard synchronous API by default, but also give you to option of an async client if you need it.
+
+The synchronous datasets client is great for data exploration in interactive environments like Jupyter notebooks.
+The asynchronous datasets client is great for building production ready applications that need to scale.
+
+Async is a concurrency model that is far more efficient than multi-threading, and can provide significant
+performance benefits.
+
+## Switching to an async datasets client
+
+Typically all you need to do is swap out your import statement of the `Client` and you're good to go. Check out
+the example below to see how that is done works.
+
+<CodeGroup>
+    ```python Python (Sync)
+    from tilebox.datasets import Client
+
+    # this client is sync
+    client = Client()
+    ```
+    ```python Python (Async)
+    from tilebox.datasets.aio import Client
+
+    # this client is async
+    client = Client()
+    ```
+
+</CodeGroup>
+
+Once you have switched to the async client, you can use the `async` and `await` keywords to make your code async.
+Check out the examples below to see how that works for a few examples.
+
+<CodeGroup>
+
+```python Python (Sync)
+# Listing datasets
+datasets = client.datasets()
+
+# Listing collections
+dataset = datasets.open_data.asf.sentinel1_sar
+collections = dataset.collections()
+
+# Collection information
+collection = collections["Sentinel-1A"]
+info = collection.info()
+print(f"Data for My-collection is available for {info.availability}")
+
+# Loading data
+data = collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
+
+# Finding a specific datapoint
+datapoint_uuid = "01811c8f-0928-e6f5-df34-364cfa8a86e8"
+datapoint = collection.find(datapoint_uuid)
+```
+
+```python Python (Async)
+# Listing datasets
+datasets = await client.datasets()
+
+# Listing collections
+dataset = datasets.open_data.asf.sentinel1_sar
+collections = await dataset.collections()
+
+# Collection information
+collection = collections["Sentinel-1A"]
+info = await collection.info()
+print(f"Data for My-collection is available for {info.availability}")
+
+# Loading data
+data = await collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
+
+# Finding a specific datapoint
+datapoint_uuid = "01811c8f-0928-e6f5-df34-364cfa8a86e8"
+datapoint = await collection.find(datapoint_uuid)
+```
+
+</CodeGroup>
+
+<Note>
+  Async concurrency is also supported in Jupyter notebooks or similar interactive environments. You can even use `await
+  some_async_call()` as the output of a code cell.
+</Note>
+
+## Benefits
+
+The main benefit of using an async client is that you can run requests concurrently, which improve performance.
+This is especially useful when you are loading data from different collections.
+Check out the example below to see how that works.
+
+## Example: Fetching data concurrently
+
+The following example fetches data from different collections.
+In the synchronous example, it fetches the data sequentially, whereas in the async example it fetches the data concurrently.
+This means that the async approach is faster for such use cases.
+
+<CodeGroup>
+
+```python Python (Sync)
+# example: fetching data sequentially
+
+import time
+from tilebox.datasets import Client
+from tilebox.datasets.timeseries import RemoteTimeseriesDatasetCollection  # for type hinting
+
+client = Client()
+datasets = client.datasets()
+collections = datasets.open_data.asf.sentinel1_sar.collections()
+
+def stats_for_2020(collection: RemoteTimeseriesDatasetCollection) -> None:
+    """Fetch data for 2020 and print the number of data points that were loaded."""
+    data = collection.load(("2020-01-01", "2021-01-01"), show_progress=True)
+    n = data.sizes['time'] if 'time' in data else 0
+    print(f"There are {data.sizes['time']} datapoints in {collection.name} for 2020.")
+
+start = time.time()
+
+# for each collection
+for name in collections:
+    # fetch the data, print the number of datapoints and then continue to the next collection
+    stats_for_2020(collections[name])
+
+end = time.time()
+print(f"Fetching data took {end - start:.2f} seconds")
+```
+
+```python Python (Async)
+# example: fetching data concurrently
+
+import asyncio
+import time
+from tilebox.datasets.aio import Client
+from tilebox.datasets.timeseries import RemoteTimeseriesDatasetCollection  # for type hinting
+
+client = Client()
+datasets = await client.datasets()
+collections = await datasets.open_data.asf.sentinel1_sar.collections()
+
+async def stats_for_2020(collection: RemoteTimeseriesDatasetCollection) -> None:
+    """Fetch data for 2020 and print the number of data points that were loaded."""
+    data = await collection.load(("2020-01-01", "2021-01-01"), show_progress=True)
+    n = data.sizes['time'] if 'time' in data else 0
+    print(f"There are {data.sizes['time']} datapoints in {collection.name} for 2020.")
+
+start = time.time()
+
+# initiate all requests concurrently
+requests = [stats_for_2020(collections[name]) for name in collections]
+# and then wait for all to finish in parallel before continuing
+await asyncio.gather(*requests)
+
+end = time.time()
+print(f"Fetching data took {end - start:.2f} seconds")
+```
+
+</CodeGroup>
+
+The output is shown below. As you can see, the async approach is 5 seconds faster. If you have `show_progress` enabled,
+the progress bars are updated concurrently. In this example the second collection contains less data than the first one,
+so it finishes first.
+
+<CodeGroup>
+
+```txt Python (Sync)
+Fetching data: 100% |██████████████████████████████ [00:13<00:00, 207858 datapoints, 3.91 MB/s]
+There are 207858 datapoints in Sentinel-1A for 2020.
+Fetching data: 100% |██████████████████████████████ [00:11<00:00, 179665 datapoints, 4.39 MB/s]
+There are 179665 datapoints in Sentinel-1B for 2020.
+Fetching data took 25.34 seconds
+```
+
+```txt Python (Async)
+Fetching data: 100% |██████████████████████████████ [00:19<00:00, 207858 datapoints, 2.21 MB/s]
+Fetching data: 100% |██████████████████████████████ [00:17<00:00, 179665 datapoints, 2.94 MB/s]
+There are 179665 datapoints in Sentinel-1B for 2020.
+There are 207858 datapoints in Sentinel-1A for 2020.
+Fetching data took 20.12 seconds
+```
+
+</CodeGroup>
+
+## Supported async environments
+
+The Tilebox Datasets Python client supports either `asyncio` or `trio` as an async backend.
+It auto-detects which of those two to use.
+
+### AsyncIO
+
+AsyncIO is Python's [built-in library](https://docs.python.org/3/library/asyncio.html) for writing concurrent
+code with the async/await syntax.
+
+```python
+import asyncio
+from tilebox.datasets.aio import Client
+
+async def main():
+    client = Client()
+    datasets = await client.datasets()
+    print(datasets)
+
+asyncio.run(main())
+```
+
+### Trio
+
+Trio is an [alternative async library](https://trio.readthedocs.io/en/stable/), designed around the
+[principles of structured concurrency](https://en.wikipedia.org/wiki/Structured_concurrency).
+
+```python
+import trio
+from tilebox.datasets.aio import Client
+
+async def main():
+    client = Client()
+    datasets = await client.datasets()
+    print(datasets)
+
+trio.run(main)
+```
+
+### AnyIO
+
+AnyIO is an [asynchronous networking and concurrency library](https://anyio.readthedocs.io/en/stable/) that works on
+top of either asyncio or trio. The Tilebox Datasets Python client is written using `anyio`, that way it can be used with
+either `asyncio` or `trio`.
+
+```python
+import anyio
+from tilebox.datasets.aio import Client
+
+async def main():
+    client = Client()
+    datasets = await client.datasets()
+    print(datasets)
+
+anyio.run(main, backend="asyncio")
+```

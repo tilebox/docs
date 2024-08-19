@@ -37,12 +37,7 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": [
-        "introduction",
-        "console",
-        "quickstart",
-        "authentication"
-      ]
+      "pages": ["introduction", "console", "quickstart", "authentication"]
     },
     {
       "group": "SDKs",
@@ -57,26 +52,23 @@
             "sdks/python/xarray",
             "sdks/python/async",
             "sdks/python/geometries",
-            "sdks/python/api-reference"
+            {
+              "group": "API Reference",
+              "icon": "book",
+              "pages": ["sdks/python/api-reference/datasets", "sdks/python/api-reference/workflows"]
+            }
           ]
         },
         {
           "group": "Go",
           "icon": "golang",
-          "pages": [
-            "sdks/go/introduction"
-          ]
+          "pages": ["sdks/go/introduction"]
         }
       ]
     },
     {
       "group": "Datasets",
-      "pages": [
-        "datasets/introduction",
-        "datasets/timeseries",
-        "datasets/collections",
-        "datasets/loading-data"
-      ]
+      "pages": ["datasets/introduction", "datasets/timeseries", "datasets/collections", "datasets/loading-data"]
     },
     {
       "group": "Workflows",
@@ -84,29 +76,16 @@
         "workflows/introduction",
         {
           "group": "Concepts",
-          "pages": [
-            "workflows/tasks",
-            "workflows/jobs",
-            "workflows/task-runners",
-            "workflows/clusters"
-          ]
+          "pages": ["workflows/tasks", "workflows/jobs", "workflows/task-runners", "workflows/clusters"]
         },
         "workflows/caching",
         {
           "group": "Observability",
-          "pages": [
-            "workflows/tracing",
-            "workflows/logging",
-            "workflows/axiom"
-          ]
+          "pages": ["workflows/tracing", "workflows/logging", "workflows/axiom"]
         },
         {
           "group": "Near-Real Time",
-          "pages": [
-            "workflows/recurring-tasks",
-            "workflows/cron-triggers",
-            "workflows/storage-event-triggers"
-          ]
+          "pages": ["workflows/recurring-tasks", "workflows/cron-triggers", "workflows/storage-event-triggers"]
         }
       ]
     }
