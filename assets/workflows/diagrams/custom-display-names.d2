@@ -1,0 +1,38 @@
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 102
+    sketch: true
+    pad: 10
+  }
+}
+
+style.fill: "#fcf9fa"
+direction: down
+
+title: {
+  label: custom-display-names
+  near: top-center
+  shape: text
+  style.font-size: 30
+  style.font-color: "black"
+}
+root-task: {
+  label: "Root(3)"
+  style.fill: HoneyDew
+}
+leaf0: {
+  label: "Leaf Nr. 0"
+  style.fill: HoneyDew
+}
+root-task -> leaf0
+leaf1: {
+  label: "Leaf Nr. 1"
+  style.fill: HoneyDew
+}
+root-task -> leaf1
+leaf2: {
+  label: "Leaf Nr. 2"
+  style.fill: HoneyDew
+}
+root-task -> leaf2

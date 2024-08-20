@@ -138,14 +138,15 @@ and the edges between nodes represent a sub-task relationship. The diagram also 
 by using a color code.
 
 <Frame>
-    <img src="/assets/workflows/task-states.svg" alt="Color coding of task states" />
+    <img src="/assets/workflows/diagrams/svg/task-states.svg" alt="Color coding of task states" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/task-states.dark.svg" alt="Color coding of task states" className="hidden dark:block" />
 </Frame>
 
-Te color codes used to represent the state of a task are:
+The color codes used to represent the state of a task are:
 
 | Task State | Color | Description |
 |------------|-------|-------------|
-| Queued     | Salmon  | The task is queued and waiting for a task runner to pick it up. |
+| Queued     | <span className="dark:hidden">Salmon</span><span className="hidden dark:block">Yellow</span>  | The task is queued and waiting for a task runner to pick it up. |
 | Running    | Blue | The task is currently being executed by a task runner. |
 | Succeeded  | Green | The task has successfully finished executing. |
 | Failed     | Red | The task has been executed, but resulted in an error. |
@@ -154,7 +155,8 @@ Below is a visualization of another job that is currently being executed
 by some task runners.
 
 <Frame>
-    <img src="/assets/workflows/multiple-runners.svg" alt="Job that is currently being executed by some runners" />
+    <img src="/assets/workflows/diagrams/svg/multiple-runners.svg" alt="Job that is currently being executed by some runners" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/multiple-runners.dark.svg" alt="Job that is currently being executed by some runners" className="hidden dark:block" />
 </Frame>
 
 From this visualization, the following observations can be made:
@@ -222,7 +224,8 @@ line breaks.
 </CodeGroup>
 
 <Frame>
-    <img src="/assets/workflows/custom-display-names.svg" alt="Customize Tasks Display Names" />
+    <img src="/assets/workflows/diagrams/svg/custom-display-names.svg" alt="Customize Tasks Display Names" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/custom-display-names.dark.svg" alt="Customize Tasks Display Names" className="hidden dark:block" />
 </Frame>
 
 ## Cancellation
@@ -349,7 +352,8 @@ Submitting below job reveals a bug in the `PrintMovieStats` task.
 </CodeGroup>
 
 <Frame>
-    <img src="/assets/workflows/movies-failed.svg" alt="Job that failed due to a bug in the task's implementation" />
+    <img src="/assets/workflows/diagrams/svg/movies-failed.svg" alt="Job that failed due to a bug in the task's implementation" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/movies-failed.dark.svg" alt="Job that failed due to a bug in the task's implementation" className="hidden dark:block" />
 </Frame>
 
 It seems like one of the `PrintMovieStats` tasks failed with a `KeyError`. This probably occurs if a movie
@@ -414,7 +418,8 @@ implementation of the `PrintMovieStats` task, it's time to retry the job:
 </CodeGroup>
 
 <Frame>
-    <img src="/assets/workflows/movies-retried.svg" alt="Job that failed due to a bug in the task's implementation" />
+    <img src="/assets/workflows/diagrams/svg/movies-retried.svg" alt="Job that failed due to a bug in the task's implementation" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/movies-retried.dark.svg" alt="Job that failed due to a bug in the task's implementation" className="hidden dark:block" />
 </Frame>
 
 The console output of the task now looks like this:

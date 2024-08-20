@@ -16,13 +16,15 @@ Always keep your API Keys safe and deactivate them if you suspect that they may 
 
 Bearer tokens are the main form of authentication for the Tilebox API. You need to pass your API key as the token parameter when creating an instance of your client.
 
-```python
+<CodeGroup>
+```python Python
 from tilebox.datasets import Client as DatasetsClient
 from tilebox.workflows import Client as WorkflowsClient
 
 datasets_client = DatasetsClient(token="YOUR_TILEBOX_API_KEY")
 workflows_client = WorkflowsClient(token="YOUR_TILEBOX_API_KEY")
 ```
+</CodeGroup>
 
 <Tip>
 If you configure your API key as an environment variable called `TILEBOX_API_KEY`, you can omit the token parameter when creating a client.

@@ -250,7 +250,8 @@ await jobs.display(job)
 </CodeGroup>
 
 <Frame>
-    <img src="/assets/workflows/download-dog-images.svg" alt="Download Dog Images Workflow" />
+    <img src="/assets/workflows/diagrams/svg/download-dog-images.svg" alt="Download Dog Images Workflow" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/download-dog-images.dark.svg" alt="Download Dog Images Workflow" className="hidden dark:block" />
 </Frame>
 
 In total six tasks are executed. The `DownloadRandomDogImages` task and five `DownloadImage` tasks. The `DownloadImage` tasks can be executed in parallel, as they are independent of one another. Assuming that more than one task runner is available, the **Tilebox Workflow Orchestrator automatically parallelizes** the execution of the `DownloadImage` tasks.
@@ -351,7 +352,8 @@ An implementation of this recursive subtask submission could look like this:
 With this implementation, downloading a large number of images (e.g. 9) results in the following tasks being executed:
 
 <Frame>
-    <img src="/assets/workflows/download-dog-images-recursive.svg" alt="Download Dog Images Workflow implemented recursively" />
+    <img src="/assets/workflows/diagrams/svg/download-dog-images-recursive.svg" alt="Download Dog Images Workflow implemented recursively" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/download-dog-images-recursive.dark.svg" alt="Download Dog Images Workflow implemented recursively" className="hidden dark:block" />
 </Frame>
 
 ## Retry Handling
@@ -498,7 +500,8 @@ As a practical example, below is a workflow that fetches news articles from an A
 
     # now submit a job, and then visualize it
     job = job_client.submit("process-news",
-        NewsWorkflow(category="science", max_articles=5)
+        NewsWorkflow(category="science", max_articles=5),
+        "dev-cluster"
     )
     job_client.visualize(job, direction="right")
     ```
@@ -518,7 +521,8 @@ Author Science X has written 1 articles
 ```
 
 <Frame>
-    <img src="/assets/workflows/process-news.svg" alt="Process News Workflow" />
+    <img src="/assets/workflows/diagrams/svg/process-news.svg" alt="Process News Workflow" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/process-news.dark.svg" alt="Process News Workflow" className="hidden dark:block" />
 </Frame>
 
 This workflow consists of four tasks:

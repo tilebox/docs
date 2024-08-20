@@ -1,0 +1,43 @@
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 102
+    sketch: true
+    pad: 10
+  }
+}
+
+style.fill: "#fcf9fa"
+direction: down
+
+title: {
+  label: task-states
+  near: top-center
+  shape: text
+  style.font-size: 30
+  style.font-color: "black"
+}
+my-task: {
+  label: "MyTask"
+  style.fill: HoneyDew
+}
+queued-task: {
+  label: "QueuedTask"
+  style.fill: LavenderBlush
+}
+my-task -> queued-task
+running-task: {
+  label: "RunningTask"
+  style.fill: PaleTurquoise
+}
+my-task -> running-task
+computed-task: {
+  label: "ComputedTask"
+  style.fill: HoneyDew
+}
+my-task -> computed-task
+failed-task: {
+  label: "FailedTask"
+  style.fill: Salmon
+}
+my-task -> failed-task
