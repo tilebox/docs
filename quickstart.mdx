@@ -15,83 +15,83 @@ You can also use the notebooks as a starting point for your own projects.
 If you prefer to work locally in your device, the steps below help you get started.
 
 <Tabs>
-  <Tab title="Python">
-    <Steps>
-      <Step title="Install packages">
-        Install the Tilebox python packages. The easiest way to do this is using `pip`.
-        ```
-        pip install tilebox-datasets tilebox-workflows
-        ```
-      </Step>
-      <Step title="Create an API key">
-        Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), heading to [Settings -> API Keys](https://console.tilebox.com/settings/api-keys) and clicking on the "Create API Key" button.
+<Tab title="Python">
+  <Steps>
+    <Step title="Install packages">
+      Install the Tilebox python packages. The easiest way to do this is using `pip`.
+      ```
+      pip install tilebox-datasets tilebox-workflows
+      ```
+    </Step>
+    <Step title="Create an API key">
+      Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), heading to [Settings -> API Keys](https://console.tilebox.com/settings/api-keys) and clicking on the "Create API Key" button.
 
-    <Frame>
-      <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
-      <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
-    </Frame>
+      <Frame>
+        <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
+        <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+      </Frame>
+    </Step>
+    <Step title="Query data">
+      Use the datasets client to query data from a dataset.
 
-  </Step>
-  <Step title="Query data">
-    Use the datasets client to query data from a dataset.
+      ```python
+      from tilebox.datasets import Client
 
-    ```python
-    from tilebox.datasets import Client
+      client = Client(token="YOUR_TILEBOX_API_KEY")
 
-    client = Client(token="YOUR_TILEBOX_API_KEY")
+      # select a dataset
+      datasets = client.datasets()
+      dataset = datasets.open_data.copernicus.sentinel2_msi
 
-    # select a dataset
-    datasets = client.datasets()
-    dataset = datasets.open_data.copernicus.sentinel2_msi
+      # and load data from a collection in a given time range
+      collection = dataset.collection("S2A_S2MSI1C")
+      data_january_2022 = collection.load(("2022-01-01", "2022-02-01"))
+      ```
+    </Step>
+    <Step title="Run a workflow task">
+      Use the workflows client to create and submit a task.
 
-    # and load data from a collection in a given time range
-    collection = dataset.collection("S2A_S2MSI1C")
-    data_january_2022 = collection.load(("2022-01-01", "2022-02-01"))
-    ```
+      ```python
+      from tilebox.workflows import Client, Task
 
-  </Step>
-  <Step title="Run a workflow task">
-    Use the workflows client to create and submit a task.
+      class MyFirstTask(Task):
+        def execute(self):
+          print("Hello World from my first Tilebox task!")
 
-        ```python
-        from tilebox.workflows import Client, Task
+      client = Client(token="YOUR_TILEBOX_API_KEY")
 
-        class MyFirstTask(Task):
-          def execute(self):
-            print("Hello World from my first Tilebox task!")
+      # submit a job
+      jobs = client.jobs()
+      jobs.submit("my-very-first-job", MyFirstTask(), "some-compute-cluster")
 
-        client = Client(token="YOUR_TILEBOX_API_KEY")
+      # and run it
+      runner = client.runner("some-compute-cluster", tasks=[MyFirstTask])
+      runner.run_all()
+      ```
 
-        # submit a job
-        jobs = client.jobs()
-        jobs.submit("my-very-first-job", MyFirstTask(), "some-compute-cluster")
+      <Note>
+        For this snippet to work you need to have a cluster already created. Check out the guide on [clusters](/workflows/clusters) to learn how to create one.
+      </Note>
+    </Step>
+    <Step title="Explore further">
+      Check out the following guides to learn more about the individual modules that make up Tilebox:
 
-        # and run it
-        runner = client.runner("some-compute-cluster", tasks=[MyFirstTask])
-        runner.run_all()
-        ```
+      <CardGroup cols={2}>
+        <Card
+          title="Datasets Quickstart"
+          icon="database"
+          href="/datasets/introduction#quickstart"
+          horizontal
+        />
+        <Card
+          title="Workflows Quickstart"
+          icon="network-wired"
+          href="/workflows/introduction#quickstart"
+          horizontal
+        />
+      </CardGroup>
+    </Step>
 
-    <Note>
-      For this snippet to work you need to have a cluster already created. Check out the guide on [clusters](/workflows/clusters) to learn how to create one.
-    </Note>
-
-  </Step>
-  <Step title="Explore further">
-    Check out the following guides to learn more about the individual modules that make up Tilebox:
-    
-    <CardGroup cols={2}>
-      <Card
-        title="Datasets Quickstart"
-        icon="database"
-        href="/datasets/introduction#quickstart"
-        horizontal
-      />
-      <Card
-        title="Workflows Quickstart"
-        icon="network-wired"
-        href="/workflows/introduction#quickstart"
-        horizontal
-      />
-    </CardGroup>
-  </Step>
-</Steps>
+  </Steps>
+</Tab>
+</Tabs>
