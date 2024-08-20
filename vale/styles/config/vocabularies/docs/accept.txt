@@ -22,3 +22,4 @@ subtask
 subtasks
 maximum
 subclassing
+Unary
