@@ -24,6 +24,11 @@
   },
   "anchors": [
     {
+      "name": "API Reference",
+      "url": "api-reference",
+      "icon": "square-terminal"
+    },
+    {
       "name": "Console",
       "icon": "terminal",
       "url": "https://console.tilebox.com"
@@ -88,6 +93,26 @@
           "pages": ["workflows/recurring-tasks", "workflows/cron-triggers", "workflows/storage-event-triggers"]
         }
       ]
+    },
+    {
+      "group": "",
+      "pages": ["api-reference/getting-started"]
+    },
+    {
+      "group": "Datasets",
+      "pages": [
+        "api-reference/datasets/listing-datasets",
+        "api-reference/datasets/accessing-dataset",
+        "api-reference/datasets/listing-collection",
+        "api-reference/datasets/accessing-collection",
+        "api-reference/datasets/collection-info",
+        "api-reference/datasets/loading-data",
+        "api-reference/datasets/loading-datapoint"
+      ]
+    },
+    {
+      "group": "Workflows",
+      "pages": ["api-reference/workflows/implementing-task"]
     }
   ],
   "feedback": {
