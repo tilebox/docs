@@ -1,0 +1,34 @@
+---
+title: Implementing a Task
+description: How to implement a task
+icon: network-wired
+---
+
+A [task](/workflows/tasks) can be implemented by subclassing the Task class and overriding the execute method.
+
+<RequestExample>
+
+```python Python (Sync)
+from tilebox.workflows import Task, ExecutionContext
+
+class MyFirstTask(Task):
+    def execute(self, context: ExecutionContext):
+        print(f"Hello World!")
+```
+
+```python Python (Async)
+from tilebox.workflows import Task, ExecutionContext
+
+class MyFirstTask(Task):
+    def execute(self, context: ExecutionContext):
+        print(f"Hello World!")
+```
+
+</RequestExample>
+
+## Passed Parameters
+
+<ParamField path="content" type="ExecutionContext">
+  An object that provides access to the execution context of the task and allows you to interact with the Tilebox
+  Workflows API.
+</ParamField>

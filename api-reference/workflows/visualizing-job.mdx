@@ -1,0 +1,51 @@
+---
+title: Visualizing a Job
+description: How to visualize a job
+icon: network-wired
+---
+
+If you want to [visualize a job](/workflows/jobs#visualization), you can call the `display` or the `visualize` method of the `JobClient` instance.
+
+- `display` is designed to be used in an interactive environment such as a Jupyter notebook, and display the visualization directly in the notebook
+- `visualize` is designed to be used in a non-interactive environment and return a string - the job diagram as a SVG image
+
+Both methods have the same parameters.
+
+<RequestExample>
+
+```python Python (Sync)
+svg: str = job_client.visualize(job)
+
+# or if you are in a Jupyter notebook:
+job_client.display(job)
+```
+
+```python Python (Async)
+svg: str = await job_client.visualize(job)
+
+# or if you are in a Jupyter notebook:
+await job_client.display(job)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="job" type="Job">
+  The job to visualize.
+</ParamField>
+
+<ParamField path="direction" type="str">
+  An explicit direction for the diagram to flow towards. See the relevant section in the [D2
+  docs](https://d2lang.com/tour/layouts/#direction) for more detail. Valid values are `up`, `down`, `right`, `left`.
+  Defaults to `down`.
+</ParamField>
+
+<ParamField path="layout" type="str">
+  A layout engine to use for the diagram. See [D2 layout engines](https://d2lang.com/tour/layouts) for more information.
+  Valid values are `dagre` and `elk`. Defaults to `dagre`.
+</ParamField>
+
+<ParamField path="sketchy" type="bool">
+  Whether to use a sketchy, hand-drawn style for the diagram. Defaults to `True`.
+</ParamField>

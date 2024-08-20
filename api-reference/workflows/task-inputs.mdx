@@ -1,0 +1,36 @@
+---
+title: Task Inputs
+description: How to define task inputs
+icon: network-wired
+---
+
+A task can optionally define [input parameters](/workflow/tasks#input-parameters).
+These parameters are defined as class attributes, the same way as you would define a dataclass.
+
+<RequestExample>
+
+```python Python (Sync)
+from tilebox.workflows import Task, ExecutionContext
+
+class ParametrizableTask(Task):
+    message: str
+    number: int
+    data: dict[str, str]
+
+    def execute(self, context: ExecutionContext):
+        ...
+```
+
+```python Python (Async)
+from tilebox.workflows import Task, ExecutionContext
+
+class ParametrizableTask(Task):
+    message: str
+    number: int
+    data: dict[str, str]
+
+    def execute(self, context: ExecutionContext):
+        ...
+```
+
+</RequestExample>

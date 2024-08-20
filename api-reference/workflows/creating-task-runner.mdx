@@ -1,0 +1,50 @@
+---
+title: Creating a Task Runner
+description: How to create a task runner
+icon: network-wired
+---
+
+From a [client instance](/workflows/creating) you can create a [TaskRunner](/workflows/task-runners), capable of executing tasks.
+
+<RequestExample>
+
+```python Python (Sync)
+from tilebox.workflows import Client
+from tilebox.workflows.cache import LocalFileSystemCache
+
+client = Client()
+runner = client.runner(
+    "my-cluster-EdsdUozYprBJDL",
+    [MyFirstTask, MySubtask],
+    cache=LocalFileSystemCache("cache_directory"),  # optional
+)
+```
+
+```python Python (Async)
+from tilebox.workflows.aio import Client
+from tilebox.workflows.cache import LocalFileSystemCache
+
+client = Client()
+runner = await client.runner(
+    "my-cluster-EdsdUozYprBJDL",
+    [MyFirstTask, MySubtask],
+    cache=LocalFileSystemCache("cache_directory"),  # optional
+)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="cluster" type="str">
+  The [cluster slug](/workflows/clusters#managing-clusters) of the cluster that this task runner belongs to.
+</ParamField>
+
+<ParamField path="tasks" type="list[type[Task]]">
+  A list of task classes that this runner is capable of executing.
+</ParamField>
+
+<ParamField path="cache" type="JobCache">
+  An optional [job cache](/workflows/caches) to use for caching intermediate task results and passing data between
+  tasks.
+</ParamField>

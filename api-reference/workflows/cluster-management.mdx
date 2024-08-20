@@ -1,0 +1,39 @@
+---
+title: Cluster Management
+description: How to manage clusters
+icon: network-wired
+---
+
+You can use an instance of the `ClusterClient` to find, list, create, and delete clusters.
+
+<RequestExample>
+
+```python Python (Sync)
+from tilebox.workflows import Client
+
+client = Client()
+cluster_client = client.clusters()
+
+# Find, List, Create and Delete clusters
+cluster = cluster_client.find("my-cluster-EdsdUozYprBJDL")  # cluster-slug
+all_clusters = cluster_client.all()
+# will generate a new cluster slug from the provided name
+cluster = cluster_client.create("My Cluster")
+cluster_client.delete("my-cluster-EdsdUozYprBJDL")
+```
+
+```python Python (Async)
+from tilebox.workflows import Client
+
+client = Client()
+cluster_client = await client.clusters()
+
+# Find, List, Create and Delete clusters
+cluster = await cluster_client.find("my-cluster-EdsdUozYprBJDL")  # cluster-slug
+all_clusters = await cluster_client.all()
+# will generate a new cluster slug from the provided name
+cluster = await cluster_client.create("My Cluster")
+await cluster_client.delete("my-cluster-EdsdUozYprBJDL")
+```
+
+</RequestExample>

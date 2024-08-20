@@ -1,0 +1,31 @@
+---
+title: Retrying a Job
+description: How to retry a job
+icon: network-wired
+---
+
+If a job fails, you can retry it by calling the `retry` method of the `JobClient` instance.
+
+<RequestExample>
+
+```python Python (Sync)
+job = job_client.submit(...)  # see above
+# job is now executing on some task runners, but fails
+# so let's retry it
+job_client.retry(job)
+```
+
+```python Python (Async)
+job = await job_client.submit(...)  # see above
+# job is now executing on some task runners, but fails
+# so let's retry it
+await job_client.retry(job)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="job" type="Job">
+  The job to retry.
+</ParamField>
