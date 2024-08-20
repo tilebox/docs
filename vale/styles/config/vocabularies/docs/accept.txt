@@ -16,3 +16,10 @@ accessor
 Pipenv
 Opendata
 APIs
+datapoint
+dataclass
+subtask
+subtasks
+maximum
+subclassing
+Unary

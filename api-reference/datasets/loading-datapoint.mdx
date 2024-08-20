@@ -1,0 +1,48 @@
+---
+title: Loading a Datapoint
+description: How to load a single data point from a collection
+icon: database
+---
+
+To load a single data point from a collection using its id, use the find method on a collection object.
+
+<RequestExample>
+
+```python Python (Sync)
+datapoint_id = "0186d6b6-66cc-fcfd-91df-bbbff72499c3"
+data = collection.find(
+    datapoint_id,
+    skip_data = False,
+)
+```
+
+```python Python (Async)
+datapoint_id = "0186d6b6-66cc-fcfd-91df-bbbff72499c3"
+data = await collection.find(
+    datapoint_id,
+    skip_data = False,
+)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="datapoint_id" type="str">
+  The `UUID` of the datapoint to load.
+</ParamField>
+
+<ParamField path="skip_data" type="bool">
+  If True, the response only contain the [Metadata fields](/timeseries/datasets#common-fields) without the actual
+  dataset specific fields. Defaults to `False`.
+</ParamField>
+
+## Errors
+
+<ParamField path="NotFoundError" type="No such datapoint 0186e6b5-66cc-fcfd-91df-bbbff72499c3">
+  If no data point with the given ID was found in the collection.
+</ParamField>
+
+<ParamField path="ValueError" type="Invalid datapoint id: <value> is not a valid UUID">
+  If the given `datapoint_id` is not a valid UUID.
+</ParamField>

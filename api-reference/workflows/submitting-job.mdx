@@ -1,0 +1,57 @@
+---
+title: Submitting a Job
+description: How to submit a job
+icon: chart-gantt
+---
+
+To execute a workflow, you first need to submit a [job](/workflow/jobs) to the Tilebox API.
+This can be done by calling the `submit` method of a `JobClient` instance.
+
+<RequestExample>
+
+```python Python (Sync)
+from tilebox.workflows import Client
+
+client = Client()
+job_client = client.jobs()
+job = job_client.submit(
+    "my-first-job",
+    MyFirstTask(message="Hello, World!", number=42, data={"key": "value"}),
+    "my-cluster-EdsdUozYprBJDL",
+    max_retries=0,
+)
+```
+
+```python Python (Async)
+from tilebox.workflows.aio import Client
+
+client = Client()
+job_client = await client.jobs()
+job = await job_client.submit(
+    "my-first-job",
+    MyFirstTask(message="Hello, World!", number=42, data={"key": "value"}),
+    "my-cluster-EdsdUozYprBJDL",
+    max_retries=0,
+)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="job_name" type="str">
+  A name for the job.
+</ParamField>
+
+<ParamField path="task" type="Task">
+  A root task for the job. This task is executed first and can submit subtasks to orchestrate a whole workflow.
+</ParamField>
+
+<ParamField path="cluster" type="str">
+  The [cluster slug](/workflows/clusters#managing-clusters) of the cluster to submit the job to.
+</ParamField>
+
+<ParamField path="max_retries" type="int">
+  Specify the maximum number of [retries](/workflows/tasks#retry-handling) for the subtask in case of failure. Defaults
+  to 0.
+</ParamField>

@@ -1,0 +1,27 @@
+---
+title: Cancelling a Job
+description: How to cancel a job
+icon: chart-gantt
+---
+
+The execution of a job can be cancelled by calling the `cancel` method of the `JobClient` instance.
+
+If after cancelling a job you want to resume it, you can [retry](/workflows/api-reference#retrying-a-job) it to undo the cancellation.
+
+<RequestExample>
+
+```python Python (Sync)
+job_client.cancel(job)
+```
+
+```python Python (Async)
+await job_client.cancel(job)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="job" type="Job">
+  The job to cancel.
+</ParamField>

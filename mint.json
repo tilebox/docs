@@ -24,6 +24,11 @@
   },
   "anchors": [
     {
+      "name": "API Reference",
+      "url": "api-reference",
+      "icon": "square-terminal"
+    },
+    {
       "name": "Console",
       "icon": "terminal",
       "url": "https://console.tilebox.com"
@@ -87,6 +92,36 @@
           "group": "Near-Real Time",
           "pages": ["workflows/recurring-tasks", "workflows/cron-triggers", "workflows/storage-event-triggers"]
         }
+      ]
+    },
+    {
+      "group": "Datasets",
+      "pages": [
+        "api-reference/datasets/listing-datasets",
+        "api-reference/datasets/accessing-dataset",
+        "api-reference/datasets/listing-collection",
+        "api-reference/datasets/accessing-collection",
+        "api-reference/datasets/collection-info",
+        "api-reference/datasets/loading-data",
+        "api-reference/datasets/loading-datapoint"
+      ]
+    },
+    {
+      "group": "Workflows",
+      "pages": [
+        "api-reference/workflows/implementing-task",
+        "api-reference/workflows/task-inputs",
+        "api-reference/workflows/subtasks",
+        "api-reference/workflows/task-display-name",
+        "api-reference/workflows/creating-task-runner",
+        "api-reference/workflows/starting-task-runner",
+        "api-reference/workflows/submitting-job",
+        "api-reference/workflows/retrying-job",
+        "api-reference/workflows/cancelling-job",
+        "api-reference/workflows/visualizing-job",
+        "api-reference/workflows/cluster-management",
+        "api-reference/workflows/cache-access",
+        "api-reference/workflows/hierarchical-caches"
       ]
     }
   ],

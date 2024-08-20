@@ -111,7 +111,7 @@ Here is how you can use it.
 visualize(polygon)
 ```
 
-<PolygonMapPlot dataKey="single" />
+<img src="/assets/geometries/single.png" alt="Single visualization" />
 
 The `visualize` helper function also supports a whole list of polygons, which you can use to showcase the data layout of the ERS granules.
 
@@ -119,7 +119,7 @@ The `visualize` helper function also supports a whole list of polygons, which yo
 visualize(geometries)
 ```
 
-<PolygonMapPlot dataKey="multiple" />
+<img src="/assets/geometries/granules.png" alt="Granules visualization" />
 
 ## Format conversion
 
@@ -194,7 +194,7 @@ hull = unary_union(geometries)
 visualize(hull)
 ```
 
-<PolygonMapPlot dataKey="unary_union" />
+<img src="/assets/geometries/unary_union.png" alt="Unary union visualization" />
 
 ## Multi Polygons
 
@@ -243,7 +243,7 @@ array('d', [177.993407, 176.605009, 179.563047, -178.904076, 177.993407])
 array('d', [74.983185, 74.074615, 73.727752, 74.61847, 74.983185])
 ```
 
-<PolygonMapPlot dataKey="antimeridian_buggy" />
+<img src="/assets/geometries/antimeridian_buggy.png" alt="Antimeridian buggy visualization" />
 
 This 2D visualization doesn't seem right. Not only the visualization is wrong, the same also applies for
 calculations which you may want to do. For example, testing whether the granule intersects the 0-meridian gives the wrong result.
@@ -268,7 +268,7 @@ visualize(fixed_polygon)
 print(fixed_polygon.intersects(null_meridian))  # False - this is correct now
 ```
 
-<PolygonMapPlot dataKey="antimeridian_fixed" />
+<img src="/assets/geometries/antimeridian_fixed.png" alt="Antimeridian fixed visualization" />
 
 Since `shapely` is not aware of the spherical nature of the data, the `centroid` of this fixed polygon is still wrong.
 The `antimeridian` package also has a function to correct this.

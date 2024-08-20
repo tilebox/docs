@@ -1,0 +1,21 @@
+---
+title: Starting a Task Runner
+description: How to start a task runner
+icon: list-check
+---
+
+Once you have created a [TaskRunner](/workflows/task-runners), you can start it by calling the `run_forever` method.
+This method start the runner and keep it running until the process is terminated. If no tasks are available, the
+runner idle and wait until work is available.
+
+<RequestExample>
+
+```python Python (Sync)
+runner.run_forever()
+```
+
+```python Python (Async)
+await runner.run_forever()
+```
+
+</RequestExample>
