@@ -95,10 +95,6 @@
       ]
     },
     {
-      "group": "",
-      "pages": ["api-reference/getting-started"]
-    },
-    {
       "group": "Datasets",
       "pages": [
         "api-reference/datasets/listing-datasets",
@@ -125,7 +121,7 @@
         "api-reference/workflows/visualizing-job",
         "api-reference/workflows/cluster-management",
         "api-reference/workflows/cache-access",
-        "api-reference/workflows/hierachical-caches"
+        "api-reference/workflows/hierarchical-caches"
       ]
     }
   ],

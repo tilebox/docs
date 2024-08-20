@@ -1,5 +1,5 @@
 ---
-title: Hireachical Caches
+title: Hierarchical Caches
 description: How to use hierarchical caches
 icon: network-wired
 ---
@@ -9,7 +9,7 @@ by a forward slash / in the key. Cache hierarchies behave in a similar way to fi
 
 <RequestExample>
 
-```python
+```python Python
 class WriterTask(Task):
     def execute(self, context: ExecutionContext):
         context.job_cache["some-group/value_a"] = b"some"
