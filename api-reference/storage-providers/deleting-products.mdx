@@ -1,0 +1,27 @@
+---
+title: Deleting Products
+description: How to delete downloaded products
+icon: database
+---
+
+To delete downloaded products or images again you can use the `delete` method.
+
+<RequestExample>
+
+```python Python (Sync)
+storage_client.delete(path_to_data)
+storage_client.delete(path_to_image)
+```
+
+```python Python (Async)
+await storage_client.delete(path_to_data)
+await storage_client.delete(path_to_image)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="file_or_directory" type="Path">
+  The file or directory to delete.
+</ParamField>

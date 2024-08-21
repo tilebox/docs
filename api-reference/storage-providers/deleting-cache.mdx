@@ -1,0 +1,21 @@
+---
+title: Deleting the Cache
+description: How to delete the download cache
+icon: database
+---
+
+To delete the entire download cache you can use the `destroy_cache` method.
+
+<RequestExample>
+
+```python Python (Sync)
+# careful, this will delete the entire cache directory
+storage_client.destroy_cache()
+```
+
+```python Python (Async)
+# careful, this will delete the entire cache directory
+await storage_client.destroy_cache()
+```
+
+</RequestExample>

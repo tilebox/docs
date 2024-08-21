@@ -1,0 +1,85 @@
+---
+title: Open Data
+description: Learn about the different storage providers that are available in Tilebox.
+---
+
+Tilebox not only provides access to your own, private datasets but also to a growing number of public datasets.
+These datasets are available to all users of Tilebox and are a great way to get started and prototype your applications
+even before data from your own satellites is available.
+
+<Note>
+  If there is an open data dataset you would like to see in Tilebox{" "}
+  <a href="mailto:support@tilebox.com">please get in touch</a>.
+</Note>
+
+## Accessing Open Data through Tilebox
+
+Accessing open data datasets in Tilebox is as easy as accessing your own datasets. Because Tilebox already ingested the required
+metadata for each available dataset for you, you can simply query, preview, and download the data. This allows you to take advantage of
+performance optimizations and simplify your workflows.
+
+By accessing and implementing your applications using the [timeseries datasets API](/datasets), it's easy to start
+prototyping your applications and workflows and then later on switch to your own private data once it becomes available.
+
+## Storage Providers
+
+Tilebox do not host the actual open data satellite products, but instead rely on publicly accessible storage providers which
+provide data access. Using the Tilebox API, you can query the relevant metadata for each dataset and then use Tilebox
+storage API to access the actual data.
+
+Below is a list of the storage providers that Tilebox currently support.
+
+### Alaska Satellite Facility (ASF)
+
+The [Alaska Satellite Facility (ASF)](https://asf.alaska.edu/) is a NASA-funded research center at the University of Alaska Fairbanks.
+ASF supports a wide variety of research and applications using synthetic aperture radar (SAR) and related remote sensing technologies.
+ASF is part of the Geophysical Institute at the University of Alaska Fairbanks.
+
+ASF provides access to different SAR datasets, such as the European Remote-Sensing Satellite (ERS).
+Tilebox currently supports the following ASF datasets:
+
+- ERS SAR
+
+#### Accessing ASF data
+
+You can query ASF metadata without any account, because Tilebox already indexed and ingested the relevant metadata.
+To access and download the actual satellite products, you need an ASF account.
+
+You can create an account for ASF by choosing Sign In in the [ASF Vertex Search Tool](https://search.asf.alaska.edu/).
+
+#### Further reading
+
+- [Getting Started with ASF](https://asf.alaska.edu/getstarted/)
+- [ASF Data Formats and Files](https://asf.alaska.edu/information/data-formats/data-formats-in-depth/)
+- [Vertex](https://search.asf.alaska.edu/) is a web-based search and discovery tool for ASF's SAR data offerings
+
+### Copernicus Data Space
+
+The [Copernicus Data Space](https://dataspace.copernicus.eu/) is an open ecosystem that provides free instant access to
+a wide range of data and services from the Copernicus Sentinel missions.
+
+Tilebox currently supports the following Copernicus Data Space datasets:
+
+- Sentinel 1
+- Sentinel 2
+- Sentinel 3
+- Sentinel 5P
+- Landsat 8
+
+To download data products from the Copernicus Data Space after querying them using the Tilebox API you need
+to [create an account](https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/auth?client_id=cdse-public&response_type=code&scope=openid&redirect_uri=https%3A//dataspace.copernicus.eu/account/confirmed/1)
+and then generate [S3 Credentials here](https://eodata-s3keysmanager.dataspace.copernicus.eu/panel/s3-credentials).
+
+### Umbra Space
+
+[Umbra](https://umbra.space/) satellites generate the highest resolution Synthetic Aperture Radar (SAR) imagery ever offered from space, up to 16-cm resolution.
+SAR can capture images at night, through cloud cover, smoke, and rain. SAR is unique in its abilities to monitor changes.
+The Open Data Program (ODP) features over twenty diverse time-series locations that are updated frequently, allowing users to experiment with SAR's capabilities.
+They offer single-looked spotlight mode in either 16cm, 25cm, 35cm, 50cm, or 1m resolution, and multi-looked spotlight mode.
+The ODP also features an assorted collection of over 250+ images and counting of locations around the world, ranging from emergency response, to gee-whiz sites.
+
+Tilebox currently supports the following Umbra Space datasets:
+
+- Umbra Synthetic Aperture Radar (SAR)
+
+All data is provided with a Creative Commons License (CC by 4.0), which gives you the right to do just about anything you want with it.
