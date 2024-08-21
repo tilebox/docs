@@ -1,0 +1,171 @@
+---
+title: Collections
+description: Learn about Time Series Dataset Collections
+---
+
+Collections are a way of grouping together data points from the same dataset. They are useful for representing
+a logical grouping of data points that are commonly queried together. For example, if you have a dataset
+that contains data from a specific instrument which is onboard different satellites, you may want to group the data
+points from each satellite together into a collection.
+
+## Overview
+
+Here is a quick overview of the API for listing and accessing collections which is covered in this page.
+Some usage examples for different use-cases are provided below.
+
+| Method                | API Reference                                                          | Description                                   |
+| --------------------- | ---------------------------------------------------------------------- | --------------------------------------------- |
+| `dataset.collections` | [Listing collections](/api-reference/datasets/listing-collection)      | List all available collections for a dataset. |
+| `dataset.collection`  | [Accessing a collection](/api-reference/datasets/accessing-collection) | Access an individual collection by its name.  |
+| `collection.info`     | [Collection information](/api-reference/datasets/collection-info)      | Request data information for a collection.    |
+
+Check out the examples below for some common use-cases when working with collections. The examples
+assume that you have already [created a client](/datasets/introduction#creating-a-datasets-client) and
+[listed the available datasets](/api-reference/datasets/listing-datasets).
+
+<CodeGroup>
+
+    ```python Python (Sync)
+    from tilebox.datasets import Client
+
+    client = Client()
+    datasets = client.datasets()
+    ```
+    ```python Python (Async)
+    from tilebox.datasets.aio import Client
+
+    client = Client()
+    datasets = await client.datasets()
+    ```
+
+</CodeGroup>
+
+## Listing collections
+
+Each dataset has a list of collections associated with it. You can list the collections for a dataset using the
+`collections` method on the dataset object.
+
+<CodeGroup>
+  
+  ```python Python (Sync)
+  dataset = datasets.open_data.asf.sentinel1_sar
+  collections = dataset.collections()
+  print(collections)
+  ```
+  
+  ```python Python (Async)
+  dataset = datasets.open_data.asf.sentinel1_sar
+  collections = await dataset.collections()
+  print(collections)
+  ```
+
+</CodeGroup>
+
+```txt Output
+{'Sentinel-1A': Collection Sentinel-1A: [2014-06-15T03:44:43.000 UTC, 2022-12-31T23:57:59.000 UTC] (1209636 data points),
+ 'Sentinel-1B': Collection Sentinel-1B: [2016-09-26T00:02:34.000 UTC, 2021-12-23T06:53:08.000 UTC] (657674 data points)}
+```
+
+The `collections` variable is a dictionary, where the keys are the names of the collections and the values are
+the collection objects themselves. Each collection within a dataset has a unique name. When listing collections, you
+can optionally also request the `availability` of each collection. This returns the time range for which data points
+are available in the collection. This is useful for determining which collections contain data points for a specific
+time range. You can request the availability by passing `availability=True` to the `collections` method (which is set by default).
+
+Additionally you can also request the number of data points in each collection by passing `count=True` to the `collections`
+method.
+
+<CodeGroup>
+  
+  ```python Python (Sync)
+  dataset = datasets.open_data.asf.sentinel1_sar
+  collections = dataset.collections(availability=True, count=True)
+  print(collections)
+  ```
+  
+  ```python Python (Async)
+  dataset = datasets.open_data.asf.sentinel1_sar
+  collections = await dataset.collections(availability=True, count=True)
+  print(collections)
+  ```
+
+</CodeGroup>
+
+```txt Output
+{'Sentinel-1A': Collection Sentinel-1A: [2014-06-15T03:44:43.000 UTC, 2022-12-31T23:57:59.000 UTC] (1209636 data points),
+ 'Sentinel-1B': Collection Sentinel-1B: [2016-09-26T00:02:34.000 UTC, 2021-12-23T06:53:08.000 UTC] (657674 data points)}
+```
+
+## Accessing individual collections
+
+If you have already listed the collections for a dataset using `dataset.collections()`, you can access a
+specific collection by accessing the resulting dictionary of `collections()` with the name of an individual collection.
+You can then use the `info()` method on the collection object to get information
+(name, availability, and count) about the collection.
+
+<CodeGroup>
+  
+  ```python Python (Sync)
+  collections = dataset.collections()
+  sat1 = collections["Sat-1"]
+  collection_info = sat1.info(availability=True, count=True)
+  print(collection_info)
+  ```
+  
+  ```python Python (Async)
+  collections = await dataset.collections()
+  sat1 = collections["Sat-1"]
+  collection_info = await sat1.info(availability=True, count=True)
+  print(collection_info)
+  ```
+
+</CodeGroup>
+
+```txt Output
+Collection Sat-1: [2019-03-07T16:09:17.773000 UTC, 2021-05-23T19:17:23.472000 UTC] (910245 data points)
+```
+
+You can also access a specific collection by using the `collection` method on the dataset object as well.
+This has the advantage that you can directly access the collection without having to list all collections first.
+
+<CodeGroup>
+  
+  ```python Python (Sync)
+  sat1 = dataset.collection("Sat-1")
+  collection_info = sat1.info(availability=True, count=True)
+  print(collection_info)
+  ```
+  
+  ```python Python (Async)
+  sat1 = dataset.collection("Sat-1")
+  collection_info = await sat1.info(availability=True, count=True)
+  print(collection_info)
+  ```
+
+</CodeGroup>
+
+```txt Output
+Collection Sat-1: [2019-03-07T16:09:17.773000 UTC, 2021-05-23T19:17:23.472000 UTC] (910245 data points)
+```
+
+## Errors you may encounter
+
+### NotFoundError
+
+If you try to access a collection with a name that does not exist, a `NotFoundError` error is raised. For example:
+
+<CodeGroup>
+
+```python Python (Sync)
+dataset.collection("Sat-X").info() # raises NotFoundError: 'No such collection Sat-X'
+```
+
+```python Python (Async)
+await dataset.collection("Sat-X").info() # raises NotFoundError: 'No such collection Sat-X'
+```
+
+</CodeGroup>
+
+## Summary
+
+Great, now you know how to list and access collections. Next you can look at [how to query data points from a collection](/datasets/loading-data).

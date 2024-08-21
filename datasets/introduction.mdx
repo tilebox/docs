@@ -3,4 +3,125 @@ title: Introduction
 description: Learn about Tilebox Datasets
 ---
 
-Testing
+As the name suggests, time series datasets refer to a certain kind of datasets where each data point is associated with a timestamp.
+This is a common format for datasets that are collected over time, such as satellite data.
+
+This section covers:
+
+- [Which timeseries datasets are available](/datasets/timeseries#listing-datasets) and how to list them
+- [Which common fields](/datasets/timeseries#common-fields) all time series datasets share
+- [What collections are](/datasets/collections) and how to access them
+- [How to access data](/datasets/loading-data) from a collection for a given time interval
+
+<Note>
+  If you want to quickly look up the name of some API method or the meaning of a specific parameter [check out the
+  complete time series API Reference](/api-reference/datasets/).
+</Note>
+
+## Terminology
+
+Here are some terms used throughout this section.
+
+- **Data points**: time series data points are the individual entities that make up a dataset. Each data point is associated with a timestamp.
+  Each data point consists of a set of fixed [metadata fields](/datasets/timeseries#common-fields) as well as individual fields that are defined on a dataset level.
+- **Datasets**: time series datasets are a container for individual data points. All data points in a time series dataset share the same data type, so all
+  data points in a dataset share the same set of fields.
+- **Collections**: Collections are a way of grouping data points within a dataset. They are useful for representing a logical grouping of data points that are commonly queried together.
+
+## Creating a datasets Client
+
+Prerequisites
+
+- You've [installed](/sdks/python/installation) the `tilebox-datasets` package
+- You've [created](/authentication) a Tilebox API key
+
+With the prerequisites out of the way, you can now create a client instance to start interacting with your Tilebox Datasets.
+
+<CodeGroup>
+
+    ```python Python (Sync)
+    from tilebox.datasets import Client
+
+    client = Client(token="YOUR_TILEBOX_API_KEY")
+    ```
+    ```python Python (Async)
+    from tilebox.datasets.aio import Client
+
+    client = Client(token="YOUR_TILEBOX_API_KEY")
+    ```
+
+</CodeGroup>
+
+As an alternative, you can also set the `TILEBOX_API_KEY` environment variable to your API key and instantiate the client
+without passing the `token` argument. Python automatically pick up the environment variable and use it to authenticate with the API.
+
+<CodeGroup>
+
+    ```python Python (Sync)
+    from tilebox.datasets import Client
+
+    # requires a TILEBOX_API_KEY environment variable
+    client = Client()
+    ```
+    ```python Python (Async)
+    from tilebox.datasets.aio import Client
+
+    # requires a TILEBOX_API_KEY environment variable
+    client = Client()
+    ```
+
+</CodeGroup>
+
+Tilebox datasets offers a standard synchronous API by default, but also give you the option of an async client if you need it.
+
+The synchronous client is great for data exploration in interactive environments like Jupyter notebooks.
+The asynchronous client is great for building production ready applications that need to scale. To find out more
+about the differences between the two clients, check out the [Async support](/sdks/python/async) page.
+
+### Exploring datasets
+
+Now that you have a client instance, you can start exploring the datasets that are available. An easy way to do this
+is to [list all datasets](/api-reference/datasets/listing-datasets) and then using the autocomplete capability
+of your IDE or inside your Jupyter notebook.
+
+<CodeGroup>
+ 
+```python Python (Sync)
+datasets = client.datasets()
+datasets. # trigger autocomplete here to get an overview of the available datasets
+```
+
+```python Python (Async)
+datasets = await client.datasets()
+datasets. # trigger autocomplete here to get an overview of the available datasets
+```
+
+</CodeGroup>
+
+### Errors you might encounter
+
+#### AuthenticationError
+
+`AuthenticationError` is raised when the client is unable to authenticate with the Tilebox API. This can happen when
+the provided API key is invalid or expired. Instantiating a client with an invalid API key does not raise an error
+directly, but only when you try to make a request to the API.
+
+<CodeGroup>
+ 
+```python Python (Sync)
+client = Client(token="invalid-key") # runs without error
+datasets = client.datasets() # raises AuthenticationError
+```
+
+```python Python (Async)
+client = Client(token="invalid-key") # runs without error
+datasets = await client.datasets() # raises AuthenticationError
+```
+
+</CodeGroup>
+
+## Next steps
+
+- [Accessing datasets](/datasets/timeseries)
+- [Async support](/sdks/python/async)
+- [Working with Xarray](/sdks/python/xarray)
