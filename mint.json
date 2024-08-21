@@ -56,12 +56,7 @@
             "sdks/python/installation",
             "sdks/python/xarray",
             "sdks/python/async",
-            "sdks/python/geometries",
-            {
-              "group": "API Reference",
-              "icon": "book",
-              "pages": ["sdks/python/api-reference/datasets", "sdks/python/api-reference/workflows"]
-            }
+            "sdks/python/geometries"
           ]
         },
         {
@@ -73,7 +68,13 @@
     },
     {
       "group": "Datasets",
-      "pages": ["datasets/introduction", "datasets/timeseries", "datasets/collections", "datasets/loading-data"]
+      "pages": [
+        "datasets/introduction",
+        "datasets/timeseries",
+        "datasets/collections",
+        "datasets/loading-data",
+        "datasets/open-data"
+      ]
     },
     {
       "group": "Workflows",
@@ -104,6 +105,18 @@
         "api-reference/datasets/collection-info",
         "api-reference/datasets/loading-data",
         "api-reference/datasets/loading-datapoint"
+      ]
+    },
+    {
+      "group": "Storage Providers",
+      "pages": [
+        "api-reference/storage-providers/creating-storage-client",
+        "api-reference/storage-providers/downloading-products",
+        "api-reference/storage-providers/downloading-quicklook-images",
+        "api-reference/storage-providers/previewing-quicklook-images",
+        "api-reference/storage-providers/deleting-products",
+        "api-reference/storage-providers/deleting-cache",
+        "api-reference/storage-providers/direct-storage-access"
       ]
     },
     {

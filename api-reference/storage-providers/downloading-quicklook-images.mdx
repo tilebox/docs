@@ -1,0 +1,35 @@
+---
+title: Downloading Quicklook Images
+description: How to download quicklook images
+icon: database
+---
+
+In case a storage provider offers quicklook images for products you can download those using the `download_quicklook` method.
+
+<RequestExample>
+
+```python Python (Sync)
+path_to_image = storage_client.download_quicklook(
+    datapoint
+)
+```
+
+```python Python (Async)
+path_to_image = await storage_client.download_quicklook(
+    datapoint
+)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="datapoint" type="xarray.Dataset">
+  The [datapoint](/api-reference/datasets/loading-datapoint) to download a quicklook image for.
+</ParamField>
+
+## Errors
+
+<ParamField path="ValueError" type="No quicklook available for this granule.">
+  If there is no quicklook image available for the given datapoint.
+</ParamField>

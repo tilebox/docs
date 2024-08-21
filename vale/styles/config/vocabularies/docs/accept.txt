@@ -26,3 +26,7 @@ Unary
 iterable
 iterables
 equivalent
+monitor
+SAR's
+ASF's
+quicklook

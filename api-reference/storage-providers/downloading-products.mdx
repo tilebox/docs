@@ -1,0 +1,55 @@
+---
+title: Downloading Products
+description: How to download products
+icon: database
+---
+
+You can download the product file for a given data point using the download method.
+
+<RequestExample>
+
+```python Python (Sync)
+path_to_data = storage_client.download(
+    datapoint,
+    verify=True,
+    extract=True,
+    show_progress=True,
+)
+```
+
+```python Python (Async)
+path_to_data = await storage_client.download(
+    datapoint,
+    verify=True,
+    extract=True,
+    show_progress=True,
+)
+```
+
+</RequestExample>
+
+## Parameters
+
+<ParamField path="datapoint" type="xarray.Dataset">
+  The [datapoint](/api-reference/datasets/loading-datapoint) to download.
+</ParamField>
+<ParamField path="verify" type="bool">
+  Whether to verify the `md5sum` of the downloaded file against the expected `md5sum` stored in the granule metadata.
+  Defaults to `True`. In case the `md5sum` doesn't match a `ValueError` is raised.
+</ParamField>
+<ParamField path="extract" type="bool">
+  Whether to automatically extract the downloaded file in case it's a zip archive. Defaults to `True`. In case the file
+  is not a zip archive a `ValueError` is raised.
+</ParamField>
+<ParamField path="show_progress" type="bool">
+  Whether to show a progress bar while downloading. Defaults to `True`.
+</ParamField>
+
+## Errors
+
+<ParamField path="ValueError" type="md5sum mismatch: The downloaded file is corrupt.">
+  In case the `md5sum` verification failed.
+</ParamField>
+<ParamField path="ValueError" type="Failed to extract: The downloaded file is not a zip file.">
+  If trying to extract a file that is not a zip archive.
+</ParamField>
