@@ -1,0 +1,102 @@
+---
+title: Time Series Data
+description: Learn about Time Series Datasets
+---
+
+Time series datasets are a container for individual data points.
+All data points within a time series dataset share the same data type, they share the same set of fields.
+
+Additionally all time series datasets share a few [common fields](#common-fields).
+One of those, the `time` field enables you to perform time-based data queries on a dataset.
+
+## Overview
+
+Here is a quick overview of the API for listing and accessing datasets which this page covers.
+Some usage examples for different use-cases are provided below.
+
+| Method                                 | API Reference                                                    | Description                  |
+| -------------------------------------- | ---------------------------------------------------------------- | ---------------------------- |
+| `client.datasets`                      | [Listing datasets](/api-reference/datasets/listing-datasets)     | List all available datasets. |
+| `datasets.open_data.asf.sentinel1_sar` | [Accessing a dataset](/api-reference/datasets/accessing-dataset) | Access a specific dataset.   |
+
+## Listing datasets
+
+You can use [your Tilebox Python client instance](/datasets/introduction#creating-a-datasets-client) to access the datasets available to you.
+For example, to access a dataset called dataset in a dataset group called some, you can use the following code.
+
+<CodeGroup>
+
+    ```python Python (Sync)
+    from tilebox.datasets import Client
+
+    client = Client()
+    datasets = client.datasets()
+    dataset = datasets.open_data.asf.sentinel1_sar
+    ```
+    ```python Python (Async)
+    from tilebox.datasets.aio import Client
+
+    client = Client()
+    datasets = await client.datasets()
+    dataset = datasets.open_data.asf.sentinel1_sar
+    ```
+
+</CodeGroup>
+
+Once you have your dataset object, you can then use it to [list the available collections](/datasets/collections) for
+the dataset.
+
+<Note>
+  Tip: if you're using an IDE or an interactive environment with auto-complete you can use it on your client instance to
+  discover the datasets that are available to you. Type `client.` and trigger auto-complete after the dot to do so.
+</Note>
+
+## Common Fields
+
+While the actual data fields between data points of different time series datasets can vary greatly, there are common
+fields that all time series datasets share.
+
+<ParamField path="time" type="datetime">
+  The timestamp associated with each data point. Tilebox uses a milli-second precision for storing and indexing data
+  points. Timestamps are always in UTC.
+</ParamField>
+
+<ParamField path="id" type="string">
+  A [Universally_unique_identifier (UUID)](https://en.wikipedia.org/wiki/Universally_unique_identifier) which uniquely
+  identifies each datapoint. IDs are generated in such a way that sorting them lexicographically also means sorting them
+  by their time field.
+</ParamField>
+
+<ParamField path="ingestion_time" type="datetime">
+  The time the data point was ingested into the Tilebox API. Timestamps are always in UTC.
+</ParamField>
+
+These fields are present on all time series datasets. Together they make up the metadata of a datapoint.
+Each dataset also have its own set of fields that are specific to that dataset.
+
+<Note>
+  Tilebox is using milli-second precision timestamps for storing and indexing data points. If there are data points
+  within one milli-second, they share the same timestamp. Each data point can contain any number of timestamp fields
+  with an arbitrarily higher precision. For telemetry data for example it's common to have timestamp fields using a
+  nanosecond precision.
+</Note>
+
+## Example datapoint
+
+Below is an example datapoint from a time series dataset in the form of an [xarray.Dataset](/sdks/python/xarray).
+It contains the common fields. When using the Tilebox Python client library, you receive the data in this format.
+
+```txt Example timeseries datapoint
+<xarray.Dataset>
+Dimensions:         ()
+Coordinates:
+    time            datetime64[ns] 2023-03-12 16:45:23.532
+    id              <U36 '0186d6b6-66cc-fcfd-91df-bbbff72499c3'
+    ingestion_time   datetime64[ns] 2023-03-12 19:53:12.742
+Data variables:
+    *empty*
+```
+
+<Note>
+    The datatype `<U36` represents a string of **U**nicode characters with a maximum length of 36.
+</Note>

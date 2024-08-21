@@ -23,3 +23,6 @@ subtasks
 maximum
 subclassing
 Unary
+iterable
+iterables
+equivalent

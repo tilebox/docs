@@ -1,0 +1,482 @@
+---
+title: Loading Time Series Data
+description: Learn about how to load data from Time Series Dataset collections
+---
+
+## Overview
+
+Here is a quick overview of the API for loading data from a collection which is covered in this page.
+Some usage examples for different use-cases are provided below.
+
+| Method            | API Reference                                                     | Description                                   |
+| ----------------- | ----------------------------------------------------------------- | --------------------------------------------- |
+| `collection.load` | [Loading data](/api-reference/datasets/loading-data)              | Load data points from a collection.           |
+| `collection.find` | [Loading a data point](/api-reference/datasets/loading-datapoint) | Load a specific data point from a collection. |
+
+Check out the examples below for some common use-cases when loading data from collections. The examples
+assume that you have already [created a client](/datasets/introduction#creating-a-datasets-client) and
+[accessed a specific dataset collection](/datasets/collections).
+
+<CodeGroup>
+
+    ```python Python (Sync)
+    from tilebox.datasets import Client
+
+    client = Client()
+    datasets = client.datasets()
+    collections = datasets.open_data.asf.sentinel1_sar.collections()
+    collection = collections["Sentinel-1A"]
+    ```
+    ```python Python (Async)
+    from tilebox.datasets.aio import Client
+
+    client = Client()
+    datasets = await client.datasets()
+    collections = await datasets.open_data.asf.sentinel1_sar.collections()
+    collection = collections["Sentinel-1A"]
+    ```
+
+</CodeGroup>
+
+## Loading data
+
+The [load](/api-reference/datasets/loading-data) method of a dataset collection object can be used to load data points
+from a collection. It takes a `time_or_interval` parameter that defines the time or time interval for which data should be loaded.
+
+## Time scalars
+
+One common operation is to load all points for a given time, represented by a `TimeScalar`. A `TimeScalar`
+is either a `datetime` object or a string in ISO 8601 format. When you pass a `TimeScalar` to the `load` method, it
+loads all data points that match the specified time. Since the `time` field of data points in a collection is not unique,
+this can result in many data points being returned. If you only want to load a single data point instead, you can
+use [find](/api-reference/datasets/loading-datapoint) instead.
+
+Check out the example below to see how to load a data point at a specific time from a [collection](/datasets/collections).
+
+<CodeGroup>
+  
+  ```python Python (Sync)
+  data = collection.load("2022-05-31 23:59:55.000")
+  print(data)
+  ```
+  
+  ```python Python (Async)
+  data = await collection.load("2022-05-31 23:59:55.000")
+  print(data)
+  ```
+
+</CodeGroup>
+
+```txt Output
+<xarray.Dataset> Size: 549B
+Dimensions:              (time: 1, latlon: 2, n_footprint: 5)
+Coordinates:
+    ingestion_time       (time) datetime64[ns] 8B 2023-10-20T10:04:23
+    id                   (time) <U36 144B '01811c8f-cc78-feb1-d90d-005d16bbd17d'
+  * time                 (time) datetime64[ns] 8B 2022-05-31T23:59:55
+  * latlon               (latlon) <U9 72B 'latitude' 'longitude'
+Dimensions without coordinates: n_footprint
+Data variables: (12/19)
+    granule_name         (time) object 8B 'S1A_IW_RAW__0SDV_20220531T235955_2...
+    processing_level     (time) <U2 8B 'L0'
+    group                (time) object 8B 'S1A_IWDV_0064_0070_043462_165'
+    orbit                (time) int64 8B 43462
+    path                 (time) int64 8B 165
+    frame                (time) int64 8B 64
+    ...                   ...
+    md5sum               (time) object 8B 'e62df566041c36756159b9c0c829428b'
+    quicklook_available  (time) bool 1B False
+    polarization         (time) <U7 28B 'VV_VH'
+    acquisition_mode     (time) <U9 36B 'IW'
+    insar_stack_id       (time) int64 8B 0
+    insar_baseline       (time) float64 8B 0.0
+Attributes:
+    Dataset:  Copernicus Sentinel data 2022. Downloaded from ASF DAAC on 20/1...
+```
+
+<Note>
+  Tilebox uses a millisecond precision for timestamps. If you want to load all data points for a specific second, this
+  is already a [time interval](/datasets/loading-data#time-intervals) request, so take a look at the examples below to
+  learn how to achieve that.
+</Note>
+
+The output of the preceding `load` method is a `xarray.Dataset` object. If you are unfamiliar with Xarray, you can find out
+more about it on the dedicated [Xarray page](/sdks/python/xarray).
+
+## Fetching only metadata
+
+For certain use-cases it can be useful to only load the [time series metadata](/datasets/timeseries#common-fields) of
+data points without loading the actual data fields. This can be achieved by setting the `skip_data` parameter to `True`
+when calling `load`. Check out the example below to see this in action.
+
+<CodeGroup>
+
+```python Python (Sync)
+data = collection.load("2022-05-31 23:59:55.000", skip_data=True)
+print(data)
+```
+
+```python Python (Async)
+data = await collection.load("2022-05-31 23:59:55.000", skip_data=True)
+print(data)
+```
+
+</CodeGroup>
+
+```txt Output
+<xarray.Dataset> Size: 160B
+Dimensions:         (time: 1)
+Coordinates:
+    ingestion_time  (time) datetime64[ns] 8B 2023-10-20T10:04:23
+    id              (time) <U36 144B '01811c8f-cc78-feb1-d90d-005d16bbd17d'
+  * time            (time) datetime64[ns] 8B 2022-05-31T23:59:55
+Data variables:
+    *empty*
+Attributes:
+    Dataset:  Copernicus Sentinel data 2022. Downloaded from ASF DAAC on 20/1...
+```
+
+## Empty response
+
+`load` always return a `xarray.Dataset` object, even if no data points were found for the specified time.
+In that case the returned dataset is empty, but it does not raise an error.
+
+<CodeGroup>
+
+```python Python (Sync)
+time_with_no_data_points = "1997-02-06 10:21:00"
+data = collection.load(time_with_no_data_points)
+print(data)
+```
+
+```python Python (Async)
+time_with_no_data_points = "1997-02-06 10:21:00"
+data = await collection.load(time_with_no_data_points)
+print(data)
+```
+
+</CodeGroup>
+
+```txt Output
+<xarray.Dataset>
+Dimensions:  ()
+Data variables:
+    *empty*
+```
+
+## Timezone handling
+
+Whenever a `TimeScalar` is specified as a string, the time is interpreted as in UTC. If you want to load data for a
+specific time in a different timezone, you can use a `datetime` object instead. In that case the Tilebox API
+internally convert the specified datetime to `UTC` before making a request. The output also always contain UTC
+timestamps, which would need to be manually converted again to different timezones.
+
+<CodeGroup>
+    ```python Python (Sync)
+    from datetime import datetime
+    import pytz
+
+    # Tokyo has a UTC+9 hours offset, so this is the same as 2017-01-01 02:45:35 UTC
+    tokyo_time = pytz.timezone('Asia/Tokyo').localize(datetime(2017, 1, 1, 11, 45, 35))
+    print(tokyo_time)
+    data = collection.load(tokyo_time)
+    print(data)  # time is in UTC since the API always returns UTC timestamps
+    ```
+    ```python Python (Async)
+    from datetime import datetime
+    import pytz
+
+    # Tokyo has a UTC+9 hours offset, so this is the same as 2017-01-01 02:45:35 UTC
+    tokyo_time = pytz.timezone('Asia/Tokyo').localize(datetime(2017, 1, 1, 11, 45, 35))
+    print(tokyo_time)
+    data = await collection.load(tokyo_time)
+    print(data)  # time is in UTC since the API always returns UTC timestamps
+    ```
+
+</CodeGroup>
+
+```txt Output
+2017-05-01 11:45:35+09:00
+<xarray.Dataset>
+Dimensions:         (time: 1)
+Coordinates:
+    ingestion_time  (time) datetime64[ns] 2017-01-01T15:26:32
+    id              (time) <U36 '015957ea-fc98-ab35-2120-c8ba2e25b81b'
+  * time            (time) datetime64[ns] 2017-01-01T02:45:35
+Data variables:
+    ...
+```
+
+## Time intervals
+
+Another common operation is to load data for a specific time interval. This can be done using the `load` method of the dataset collection object.
+
+### TimeInterval tuples
+
+One common way of achieving this is to use a `tuple` of the form `(start, end)` as the `time_or_interval` parameter.
+The `start` and `end` parameters are again `TimeScalar`s and can be specified as either a `datetime` object
+or as a string in ISO 8601 format.
+
+<CodeGroup>
+
+```python Python (Sync)
+interval = ("2017-01-01", "2023-01-01")
+data = collection.load(interval, show_progress=True)
+```
+
+```python Python (Async)
+interval = ("2017-01-01", "2023-01-01")
+data = await collection.load(interval, show_progress=True)
+```
+
+</CodeGroup>
+
+```txt Output
+<xarray.Dataset> Size: 456MB
+Dimensions:              (time: 955942, latlon: 2, n_footprint: 5)
+Coordinates:
+    ingestion_time       (time) datetime64[ns] 8MB 2023-10-20T09:52:37 ... 20...
+    id                   (time) <U36 138MB '01595b4b-fa18-ccaa-61fd-ef0affc61...
+  * time                 (time) datetime64[ns] 8MB 2017-01-01T18:30:23 ... 20...
+  * latlon               (latlon) <U9 72B 'latitude' 'longitude'
+Dimensions without coordinates: n_footprint
+Data variables: (12/19)
+    granule_name         (time) object 8MB 'S1A_IW_RAW__0SDV_20170101T183023_...
+    processing_level     (time) <U2 8MB 'L0' 'L0' 'L0' 'L0' ... 'L0' 'L0' 'L0'
+    group                (time) object 8MB 'S1A_IWDV_0067_0072_014642_045' .....
+    orbit                (time) int64 8MB 14642 14642 14642 ... 46582 46582
+    path                 (time) int64 8MB 45 45 45 45 45 ... 135 135 135 135 135
+    frame                (time) int64 8MB 67 72 77 82 95 ... 1013 1018 1023 1028
+    ...                   ...
+    md5sum               (time) object 8MB '4b932a5c48b3546aa7634d2da4bc3da3'...
+    quicklook_available  (time) bool 956kB False False False ... False False
+    polarization         (time) <U7 27MB 'VV_VH' 'VV_VH' ... 'VV_VH' 'VV_VH'
+    acquisition_mode     (time) <U9 34MB 'IW' 'IW' 'IW' 'IW' ... 'IW' 'IW' 'IW'
+    insar_stack_id       (time) int64 8MB 0 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    insar_baseline       (time) float64 8MB 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
+Attributes:
+    Dataset:  Copernicus Sentinel data 2022. Downloaded from ASF DAAC on 20/1...
+```
+
+<Note>
+  The `show_progress` parameter is optional and can be used to display a [tqdm](https://tqdm.github.io/) progress bar
+  while the data is being loaded.
+</Note>
+
+A time interval specified as a tuple is always interpreted as a half-closed interval. This means that the data start
+time is inclusive, and the end time is exclusive. For example, given the preceding end time of `2023-01-01`, data
+points with a time of `2022-12-31 23:59:59.999` would still be included, but every data point from `2023-01-01
+  00:00:00.000` would not be part of the result. This mimics the behaviour of the Python `range` function and is
+especially useful when chaining time intervals together. For example, the following code fetches the exact same data
+as preceding.
+
+<CodeGroup>
+    ```python Python (Sync)
+    import xarray as xr
+
+    data = []
+    for year in [2017, 2018, 2019, 2020, 2021, 2022]
+        interval = (f"{year}-01-01", f"{year + 1}-01-01")
+        data.append(collection.load(interval, show_progress=True))
+
+    # Concatenate the data into a single dataset, which is equivalent
+    # to the result of the single request in the code example above.
+    data = xr.concat(data, dim="time")
+    ```
+    ```python Python (Async)
+    import xarray as xr
+
+    data = []
+    for year in [2017, 2018, 2019, 2020, 2021, 2022]
+        interval = (f"{year}-01-01", f"{year + 1}-01-01")
+        data.append(await collection.load(interval, show_progress=True))
+
+    # Concatenate the data into a single dataset, which is equivalent
+    # to the result of the single request in the code example above.
+    data = xr.concat(data, dim="time")
+    ```
+
+</CodeGroup>
+
+This code example shows a way to manually split up a large time interval into smaller chunks and make load data in
+different requests. Typically this is not necessary as the API automatically split up large intervals into different
+requests and paginate them for you. But it demonstrates how the half-closed interval behaviour can be useful, since it
+guarantees that there is **no duplicated** data points when chaining requests in that manner.
+
+### TimeInterval objects
+
+In case you want more control whether the start and end time are inclusive or exclusive, you can use an object
+of the `TimeInterval` dataclass instead of a tuple as parameter for `load`. This class allows you to specify the
+`start` and `end` time as well as whether they are inclusive or exclusive. Check out the example below to see two ways
+of creating an equivalent `TimeInterval` object.
+
+<CodeGroup>
+
+    ```python Python (Sync)
+    from datetime import datetime
+    from tilebox.datasets.data import TimeInterval
+
+    interval1 = TimeInterval(
+        datetime(2017, 1, 1), datetime(2023, 1, 1),
+        end_inclusive=False
+    )
+    interval2 = TimeInterval(
+        datetime(2017, 1, 1), datetime(2022, 12, 31, 23, 59, 59, 999999),
+        end_inclusive=True
+    )
+
+    print("Notice the different end characters ) and ] in the interval notations below:")
+    print(interval1)
+    print(interval2)
+    print(f"They are equivalent: {interval1 == interval2}")
+
+    # same operation as above
+    data = collection.load(interval1, show_progress=True)
+    ```
+    ```python Python (Async)
+    from datetime import datetime
+    from tilebox.data import TimeInterval
+
+    interval1 = TimeInterval(
+        datetime(2017, 1, 1), datetime(2023, 1, 1),
+        end_inclusive=False
+    )
+    interval2 = TimeInterval(
+        datetime(2017, 1, 1), datetime(2022, 12, 31, 23, 59, 59, 999999),
+        end_inclusive=True
+    )
+
+    print("Notice the different end characters ) and ] in the interval notations below:")
+    print(interval1)
+    print(interval2)
+    print(f"They are equivalent: {interval1 == interval2}")
+
+    # same operation as above
+    data = await collection.load(interval1, show_progress=True)
+    ```
+
+</CodeGroup>
+
+```txt Output
+Notice the different end characters ) and ] in the interval notations below:
+[2017-01-01T00:00:00.000 UTC, 2023-01-01T00:00:00.000 UTC)
+[2017-01-01T00:00:00.000 UTC, 2022-12-31T23:59:59.999 UTC]
+They are equivalent: True
+```
+
+## Time iterables
+
+Another way of specifying a time interval when loading data is to use an iterable of `TimeScalar`s as the
+`time_or_interval` parameter. This can be especially useful when you want to use the output of a previous call to
+`load` as the input for another call. Check out the example below to see how this can be done.
+
+<CodeGroup>
+    ```python Python (Sync)
+    interval = ("2017-01-01", "2023-01-01")
+    meta_data = collection.load(interval, skip_data=True)
+
+    first_50_data_points = collection.load(meta_data.time[:50], skip_data=False)
+    print(first_50_data_points)
+    ```
+    ```python Python (Async)
+    interval = ("2017-01-01", "2023-01-01")
+    meta_data = await collection.load(interval, skip_data=True)
+
+    first_50_data_points = await collection.load(meta_data.time[:50], skip_data=False)
+    print(first_50_data_points)
+    ```
+
+</CodeGroup>
+
+```txt Output
+<xarray.Dataset> Size: 24kB
+Dimensions:              (time: 50, latlon: 2, n_footprint: 5)
+Coordinates:
+    ingestion_time       (time) datetime64[ns] 400B 2023-10-20T09:52:37 ... 2...
+    id                   (time) <U36 7kB '01595b4b-fa18-ccaa-61fd-ef0affc6100...
+  * time                 (time) datetime64[ns] 400B 2017-01-01T18:30:23 ... 2...
+  * latlon               (latlon) <U9 72B 'latitude' 'longitude'
+Dimensions without coordinates: n_footprint
+Data variables: (12/19)
+    granule_name         (time) object 400B 'S1A_IW_RAW__0SDV_20170101T183023...
+    processing_level     (time) <U2 400B 'L0' 'L0' 'L0' 'L0' ... 'L0' 'L0' 'L0'
+    group                (time) object 400B 'S1A_IWDV_0067_0072_014642_045' ....
+    orbit                (time) int64 400B 14642 14642 14642 ... 14643 14643
+    path                 (time) int64 400B 45 45 45 45 45 45 ... 46 46 46 46 46
+    frame                (time) int64 400B 67 72 77 82 95 ... 210 215 220 259
+    ...                   ...
+    md5sum               (time) object 400B '4b932a5c48b3546aa7634d2da4bc3da3...
+    quicklook_available  (time) bool 50B False False False ... False False False
+    polarization         (time) <U7 1kB 'VV_VH' 'VV_VH' 'VV_VH' ... 'HH' 'HH'
+    acquisition_mode     (time) <U9 2kB 'IW' 'IW' 'IW' 'IW' ... 'IW' 'IW' 'EW'
+    insar_stack_id       (time) int64 400B 0 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    insar_baseline       (time) float64 400B 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
+Attributes:
+    Dataset:  Copernicus Sentinel data 2017. Downloaded from ASF DAAC on 20/1...
+```
+
+This capability is implemented by constructing a `TimeInterval` object from the first and last element of the
+iterable which has both the start and end time inclusive.
+
+## Loading a datapoint by ID
+
+In case you already know the ID of the data point you want to load, you can use the [find method](/api-reference/datasets/loading-datapoint) of a
+[collection](/datasets/collections) instead.
+
+It always return a single data point, or raise an exception if no data point with the specified ID exists in the
+collection. Check out the example below to see how this can be done.
+
+<CodeGroup>
+  
+```python Python (Sync)
+datapoint_id = "01856a9e-2c08-0990-6cc7-9a860b1115a1"
+datapoint = collection.find(datapoint_id)
+print(datapoint)
+```
+
+```python Python (Async)
+datapoint_id = "01856a9e-2c08-0990-6cc7-9a860b1115a1"
+datapoint = await collection.find(datapoint_id)
+print(datapoint)
+```
+
+</CodeGroup>
+
+```txt Output
+<xarray.Dataset> Size: 549B
+Dimensions:              (latlon: 2, n_footprint: 5)
+Coordinates:
+    ingestion_time       datetime64[ns] 8B 2023-10-20T10:05:57
+    id                   <U36 144B '01856a9e-2c08-0990-6cc7-9a860b1115a1'
+    time                 datetime64[ns] 8B 2022-12-31T23:57:09
+  * latlon               (latlon) <U9 72B 'latitude' 'longitude'
+Dimensions without coordinates: n_footprint
+Data variables: (12/19)
+    granule_name         object 8B 'S1A_IW_RAW__0SDV_20221231T235709_20221231...
+    processing_level     <U2 8B 'L0'
+    group                object 8B 'S1A_IWDV_1018_1024_046582_135'
+    orbit                int64 8B 46582
+    path                 int64 8B 135
+    frame                int64 8B 1018
+    ...                   ...
+    md5sum               object 8B '4117ccf3f748ec4651d99076d8f72c5e'
+    quicklook_available   bool 1B False
+    polarization         <U7 28B 'VV_VH'
+    acquisition_mode     <U9 36B 'IW'
+    insar_stack_id       int64 8B 0
+    insar_baseline       float64 8B 0.0
+Attributes:
+    Dataset:  Copernicus Sentinel data 2022. Downloaded from ASF DAAC on 20/1...
+```
+
+Since `find` always only return a single data point, there is no `time` dimension in the output dataset.
+
+<Note>
+  You can also specify the `skip_data` parameter when calling `find` to only load the metadata of the data point, in the
+  same way as with `load`.
+</Note>
+
+### Possible exceptions
+
+- `NotFoundError`: If no data point with the given ID was found in the collection
+- `ValueError`: if the given `datapoint_id` is not a valid UUID
