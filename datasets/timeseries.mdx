@@ -15,10 +15,10 @@ One of those, the `time` field enables you to perform time-based data queries on
 Here is a quick overview of the API for listing and accessing datasets which this page covers.
 Some usage examples for different use-cases are provided below.
 
-| Method                                 | API Reference                                                    | Description                  |
-| -------------------------------------- | ---------------------------------------------------------------- | ---------------------------- |
-| `client.datasets`                      | [Listing datasets](/api-reference/datasets/listing-datasets)     | List all available datasets. |
-| `datasets.open_data.asf.sentinel1_sar` | [Accessing a dataset](/api-reference/datasets/accessing-dataset) | Access a specific dataset.   |
+| Method                                        | API Reference                                                    | Description                  |
+| --------------------------------------------- | ---------------------------------------------------------------- | ---------------------------- |
+| `client.datasets`                             | [Listing datasets](/api-reference/datasets/listing-datasets)     | List all available datasets. |
+| `datasets.open_data.copernicus.sentinel1_sar` | [Accessing a dataset](/api-reference/datasets/accessing-dataset) | Access a specific dataset.   |
 
 ## Listing datasets
 
@@ -32,14 +32,14 @@ For example, to access a dataset called dataset in a dataset group called some, 
 
     client = Client()
     datasets = client.datasets()
-    dataset = datasets.open_data.asf.sentinel1_sar
+    dataset = datasets.open_data.copernicus.sentinel1_sar
     ```
     ```python Python (Async)
     from tilebox.datasets.aio import Client
 
     client = Client()
     datasets = await client.datasets()
-    dataset = datasets.open_data.asf.sentinel1_sar
+    dataset = datasets.open_data.copernicus.sentinel1_sar
     ```
 
 </CodeGroup>

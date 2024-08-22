@@ -25,16 +25,16 @@ assume that you have already [created a client](/datasets/introduction#creating-
 
     client = Client()
     datasets = client.datasets()
-    collections = datasets.open_data.asf.sentinel1_sar.collections()
-    collection = collections["Sentinel-1A"]
+    collections = datasets.open_data.copernicus.sentinel1_sar.collections()
+    collection = collections["S1A_IW_RAW__0S"]
     ```
     ```python Python (Async)
     from tilebox.datasets.aio import Client
 
     client = Client()
     datasets = await client.datasets()
-    collections = await datasets.open_data.asf.sentinel1_sar.collections()
-    collection = collections["Sentinel-1A"]
+    collections = await datasets.open_data.copernicus.sentinel1_sar.collections()
+    collection = collections["S1A_IW_RAW__0S"]
     ```
 
 </CodeGroup>
@@ -57,42 +57,39 @@ Check out the example below to see how to load a data point at a specific time f
 <CodeGroup>
   
   ```python Python (Sync)
-  data = collection.load("2022-05-31 23:59:55.000")
+  data = collection.load("2024-08-01 00:00:01.362")
   print(data)
   ```
   
   ```python Python (Async)
-  data = await collection.load("2022-05-31 23:59:55.000")
+  data = await collection.load("2024-08-01 00:00:01.362")
   print(data)
   ```
 
 </CodeGroup>
 
 ```txt Output
-<xarray.Dataset> Size: 549B
-Dimensions:              (time: 1, latlon: 2, n_footprint: 5)
+<xarray.Dataset> Size: 721B
+Dimensions:                (time: 1, latlon: 2)
 Coordinates:
-    ingestion_time       (time) datetime64[ns] 8B 2023-10-20T10:04:23
-    id                   (time) <U36 144B '01811c8f-cc78-feb1-d90d-005d16bbd17d'
-  * time                 (time) datetime64[ns] 8B 2022-05-31T23:59:55
-  * latlon               (latlon) <U9 72B 'latitude' 'longitude'
-Dimensions without coordinates: n_footprint
-Data variables: (12/19)
-    granule_name         (time) object 8B 'S1A_IW_RAW__0SDV_20220531T235955_2...
-    processing_level     (time) <U2 8B 'L0'
-    group                (time) object 8B 'S1A_IWDV_0064_0070_043462_165'
-    orbit                (time) int64 8B 43462
-    path                 (time) int64 8B 165
-    frame                (time) int64 8B 64
-    ...                   ...
-    md5sum               (time) object 8B 'e62df566041c36756159b9c0c829428b'
-    quicklook_available  (time) bool 1B False
-    polarization         (time) <U7 28B 'VV_VH'
-    acquisition_mode     (time) <U9 36B 'IW'
-    insar_stack_id       (time) int64 8B 0
-    insar_baseline       (time) float64 8B 0.0
-Attributes:
-    Dataset:  Copernicus Sentinel data 2022. Downloaded from ASF DAAC on 20/1...
+    ingestion_time         (time) datetime64[ns] 8B 2024-08-01T08:53:08.450499
+    id                     (time) <U36 144B '01910b3c-8552-7671-3345-b902cc08...
+  * time                   (time) datetime64[ns] 8B 2024-08-01T00:00:01.362000
+  * latlon                 (latlon) <U9 72B 'latitude' 'longitude'
+Data variables: (12/30)
+    granule_name           (time) object 8B 'S1A_IW_RAW__0SDV_20240801T000001...
+    processing_level       (time) <U2 8B 'L0'
+    satellite              (time) object 8B 'SENTINEL-1'
+    flight_direction       (time) <U9 36B 'ASCENDING'
+    product_type           (time) object 8B 'IW_RAW__0S'
+    copernicus_id          (time) <U36 144B 'aaa523a5-b8c3-4de9-bd11-3d587ac6...
+    ...                     ...
+    acquisition_mode       (time) <U2 8B 'IW'
+    bands                  (time) int64 8B 0
+    path                   (time) int64 8B 0
+    row                    (time) int64 8B 0
+    sun_azimuth            (time) float64 8B 0.0
+    sun_elevation          (time) float64 8B 0.0
 ```
 
 <Note>
@@ -113,12 +110,12 @@ when calling `load`. Check out the example below to see this in action.
 <CodeGroup>
 
 ```python Python (Sync)
-data = collection.load("2022-05-31 23:59:55.000", skip_data=True)
+data = collection.load("2024-08-01 00:00:01.362", skip_data=True)
 print(data)
 ```
 
 ```python Python (Async)
-data = await collection.load("2022-05-31 23:59:55.000", skip_data=True)
+data = await collection.load("2024-08-01 00:00:01.362", skip_data=True)
 print(data)
 ```
 
@@ -128,13 +125,11 @@ print(data)
 <xarray.Dataset> Size: 160B
 Dimensions:         (time: 1)
 Coordinates:
-    ingestion_time  (time) datetime64[ns] 8B 2023-10-20T10:04:23
-    id              (time) <U36 144B '01811c8f-cc78-feb1-d90d-005d16bbd17d'
-  * time            (time) datetime64[ns] 8B 2022-05-31T23:59:55
+    ingestion_time  (time) datetime64[ns] 8B 2024-08-01T08:53:08.450499
+    id              (time) <U36 144B '01910b3c-8552-7671-3345-b902cc0813f3'
+  * time            (time) datetime64[ns] 8B 2024-08-01T00:00:01.362000
 Data variables:
     *empty*
-Attributes:
-    Dataset:  Copernicus Sentinel data 2022. Downloaded from ASF DAAC on 20/1...
 ```
 
 ## Empty response
@@ -159,7 +154,7 @@ print(data)
 </CodeGroup>
 
 ```txt Output
-<xarray.Dataset>
+<xarray.Dataset> Size: 0B
 Dimensions:  ()
 Data variables:
     *empty*
@@ -177,8 +172,8 @@ timestamps, which would need to be manually converted again to different timezon
     from datetime import datetime
     import pytz
 
-    # Tokyo has a UTC+9 hours offset, so this is the same as 2017-01-01 02:45:35 UTC
-    tokyo_time = pytz.timezone('Asia/Tokyo').localize(datetime(2017, 1, 1, 11, 45, 35))
+    # Tokyo has a UTC+9 hours offset, so this is the same as 2017-01-01 02:45:25.679 UTC
+    tokyo_time = pytz.timezone('Asia/Tokyo').localize(datetime(2017, 1, 1, 11, 45, 25, 679000))
     print(tokyo_time)
     data = collection.load(tokyo_time)
     print(data)  # time is in UTC since the API always returns UTC timestamps
@@ -187,8 +182,8 @@ timestamps, which would need to be manually converted again to different timezon
     from datetime import datetime
     import pytz
 
-    # Tokyo has a UTC+9 hours offset, so this is the same as 2017-01-01 02:45:35 UTC
-    tokyo_time = pytz.timezone('Asia/Tokyo').localize(datetime(2017, 1, 1, 11, 45, 35))
+    # Tokyo has a UTC+9 hours offset, so this is the same as 2017-01-01 02:45:25.679 UTC
+    tokyo_time = pytz.timezone('Asia/Tokyo').localize(datetime(2017, 1, 1, 11, 45, 25, 679000))
     print(tokyo_time)
     data = await collection.load(tokyo_time)
     print(data)  # time is in UTC since the API always returns UTC timestamps
@@ -197,13 +192,14 @@ timestamps, which would need to be manually converted again to different timezon
 </CodeGroup>
 
 ```txt Output
-2017-05-01 11:45:35+09:00
-<xarray.Dataset>
-Dimensions:         (time: 1)
+2017-01-01 11:45:25.679000+09:00
+<xarray.Dataset> Size: 725B
+Dimensions:                (time: 1, latlon: 2)
 Coordinates:
-    ingestion_time  (time) datetime64[ns] 2017-01-01T15:26:32
-    id              (time) <U36 '015957ea-fc98-ab35-2120-c8ba2e25b81b'
-  * time            (time) datetime64[ns] 2017-01-01T02:45:35
+    ingestion_time         (time) datetime64[ns] 8B 2024-06-21T11:03:33.852435
+    id                     (time) <U36 144B '015957ea-d82f-e454-34ab-a87603ee...
+  * time                   (time) datetime64[ns] 8B 2017-01-01T02:45:25.679000
+  * latlon                 (latlon) <U9 72B 'latitude' 'longitude'
 Data variables:
     ...
 ```
@@ -233,30 +229,27 @@ data = await collection.load(interval, show_progress=True)
 </CodeGroup>
 
 ```txt Output
-<xarray.Dataset> Size: 456MB
-Dimensions:              (time: 955942, latlon: 2, n_footprint: 5)
+<xarray.Dataset> Size: 725MB
+Dimensions:                (time: 1109597, latlon: 2)
 Coordinates:
-    ingestion_time       (time) datetime64[ns] 8MB 2023-10-20T09:52:37 ... 20...
-    id                   (time) <U36 138MB '01595b4b-fa18-ccaa-61fd-ef0affc61...
-  * time                 (time) datetime64[ns] 8MB 2017-01-01T18:30:23 ... 20...
-  * latlon               (latlon) <U9 72B 'latitude' 'longitude'
-Dimensions without coordinates: n_footprint
-Data variables: (12/19)
-    granule_name         (time) object 8MB 'S1A_IW_RAW__0SDV_20170101T183023_...
-    processing_level     (time) <U2 8MB 'L0' 'L0' 'L0' 'L0' ... 'L0' 'L0' 'L0'
-    group                (time) object 8MB 'S1A_IWDV_0067_0072_014642_045' .....
-    orbit                (time) int64 8MB 14642 14642 14642 ... 46582 46582
-    path                 (time) int64 8MB 45 45 45 45 45 ... 135 135 135 135 135
-    frame                (time) int64 8MB 67 72 77 82 95 ... 1013 1018 1023 1028
-    ...                   ...
-    md5sum               (time) object 8MB '4b932a5c48b3546aa7634d2da4bc3da3'...
-    quicklook_available  (time) bool 956kB False False False ... False False
-    polarization         (time) <U7 27MB 'VV_VH' 'VV_VH' ... 'VV_VH' 'VV_VH'
-    acquisition_mode     (time) <U9 34MB 'IW' 'IW' 'IW' 'IW' ... 'IW' 'IW' 'IW'
-    insar_stack_id       (time) int64 8MB 0 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
-    insar_baseline       (time) float64 8MB 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
-Attributes:
-    Dataset:  Copernicus Sentinel data 2022. Downloaded from ASF DAAC on 20/1...
+    ingestion_time         (time) datetime64[ns] 9MB 2024-06-21T11:03:33.8524...
+    id                     (time) <U36 160MB '01595763-bae7-a646-99a5-d7f40d7...
+  * time                   (time) datetime64[ns] 9MB 2017-01-01T00:17:50.8230...
+  * latlon                 (latlon) <U9 72B 'latitude' 'longitude'
+Data variables: (12/30)
+    granule_name           (time) object 9MB 'S1A_IW_RAW__0SSV_20170101T00175...
+    processing_level       (time) <U2 9MB 'L0' 'L0' 'L0' 'L0' ... 'L0' 'L0' 'L0'
+    satellite              (time) object 9MB 'SENTINEL-1' ... 'SENTINEL-1'
+    flight_direction       (time) <U10 44MB 'ASCENDING' ... 'ASCENDING'
+    product_type           (time) object 9MB 'IW_RAW__0S' ... 'IW_RAW__0S'
+    copernicus_id          (time) <U36 160MB 'f3f6ec28-0f72-5d28-9e14-93f96b3...
+    ...                     ...
+    acquisition_mode       (time) <U2 9MB 'IW' 'IW' 'IW' 'IW' ... 'IW' 'IW' 'IW'
+    bands                  (time) int64 9MB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    path                   (time) int64 9MB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    row                    (time) int64 9MB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    sun_azimuth            (time) float64 9MB 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0
+    sun_elevation          (time) float64 9MB 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0
 ```
 
 <Note>
@@ -390,30 +383,27 @@ Another way of specifying a time interval when loading data is to use an iterabl
 </CodeGroup>
 
 ```txt Output
-<xarray.Dataset> Size: 24kB
-Dimensions:              (time: 50, latlon: 2, n_footprint: 5)
+<xarray.Dataset> Size: 33kB
+Dimensions:                (time: 50, latlon: 2)
 Coordinates:
-    ingestion_time       (time) datetime64[ns] 400B 2023-10-20T09:52:37 ... 2...
-    id                   (time) <U36 7kB '01595b4b-fa18-ccaa-61fd-ef0affc6100...
-  * time                 (time) datetime64[ns] 400B 2017-01-01T18:30:23 ... 2...
-  * latlon               (latlon) <U9 72B 'latitude' 'longitude'
-Dimensions without coordinates: n_footprint
-Data variables: (12/19)
-    granule_name         (time) object 400B 'S1A_IW_RAW__0SDV_20170101T183023...
-    processing_level     (time) <U2 400B 'L0' 'L0' 'L0' 'L0' ... 'L0' 'L0' 'L0'
-    group                (time) object 400B 'S1A_IWDV_0067_0072_014642_045' ....
-    orbit                (time) int64 400B 14642 14642 14642 ... 14643 14643
-    path                 (time) int64 400B 45 45 45 45 45 45 ... 46 46 46 46 46
-    frame                (time) int64 400B 67 72 77 82 95 ... 210 215 220 259
-    ...                   ...
-    md5sum               (time) object 400B '4b932a5c48b3546aa7634d2da4bc3da3...
-    quicklook_available  (time) bool 50B False False False ... False False False
-    polarization         (time) <U7 1kB 'VV_VH' 'VV_VH' 'VV_VH' ... 'HH' 'HH'
-    acquisition_mode     (time) <U9 2kB 'IW' 'IW' 'IW' 'IW' ... 'IW' 'IW' 'EW'
-    insar_stack_id       (time) int64 400B 0 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
-    insar_baseline       (time) float64 400B 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0
-Attributes:
-    Dataset:  Copernicus Sentinel data 2017. Downloaded from ASF DAAC on 20/1...
+    ingestion_time         (time) datetime64[ns] 400B 2024-06-21T11:03:33.852...
+    id                     (time) <U36 7kB '01595763-bae7-a646-99a5-d7f40d7e6...
+  * time                   (time) datetime64[ns] 400B 2017-01-01T00:17:50.823...
+  * latlon                 (latlon) <U9 72B 'latitude' 'longitude'
+Data variables: (12/30)
+    granule_name           (time) object 400B 'S1A_IW_RAW__0SSV_20170101T0017...
+    processing_level       (time) <U2 400B 'L0' 'L0' 'L0' ... 'L0' 'L0' 'L0'
+    satellite              (time) object 400B 'SENTINEL-1' ... 'SENTINEL-1'
+    flight_direction       (time) <U10 2kB 'ASCENDING' ... 'DESCENDING'
+    product_type           (time) object 400B 'IW_RAW__0S' ... 'IW_RAW__0S'
+    copernicus_id          (time) <U36 7kB 'f3f6ec28-0f72-5d28-9e14-93f96b342...
+    ...                     ...
+    acquisition_mode       (time) <U2 400B 'IW' 'IW' 'IW' ... 'IW' 'IW' 'IW'
+    bands                  (time) int64 400B 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    path                   (time) int64 400B 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    row                    (time) int64 400B 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    sun_azimuth            (time) float64 400B 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0
+    sun_elevation          (time) float64 400B 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0
 ```
 
 This capability is implemented by constructing a `TimeInterval` object from the first and last element of the
@@ -430,13 +420,13 @@ collection. Check out the example below to see how this can be done.
 <CodeGroup>
   
 ```python Python (Sync)
-datapoint_id = "01856a9e-2c08-0990-6cc7-9a860b1115a1"
+datapoint_id = "01916d89-ba23-64c9-e383-3152644bcbde"
 datapoint = collection.find(datapoint_id)
 print(datapoint)
 ```
 
 ```python Python (Async)
-datapoint_id = "01856a9e-2c08-0990-6cc7-9a860b1115a1"
+datapoint_id = "01916d89-ba23-64c9-e383-3152644bcbde"
 datapoint = await collection.find(datapoint_id)
 print(datapoint)
 ```
@@ -444,30 +434,27 @@ print(datapoint)
 </CodeGroup>
 
 ```txt Output
-<xarray.Dataset> Size: 549B
-Dimensions:              (latlon: 2, n_footprint: 5)
+<xarray.Dataset> Size: 725B
+Dimensions:                (latlon: 2)
 Coordinates:
-    ingestion_time       datetime64[ns] 8B 2023-10-20T10:05:57
-    id                   <U36 144B '01856a9e-2c08-0990-6cc7-9a860b1115a1'
-    time                 datetime64[ns] 8B 2022-12-31T23:57:09
-  * latlon               (latlon) <U9 72B 'latitude' 'longitude'
-Dimensions without coordinates: n_footprint
-Data variables: (12/19)
-    granule_name         object 8B 'S1A_IW_RAW__0SDV_20221231T235709_20221231...
-    processing_level     <U2 8B 'L0'
-    group                object 8B 'S1A_IWDV_1018_1024_046582_135'
-    orbit                int64 8B 46582
-    path                 int64 8B 135
-    frame                int64 8B 1018
-    ...                   ...
-    md5sum               object 8B '4117ccf3f748ec4651d99076d8f72c5e'
-    quicklook_available   bool 1B False
-    polarization         <U7 28B 'VV_VH'
-    acquisition_mode     <U9 36B 'IW'
-    insar_stack_id       int64 8B 0
-    insar_baseline       float64 8B 0.0
-Attributes:
-    Dataset:  Copernicus Sentinel data 2022. Downloaded from ASF DAAC on 20/1...
+    ingestion_time         datetime64[ns] 8B 2024-08-20T05:53:08.600528
+    id                     <U36 144B '01916d89-ba23-64c9-e383-3152644bcbde'
+    time                   datetime64[ns] 8B 2024-08-20T02:07:08.323000
+  * latlon                 (latlon) <U9 72B 'latitude' 'longitude'
+Data variables: (12/30)
+    granule_name           object 8B 'S1A_IW_RAW__0SDV_20240820T020708_202408...
+    processing_level       <U2 8B 'L0'
+    satellite              object 8B 'SENTINEL-1'
+    flight_direction       <U10 40B 'DESCENDING'
+    product_type           object 8B 'IW_RAW__0S'
+    copernicus_id          <U36 144B 'e4f25888-825d-4c70-87cd-dd5a5ced7930'
+    ...                     ...
+    acquisition_mode       <U2 8B 'IW'
+    bands                  int64 8B 0
+    path                   int64 8B 0
+    row                    int64 8B 0
+    sun_azimuth            float64 8B 0.0
+    sun_elevation          float64 8B 0.0
 ```
 
 Since `find` always only return a single data point, there is no `time` dimension in the output dataset.
