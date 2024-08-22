@@ -24,16 +24,26 @@ The Tilebox Python client provides access to your satellite data in the form of 
 [xarray.Dataset](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset). This brings a great
 number of benefits compared to custom Tilebox specific data structures such as:
 
-- **Familiarity**: Xarray is built on top of NumPy and Pandas, which are two of the most popular Python libraries for
-  scientific computing. If you are already familiar with these libraries, you are right at home with Xarray.
-- **Performance**: By using NumPy under the hood, which in turn is built on top of C and Fortran, Xarray benefits from
-  all the performance optimizations that those libraries offer. This means that Xarray is fast and can handle large
-  datasets with ease.
-- **Interoperability**: Xarray is a popular library and is used by many other libraries. This means that you can
-  easily integrate Xarray into your existing workflows. Many third party libraries are available to extend Xarray
-  with more capability for different use cases.
-- **Flexibility**: Xarray is a flexible library and can be used for a wide range of use-cases. It's also
-  easy to extend Xarray with custom capability.
+<AccordionGroup>
+  <Accordion title="Familiarity">
+    Xarray is built on top of NumPy and Pandas, which are two of the most popular Python libraries for scientific
+    computing. If you are already familiar with these libraries, you are right at home with Xarray.
+  </Accordion>
+  <Accordion title="Performance">
+    By using NumPy under the hood, which in turn is built on top of C and Fortran, Xarray benefits from all the
+    performance optimizations that those libraries offer. This means that Xarray is fast and can handle large datasets
+    with ease.
+  </Accordion>
+  <Accordion title="Interoperability">
+    Xarray is a popular library and is used by many other libraries. This means that you can easily integrate Xarray
+    into your existing workflows. Many third party libraries are available to extend Xarray with more capability for
+    different use cases.
+  </Accordion>
+  <Accordion title="Flexibility">
+    Xarray is a flexible library and can be used for a wide range of use-cases. It's also easy to extend Xarray with
+    custom capability.
+  </Accordion>
+</AccordionGroup>
 
 ## An example dataset
 
@@ -354,8 +364,35 @@ or check out the [Xarray Tutorials](https://tutorial.xarray.dev/intro.html).
 
 Some useful capability that this section did not cover include:
 
-- [Grouping data](https://docs.xarray.dev/en/stable/user-guide/groupby.html)
-- [Computation](https://docs.xarray.dev/en/stable/user-guide/computation.html)
-- [Time series specific functionality](https://docs.xarray.dev/en/stable/user-guide/time-series.html)
-- [Interpolation](https://docs.xarray.dev/en/latest/user-guide/interpolation.html)
-- [Plotting](https://docs.xarray.dev/en/latest/user-guide/plotting.html)
+<CardGroup cols={2}>
+  <Card
+    title="Grouping data"
+    icon="layer-group"
+    href="https://docs.xarray.dev/en/stable/user-guide/groupby.html"
+    horizontal
+  />
+  <Card
+    title="Computation"
+    icon="calculator"
+    href="https://docs.xarray.dev/en/stable/user-guide/computation.html"
+    horizontal
+  />
+  <Card
+    title="Time series specific functionality"
+    icon="clock"
+    href="https://docs.xarray.dev/en/stable/user-guide/time-series.html"
+    horizontal
+  />
+  <Card
+    title="Interpolation"
+    icon="arrows-left-right"
+    href="https://docs.xarray.dev/en/latest/user-guide/interpolation.html"
+    horizontal
+  />
+  <Card
+    title="Plotting"
+    icon="chart-bar"
+    href="https://docs.xarray.dev/en/latest/user-guide/plotting.html"
+    horizontal
+  />
+</CardGroup>

@@ -9,10 +9,20 @@ This is a common format for datasets that are collected over time, such as satel
 
 This section covers:
 
-- [Which timeseries datasets are available](/datasets/timeseries#listing-datasets) and how to list them
-- [Which common fields](/datasets/timeseries#common-fields) all time series datasets share
-- [What collections are](/datasets/collections) and how to access them
-- [How to access data](/datasets/loading-data) from a collection for a given time interval
+<CardGroup cols={2}>
+  <Card title="Available Datasets" icon="list" href="/datasets/timeseries#listing-datasets" horizontal>
+    Which time series datasets are available and how to list them.
+  </Card>
+  <Card title="Common Fields" icon="file-code" href="/datasets/timeseries#common-fields" horizontal>
+    Which common fields all time series datasets share.
+  </Card>
+  <Card title="Collections" icon="layer-group" href="/datasets/collections" horizontal>
+    What collections are and how to access them.
+  </Card>
+  <Card title="Loading Data" icon="download" href="/datasets/loading-data" horizontal>
+    How to access data from a collection for a given time interval.
+  </Card>
+</CardGroup>
 
 <Note>
   If you want to quickly look up the name of some API method or the meaning of a specific parameter [check out the
@@ -23,11 +33,21 @@ This section covers:
 
 Here are some terms used throughout this section.
 
-- **Data points**: time series data points are the individual entities that make up a dataset. Each data point is associated with a timestamp.
-  Each data point consists of a set of fixed [metadata fields](/datasets/timeseries#common-fields) as well as individual fields that are defined on a dataset level.
-- **Datasets**: time series datasets are a container for individual data points. All data points in a time series dataset share the same data type, so all
-  data points in a dataset share the same set of fields.
-- **Collections**: Collections are a way of grouping data points within a dataset. They are useful for representing a logical grouping of data points that are commonly queried together.
+<AccordionGroup>
+  <Accordion title="Data points">
+    Time series data points are the individual entities that make up a dataset. Each data point is associated with a
+    timestamp. Each data point consists of a set of fixed [metadata fields](/datasets/timeseries#common-fields) as well
+    as individual fields that are defined on a dataset level.
+  </Accordion>
+  <Accordion title="Datasets">
+    Time series datasets are a container for individual data points. All data points in a time series dataset share the
+    same data type, so all data points in a dataset share the same set of fields.
+  </Accordion>
+  <Accordion title="Collections">
+    Collections are a way of grouping data points within a dataset. They are useful for representing a logical grouping
+    of data points that are commonly queried together.
+  </Accordion>
+</AccordionGroup>
 
 ## Creating a datasets Client
 
@@ -123,6 +143,8 @@ datasets = await client.datasets() # raises AuthenticationError
 
 ## Next steps
 
-- [Accessing datasets](/datasets/timeseries)
-- [Async support](/sdks/python/async)
-- [Working with Xarray](/sdks/python/xarray)
+<CardGroup cols={2}>
+  <Card title="Accessing datasets" icon="database" href="/datasets/timeseries" horizontal />
+  <Card title="Async support" icon="rotate" href="/sdks/python/async" horizontal />
+  <Card title="Working with Xarray" icon="chart-bar" href="/sdks/python/xarray" horizontal />
+</CardGroup>
