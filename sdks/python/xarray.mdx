@@ -4,6 +4,8 @@ description: Xarray library, common use-cases and how they can be implemented ea
 icon: chart-bar
 ---
 
+[example_satellite_data.nc]: https://github.com/tilebox/docs/raw/main/assets/data/example_satellite_data.nc
+
 [Xarray](https://xarray.dev/) is a library for working with labelled multi-dimensional arrays.
 Xarray is built on top of [NumPy](https://numpy.org/) and [Pandas](https://pandas.pydata.org/). Xarray introduces labels in
 the form of dimensions, coordinates and attributes on top of raw NumPy-like arrays, which allows for a more intuitive,
@@ -100,7 +102,7 @@ Data variables: (12/28)
 
 <Note>
   This is a simple dataset that was generated to showcase some common Xarray use-cases. If you want to follow along, you
-  can [download the dataset as a NetCDF file](/assets/data/example_satellite_data.nc). The [Reading and writing files
+  can [download the dataset as a NetCDF file][example_satellite_data.nc]. The [Reading and writing files
   section](/sdks/python/xarray#reading-and-writing-files) explains how to save and load Xarray datasets to and from
   NetCDF files.
 </Note>
@@ -416,7 +418,7 @@ satellite_data = xr.open_dataset("example_satellite_data.nc")
 ```
 
 In case you want to follow along with the examples in this section, you can download the example dataset as a NetCDF
-file [here](/assets/data/example_satellite_data.nc).
+file [here][example_satellite_data.nc].
 
 ## Further reading
 
