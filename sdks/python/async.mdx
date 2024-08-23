@@ -43,11 +43,11 @@ Check out the examples below to see how that works for a few examples.
 datasets = client.datasets()
 
 # Listing collections
-dataset = datasets.open_data.asf.sentinel1_sar
+dataset = datasets.open_data.copernicus.sentinel1_sar
 collections = dataset.collections()
 
 # Collection information
-collection = collections["Sentinel-1A"]
+collection = collections["S1A_IW_RAW__0S"]
 info = collection.info()
 print(f"Data for My-collection is available for {info.availability}")
 
@@ -55,7 +55,7 @@ print(f"Data for My-collection is available for {info.availability}")
 data = collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
 
 # Finding a specific datapoint
-datapoint_uuid = "01811c8f-0928-e6f5-df34-364cfa8a86e8"
+datapoint_uuid = "01910b3c-8552-7671-3345-b902cc0813f3"
 datapoint = collection.find(datapoint_uuid)
 ```
 
@@ -64,11 +64,11 @@ datapoint = collection.find(datapoint_uuid)
 datasets = await client.datasets()
 
 # Listing collections
-dataset = datasets.open_data.asf.sentinel1_sar
+dataset = datasets.open_data.copernicus.sentinel1_sar
 collections = await dataset.collections()
 
 # Collection information
-collection = collections["Sentinel-1A"]
+collection = collections["S1A_IW_RAW__0S"]
 info = await collection.info()
 print(f"Data for My-collection is available for {info.availability}")
 
@@ -76,7 +76,7 @@ print(f"Data for My-collection is available for {info.availability}")
 data = await collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
 
 # Finding a specific datapoint
-datapoint_uuid = "01811c8f-0928-e6f5-df34-364cfa8a86e8"
+datapoint_uuid = "01910b3c-8552-7671-3345-b902cc0813f3"
 datapoint = await collection.find(datapoint_uuid)
 ```
 
@@ -110,13 +110,13 @@ from tilebox.datasets.timeseries import RemoteTimeseriesDatasetCollection  # for
 
 client = Client()
 datasets = client.datasets()
-collections = datasets.open_data.asf.sentinel1_sar.collections()
+collections = datasets.open_data.copernicus.landsat8_oli_tirs.collections()
 
 def stats_for_2020(collection: RemoteTimeseriesDatasetCollection) -> None:
     """Fetch data for 2020 and print the number of data points that were loaded."""
     data = collection.load(("2020-01-01", "2021-01-01"), show_progress=True)
     n = data.sizes['time'] if 'time' in data else 0
-    print(f"There are {data.sizes['time']} datapoints in {collection.name} for 2020.")
+    print(f"There are {n} datapoints in {collection.name} for 2020.")
 
 start = time.time()
 
@@ -139,13 +139,13 @@ from tilebox.datasets.timeseries import RemoteTimeseriesDatasetCollection  # for
 
 client = Client()
 datasets = await client.datasets()
-collections = await datasets.open_data.asf.sentinel1_sar.collections()
+collections = await datasets.open_data.copernicus.landsat8_oli_tirs.collections()
 
 async def stats_for_2020(collection: RemoteTimeseriesDatasetCollection) -> None:
     """Fetch data for 2020 and print the number of data points that were loaded."""
     data = await collection.load(("2020-01-01", "2021-01-01"), show_progress=True)
     n = data.sizes['time'] if 'time' in data else 0
-    print(f"There are {data.sizes['time']} datapoints in {collection.name} for 2020.")
+    print(f"There are {n} datapoints in {collection.name} for 2020.")
 
 start = time.time()
 
@@ -167,19 +167,19 @@ so it finishes first.
 <CodeGroup>
 
 ```txt Python (Sync)
-Fetching data: 100% |██████████████████████████████ [00:13<00:00, 207858 datapoints, 3.91 MB/s]
-There are 207858 datapoints in Sentinel-1A for 2020.
-Fetching data: 100% |██████████████████████████████ [00:11<00:00, 179665 datapoints, 4.39 MB/s]
-There are 179665 datapoints in Sentinel-1B for 2020.
-Fetching data took 25.34 seconds
+There are 19624 datapoints in L1GT for 2020.
+There are 1281 datapoints in L1T for 2020.
+There are 65313 datapoints in L1TP for 2020.
+There are 25375 datapoints in L2SP for 2020.
+Fetching data took 10.92 seconds
 ```
 
 ```txt Python (Async)
-Fetching data: 100% |██████████████████████████████ [00:19<00:00, 207858 datapoints, 2.21 MB/s]
-Fetching data: 100% |██████████████████████████████ [00:17<00:00, 179665 datapoints, 2.94 MB/s]
-There are 179665 datapoints in Sentinel-1B for 2020.
-There are 207858 datapoints in Sentinel-1A for 2020.
-Fetching data took 20.12 seconds
+There are 1281 datapoints in L1T for 2020.
+There are 19624 datapoints in L1GT for 2020.
+There are 25375 datapoints in L2SP for 2020.
+There are 65313 datapoints in L1TP for 2020.
+Fetching data took 7.45 seconds
 ```
 
 </CodeGroup>
