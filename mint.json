@@ -14,8 +14,8 @@
   },
   "topbarLinks": [
     {
-      "name": "Support",
-      "url": "mailto:support@tilebox.com"
+      "name": "Website",
+      "url": "https://tilebox.com"
     }
   ],
   "topbarCtaButton": {
@@ -44,8 +44,8 @@
       "group": "Get Started",
       "pages": [
         "introduction",
-        "console",
         "quickstart",
+        "console",
         "authentication"
       ]
     },
