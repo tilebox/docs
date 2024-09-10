@@ -32,11 +32,6 @@
       "name": "Console",
       "icon": "terminal",
       "url": "https://console.tilebox.com"
-    },
-    {
-      "name": "Community",
-      "icon": "discord",
-      "url": "https://tilebox.com/"
     }
   ],
   "navigation": [
