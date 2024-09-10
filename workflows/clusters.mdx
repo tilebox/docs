@@ -1,0 +1,204 @@
+---
+title: Clusters
+icon: circle-nodes
+---
+
+<Accordion title="What is a Cluster?">
+  Clusters are a way of grouping [task runners](/workflows/task-runners) together. This is useful when you have a large
+  number of task runners and you want to manage them as a group. For example, you might have a cluster defined for task
+  runners that are running on a particular cloud provider, or a cluster for task runners that share similar hardware.
+</Accordion>
+
+## Use Cases
+
+You might want to organize task runners into clusters for many reasons, such as:
+
+- Targeting a specific group of task runners for a particular job
+- Reserving a group of task runners for specific purpose, such as only running a particular kind of batch processing jobs
+- Set up different clusters for different environments (for example development, production)
+
+Even Task runners belonging to the same cluster may have different capabilities, for example different tasks registered that they can run.
+Distributing tasks to different runners can also be achieved using only a single cluster, see the
+[Distributed Execution](/workflows/task-runners#distributed-execution) example for more details.
+
+If you have different task runners that all have the same tasks registered, you then can use clusters to only target
+specific task runners for a particular job.
+
+### Adding Task Runners to a Cluster
+
+Task runners can be added to a cluster by specifying the [clusters' slug](#cluster-slug) when [registering a task runner](/workflows/task-runners).
+
+## Managing Clusters
+
+Before registering a task runner, or submitting a job, you need to create a cluster. You can also list, fetch, and delete
+clusters as needed. The following sections illustrates how to do this.
+
+To manage clusters, you first need to instantiate a cluster client. You can do this by calling the `clusters` method on the
+[workflows' client](/workflows/creating).
+
+<CodeGroup title="Instantiating a Clusters Client">
+    ```python Python (Sync)
+    from tilebox.workflows import Client
+
+    client = Client()
+    clusters = client.clusters()
+    ```
+    ```python Python (Async)
+    from tilebox.workflows.aio import Client
+
+    client = Client()
+    clusters = await client.clusters()
+    ```
+
+</CodeGroup>
+
+### Creating a Cluster
+
+To create a cluster, call the `create` method on the cluster client. You'll need to provide a name for the cluster.
+
+<CodeGroup title="Creating a Cluster">
+    ```python Python (Sync)
+    cluster = clusters.create("testing")
+    print(cluster)
+    ```
+    ```python Python (Async)
+    cluster = await clusters.create("testing")
+    print(cluster)
+    ```
+
+</CodeGroup>
+
+```plaintext Output
+Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
+```
+
+### Cluster Slug
+
+Each cluster is identified by a unique name, consisting of the cluster's name and a unique identifier. This identifier is
+generated automatically when the cluster is created. You can use this slug to reference the cluster in other operations,
+such as submitting a job or subtasks.
+
+### Listing Clusters
+
+To list all the clusters that are available to you, you can use `all`:
+
+<CodeGroup title="Listing Clusters">
+    ```python Python (Sync)
+    all_clusters = clusters.all()
+    print(all_clusters)
+    ```
+    ```python Python (Async)
+    all_clusters = await clusters.all()
+    print(all_clusters)
+    ```
+</CodeGroup>
+
+```plaintext Output
+[Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing'),
+Cluster(slug='production-EifhUozDpwAJDL', display_name='Production')]
+```
+
+### Fetching a specific Cluster
+
+To fetch a specific cluster, you can use the `fetch` method and pass in a cluster's slug:
+
+<CodeGroup title="Fetching a Cluster">
+    ```python Python (Sync)
+    cluster = clusters.find("testing-CvufcSxcC9SKfe")
+    print(cluster)
+    ```
+    ```python Python (Async)
+    cluster = await clusters.find("testing-CvufcSxcC9SKfe")
+    print(cluster)
+    ```
+</CodeGroup>
+
+```plaintext Output
+Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
+```
+
+### Deleting a Cluster
+
+To delete a cluster, you can use the `delete` method and pass in a cluster's slug:
+
+<CodeGroup title="Deleting a Cluster">
+    ```python Python (Sync)
+    clusters.delete("testing-CvufcSxcC9SKfe")
+    ```
+    ```python Python (Async)
+    await clusters.delete("testing-CvufcSxcC9SKfe")
+    ```
+</CodeGroup>
+
+## Jobs spanning different clusters
+
+[When submitting a job](/workflows/job) you need to specify the cluster that the job should be submitted to.
+This allows you to target a specific group of task runners for a particular job. All sub-tasks within the job are
+submitted to the same cluster by default. This can also be manually overridden to submit sub-tasks to other
+clusters if needed. Check out the example below to see how this can be done.
+
+<CodeGroup title="Deleting a Cluster">
+    ```python Python (Sync)
+    from tilebox.workflows import Task, ExecutionContext, Client
+
+    class MultiClusterWorkflow(Task):
+        def execute(self, context: ExecutionContext) -> None:
+            # this will submit a task to the same cluster as the one currently executing this task
+            same_cluster = context.submit_subtask(DummyTask())
+            #
+            other_cluster = context.submit_subtask(
+                DummyTask(),
+                # this task should only run on a task runner in the "other-cluster" cluster
+                cluster="other-cluster-As3dcSb3D9SAdK",
+                # dependencies can also be specified across clusters
+                depends_on=[same_cluster],
+            )
+
+    class DummyTask(Task):
+        def execute(self, context: ExecutionContext) -> None:
+            pass
+
+    # submit a job to the "testing" cluster
+    client = Client()
+    job_client = client.jobs()
+    job = job_client.submit(
+        MultiClusterWorkflow(),
+        cluster="testing-CvufcSxcC9SKfe",
+    )
+    ```
+    ```python Python (Async)
+    from tilebox.workflows.aio import Task, ExecutionContext, Client
+
+    class MultiClusterWorkflow(Task):
+        async def execute(self, context: ExecutionContext) -> None:
+            # this will submit a task to the same cluster as the one currently executing this task
+            same_cluster = context.submit_subtask(DummyTask())
+
+            other_cluster = context.submit_subtask(
+                DummyTask(),
+                # this task should only run on a task runner in the "other-cluster" cluster
+                cluster="other-cluster-As3dcSb3D9SAdK",
+                # dependencies can also be specified across clusters
+                depends_on=[same_cluster],
+            )
+
+    class DummyTask(Task):
+        async def execute(self, context: ExecutionContext) -> None:
+            pass
+
+    # submit a job to the "testing" cluster
+    client = Client()
+    job_client = await client.jobs()
+    job = await job_client.submit(
+        MultiClusterWorkflow(),
+        cluster="testing-CvufcSxcC9SKfe",
+    )
+    ```
+
+</CodeGroup>
+
+This workflow requires at least two task runners to complete. One task runner must be in the "testing" cluster
+and the other must be in the "other-cluster" cluster. If for example no task runners are available in the "other-cluster"
+cluster, the task submitted to that cluster remains in the queue until a task runner becomes available. It won't
+be executed by a task runner in the "testing" cluster, even though the task runner would have the capability to execute it,
+since it has the `DummyTask` registered.

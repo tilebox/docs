@@ -1,5 +1,6 @@
 ---
 title: Loading Time Series Data
+sidebarTitle: Loading Data
 description: Learn about how to load data from Time Series Dataset collections
 icon: download
 ---
@@ -68,7 +69,7 @@ Check out the example below to see how to load a data point at a specific time f
 
 </CodeGroup>
 
-```txt Output
+```plaintext Output
 <xarray.Dataset> Size: 721B
 Dimensions:                (time: 1, latlon: 2)
 Coordinates:
@@ -121,7 +122,7 @@ print(data)
 
 </CodeGroup>
 
-```txt Output
+```plaintext Output
 <xarray.Dataset> Size: 160B
 Dimensions:         (time: 1)
 Coordinates:
@@ -153,7 +154,7 @@ print(data)
 
 </CodeGroup>
 
-```txt Output
+```plaintext Output
 <xarray.Dataset> Size: 0B
 Dimensions:  ()
 Data variables:
@@ -191,7 +192,7 @@ timestamps, which would need to be manually converted again to different timezon
 
 </CodeGroup>
 
-```txt Output
+```plaintext Output
 2017-01-01 11:45:25.679000+09:00
 <xarray.Dataset> Size: 725B
 Dimensions:                (time: 1, latlon: 2)
@@ -228,7 +229,7 @@ data = await collection.load(interval, show_progress=True)
 
 </CodeGroup>
 
-```txt Output
+```plaintext Output
 <xarray.Dataset> Size: 725MB
 Dimensions:                (time: 1109597, latlon: 2)
 Coordinates:
@@ -351,7 +352,7 @@ of creating an equivalent `TimeInterval` object.
 
 </CodeGroup>
 
-```txt Output
+```plaintext Output
 Notice the different end characters ) and ] in the interval notations below:
 [2017-01-01T00:00:00.000 UTC, 2023-01-01T00:00:00.000 UTC)
 [2017-01-01T00:00:00.000 UTC, 2022-12-31T23:59:59.999 UTC]
@@ -382,7 +383,7 @@ Another way of specifying a time interval when loading data is to use an iterabl
 
 </CodeGroup>
 
-```txt Output
+```plaintext Output
 <xarray.Dataset> Size: 33kB
 Dimensions:                (time: 50, latlon: 2)
 Coordinates:
@@ -433,7 +434,7 @@ print(datapoint)
 
 </CodeGroup>
 
-```txt Output
+```plaintext Output
 <xarray.Dataset> Size: 725B
 Dimensions:                (latlon: 2)
 Coordinates:

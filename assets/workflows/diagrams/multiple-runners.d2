@@ -1,0 +1,62 @@
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 102
+    sketch: true
+    pad: 10
+  }
+}
+
+style.fill: "#fcf9fa"
+direction: down
+
+title: {
+  label: larger-job
+  near: top-center
+  shape: text
+  style.font-size: 30
+  style.font-color: "black"
+}
+my-task: {
+  label: "MyTask"
+  style.fill: HoneyDew
+}
+subtask1: {
+  label: "SubTask"
+  style.fill: HoneyDew
+}
+my-task -> subtask1
+subtask2: {
+  label: "SubTask"
+  style.fill: PaleTurquoise
+}
+my-task -> subtask2
+subtask3: {
+  label: "SubTask"
+  style.fill: HoneyDew
+}
+my-task -> subtask3
+
+dependent-task1: {
+  label: "DependentTask"
+  style.fill: PaleTurquoise
+}
+subtask1 -> dependent-task1
+leaf-task1: {
+  label: "LeafTask"
+  style.fill: HoneyDew
+}
+subtask1 -> leaf-task1
+leaf-task1 <- dependent-task1: {style.stroke-dash: 3}
+
+dependent-task2: {
+  label: "DependentTask"
+  style.fill: LavenderBlush
+}
+subtask3 -> dependent-task2
+leaf-task2: {
+  label: "LeafTask"
+  style.fill: PaleTurquoise
+}
+subtask3 -> leaf-task2
+leaf-task2 <- dependent-task2: {style.stroke-dash: 3}
