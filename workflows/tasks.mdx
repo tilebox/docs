@@ -5,11 +5,11 @@ icon: laptop-code
 ---
 
 <Accordion title="What is a Task?">
-At its core, a Task is the smallest unit of work, designed to perform a specific operation. Each task represents a discrete operation or
-process that can be executed, such as processing data, performing calculations or managing resources. They can function independently or
-as components of a complex, interrelated set of connected tasks - a Workflow. Tasks are defined by their code, their inputs and
-their dependencies on other tasks. Creating tasks involves defining the input parameters as well as specifying the action to be
-taken during its execution.
+  At its core, a Task is the smallest unit of work, designed to perform a specific operation. Each task represents a
+  discrete operation or process that can be executed, such as processing data, performing calculations or managing
+  resources. They can function independently or as components of a complex, interrelated set of connected tasks - a
+  Workflow. Tasks are defined by their code, their inputs and their dependencies on other tasks. Creating tasks involves
+  defining the input parameters as well as specifying the action to be taken during its execution.
 </Accordion>
 
 ## Creating a Task
@@ -33,30 +33,33 @@ is executed and performs the task's operation.
         async def execute(self, context: ExecutionContext):
             print(f"Hello World!")
     ```
+
 </CodeGroup>
 
 This example showcases a simple task that prints `"Hello World!"` to the console. The key components of this task are:
 
 <AccordionGroup>
-    <Accordion title="class MyFirstTask(Task)">
-        `MyFirstTask` is a subclass of the `Task` class. This is the base class for all defined tasks. It provides the basic structure
-        for a task. Inheriting from `Task` automatically makes the class a `dataclass`, which is useful [for specifying inputs](#task-inputs).
-        Additionally, by inheriting from `Task`, the task is also automatically assigned an [identifier based on the class name](#task-identifiers).
-    </Accordion>
-    <Accordion title="def execute">
-        The `execute` method is the entry point for the execution of the task. This is where the task's logic is defined. It's called when the task
-        is executed and performs the task's operation.
-    </Accordion>
-    <Accordion title="context: ExecutionContext">
-        The `context` argument is an `ExecutionContext` instance, which provides
-        access to an API for submitting new tasks as part of the same job, as well as access to a [shared cache](/workflows/caches) and features such
-        as [logging](/workflows/observability).
-    </Accordion>
+  <Accordion title="class MyFirstTask(Task)">
+    `MyFirstTask` is a subclass of the `Task` class. This is the base class for all defined tasks. It provides the basic
+    structure for a task. Inheriting from `Task` automatically makes the class a `dataclass`, which is useful [for
+    specifying inputs](#task-inputs). Additionally, by inheriting from `Task`, the task is also automatically assigned
+    an [identifier based on the class name](#task-identifiers).
+  </Accordion>
+  <Accordion title="def execute">
+    The `execute` method is the entry point for the execution of the task. This is where the task's logic is defined.
+    It's called when the task is executed and performs the task's operation.
+  </Accordion>
+  <Accordion title="context: ExecutionContext">
+    The `context` argument is an `ExecutionContext` instance, which provides access to an API for submitting new tasks
+    as part of the same job, as well as access to a [shared cache](/workflows/caches) and features such as
+    [logging](/workflows/observability).
+  </Accordion>
 </AccordionGroup>
 
 <Note>
-    The code samples on this page do not show how the task is actually executed, but don't worry, that is covered in the [next section on task runners](/workflows/task-runners).
-    The reason for this is that the execution of tasks is a separate concern from the implementation of tasks.
+  The code samples on this page do not show how the task is actually executed, but don't worry, that is covered in the
+  [next section on task runners](/workflows/task-runners). The reason for this is that the execution of tasks is a
+  separate concern from the implementation of tasks.
 </Note>
 
 ## Input Parameters
@@ -66,10 +69,12 @@ By inheriting from the `Task` class, the task is automatically converted to a py
 can be defined as class attributes.
 
 <Info>
-    Tasks need to be **serializable to JSON**, because they may be distributed across a cluster of [task runners](/workflows/task-runners).
+  Tasks need to be **serializable to JSON**, because they may be distributed across a cluster of [task
+  runners](/workflows/task-runners).
 </Info>
 
 Supported types for input parameters are:
+
 - Basic types such as `str`, `int`, `float`, `bool`
 - Lists and dictionaries of basic types
 - Nested data classes that are again JSON-serializable
@@ -97,6 +102,7 @@ Supported types for input parameters are:
 
     task = ParametrizableTask("Hello", 3, {"key": "value"})
     ```
+
 </CodeGroup>
 
 ## Task Composition and subtasks
@@ -116,13 +122,14 @@ class ParentTask(Task):
             context.submit_subtask(ChildTask(i))
 
 class ChildTask(Task):
-    index: int
+index: int
 
     def execute(self, context: ExecutionContext) -> None:
         print(f"Executing ChildTask {self.index}")
 
-task = ParentTask(5)  # submitting this task will result in 5 ChildTasks being executed as well
-```
+task = ParentTask(5) # submitting this task will result in 5 ChildTasks being executed as well
+
+````
 ```python Python (Async)
 class ParentTask(Task):
     num_subtasks: int
@@ -138,7 +145,8 @@ class ChildTask(Task):
         print(f"Executing ChildTask {self.index}")
 
 task = ParentTask(5)  # submitting this task will result in 5 ChildTasks being executed as well
-```
+````
+
 </CodeGroup>
 
 In the preceding example, a `ParentTask` that submits `ChildTask` tasks as subtasks is defined. The number of subtasks to be submitted
@@ -146,9 +154,10 @@ is determined by the `num_subtasks` attribute of the `ParentTask`. The `submit_s
 This means that the task to be submitted as a subtask must be instantiated with concrete parameters before it can be submitted.
 
 <Info>
-    By submitting a task as a subtask, the execution of the subtask is scheduled as part of the same job as the parent task. Compared to
-    just calling the subtask's `execute` method directly, this allows for the subtask to be executed on a different machine, or even in parallel
-    with other subtasks. To learn more about how tasks are executed, see the section on [task runners](/workflows/task-runners).
+  By submitting a task as a subtask, the execution of the subtask is scheduled as part of the same job as the parent
+  task. Compared to just calling the subtask's `execute` method directly, this allows for the subtask to be executed on
+  a different machine, or even in parallel with other subtasks. To learn more about how tasks are executed, see the
+  section on [task runners](/workflows/task-runners).
 </Info>
 
 ### Larger subtasks Example
@@ -204,18 +213,19 @@ used to get the URLs of random dog images and then download them. Implementing a
             with file.open("wb") as file:
                 file.write(response.content)
     ```
+
 </CodeGroup>
 
 This larger example consists of the following tasks:
 
 <AccordionGroup>
-    <Accordion title="DownloadRandomDogImages">
+  <Accordion title="DownloadRandomDogImages">
     `DownloadRandomDogImages` is a task that fetches a certain number of random dog images URLs from an API. It then
     submits a `DownloadImage` task for each image URL it receives
-    </Accordion>
-    <Accordion title="DownloadImage">
+  </Accordion>
+  <Accordion title="DownloadImage">
     `DownloadImage` is a task that downloads an image from a given URL and saves it to a file.
-    </Accordion>
+  </Accordion>
 </AccordionGroup>
 
 Together, these tasks form a workflow that downloads a certain number of random dog images from the internet. The relationship between the two tasks, and the fact that they together form a workflow, is implicit in the fact that `DownloadRandomDogImages` submits `DownloadImage` tasks as subtasks.
@@ -223,41 +233,51 @@ Together, these tasks form a workflow that downloads a certain number of random 
 Visualizing the execution of a workflow that uses these tasks could look like a tree of tasks, where the `DownloadRandomDogImages` task is the root and the `DownloadImage` tasks are the leaves. For example, when downloading five random dog images, the following tasks are executed.
 
 <CodeGroup>
-```python Python (Sync)
-from tilebox.workflows import Client
+    ```python Python (Sync)
+    from tilebox.workflows import Client
 
-client = Client()
-jobs = client.jobs()
-job = jobs.submit(
-    "download-dog-images",
-    DownloadRandomDogImages(5),
-    "dev-cluster",
-)
-jobs.display(job)
-```
-```python Python (Async)
-from tilebox.workflows.aio import Client
+    client = Client()
+    jobs = client.jobs()
+    job = jobs.submit(
+        "download-dog-images",
+        DownloadRandomDogImages(5),
+        "dev-cluster",
+    )
+    jobs.display(job)
+    ````
+    ```python Python (Async)
+    from tilebox.workflows.aio import Client
 
-client = Client()
-jobs = await client.jobs()
-job = await jobs.submit(
-    "download-dog-images",
-    DownloadRandomDogImages(5),
-    "dev-cluster",
-)
-await jobs.display(job)
-```
+    client = Client()
+    jobs = await client.jobs()
+    job = await jobs.submit(
+        "download-dog-images",
+        DownloadRandomDogImages(5),
+        "dev-cluster",
+    )
+    await jobs.display(job)
+    ````
+
 </CodeGroup>
 
 <Frame>
-    <img src="/assets/workflows/diagrams/svg/download-dog-images.svg" alt="Download Dog Images Workflow" className="dark:hidden"/>
-    <img src="/assets/workflows/diagrams/svg/download-dog-images.dark.svg" alt="Download Dog Images Workflow" className="hidden dark:block" />
+  <img
+    src="/assets/workflows/diagrams/svg/download-dog-images.svg"
+    alt="Download Dog Images Workflow"
+    className="dark:hidden"
+  />
+  <img
+    src="/assets/workflows/diagrams/svg/download-dog-images.dark.svg"
+    alt="Download Dog Images Workflow"
+    className="hidden dark:block"
+  />
 </Frame>
 
 In total six tasks are executed. The `DownloadRandomDogImages` task and five `DownloadImage` tasks. The `DownloadImage` tasks can be executed in parallel, as they are independent of one another. Assuming that more than one task runner is available, the **Tilebox Workflow Orchestrator automatically parallelizes** the execution of the `DownloadImage` tasks.
 
 <Tip>
-    Check out [job_client.display](/workflows/jobs#visualization) to learn how this visualization was automatically generated from the task executions.
+  Check out [job_client.display](/workflows/jobs#visualization) to learn how this visualization was automatically
+  generated from the task executions.
 </Tip>
 
 Currently, a limit of `64` subtasks per task is imposed. This is to discourage the creation of workflows where individual tasks submit a large number of subtasks, as this can lead to performance issues - since those individual tasks are not parallelized. If you need to submit more than `64` subtasks, consider using [recursive subtask submission](#recursive-subtasks) instead.
@@ -293,6 +313,7 @@ As an example, the `RecursiveTask` below is a perfectly valid task that recursiv
             if self.num >= 2:
                 context.submit_subtask(RecursiveTask(self.num // 2))
     ```
+
 </CodeGroup>
 
 ### Recursive subtask Example
@@ -347,13 +368,22 @@ An implementation of this recursive subtask submission could look like this:
                     for dog_image in response.json()[:self.num_images]:
                         context.submit_subtask(DownloadImage(dog_image["url"]))
     ```
+
 </CodeGroup>
 
-With this implementation, downloading a large number of images (e.g. 9) results in the following tasks being executed:
+With this implementation, downloading a large number of images (for example 9 in the workflow below) results in the following tasks being executed:
 
 <Frame>
-    <img src="/assets/workflows/diagrams/svg/download-dog-images-recursive.svg" alt="Download Dog Images Workflow implemented recursively" className="dark:hidden"/>
-    <img src="/assets/workflows/diagrams/svg/download-dog-images-recursive.dark.svg" alt="Download Dog Images Workflow implemented recursively" className="hidden dark:block" />
+  <img
+    src="/assets/workflows/diagrams/svg/download-dog-images-recursive.svg"
+    alt="Download Dog Images Workflow implemented recursively"
+    className="dark:hidden"
+  />
+  <img
+    src="/assets/workflows/diagrams/svg/download-dog-images-recursive.dark.svg"
+    alt="Download Dog Images Workflow implemented recursively"
+    className="hidden dark:block"
+  />
 </Frame>
 
 ## Retry Handling
@@ -367,7 +397,7 @@ In the example below, the `RootTask` submits a `FlakyTask` as a subtask with a `
 If the `FlakyTask` then fails, it gets retried for up to 5 times before eventually being marked as failed.
 
 <Note>
-The failed task may be picked up by any available runner and not necessarily the same one that it failed on.
+  The failed task may be picked up by any available runner and not necessarily the same one that it failed on.
 </Note>
 
 <CodeGroup title="Submitting Subtasks">
@@ -403,6 +433,7 @@ The failed task may be picked up by any available runner and not necessarily the
 
     task = RootTask()
     ```
+
 </CodeGroup>
 
 ## Dependencies
@@ -411,7 +442,8 @@ Up until now all tasks were independent of one another. But often, tasks have de
 **Tasks can express their dependencies on other tasks** by using the `depends_on` argument of the `submit_subtask` method. A dependency between two tasks means that the dependent task is only executed after the task it depends on has been successfully executed.
 
 <Note>
-    The `depends_on` argument accepts a list of tasks, which means that a task can depend on a variable number of other tasks.
+  The `depends_on` argument accepts a list of tasks, which means that a task can depend on a variable number of other
+  tasks.
 </Note>
 
 A workflow that has tasks with dependencies on other tasks is implemented as follows:
@@ -443,6 +475,7 @@ A workflow that has tasks with dependencies on other tasks is implemented as fol
         async def execute(self, context: ExecutionContext) -> None:
             print(self.message)
     ```
+
 </CodeGroup>
 
 The `RootTask` submits three `PrintTask` tasks as subtasks. Those tasks are dependent on one another, meaning that the
@@ -451,7 +484,7 @@ executed after the second task has been successfully executed.
 This results in the tasks being executed sequentially.
 
 <Note>
-    If a task that's being depended on submits subtasks, those subtasks are also executed before any dependent task.
+  If a task that's being depended on submits subtasks, those subtasks are also executed before any dependent task.
 </Note>
 
 ### Dependencies Example
@@ -505,6 +538,7 @@ As a practical example, below is a workflow that fetches news articles from an A
     )
     job_client.visualize(job, direction="right")
     ```
+
 </CodeGroup>
 
 ```plaintext Output
@@ -521,27 +555,31 @@ Author Science X has written 1 articles
 ```
 
 <Frame>
-    <img src="/assets/workflows/diagrams/svg/process-news.svg" alt="Process News Workflow" className="dark:hidden"/>
-    <img src="/assets/workflows/diagrams/svg/process-news.dark.svg" alt="Process News Workflow" className="hidden dark:block" />
+  <img src="/assets/workflows/diagrams/svg/process-news.svg" alt="Process News Workflow" className="dark:hidden" />
+  <img
+    src="/assets/workflows/diagrams/svg/process-news.dark.svg"
+    alt="Process News Workflow"
+    className="hidden dark:block"
+  />
 </Frame>
 
 This workflow consists of four tasks:
 
-| Task | Dependencies | Description |
-| --- | --- | --- |
-| NewsWorkflow | - | The root task of the workflow. It spawns the other tasks and correctly sets up the dependencies between them. |
-| FetchNews | - | A task that fetches the news articles from the API. It writes the result to a file, which is then read by dependent tasks. |
-| PrintHeadlines | FetchNews | A task that prints the headlines of the news articles to the console. |
-| MostFrequentAuthors | FetchNews | A task that counts the number of articles each author has written and prints the result to the console. |
+| Task                | Dependencies | Description                                                                                                                |
+| ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| NewsWorkflow        | -            | The root task of the workflow. It spawns the other tasks and correctly sets up the dependencies between them.              |
+| FetchNews           | -            | A task that fetches the news articles from the API. It writes the result to a file, which is then read by dependent tasks. |
+| PrintHeadlines      | FetchNews    | A task that prints the headlines of the news articles to the console.                                                      |
+| MostFrequentAuthors | FetchNews    | A task that counts the number of articles each author has written and prints the result to the console.                    |
 
 One important aspect to note is that there is no dependency between the `PrintHeadlines` and `MostFrequentAuthors` tasks.
 This means that they can be executed in parallel, which is exactly what the Tilebox Workflow Orchestrator does, if more than one
 task runner is available.
 
 <Tip>
-    In this example, the results of the `FetchNews` task were written to a file. This is not the recommended way of
-    passing data between tasks. When a workflow is executed on a distributed cluster, the existence of a file written by a dependent
-    task cannot be guaranteed. Instead, it's recommend to use a [shared cache](/workflows/caches).
+  In this example, the results of the `FetchNews` task were written to a file. This is not the recommended way of
+  passing data between tasks. When a workflow is executed on a distributed cluster, the existence of a file written by a
+  dependent task cannot be guaranteed. Instead, it's recommend to use a [shared cache](/workflows/caches).
 </Tip>
 
 ## Task Identifiers
@@ -599,11 +637,12 @@ See the section on [semantic versioning](#semantic-versioning) down below for mo
 
     # MyTask2 has the identifier "tilebox.com/example_workflow/MyTask" and the version "v1.0"
     ```
+
 </CodeGroup>
 
 <Note>
-    The `identifier` method is required to either be a `classmethod` or a `staticmethod`, which means that it can be called
-    without instantiating the class.
+  The `identifier` method is required to either be a `classmethod` or a `staticmethod`, which means that it can be
+  called without instantiating the class.
 </Note>
 
 ## Semantic Versioning
@@ -645,6 +684,7 @@ As an example, below is a task that has the identifier `"tilebox.com/example_wor
         async def execute(self, context: ExecutionContext) -> None:
             pass
     ```
+
 </CodeGroup>
 
 When task runners execute a task, they need to have a task with a matching identifier string and a compatible version number registered.

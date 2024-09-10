@@ -56,9 +56,8 @@
           "group": "Python",
           "icon": "python",
           "pages": [
-            "sdks/python/introduction",
+            "sdks/python/install",
             "sdks/python/sample-notebooks",
-            "sdks/python/installation",
             "sdks/python/xarray",
             "sdks/python/async",
             "sdks/python/geometries"

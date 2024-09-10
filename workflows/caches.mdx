@@ -5,8 +5,8 @@ icon: box-archive
 ---
 
 <Warning>
-    The cache API is currently in an experimental state, with many more features, as well as [planned backends](#cache-backends) on the roadmap.
-    There might be breaking changes to the Cache API in the future.
+  The cache API is currently in an experimental state, with many more features, as well as [planned
+  backends](#cache-backends) on the roadmap. There might be breaking changes to the Cache API in the future.
 </Warning>
 
 Caches are configured on a [task runner](/workflows/task-runners) level. Since task runners can be deployed in a distributed
@@ -47,7 +47,8 @@ for more options.
         tasks=[...],
         cache=InMemoryCache(),
     )
-    ```
+
+````
 </CodeGroup>
 
 By configuring such a cache, the `context` object that is passed to the execution of each task gains access to a `job_cache`
@@ -306,7 +307,7 @@ to execute the `ProducerTask` and the output of the `ConsumerTask` can be observ
 
 ```plaintext Output
 Read b'my_binary_data_to_store' from cache
-```
+````
 
 ## Groups and Hierarchical Keys
 
@@ -411,6 +412,7 @@ then displays the sum of all data points.
 
             print(f"Sum of all numbers: {sum(numbers)}")
     ```
+
 </CodeGroup>
 
 Submitting a job of the `CacheGroupDemoWorkflow`, and then running it with a task runner, could look like this:
@@ -442,6 +444,7 @@ Submitting a job of the `CacheGroupDemoWorkflow`, and then running it with a tas
     )
     await runner.run_forever()
     ```
+
 </CodeGroup>
 
 ```plaintext Output

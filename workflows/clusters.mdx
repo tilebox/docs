@@ -4,10 +4,9 @@ icon: circle-nodes
 ---
 
 <Accordion title="What is a Cluster?">
-Clusters are a way of grouping [task runners](/workflows/task-runners) together.
-This is useful when you have a large number of task runners and you want to manage them as a group.
-For example, you might have a cluster defined for task runners that are running on a particular cloud provider, or a cluster
-for task runners that share similar hardware.
+  Clusters are a way of grouping [task runners](/workflows/task-runners) together. This is useful when you have a large
+  number of task runners and you want to manage them as a group. For example, you might have a cluster defined for task
+  runners that are running on a particular cloud provider, or a cluster for task runners that share similar hardware.
 </Accordion>
 
 ## Use Cases
@@ -16,9 +15,9 @@ You might want to organize task runners into clusters for many reasons, such as:
 
 - Targeting a specific group of task runners for a particular job
 - Reserving a group of task runners for specific purpose, such as only running a particular kind of batch processing jobs
-- Set up different clusters for different environments (e.g. development, production)
+- Set up different clusters for different environments (for example development, production)
 
-Even Task runners belonging to the same cluster may have different capabilities, i.e. different tasks registered that they can run.
+Even Task runners belonging to the same cluster may have different capabilities, for example different tasks registered that they can run.
 Distributing tasks to different runners can also be achieved using only a single cluster, see the
 [Distributed Execution](/workflows/task-runners#distributed-execution) example for more details.
 
@@ -50,6 +49,7 @@ To manage clusters, you first need to instantiate a cluster client. You can do t
     client = Client()
     clusters = await client.clusters()
     ```
+
 </CodeGroup>
 
 ### Creating a Cluster
@@ -65,13 +65,12 @@ To create a cluster, call the `create` method on the cluster client. You'll need
     cluster = await clusters.create("testing")
     print(cluster)
     ```
+
 </CodeGroup>
 
-<CodeGroup title="Output">
-    ```
-    Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
-    ```
-</CodeGroup>
+```plaintext Output
+Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
+```
 
 ### Cluster Slug
 
@@ -94,12 +93,10 @@ To list all the clusters that are available to you, you can use `all`:
     ```
 </CodeGroup>
 
-<CodeGroup title="Output">
-    ```
-    [Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing'),
-    Cluster(slug='production-EifhUozDpwAJDL', display_name='Production')]
-    ```
-</CodeGroup>
+```plaintext Output
+[Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing'),
+Cluster(slug='production-EifhUozDpwAJDL', display_name='Production')]
+```
 
 ### Fetching a specific Cluster
 
@@ -116,11 +113,9 @@ To fetch a specific cluster, you can use the `fetch` method and pass in a cluste
     ```
 </CodeGroup>
 
-<CodeGroup title="Output">
-    ```
-    Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
-    ```
-</CodeGroup>
+```plaintext Output
+Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
+```
 
 ### Deleting a Cluster
 
@@ -199,6 +194,7 @@ clusters if needed. Check out the example below to see how this can be done.
         cluster="testing-CvufcSxcC9SKfe",
     )
     ```
+
 </CodeGroup>
 
 This workflow requires at least two task runners to complete. One task runner must be in the "testing" cluster

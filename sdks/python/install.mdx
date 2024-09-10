@@ -1,0 +1,42 @@
+---
+title: Installation
+description: Install the Tilebox Python Packages
+icon: download
+---
+
+## Package Overview
+
+Tilebox provides a Python SDK to interact with the Tilebox services. The SDK is structured into separate packages, which can be installed
+independently based on the services you want to interact with or all together for a complete experience.
+
+<CardGroup cols={2}>
+  <Card title="tilebox-datasets" icon="database" href="https://pypi.org/project/tilebox-datasets/" horizontal>
+    Access Tilebox datasets from Python
+  </Card>
+  <Card title="tilebox-workflows" icon="network-wired" href="https://pypi.org/project/tilebox-workflows/" horizontal>
+    Workflow client and task runner for Tilebox
+  </Card>
+</CardGroup>
+
+## Installation
+
+You your favorite package manager to install:
+
+<CodeGroup>
+```bash pip
+pip install tilebox-datasets tilebox-workflows
+```
+
+```bash poetry
+poetry add tilebox-datasets="*" tilebox-workflows="*"
+```
+
+```bash pipenv
+pipenv install tilebox-datasets tilebox-workflows
+```
+
+```bash uv
+uv add tilebox-datasets tilebox-workflows --prerelease=allow
+```
+
+</CodeGroup>

@@ -4,10 +4,10 @@ icon: list-check
 ---
 
 <Accordion title="What is a Task Runner?">
-Task Runners are the execution agents within the Tilebox Workflows ecosystem that carry out the tasks. Task runners can be
-deployed in different compute environments, including on-premise servers and cloud-based auto-scaling clusters. They are
-responsible for executing tasks as scheduled by the workflow orchestrator, ensuring that each task has the necessary resources
-and environment to run effectively.
+  Task Runners are the execution agents within the Tilebox Workflows ecosystem that carry out the tasks. Task runners
+  can be deployed in different compute environments, including on-premise servers and cloud-based auto-scaling clusters.
+  They are responsible for executing tasks as scheduled by the workflow orchestrator, ensuring that each task has the
+  necessary resources and environment to run effectively.
 </Accordion>
 
 ## Implementing a Task Runner
@@ -30,7 +30,8 @@ Implementing a task runner consists of the following steps:
     Select or create a [cluster](/workflows/clusters) and then specify it's slug when creating a task runner.
   </Step>
   <Step title="Registering tasks">
-    To register tasks, you need to specify the task classes that the task runner can execute as a list to the `runner` method.
+    To register tasks, you need to specify the task classes that the task runner can execute as a list to the `runner`
+    method.
   </Step>
   <Step title="Listening for new tasks">
     To listen for new tasks until the task runner process is shut down call the `run_forever` method of the task runner.
@@ -40,42 +41,42 @@ Implementing a task runner consists of the following steps:
 A simple example of those steps put together might look like this:
 
 <CodeGroup>
-```python Python (Sync)
+    ```python Python (Sync)
+    from tilebox.workflows import Client
+    # your own workflow:
+    from my_workflow import MyTask, OtherTask
 
-from tilebox.workflows import Client
-# your own workflow:
-from my_workflow import MyTask, OtherTask
+    def main():
+        client = Client()  # 1. connect to the Tilebox Workflows API
+        cluster = "dev-cluster"  # 2. select a cluster to join
+        runner = client.runner(
+            cluster,
+            tasks=[MyTask, OtherTask]  # 3. register tasks
+        )
+        runner.run_forever()  # 4. listen for new tasks to execute
 
-def main():
-    client = Client()  # 1. connect to the Tilebox Workflows API
-    cluster = "dev-cluster"  # 2. select a cluster to join
-    runner = client.runner(
-        cluster,
-        tasks=[MyTask, OtherTask]  # 3. register tasks
-    )
-    runner.run_forever()  # 4. listen for new tasks to execute
+    if __name__ == "__main__":
+        main()
+    ```
+    ```python Python (Async)
+    import asyncio
+    from tilebox.workflows.aio import Client
+    # your own workflow:
+    from my_workflow import MyTask, OtherTask
 
-if __name__ == "__main__":
-    main()
-```
-```python Python (Async)
-import asyncio
-from tilebox.workflows.aio import Client
-# your own workflow:
-from my_workflow import MyTask, OtherTask
+    async def main():
+        client = Client()  # 1. connect to the Tilebox Workflows API
+        cluster = "dev-cluster"  # 2. select a cluster to join
+        runner = await client.runner(
+            cluster,
+            tasks=[MyTask, OtherTask]  # 3. register tasks
+        )
+        await runner.run_forever()  # 4. listen for new tasks to execute
 
-async def main():
-    client = Client()  # 1. connect to the Tilebox Workflows API
-    cluster = "dev-cluster"  # 2. select a cluster to join
-    runner = await client.runner(
-        cluster,
-        tasks=[MyTask, OtherTask]  # 3. register tasks
-    )
-    await runner.run_forever()  # 4. listen for new tasks to execute
+    if __name__ == "__main__":
+        asyncio.run(main())
+    ```
 
-if __name__ == "__main__":
-    asyncio.run(main())
-```
 </CodeGroup>
 
 To now start the task runner locally, simply run it as a Python script:
@@ -96,9 +97,9 @@ If there is a task that meets these conditions, the task runner picks it up and 
 idles until a matching task is submitted.
 
 <Note>
-    Often times there are many submitted tasks that match the conditions for a task runner to execute. In this case,
-    the task runner picks one of the tasks to execute, and the remaining tasks remain in a queue until the selected
-    task is executed or another task runner becomes available to execute them.
+  Often times there are many submitted tasks that match the conditions for a task runner to execute. In this case, the
+  task runner picks one of the tasks to execute, and the remaining tasks remain in a queue until the selected task is
+  executed or another task runner becomes available to execute them.
 </Note>
 
 ## Parallelism
@@ -112,6 +113,7 @@ script in different terminal windows. Or you can use a tool such as [call-in-par
 to start the task runner script many times.
 
 For example, to start 5 task runners in parallel, you can use the following command:
+
 ```bash
 > call-in-parallel -n 5 -- python task_runner.py
 ```
@@ -217,6 +219,7 @@ Below is an example of a distributed workflow:
     async def execute(self, context: ExecutionContext) -> None:
             pass
     ```
+
 </CodeGroup>
 
 To achieve a distributed execution of this workflow, no single task runner capable of executing all three of the tasks is set up.
@@ -247,6 +250,7 @@ executed by either one of them.
     )
     gpu_runner.run_forever()
     ```
+
 </CodeGroup>
 
 Now, both `download_task_runner.py` and `gpu_task_runner.py`are started, in parallel, on different machines with the required hardware for each.
@@ -256,8 +260,9 @@ In this example, since `ProcessData` depends on `DownloadData`, the GPU task run
 pick up the process task.
 
 <Note>
-    You could also differentiate between the task runners by specifying different [clusters](/workflows/clusters), and then specifying explicit
-    clusters to run on when submitting sub-tasks. To learn more about this, and the use case for clusters, head over to the [Clusters](/workflows/clusters) section.
+  You could also differentiate between the task runners by specifying different [clusters](/workflows/clusters), and
+  then specifying explicit clusters to run on when submitting sub-tasks. To learn more about this, and the use case for
+  clusters, head over to the [Clusters](/workflows/clusters) section.
 </Note>
 
 ## Task Failures
@@ -286,7 +291,7 @@ or sending a message to a queue. This is why it's important to make tasks [idemp
 A task is idempotent if it can be executed many times without changing the result beyond an initial successful execution.
 
 One special case of idempotency is the submission of sub-tasks. Sub-tasks are submitted as one at the completion of a task. That means that
-if a task fails after calling `context.submit_subtask`, and is then retried it's assured that it does not have any pending sub-tasks, and 
+if a task fails after calling `context.submit_subtask`, and is then retried it's assured that it does not have any pending sub-tasks, and
 they can be safely submitted again.
 
 ## Runner Crashes
