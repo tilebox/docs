@@ -58,7 +58,7 @@ This example showcases a simple task that prints `"Hello World!"` to the console
 
 <Note>
   The code samples on this page do not show how the task is actually executed, but don't worry, that is covered in the
-  [next section on task runners](/workflows/task-runners). The reason for this is that the execution of tasks is a
+  [next section on task runners](/workflows/concepts/task-runners). The reason for this is that the execution of tasks is a
   separate concern from the implementation of tasks.
 </Note>
 
@@ -70,7 +70,7 @@ can be defined as class attributes.
 
 <Info>
   Tasks need to be **serializable to JSON**, because they may be distributed across a cluster of [task
-  runners](/workflows/task-runners).
+  runners](/workflows/concepts/task-runners).
 </Info>
 
 Supported types for input parameters are:
@@ -157,7 +157,7 @@ This means that the task to be submitted as a subtask must be instantiated with 
   By submitting a task as a subtask, the execution of the subtask is scheduled as part of the same job as the parent
   task. Compared to just calling the subtask's `execute` method directly, this allows for the subtask to be executed on
   a different machine, or even in parallel with other subtasks. To learn more about how tasks are executed, see the
-  section on [task runners](/workflows/task-runners).
+  section on [task runners](/workflows/concepts/task-runners).
 </Info>
 
 ### Larger subtasks Example
@@ -276,7 +276,7 @@ Visualizing the execution of a workflow that uses these tasks could look like a 
 In total six tasks are executed. The `DownloadRandomDogImages` task and five `DownloadImage` tasks. The `DownloadImage` tasks can be executed in parallel, as they are independent of one another. Assuming that more than one task runner is available, the **Tilebox Workflow Orchestrator automatically parallelizes** the execution of the `DownloadImage` tasks.
 
 <Tip>
-  Check out [job_client.display](/workflows/jobs#visualization) to learn how this visualization was automatically
+  Check out [job_client.display](/workflows/concepts/jobs#visualization) to learn how this visualization was automatically
   generated from the task executions.
 </Tip>
 
@@ -585,7 +585,7 @@ task runner is available.
 ## Task Identifiers
 
 A task identifier is a unique string that the Tilebox Workflow Orchestrator
-uses to identify the task. It's what [task runners](/workflows/task-runners) use to determine which task class to select for
+uses to identify the task. It's what [task runners](/workflows/concepts/task-runners) use to determine which task class to select for
 deserializing the task input and executing the task. The identifier is also used as the default name in visualizations of the
 execution of a job as a tree of tasks.
 

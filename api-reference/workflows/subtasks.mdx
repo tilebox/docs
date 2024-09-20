@@ -4,7 +4,7 @@ description: How to submit subtasks
 icon: laptop-code
 ---
 
-To submit [subtasks](/workflows/tasks#subtasks-and-task-composition) from a task, you can use the `submit_subtask`
+To submit [subtasks](/workflows/concepts/tasks#subtasks-and-task-composition) from a task, you can use the `submit_subtask`
 method of the passed `ExecutionContext` object.
 
 Returns a `FutureTask` object that represents the subtask that was submitted. This object can be used to specify
@@ -57,11 +57,11 @@ flaky_task = context.submit_subtask(
 </ParamField>
 
 <ParamField path="task" type="Task">
-  An optional [cluster slug](/workflows/clusters#managing-clusters) to run the subtask on. If not provided, the subtask
+  An optional [cluster slug](/workflows/concepts/clusters#managing-clusters) to run the subtask on. If not provided, the subtask
   is run on the same cluster as the parent task.
 </ParamField>
 
 <ParamField path="task" type="Task">
-  Specify the maximum number of [retries](/workflows/tasks#retry-handling) for the subtask in case of failure. Defaults
+  Specify the maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case of failure. Defaults
   to 0.
 </ParamField>

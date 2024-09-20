@@ -4,7 +4,7 @@ icon: circle-nodes
 ---
 
 <Accordion title="What is a Cluster?">
-  Clusters are a way of grouping [task runners](/workflows/task-runners) together. This is useful when you have a large
+  Clusters are a way of grouping [task runners](/workflows/concepts/task-runners) together. This is useful when you have a large
   number of task runners and you want to manage them as a group. For example, you might have a cluster defined for task
   runners that are running on a particular cloud provider, or a cluster for task runners that share similar hardware.
 </Accordion>
@@ -19,14 +19,14 @@ You might want to organize task runners into clusters for many reasons, such as:
 
 Even Task runners belonging to the same cluster may have different capabilities, for example different tasks registered that they can run.
 Distributing tasks to different runners can also be achieved using only a single cluster, see the
-[Distributed Execution](/workflows/task-runners#distributed-execution) example for more details.
+[Distributed Execution](/workflows/concepts/task-runners#distributed-execution) example for more details.
 
 If you have different task runners that all have the same tasks registered, you then can use clusters to only target
 specific task runners for a particular job.
 
 ### Adding Task Runners to a Cluster
 
-Task runners can be added to a cluster by specifying the [clusters' slug](#cluster-slug) when [registering a task runner](/workflows/task-runners).
+Task runners can be added to a cluster by specifying the [clusters' slug](#cluster-slug) when [registering a task runner](/workflows/concepts/task-runners).
 
 ## Managing Clusters
 
