@@ -9,7 +9,7 @@ icon: box-archive
   backends](#cache-backends) on the roadmap. There might be breaking changes to the Cache API in the future.
 </Warning>
 
-Caches are configured on a [task runner](/workflows/task-runners) level. Since task runners can be deployed in a distributed
+Caches are configured on a [task runner](/workflows/concepts/task-runners) level. Since task runners can be deployed in a distributed
 fashion, caches also need to be accessible from all task runners contributing to the execution of a workflow.
 
 That is why the current default cache implementation is backed by a Google cloud Storage bucket. This allows for a simple and

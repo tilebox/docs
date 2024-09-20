@@ -85,10 +85,10 @@
           "group": "Concepts",
           "icon": "circle-nodes",
           "pages": [
-            "workflows/tasks",
-            "workflows/jobs",
-            "workflows/task-runners",
-            "workflows/clusters"
+            "workflows/concepts/tasks",
+            "workflows/concepts/jobs",
+            "workflows/concepts/task-runners",
+            "workflows/concepts/clusters"
           ]
         },
         "workflows/caches",

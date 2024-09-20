@@ -27,7 +27,7 @@ Implementing a task runner consists of the following steps:
     Instantiate a client connected to the Tilebox Workflows API.
   </Step>
   <Step title="Selecting a cluster">
-    Select or create a [cluster](/workflows/clusters) and then specify it's slug when creating a task runner.
+    Select or create a [cluster](/workflows/concepts/clusters) and then specify it's slug when creating a task runner.
   </Step>
   <Step title="Registering tasks">
     To register tasks, you need to specify the task classes that the task runner can execute as a list to the `runner`
@@ -89,9 +89,9 @@ To now start the task runner locally, simply run it as a Python script:
 
 In order for a task runner to pick up a submitted task, there are certain conditions that must be met:
 
-1. The [cluster](/workflows/clusters) that a task was submitted to must match the task runner's cluster
-2. The task runner must have a registered task matching the [task identifier](/workflows/tasks#task-identifiers) of the submitted task
-3. The version of the task runner's registered task must be [compatible](/workflows/tasks#semantic-versioning) with the submitted task's version
+1. The [cluster](/workflows/concepts/clusters) that a task was submitted to must match the task runner's cluster
+2. The task runner must have a registered task matching the [task identifier](/workflows/concepts/tasks#task-identifiers) of the submitted task
+3. The version of the task runner's registered task must be [compatible](/workflows/concepts/tasks#semantic-versioning) with the submitted task's version
 
 If there is a task that meets these conditions, the task runner picks it up and executes it. Otherwise, the task runner
 idles until a matching task is submitted.
@@ -260,27 +260,27 @@ In this example, since `ProcessData` depends on `DownloadData`, the GPU task run
 pick up the process task.
 
 <Note>
-  You could also differentiate between the task runners by specifying different [clusters](/workflows/clusters), and
+  You could also differentiate between the task runners by specifying different [clusters](/workflows/concepts/clusters), and
   then specifying explicit clusters to run on when submitting sub-tasks. To learn more about this, and the use case for
-  clusters, head over to the [Clusters](/workflows/clusters) section.
+  clusters, head over to the [Clusters](/workflows/concepts/clusters) section.
 </Note>
 
 ## Task Failures
 
 If an uncaught exception occurs during task execution, the task runner catches the exception and reports it back to the workflow orchestrator.
-The orchestrator then marks the task as failed, which results [in a job cancellation](/workflows/jobs#cancellation). This is to prevent the execution
+The orchestrator then marks the task as failed, which results [in a job cancellation](/workflows/concepts/jobs#cancellation). This is to prevent the execution
 of further tasks in the job, which may not be relevant anymore, due to the failure of the task.
 
 But a task failure does not mean that all the work done by the job so far is lost. If the failure is fixable, by either
 fixing a bug in the task implementation, by providing the task with the necessary resources, or by just retrying it a second
-time due to a flaky network connection, it may make sense to [retry](/workflows/jobs#retries) the job.
+time due to a flaky network connection, it may make sense to [retry](/workflows/concepts/jobs#retries) the job.
 
 Retrying a job adds all failed tasks back to the queue, and a task runner may pick them up again and attempt to execute them. If task
 execution then succeeds, the job continue as if nothing happened. If it fails again, the task is again marked as failed, and could be
 retried again if desired.
 
 In case a failure is fixable by modifying the task implementation, it's important to fix the bug and deploy the new
-implementation to the [task runners](/workflows/task-runners) before retrying the job. Otherwise, a task runner with
+implementation to the [task runners](/workflows/concepts/task-runners) before retrying the job. Otherwise, a task runner with
 the original, broken implementation may pick up the task again and fail again.
 
 ## Task idempotency
@@ -299,7 +299,7 @@ they can be safely submitted again.
 Tilebox Workflows has a built-in mechanism to handle even the case of task runners crashing unexpectedly. When a task
 runner picks up a task to execute, it sends a heartbeat to the workflow orchestrator periodically while it's
 executing the task. If the orchestrator does not receive a heartbeat from the task runner for a certain period of
-time, the task is marked as failed and [retried](/workflows/jobs#retries) automatically, for up to 10 times. As a result, another
+time, the task is marked as failed and [retried](/workflows/concepts/jobs#retries) automatically, for up to 10 times. As a result, another
 task runner can pick up the task and execute it, and the job continues as if nothing happened.
 
 This handles even cases such as a power outage, a hardware failure or a dropped network connection, where the runner
