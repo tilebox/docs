@@ -1,7 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
   "name": "Tilebox Docs",
-  "theme": "quill",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -11,6 +10,11 @@
     "primary": "#f43f5e",
     "light": "#FAFAFA",
     "dark": "#09090b"
+  },
+  "font": {
+    "headings": {
+      "family": "Poppins"
+    }
   },
   "topbarLinks": [
     {
@@ -22,16 +26,25 @@
     "name": "Console",
     "url": "https://console.tilebox.com"
   },
-  "anchors": [
+  "tabs": [
     {
       "name": "API Reference",
-      "url": "api-reference",
-      "icon": "square-terminal"
-    },
+      "url": "api"
+    }
+  ],
+  "primaryTab": {
+    "name": "Documentation"
+  },
+  "anchors": [
     {
       "name": "Console",
       "icon": "terminal",
       "url": "https://console.tilebox.com"
+    },
+    {
+      "name": "Book a Demo",
+      "icon": "calendar",
+      "url": "https://book.vimcal.com/p/lauracosta/tilebox-demo"
     }
   ],
   "navigation": [
@@ -115,50 +128,50 @@
     {
       "group": "Datasets",
       "pages": [
-        "api-reference/datasets/listing-datasets",
-        "api-reference/datasets/accessing-dataset",
-        "api-reference/datasets/listing-collection",
-        "api-reference/datasets/accessing-collection",
-        "api-reference/datasets/collection-info",
-        "api-reference/datasets/loading-data",
-        "api-reference/datasets/loading-datapoint"
+        "api/datasets/listing-datasets",
+        "api/datasets/accessing-dataset",
+        "api/datasets/listing-collection",
+        "api/datasets/accessing-collection",
+        "api/datasets/collection-info",
+        "api/datasets/loading-data",
+        "api/datasets/loading-datapoint"
       ]
     },
     {
       "group": "Storage Providers",
       "pages": [
-        "api-reference/storage-providers/creating-storage-client",
-        "api-reference/storage-providers/downloading-products",
-        "api-reference/storage-providers/downloading-quicklook-images",
-        "api-reference/storage-providers/previewing-quicklook-images",
-        "api-reference/storage-providers/deleting-products",
-        "api-reference/storage-providers/deleting-cache",
-        "api-reference/storage-providers/direct-storage-access"
+        "api/storage-providers/creating-storage-client",
+        "api/storage-providers/downloading-products",
+        "api/storage-providers/downloading-quicklook-images",
+        "api/storage-providers/previewing-quicklook-images",
+        "api/storage-providers/deleting-products",
+        "api/storage-providers/deleting-cache",
+        "api/storage-providers/direct-storage-access"
       ]
     },
     {
       "group": "Workflows",
       "pages": [
-        "api-reference/workflows/implementing-task",
-        "api-reference/workflows/task-inputs",
-        "api-reference/workflows/subtasks",
-        "api-reference/workflows/task-display-name",
-        "api-reference/workflows/creating-task-runner",
-        "api-reference/workflows/starting-task-runner",
-        "api-reference/workflows/submitting-job",
-        "api-reference/workflows/retrying-job",
-        "api-reference/workflows/cancelling-job",
-        "api-reference/workflows/visualizing-job",
-        "api-reference/workflows/cluster-management",
-        "api-reference/workflows/cache-access",
-        "api-reference/workflows/hierarchical-caches"
+        "api/workflows/implementing-task",
+        "api/workflows/task-inputs",
+        "api/workflows/subtasks",
+        "api/workflows/task-display-name",
+        "api/workflows/creating-task-runner",
+        "api/workflows/starting-task-runner",
+        "api/workflows/submitting-job",
+        "api/workflows/retrying-job",
+        "api/workflows/cancelling-job",
+        "api/workflows/visualizing-job",
+        "api/workflows/cluster-management",
+        "api/workflows/cache-access",
+        "api/workflows/hierarchical-caches"
       ]
     }
   ],
   "feedback": {
     "thumbsRating": true,
-    "suggestEdit": false,
-    "raiseIssue": false
+    "suggestEdit": true,
+    "raiseIssue": true
   },
   "footerSocials": {
     "x": "https://x.com/tileboxio",
