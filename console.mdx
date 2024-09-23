@@ -31,11 +31,14 @@ This pastes a code snippet like the one below into your clipboard.
 
 ```python
 from tilebox.datasets import Client
+
 client = Client()
 datasets = client.datasets()
-collection = datasets.open_data.copernicus.sentinel2_msi.collection("S2A_S2MSI1C")
-interval = ("2024-07-17", "2024-08-14T23:59:59.999")
-data = collection.load(interval, show_progress=True)
+sentinel2_msi = datasets.open_data.copernicus.sentinel2_msi
+data = sentinel2_msi.collection("S2A_S2MSI1C").load(
+    ("2024-07-12", "2024-07-26"),
+    show_progress=True,
+)
 ```
 
 <Tip>
