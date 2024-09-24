@@ -1,10 +1,10 @@
 ---
 title: Tracing
-description: 
+description: Record the execution of your workflow tasks as open telemetry traces and spans
 icon: chart-gantt
 ---
 
-## Tracing workflows
+## Overview
 
 Applying [Opentelemetry Traces](https://opentelemetry.io/docs/concepts/signals/traces/) to the concept of workflows
 means observing the execution of the workflow and the individual tasks within it. Visualizing the traces produced by a
@@ -88,7 +88,7 @@ call the corresponding configuration functions during the start up of your [task
         )
 
         # below task runner will generate traces for the tasks it executes and
-        # export trace and span data to the specified axiom dataset
+        # export trace and span data to the specified endpoint
         client = Client()
         runner = client.runner("dev-cluster", tasks=[MyTask])
         runner.run_forever()
