@@ -109,9 +109,9 @@
           "group": "Observability",
           "icon": "eye",
           "pages": [
-            "workflows/tracing",
-            "workflows/logging",
-            "workflows/axiom"
+            "workflows/observability/open_telemetry",
+            "workflows/observability/tracing",
+            "workflows/observability/logging"
           ]
         },
         {

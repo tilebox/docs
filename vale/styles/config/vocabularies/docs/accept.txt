@@ -35,3 +35,5 @@ subtask
 parallelizable
 deserializing
 idempotency
+SDKs
+SDK

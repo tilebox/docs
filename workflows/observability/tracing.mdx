@@ -1,0 +1,108 @@
+---
+title: Tracing
+description: 
+icon: chart-gantt
+---
+
+## Tracing workflows
+
+Applying [Opentelemetry Traces](https://opentelemetry.io/docs/concepts/signals/traces/) to the concept of workflows
+means observing the execution of the workflow and the individual tasks within it. Visualizing the traces produced by a
+workflow in a tool such as [Axiom](https://axiom.co/) might look like the following:
+
+<Frame>
+  <img src="/assets/workflows/observability/workflow-traces-light.png" alt="Tilebox Workflows tracing in Axiom" className="dark:hidden" />
+  <img src="/assets/workflows/observability/workflow-traces-dark.png" alt="Tilebox Workflows tracing in Axiom" className="hidden dark:block" />
+</Frame>
+
+By tracing your workflows you can easily observe:
+
+- the order in which tasks are executed
+- which tasks are executed in parallel
+- which [task runner](/workflows/concepts/task-runners) is executing each task
+- the duration of each task
+- the outcome of each task (success, failure)
+
+This can be useful to identify bottlenecks and performance issues, and to ensure that your workflows are
+executing as expected.
+
+## Configuring Tracing
+
+The Tilebox workflow SDKs contain built-in support for exporting open telemetry traces. To enable tracing, simply
+call the corresponding configuration functions during the start up of your [task runner](/workflows/concepts/task-runners).
+
+<Tabs>
+    <Tab title="Axiom">
+    To configure tracing with Axiom, you first need to create a [Axiom Dataset](https://axiom.co/docs/reference/datasets)
+    to export Tilebox workflow traces to. Additionally, an API key with ingest permissions to that dataset is required.
+    
+    
+    ```python Python
+    from tilebox.workflows import Client
+    from tilebox.workflows.observability.tracing import configure_otel_tracing_axiom
+
+    # your own workflow:
+    from my_workflow import MyTask
+
+    def main():
+        configure_otel_tracing_axiom(
+            # specify an axiom dataset to export traces to
+            dataset="my-axiom-traces-dataset",
+            # along with an axiom api key with ingest permissions to that dataset
+            api_key="my-axiom-api-key",
+        )
+
+        # below task runner will generate traces for the tasks it executes and
+        # export trace and span data to the specified axiom dataset
+        client = Client()
+        runner = client.runner("dev-cluster", tasks=[MyTask])
+        runner.run_forever()
+    
+    if __name__ == "__main__":
+        main()
+    ```
+
+    <Tip>
+        If you set environment variables `AXIOM_API_KEY` and `AXIOM_TRACES_DATASET` you can omit those arguments
+        to the `configure_otel_tracing_axiom` function.
+    </Tip>
+    
+    </Tab>
+    <Tab title="OpenTelemetry-compatible backend">
+    If you are using a OpenTelemetry-compatible backend other than Axiom, such as OpenTelemetry Collector or Jaeger,
+    you can still easily configure tracing by manually specifying the endpoint to ingest traces to.
+
+    ```python Python
+    from tilebox.workflows import Client
+    from tilebox.workflows.observability.tracing import configure_otel_tracing
+
+    # your own workflow:
+    from my_workflow import MyTask
+
+    def main():
+        configure_otel_tracing(
+            # specify an endpoint to ingest traces to, in this case a
+            # locally running instance of opentelemetry collector
+            endpoint="http://localhost:4318/v1/traces",
+            headers={"Authorization": "Bearer some-api-key"},  # optional headers to send with each request
+        )
+
+        # below task runner will generate traces for the tasks it executes and
+        # export trace and span data to the specified axiom dataset
+        client = Client()
+        runner = client.runner("dev-cluster", tasks=[MyTask])
+        runner.run_forever()
+    
+    if __name__ == "__main__":
+        main()
+    ```
+
+    <Tip>
+        If you set environment variable `OTEL_TRACES_ENDPOINT` you can omit that argument
+        to the `configure_otel_tracing` function.
+    </Tip>
+    </Tab>
+</Tabs>
+
+As soon as the runner picks up tasks and executes them, corresponding traces and spans are automatically generated
+and exported to the configured backend.
