@@ -1,6 +1,6 @@
 ---
 title: Jobs
-icon: chart-gantt
+icon: diagram-project
 ---
 
 <Accordion title="What is a Job?">
@@ -280,6 +280,7 @@ release date of each movie.
 
 <CodeGroup>
     ```python Python (Sync)
+    from urllib.parse import urlencode
     import httpx
     from tilebox.workflows import Task, ExecutionContext
 
@@ -302,6 +303,7 @@ release date of each movie.
             print(f"{response['Title']} was released on {response['Released']}")
     ```
     ```python Python (Async)
+    from urllib.parse import urlencode
     import httpx
     from tilebox.workflows.aio import Task, ExecutionContext
 

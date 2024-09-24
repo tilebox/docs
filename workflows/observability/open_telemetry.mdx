@@ -1,0 +1,50 @@
+---
+title: Open Telemetry Integration
+sidebarTitle: Open Telemetry
+description: Integrate Open Telemetry into your Tilebox Workflows
+icon: telescope
+---
+
+## Observability
+
+Since Tilebox Workflows is designed to be a general-purpose workflow orchestrator, and supports distributed execution out
+of the box, sophisticated observability is a key feature. To build reliable and efficient workflows, it's
+important to be able to understand and observe the execution of workflows and their tasks. This section covers
+techniques to gain insights into the execution of your workflows.
+
+<CardGroup cols={3}>
+    <Card
+        title="Tracing"
+        icon="chart-gantt"
+        href="/workflows/observability/tracing"
+        horizontal
+    />
+    <Card
+        title="Logging"
+        icon="rectangle-terminal"
+        href="/workflows/observability/logging"
+        horizontal
+    />
+</CardGroup>
+
+## Open Telemetry
+
+Tilebox Workflows is built with [OpenTelemetry](https://opentelemetry.io/) in mind. OpenTelemetry is a set of APIs and libraries that are used to
+instrument, generate, collect, and export telemetry data (metrics, logs, and traces) for distributed systems.
+
+<Info>
+Currently, Tilebox Workflows supports OpenTelemetry for tracing and logging, with support for metrics planned for the
+future.
+</Info>
+
+## Integrations
+
+Tilebox implements exporting of telemetry data using the [OpenTelemetry Protocol](https://opentelemetry.io/docs/specs/otlp/).
+
+<img src="/assets/workflows/observability/tilebox-axiom.png" alt="Tilebox comes pre-integrated with Axiom" />
+
+One service that supports this protocol is [Axiom](https://axiom.co/), a cloud-based observability and telemetry platform.
+Tilebox Workflows comes with built-in support for Axiom, and the examples and screenshots in this section come from this integration.
+
+But additionally any other OpenTelemetry-compatible backend, such as OpenTelemetry Collector or
+Jaeger can also be used to collect telemetry data produced by Tilebox Workflows.
