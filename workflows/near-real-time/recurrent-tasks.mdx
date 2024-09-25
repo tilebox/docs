@@ -13,7 +13,7 @@ the task implementations - at all, instead it's just a different way of submitti
 
 Tilebox Workflows currently supports the following trigger conditions:
 
-<CardGroup>
+<CardGroup cols={1}>
     <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal>
         Trigger jobs based on a Cron schedule.
     </Card>
@@ -21,6 +21,11 @@ Tilebox Workflows currently supports the following trigger conditions:
         Trigger jobs after objects are created or modified in a storage location.
     </Card>
 </CardGroup>
+
+<Info>
+    Dataset Event Triggers, capable of triggering jobs because of new data points being ingested into a Tilebox dataset,
+    are the next trigger type on the roadmap. Stay tuned for updates.
+</Info>
 
 ## Recurrent Tasks
 

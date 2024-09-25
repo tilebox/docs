@@ -139,15 +139,15 @@ task = MyCronTask(message="Hello")
 
 # submitting it directly won't work: raises ValueError:
 # CronTask cannot be submitted without being triggered. Use task.once().
-job_client.submit("my-testing-cron-job", task, cluster="dev-cluster")
+job_client.submit("manual-cron-job", task, cluster="dev-cluster")
 
 # we need to specify a trigger time, so we can submit the task as a regular task
 triggered_task = task.once()  # same as task.once(datetime.now())
-job_client.submit("my-testing-cron-job", triggered_task, cluster="dev-cluster")
+job_client.submit("manual-cron-job", triggered_task, cluster="dev-cluster")
 
 # or we can simulate a trigger at a specific time
 triggered_task = task.once(datetime(2030, 12, 12, 15, 15, tzinfo=timezone.utc))
 # the task will be scheduled to run immediately, even with a future trigger time
 # but self.trigger.time will be 2023-12-12T15:15:00Z for the task instance
-job_client.submit("my-testing-cron-job", triggered_task, cluster="dev-cluster")
+job_client.submit("manual-cron-job", triggered_task, cluster="dev-cluster")
 ```
