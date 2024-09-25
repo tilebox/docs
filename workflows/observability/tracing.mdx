@@ -11,8 +11,8 @@ means observing the execution of the workflow and the individual tasks within it
 workflow in a tool such as [Axiom](https://axiom.co/) might look like the following:
 
 <Frame>
-  <img src="/assets/workflows/observability/workflow-traces-light.png" alt="Tilebox Workflows tracing in Axiom" className="dark:hidden" />
-  <img src="/assets/workflows/observability/workflow-traces-dark.png" alt="Tilebox Workflows tracing in Axiom" className="hidden dark:block" />
+  <img src="/assets/workflows/observability/traces-light.png" alt="Tilebox Workflows tracing in Axiom" className="dark:hidden" />
+  <img src="/assets/workflows/observability/traces-dark.png" alt="Tilebox Workflows tracing in Axiom" className="hidden dark:block" />
 </Frame>
 
 By tracing your workflows you can easily observe:
@@ -26,7 +26,7 @@ By tracing your workflows you can easily observe:
 This can be useful to identify bottlenecks and performance issues, and to ensure that your workflows are
 executing as expected.
 
-## Configuring Tracing
+## Configure tracing
 
 The Tilebox workflow SDKs contain built-in support for exporting open telemetry traces. To enable tracing, simply
 call the corresponding configuration functions during the start up of your [task runner](/workflows/concepts/task-runners).

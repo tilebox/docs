@@ -109,18 +109,18 @@
           "group": "Observability",
           "icon": "eye",
           "pages": [
-            "workflows/observability/open_telemetry",
+            "workflows/observability/open-telemetry",
             "workflows/observability/tracing",
             "workflows/observability/logging"
           ]
         },
         {
           "group": "Near-Real Time",
-          "icon": "bolt-lightning",
+          "icon": "bolt",
           "pages": [
-            "workflows/recurring-tasks",
-            "workflows/cron-triggers",
-            "workflows/storage-event-triggers"
+            "workflows/near-real-time/recurrent-tasks",
+            "workflows/near-real-time/cron",
+            "workflows/near-real-time/storage-events"
           ]
         }
       ]

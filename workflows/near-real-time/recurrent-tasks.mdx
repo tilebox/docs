@@ -1,0 +1,99 @@
+---
+title: Recurrent Tasks
+description: Process data in near-real-time by triggering jobs based on external events
+icon: repeat
+---
+
+## Introduction
+
+Tilebox Workflows are not only capable of executing jobs once after they are submitted by a user, often also referred
+to as batch-processing. Instead, it's also possible to execute jobs in near-real-time, by defining trigger conditions
+that result in jobs being executed based on external events. This requires no changes in the actual workflow code - 
+the task implementations - at all, instead it's just a different way of submitting jobs.
+
+Tilebox Workflows currently supports the following trigger conditions:
+
+<CardGroup>
+    <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal>
+        Trigger jobs based on a Cron schedule.
+    </Card>
+    <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/near-real-time/storage-events" horizontal>
+        Trigger jobs after objects are created or modified in a storage location.
+    </Card>
+</CardGroup>
+
+## Recurrent Tasks
+
+To create such a trigger, a special task needs to be defined, that acts as prototype for the tasks that
+are submitted as part of a job as response to a trigger. Such a task prototype is called a recurrent task.
+
+Since a recurrent task acts as a prototype for an actual task that gets submitted, it has a [task identifier](/workflows/concepts/tasks#task-identifiers),
+a [version](/workflows/concepts/tasks#semantic-versioning) and [input parameters](/workflows/concepts/tasks#input-parameters) just
+like any other regular task would. Recurrent tasks additionally also have a special `trigger` parameter. It differs for each
+instantiation of the recurrent task and contains information about the event that triggered the execution of the task.
+
+## Recurrent task client
+
+The Tilebox workflows client provides a sub-client for interacting with recurrent tasks. This client can be
+instantiated by calling the `recurrent_tasks` method on the client instance.
+
+### Listing registered recurrent tasks
+
+To list all registered recurrent tasks, you can use the `all` method on the recurrent task client.
+
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+recurrent_tasks = client.recurrent_tasks()
+
+recurrent_tasks = recurrent_tasks.all()
+print(recurrent_tasks)
+```
+
+```plaintext Output
+[
+    RecurrentTaskPrototype(
+        name='Run MyCronTask every hour at 15 minutes past the hour',
+        prototype=TaskSubmission(
+            cluster_slug='dev-cluster',
+            identifier=TaskIdentifier(name='MyCronTask', version='v0.0'),
+            input=b'{"message": "Hello"},
+            dependencies=[],
+            display='MyCronTask',
+            max_retries=0), 
+        storage_event_triggers=[],
+        cron_triggers=[CronTrigger(schedule='15 * * * *')],
+    )
+]
+```
+
+### Registering a recurrent tasks
+
+To register a recurrent task, the recurrent task client provides `create_recurring_...` methods for each trigger type.
+Check out the documentation of the individual trigger types for more details.
+
+<CardGroup>
+    <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal />
+    <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/near-real-time/storage-events" horizontal />
+</CardGroup>
+
+## Overview in the Tilebox Console
+
+Other than using the Tilebox SDKs to list or register recurrent tasks, you can also manage them in the Tilebox Console.
+Head over to [the Workflows tab](https://console.tilebox.com/workflows/recurrent-tasks) to check it out.
+
+There, you'll find a list of all registered recurrent tasks.
+
+<Frame>
+  <img src="/assets/workflows/recurrent-tasks/recurrent-tasks-light.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="dark:hidden" />
+  <img src="/assets/workflows/recurrent-tasks/recurrent-tasks-dark.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="hidden dark:block" />
+</Frame>
+
+Additionally, you'll be able to register new recurrent tasks or edit/delete existing ones.
+
+<Frame>
+  <img src="/assets/workflows/recurrent-tasks/recurrent-task-edit-light.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="dark:hidden" />
+  <img src="/assets/workflows/recurrent-tasks/recurrent-task-edit-dark.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="hidden dark:block" />
+</Frame>
+
