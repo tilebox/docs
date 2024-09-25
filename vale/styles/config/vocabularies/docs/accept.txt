@@ -37,3 +37,4 @@ deserializing
 idempotency
 SDKs
 SDK
+(?i)cron
