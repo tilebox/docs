@@ -313,8 +313,8 @@ Read b'my_binary_data_to_store' from cache
 
 The cache API also supports the concept of groups and hierarchical keys. This behaves in a similar way to the concept of directories
 and files in a file system. Groups can be used to organize cache keys into a hierarchical structure, which can be useful
-to avoid conflicts between keys, or to organize data in a more structured way. Additionally, the provided `list_items`
-method can be used to list all keys in a group. This can be especially useful when a workflow spawns many tasks that store data
+to avoid conflicts between keys, or to organize data in a more structured way. Additionally, groups are iterable, yielding
+all keys in the group. This can be especially useful when a workflow spawns many tasks that store data
 in the cache, and a successive task needs to access all the produced data, for example to produce an aggregated result.
 
 The following code snippet shows how to use groups and hierarchical keys. Data is stored in a group called `"random_numbers"` under
@@ -361,7 +361,7 @@ then displays the sum of all data points.
             group = context.job_cache.group(self.group_key)
 
             numbers = []
-            for key in group.list_items():  # iterate over all produced numbers
+            for key in group:  # iterate over all produced numbers
                 number = group[key]  # read data from cache
                 numbers.append(int.from_bytes(number))  # convert bytes back to int, and add to sum
 
@@ -406,7 +406,7 @@ then displays the sum of all data points.
             group = context.job_cache.group(self.group_key)
 
             numbers = []
-            for key in group.list_items():  # iterate over all produced numbers
+            for key in group:  # iterate over all produced numbers
                 number = group[key]  # read data from cache
                 numbers.append(int.from_bytes(number))  # convert bytes back to int, and add to sum
 
