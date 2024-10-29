@@ -9,33 +9,14 @@ You can access information such as availability and number of available datapoin
 <RequestExample>
 
 ```python Python (Sync)
-info = collection.info(
-    availability = True,
-    count = False,
-)
+info = collection.info()
 ```
 
 ```python Python (Async)
-info = await collection.info(
-    availability = True,
-    count = False,
-)
+info = await collection.info()
 ```
 
 </RequestExample>
-
-## Parameters
-
-<ParamField path="availability" type="bool">
-  Include the availability interval in the info response. The availability interval is a time interval with a start time
-  of the first available data point and an end time of the last available data point in a collection. Defaults to
-  `True`.
-</ParamField>
-
-<ParamField path="count" type="bool">
-  Include the number of data points in the info response. Producing an exact count requires a full scan of the
-  collection, which can be slow for large collections. Defaults to `False`.
-</ParamField>
 
 ## Errors
 

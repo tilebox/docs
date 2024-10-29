@@ -82,13 +82,13 @@ method.
   
   ```python Python (Sync)
   dataset = datasets.open_data.copernicus.landsat8_oli_tirs
-  collections = dataset.collections(availability=True, count=True)
+  collections = dataset.collections()
   print(collections)
   ```
   
   ```python Python (Async)
   dataset = datasets.open_data.copernicus.landsat8_oli_tirs
-  collections = await dataset.collections(availability=True, count=True)
+  collections = await dataset.collections()
   print(collections)
   ```
 
@@ -113,14 +113,14 @@ You can then use the `info()` method on the collection object to get information
   ```python Python (Sync)
   collections = dataset.collections()
   terrain_correction = collections["L1GT"]
-  collection_info = terrain_correction.info(availability=True, count=True)
+  collection_info = terrain_correction.info()
   print(collection_info)
   ```
   
   ```python Python (Async)
   collections = await dataset.collections()
   terrain_correction = collections["L1GT"]
-  collection_info = await terrain_correction.info(availability=True, count=True)
+  collection_info = await terrain_correction.info()
   print(collection_info)
   ```
 
@@ -137,13 +137,13 @@ This has the advantage that you can directly access the collection without havin
   
   ```python Python (Sync)
   terrain_correction = dataset.collection("L1GT")
-  collection_info = terrain_correction.info(availability=True, count=True)
+  collection_info = terrain_correction.info()
   print(collection_info)
   ```
   
   ```python Python (Async)
   terrain_correction = dataset.collection("L1GT")
-  collection_info = await terrain_correction.info(availability=True, count=True)
+  collection_info = await terrain_correction.info()
   print(collection_info)
   ```
 
