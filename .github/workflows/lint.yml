@@ -2,6 +2,16 @@ name: Lint Text
 on: [pull_request]
 
 jobs:
+  vale:
+    name: Run Vale Linter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: errata-ai/vale-action@reviewdog
+        with:
+          fail_on_error: true
   docs-quality:
     name: Check docs standards
     runs-on: ubuntu-latest
@@ -9,11 +19,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true
-      - name: Run Vale Linter
-        uses: errata-ai/vale-action@reviewdog
-        with:
-          fail_on_error: true
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
