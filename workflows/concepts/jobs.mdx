@@ -20,7 +20,7 @@ Once a job is submitted, its root task is scheduled for execution, and any [elig
 may pick it up and execute it.
 
 For submitting a job, a job client needs to be instantiated first. This can be done by calling the `jobs` method on the
-[workflows' client](/workflows/creating).
+workflows' client.
 
 <CodeGroup>
 ```python Python (Sync)
@@ -115,7 +115,7 @@ and [dependencies](/workflows/concepts/tasks#dependencies), it's possible to vis
 Assuming you have submitted a job, you can use the `display` method on the job client to display the execution of the job as a graph diagram.
 
 <Note>
-    The `display` method is designed to be used in an [interactive environment](/sdks/python/jupyter), such as a Jupyter notebook.
+    The `display` method is designed to be used in an [interactive environment](/sdks/python/sample-notebooks#interactive-environments), such as a Jupyter notebook.
     In non-interactive environments, use `job_client.visualize` instead which returns the rendered diagram as a string
     in the SVG format.
 </Note>

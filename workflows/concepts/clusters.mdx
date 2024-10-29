@@ -34,7 +34,7 @@ Before registering a task runner, or submitting a job, you need to create a clus
 clusters as needed. The following sections illustrates how to do this.
 
 To manage clusters, you first need to instantiate a cluster client. You can do this by calling the `clusters` method on the
-[workflows' client](/workflows/creating).
+workflows' client.
 
 <CodeGroup title="Instantiating a Clusters Client">
     ```python Python (Sync)
@@ -132,7 +132,7 @@ To delete a cluster, you can use the `delete` method and pass in a cluster's slu
 
 ## Jobs spanning different clusters
 
-[When submitting a job](/workflows/job) you need to specify the cluster that the job should be submitted to.
+[When submitting a job](/workflows/concepts/jobs) you need to specify the cluster that the job should be submitted to.
 This allows you to target a specific group of task runners for a particular job. All sub-tasks within the job are
 submitted to the same cluster by default. This can also be manually overridden to submit sub-tasks to other
 clusters if needed. Check out the example below to see how this can be done.
