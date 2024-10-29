@@ -2,13 +2,23 @@ name: Lint Text
 on: [pull_request]
 
 jobs:
-  vale:
-    name: Run Vale Linter
+  docs-quality:
+    name: Check docs standards
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           lfs: true
-      - uses: errata-ai/vale-action@reviewdog
+      - name: Run Vale Linter
+        uses: errata-ai/vale-action@reviewdog
         with:
           fail_on_error: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Mintlify CLI
+        run: npm install -g mintlify
+      - name: Run Mintlify broken-links
+        run: mintlify broken-links
