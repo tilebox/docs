@@ -13,18 +13,11 @@ Both methods have the same parameters.
 
 <RequestExample>
 
-```python Python (Sync)
+```python Python
 svg: str = job_client.visualize(job)
 
 # or if you are in a Jupyter notebook:
 job_client.display(job)
-```
-
-```python Python (Async)
-svg: str = await job_client.visualize(job)
-
-# or if you are in a Jupyter notebook:
-await job_client.display(job)
 ```
 
 </RequestExample>
@@ -37,7 +30,7 @@ await job_client.display(job)
 
 <ParamField path="direction" type="str">
   An explicit direction for the diagram to flow towards. See the relevant section in the [D2
-  docs](https://d2lang.com/tour/layouts/#direction) for more detail. Valid values are `up`, `down`, `right`, `left`.
+docs](https://d2lang.com/tour/layouts/#direction) for more detail. Valid values are `up`, `down`, `right`, `left`.
   Defaults to `down`.
 </ParamField>
 

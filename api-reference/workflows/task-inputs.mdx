@@ -9,19 +9,7 @@ These parameters are defined as class attributes, the same way as you would defi
 
 <RequestExample>
 
-```python Python (Sync)
-from tilebox.workflows import Task, ExecutionContext
-
-class ParametrizableTask(Task):
-    message: str
-    number: int
-    data: dict[str, str]
-
-    def execute(self, context: ExecutionContext):
-        ...
-```
-
-```python Python (Async)
+```python Python
 from tilebox.workflows import Task, ExecutionContext
 
 class ParametrizableTask(Task):

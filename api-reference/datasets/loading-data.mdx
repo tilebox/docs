@@ -14,7 +14,7 @@ Tilebox as time. Currently this includes either strings in ISO 8601 format or py
 
 <RequestExample>
 
-```python Python (Sync)
+```python Python
 from datetime import datetime
 from tilebox.clients.core.data import TimeInterval
 
@@ -38,32 +38,6 @@ data = collection.load(interval, show_progress=True)
 # loading with an iterable
 meta_data = collection.load(..., skip_data=True)
 first_50 = collection.load(meta_data.time[:50], skip_data=False)
-```
-
-```python Python (Async)
-from datetime import datetime
-from tilebox.clients.core.data import TimeInterval
-
-# loading a specific time
-time = "2023-05-01 12:45:33.423"
-data = await collection.load(time)
-
-# loading a time interval
-interval = ("2023-05-01", "2023-08-01")
-data = await collection.load(interval, show_progress=True)
-
-# loading a time interval alternative equivalent to the above example
-interval = TimeInterval(
-    start = datetime(2023, 5, 1),
-    end = datetime(2023, 8, 1),
-    start_exclusive = False,
-    end_inclusive = False,
-)
-data = await collection.load(interval, show_progress=True)
-
-# loading with an iterable
-meta_data = await collection.load(..., skip_data=True)
-first_50 = await collection.load(meta_data.time[:50], skip_data=False)
 ```
 
 </RequestExample>

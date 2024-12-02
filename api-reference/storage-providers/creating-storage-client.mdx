@@ -10,21 +10,9 @@ For a complete example look at the [Accessing Open Data](/datasets/open-data#sam
 
 <RequestExample>
 
-```python Python (Sync)
+```python Python
 from pathlib import Path
 from tilebox.storage import ASFStorageClient
-# or UmbraStorageClient
-# or CopernicusStorageClient
-
-storage_client = ASFStorageClient(
-    "ASF_USERNAME", "ASF_PASSWORD",
-    cache_directory=Path("./data")
-)
-```
-
-```python Python (Async)
-from pathlib import Path
-from tilebox.storage.aio import ASFStorageClient
 # or UmbraStorageClient
 # or CopernicusStorageClient
 

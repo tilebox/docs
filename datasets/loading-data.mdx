@@ -21,7 +21,7 @@ assume that you have already [created a client](/datasets/introduction#creating-
 
 <CodeGroup>
 
-    ```python Python (Sync)
+    ```python Python
     from tilebox.datasets import Client
 
     client = Client()
@@ -29,15 +29,7 @@ assume that you have already [created a client](/datasets/introduction#creating-
     collections = datasets.open_data.copernicus.sentinel1_sar.collections()
     collection = collections["S1A_IW_RAW__0S"]
     ```
-    ```python Python (Async)
-    from tilebox.datasets.aio import Client
-
-    client = Client()
-    datasets = await client.datasets()
-    collections = await datasets.open_data.copernicus.sentinel1_sar.collections()
-    collection = collections["S1A_IW_RAW__0S"]
-    ```
-
+    
 </CodeGroup>
 
 ## Loading data
@@ -57,16 +49,11 @@ Check out the example below to see how to load a data point at a specific time f
 
 <CodeGroup>
   
-  ```python Python (Sync)
+  ```python Python
   data = collection.load("2024-08-01 00:00:01.362")
   print(data)
   ```
   
-  ```python Python (Async)
-  data = await collection.load("2024-08-01 00:00:01.362")
-  print(data)
-  ```
-
 </CodeGroup>
 
 ```plaintext Output
@@ -110,13 +97,8 @@ when calling `load`. Check out the example below to see this in action.
 
 <CodeGroup>
 
-```python Python (Sync)
+```python Python
 data = collection.load("2024-08-01 00:00:01.362", skip_data=True)
-print(data)
-```
-
-```python Python (Async)
-data = await collection.load("2024-08-01 00:00:01.362", skip_data=True)
 print(data)
 ```
 
@@ -140,15 +122,9 @@ In that case the returned dataset is empty, but it does not raise an error.
 
 <CodeGroup>
 
-```python Python (Sync)
+```python Python
 time_with_no_data_points = "1997-02-06 10:21:00"
 data = collection.load(time_with_no_data_points)
-print(data)
-```
-
-```python Python (Async)
-time_with_no_data_points = "1997-02-06 10:21:00"
-data = await collection.load(time_with_no_data_points)
 print(data)
 ```
 
@@ -169,7 +145,7 @@ internally convert the specified datetime to `UTC` before making a request. The 
 timestamps, which would need to be manually converted again to different timezones.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from datetime import datetime
     import pytz
 
@@ -177,16 +153,6 @@ timestamps, which would need to be manually converted again to different timezon
     tokyo_time = pytz.timezone('Asia/Tokyo').localize(datetime(2017, 1, 1, 11, 45, 25, 679000))
     print(tokyo_time)
     data = collection.load(tokyo_time)
-    print(data)  # time is in UTC since the API always returns UTC timestamps
-    ```
-    ```python Python (Async)
-    from datetime import datetime
-    import pytz
-
-    # Tokyo has a UTC+9 hours offset, so this is the same as 2017-01-01 02:45:25.679 UTC
-    tokyo_time = pytz.timezone('Asia/Tokyo').localize(datetime(2017, 1, 1, 11, 45, 25, 679000))
-    print(tokyo_time)
-    data = await collection.load(tokyo_time)
     print(data)  # time is in UTC since the API always returns UTC timestamps
     ```
 
@@ -217,14 +183,9 @@ or as a string in ISO 8601 format.
 
 <CodeGroup>
 
-```python Python (Sync)
+```python Python
 interval = ("2017-01-01", "2023-01-01")
 data = collection.load(interval, show_progress=True)
-```
-
-```python Python (Async)
-interval = ("2017-01-01", "2023-01-01")
-data = await collection.load(interval, show_progress=True)
 ```
 
 </CodeGroup>
@@ -266,7 +227,7 @@ especially useful when chaining time intervals together. For example, the follow
 as preceding.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     import xarray as xr
 
     data = []
@@ -278,19 +239,7 @@ as preceding.
     # to the result of the single request in the code example above.
     data = xr.concat(data, dim="time")
     ```
-    ```python Python (Async)
-    import xarray as xr
-
-    data = []
-    for year in [2017, 2018, 2019, 2020, 2021, 2022]
-        interval = (f"{year}-01-01", f"{year + 1}-01-01")
-        data.append(await collection.load(interval, show_progress=True))
-
-    # Concatenate the data into a single dataset, which is equivalent
-    # to the result of the single request in the code example above.
-    data = xr.concat(data, dim="time")
-    ```
-
+    
 </CodeGroup>
 
 This code example shows a way to manually split up a large time interval into smaller chunks and make load data in
@@ -307,7 +256,7 @@ of creating an equivalent `TimeInterval` object.
 
 <CodeGroup>
 
-    ```python Python (Sync)
+    ```python Python
     from datetime import datetime
     from tilebox.datasets.data import TimeInterval
 
@@ -328,28 +277,7 @@ of creating an equivalent `TimeInterval` object.
     # same operation as above
     data = collection.load(interval1, show_progress=True)
     ```
-    ```python Python (Async)
-    from datetime import datetime
-    from tilebox.data import TimeInterval
-
-    interval1 = TimeInterval(
-        datetime(2017, 1, 1), datetime(2023, 1, 1),
-        end_inclusive=False
-    )
-    interval2 = TimeInterval(
-        datetime(2017, 1, 1), datetime(2022, 12, 31, 23, 59, 59, 999999),
-        end_inclusive=True
-    )
-
-    print("Notice the different end characters ) and ] in the interval notations below:")
-    print(interval1)
-    print(interval2)
-    print(f"They are equivalent: {interval1 == interval2}")
-
-    # same operation as above
-    data = await collection.load(interval1, show_progress=True)
-    ```
-
+    
 </CodeGroup>
 
 ```plaintext Output
@@ -366,21 +294,14 @@ Another way of specifying a time interval when loading data is to use an iterabl
 `load` as the input for another call. Check out the example below to see how this can be done.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     interval = ("2017-01-01", "2023-01-01")
     meta_data = collection.load(interval, skip_data=True)
 
     first_50_data_points = collection.load(meta_data.time[:50], skip_data=False)
     print(first_50_data_points)
     ```
-    ```python Python (Async)
-    interval = ("2017-01-01", "2023-01-01")
-    meta_data = await collection.load(interval, skip_data=True)
-
-    first_50_data_points = await collection.load(meta_data.time[:50], skip_data=False)
-    print(first_50_data_points)
-    ```
-
+    
 </CodeGroup>
 
 ```plaintext Output
@@ -420,15 +341,9 @@ collection. Check out the example below to see how this can be done.
 
 <CodeGroup>
   
-```python Python (Sync)
+```python Python
 datapoint_id = "01916d89-ba23-64c9-e383-3152644bcbde"
 datapoint = collection.find(datapoint_id)
-print(datapoint)
-```
-
-```python Python (Async)
-datapoint_id = "01916d89-ba23-64c9-e383-3152644bcbde"
-datapoint = await collection.find(datapoint_id)
 print(datapoint)
 ```
 

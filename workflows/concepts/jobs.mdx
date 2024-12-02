@@ -23,17 +23,11 @@ For submitting a job, a job client needs to be instantiated first. This can be d
 workflows' client.
 
 <CodeGroup>
-```python Python (Sync)
+```python Python
 from tilebox.workflows import Client
 
 client = Client()
 job_client = client.jobs()
-```
-```python Python (Async)
-from tilebox.workflows.aio import Client
-
-client = Client()
-job_client = await client.jobs()
 ```
 </CodeGroup>
 
@@ -42,19 +36,12 @@ an instance of the root [task](/workflows/concepts/tasks), and a [cluster](/work
 to submit the job to.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     # import your own workflow
     from my_workflow import MyTask
 
     cluster = "dev-cluster"
     job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
-    ```
-    ```python Python (Async)
-    # import your own workflow
-    from my_workflow import MyTask
-
-    cluster = "dev-cluster"
-    job = await job_client.submit('my-job', MyTask("some", "parameters"), cluster)
     ```
 </CodeGroup>
 
@@ -67,17 +54,11 @@ is available, the root task of the job is picked up and executed.
 the root task of a job, where the number of retries can be specified by using the `max_retries` argument of the `submit` method.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from my_workflow import MyFlakyTask
 
     cluster = "dev-cluster"
     job = job_client.submit('my-job', MyFlakyTask(), cluster, max_retries=5)
-    ```
-    ```python Python (Async)
-    from my_workflow import MyFlakyTask
-
-    cluster = "dev-cluster"
-    job = await job_client.submit('my-job', MyFlakyTask(), cluster, max_retries=5)
     ```
 </CodeGroup>
 
@@ -90,19 +71,12 @@ When a job is submitted, it gets assigned a unique identifier. This identifier c
 To retrieve a job by its identifier, the `find` method on the job client can be used.
 
 <CodeGroup title="Retrieving a Job by ID">
-    ```python Python (Sync)
+    ```python Python
     job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
     print(job.id)  # 018dd029-58ca-74e5-8b58-b4f99d610f9a
 
     # later on, or in another process or on a completely different machine, job info can be retrieved
     job = job_client.find("018dd029-58ca-74e5-8b58-b4f99d610f9a")
-    ```
-    ```python Python (Async)
-    job = await job_client.submit('my-job', MyTask("some", "parameters"), cluster)
-    print(job.id)  # 018dd029-58ca-74e5-8b58-b4f99d610f9a
-
-    # later on, or in another process or on a completely different machine, job info can be retrieved
-    job = await job_client.find("018dd029-58ca-74e5-8b58-b4f99d610f9a")
     ```
 </CodeGroup>
 
@@ -121,15 +95,10 @@ Assuming you have submitted a job, you can use the `display` method on the job c
 </Note>
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     job = job_client.find("some-job-id")  # or a job that was just submitted
     # and then visualize it
     job_client.display(job)
-    ```
-    ```python Python (Async)
-    job = await job_client.find("some-job-id")  # or a job that was just submitted
-    # and then visualize it
-    await job_client.display(job)
     ```
 </CodeGroup>
 
@@ -181,7 +150,7 @@ the display name is 1024 characters. Any string larger than that is truncated. T
 line breaks.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Task, ExecutionContext
 
     class RootTask(Task):
@@ -201,26 +170,6 @@ line breaks.
     job = job_client.submit('custom-display-names', RootTask(3), "dev-cluster")
     job_client.display(job)
     ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Task, ExecutionContext
-
-    class RootTask(Task):
-        num_subtasks: int
-
-        async def execute(self, context: ExecutionContext):
-            context.current_task.display = f"Root({self.num_subtasks})"
-            for i in range(self.num_subtasks):
-                context.submit_subtask(SubTask(i))
-
-    class SubTask(Task):
-        index: int
-
-        async def execute(self, context: ExecutionContext):
-            context.current_task.display = f"Leaf Nr. {self.index}"
-
-    job = await job_client.submit('custom-display-names', RootTask(3), "dev-cluster")
-    await job_client.display(job)
-    ```
 </CodeGroup>
 
 <Frame>
@@ -238,15 +187,10 @@ to execute until it finishes.
 To cancel a job you can use the `cancel` method on the job client.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     job = job_client.submit('my-job', MyTask(), "dev-cluster")
     # after a short while, the job gets canceled
     job_client.cancel(job)
-    ```
-    ```python Python (Async)
-    job = job_client.submit('my-job', MyTask(), "dev-cluster")
-    # after a short while, the job gets canceled
-    await job_client.cancel(job)
     ```
 </CodeGroup>
 
@@ -279,7 +223,7 @@ The following workflow accepts a list of movie titles, and then queries the [OMD
 release date of each movie.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from urllib.parse import urlencode
     import httpx
     from tilebox.workflows import Task, ExecutionContext
@@ -302,36 +246,12 @@ release date of each movie.
             context.current_task.display = response["Title"]
             print(f"{response['Title']} was released on {response['Released']}")
     ```
-    ```python Python (Async)
-    from urllib.parse import urlencode
-    import httpx
-    from tilebox.workflows.aio import Task, ExecutionContext
-
-    class MoviesStats(Task):
-        titles: list[str]
-
-        async def execute(self, context: ExecutionContext) -> None:
-            for title in self.titles:
-                context.submit_subtask(PrintMovieStats(title))
-
-    class PrintMovieStats(Task):
-        title: str
-
-        async def execute(self, context: ExecutionContext) -> None:
-            params = {"t": self.title, "apikey": "<OMDB API Key>"}
-            url = "http://www.omdbapi.com/?" + urlencode(params)
-            async with httpx.AsyncClient() as client:
-                response = (await client.get(url)).json()
-                # set the display name of the task to the title of the movie:
-                context.current_task.display = response["Title"]
-                print(f"{response['Title']} was released on {response['Released']}")
-    ```
 </CodeGroup>
 
 Submitting below job reveals a bug in the `PrintMovieStats` task.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     job = job_client.submit('movies-stats', MoviesStats([
         "The Matrix",
         "Shrek 2",
@@ -340,16 +260,6 @@ Submitting below job reveals a bug in the `PrintMovieStats` task.
     ]), "dev-cluster")
 
     job_client.display(job)
-    ```
-    ```python Python (Async)
-    job = await job_client.submit('movies-stats', MoviesStats([
-        "The Matrix",
-        "Shrek 2",
-        "Tilebox - The Movie",
-        "The Avengers",
-    ]), "dev-cluster")
-
-    await job_client.display(job)
     ```
 </CodeGroup>
 
@@ -372,7 +282,7 @@ ERROR: Task PrintMovieStats failed with exception: KeyError('Title')
 A fixed version of the `PrintMovieStats` looks like this:
 
 <CodeGroup title="Fixed Task Implementation">
-    ```python Python (Sync)
+    ```python Python
     class PrintMovieStats(Task):
         title: str
 
@@ -387,35 +297,15 @@ A fixed version of the `PrintMovieStats` looks like this:
                 context.current_task.display = f"NotFound: {self.title}"
                 print(f"Could not find the release date for {self.title}")
     ```
-    ```python Python (Async)
-    class PrintMovieStats(Task):
-        title: str
-
-        async def execute(self, context: ExecutionContext) -> None:
-            params = {"t": self.title, "apikey": "<OMDB API Key>"}
-            url = "http://www.omdbapi.com/?" + urlencode(params)
-            async with httpx.AsyncClient() as client:
-                response = (await client.get(url)).json()
-                if "Title" in response and "Released" in response:
-                    context.current_task.display = response["Title"]
-                    print(f"{response['Title']} was released on {response['Released']}")
-                else:
-                    context.current_task.display = f"NotFound: {self.title}"
-                    print(f"Could not find the release date for {self.title}")
-    ```
 </CodeGroup>
 
 Now with this fix in place, and the [task runners](/workflows/concepts/task-runners) redeployed with the updated
 implementation of the `PrintMovieStats` task, it's time to retry the job:
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     job_client.retry(job)
     job_client.display(job)
-    ```
-    ```python Python (Async)
-    await job_client.retry(job)
-    await job_client.display(job)
     ```
 </CodeGroup>
 

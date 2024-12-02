@@ -19,24 +19,16 @@ The `execute` method is the entry point for the task and is where the task's log
 is executed and performs the task's operation.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Task, ExecutionContext
 
     class MyFirstTask(Task):
         def execute(self, context: ExecutionContext):
             print(f"Hello World!")
     ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Task, ExecutionContext
-
-    class MyFirstTask(Task):
-        async def execute(self, context: ExecutionContext):
-            print(f"Hello World!")
-    ```
-
 </CodeGroup>
 
-This example showcases a simple task that prints `"Hello World!"` to the console. The key components of this task are:
+This example showcases a simple task that prints "Hello World!" to the console. The key components of this task are:
 
 <AccordionGroup>
   <Accordion title="class MyFirstTask(Task)">
@@ -80,7 +72,7 @@ Supported types for input parameters are:
 - Nested data classes that are again JSON-serializable
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     class ParametrizableTask(Task):
         message: str
         number: int
@@ -91,18 +83,6 @@ Supported types for input parameters are:
 
     task = ParametrizableTask("Hello", 3, {"key": "value"})
     ```
-    ```python Python (Async)
-    class ParametrizableTask(Task):
-        message: str
-        number: int
-        data: dict[str, str]
-
-        async def execute(self, context: ExecutionContext):
-            print(self.message * self.number)
-
-    task = ParametrizableTask("Hello", 3, {"key": "value"})
-    ```
-
 </CodeGroup>
 
 ## Task Composition and subtasks
@@ -113,40 +93,22 @@ where complex operations are broken down into simpler, manageable pieces. And as
 parallelized whenever possible.
 
 <CodeGroup>
-```python Python (Sync)
+```python Python
 class ParentTask(Task):
     num_subtasks: int
 
     def execute(self, context: ExecutionContext) -> None:
-        for i in range(self.num_subtasks):
-            context.submit_subtask(ChildTask(i))
-
-class ChildTask(Task):
-index: int
-
-    def execute(self, context: ExecutionContext) -> None:
-        print(f"Executing ChildTask {self.index}")
-
-task = ParentTask(5) # submitting this task will result in 5 ChildTasks being executed as well
-
-````
-```python Python (Async)
-class ParentTask(Task):
-    num_subtasks: int
-
-    async def execute(self, context: ExecutionContext) -> None:
         for i in range(self.num_subtasks):
             context.submit_subtask(ChildTask(i))
 
 class ChildTask(Task):
     index: int
 
-    async def execute(self, context: ExecutionContext) -> None:
+    def execute(self, context: ExecutionContext) -> None:
         print(f"Executing ChildTask {self.index}")
 
-task = ParentTask(5)  # submitting this task will result in 5 ChildTasks being executed as well
-````
-
+task = ParentTask(5) # submitting this task will result in 5 ChildTasks being executed as well
+```  
 </CodeGroup>
 
 In the preceding example, a `ParentTask` that submits `ChildTask` tasks as subtasks is defined. The number of subtasks to be submitted
@@ -167,7 +129,7 @@ The workflow is capable of downloading a certain number of random dog images fro
 used to get the URLs of random dog images and then download them. Implementing a workflow such as this using Task Composition could look like this:
 
 <CodeGroup title="Task Composition">
-    ```python Python (Sync)
+    ```python Python
     import httpx  # pip install httpx
     from pathlib import Path
 
@@ -189,31 +151,6 @@ used to get the URLs of random dog images and then download them. Implementing a
             with file.open("wb") as file:
                 file.write(response.content)
     ```
-    ```python Python (Async)
-    import httpx  # pip install httpx
-    from pathlib import Path
-
-    class DownloadRandomDogImages(Task):
-        num_images: int
-
-        async def execute(self, context: ExecutionContext) -> None:
-            url = f"https://api.thedogapi.com/v1/images/search?limit={self.num_images}"
-            async with httpx.AsyncClient() as client:
-                response = await client.get(url)
-                for dog_image in response.json()[:self.num_images]:
-                    context.submit_subtask(DownloadImage(dog_image["url"]))
-
-    class DownloadImage(Task):
-        url: str
-
-        async def execute(self, context: ExecutionContext) -> None:
-            file = Path("dogs") / self.url.split("/")[-1]
-            async with httpx.AsyncClient() as client:
-                response = await client.get(self.url)
-            with file.open("wb") as file:
-                file.write(response.content)
-    ```
-
 </CodeGroup>
 
 This larger example consists of the following tasks:
@@ -233,7 +170,7 @@ Together, these tasks form a workflow that downloads a certain number of random 
 Visualizing the execution of a workflow that uses these tasks could look like a tree of tasks, where the `DownloadRandomDogImages` task is the root and the `DownloadImage` tasks are the leaves. For example, when downloading five random dog images, the following tasks are executed.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Client
 
     client = Client()
@@ -244,20 +181,7 @@ Visualizing the execution of a workflow that uses these tasks could look like a 
         "dev-cluster",
     )
     jobs.display(job)
-    ````
-    ```python Python (Async)
-    from tilebox.workflows.aio import Client
-
-    client = Client()
-    jobs = await client.jobs()
-    job = await jobs.submit(
-        "download-dog-images",
-        DownloadRandomDogImages(5),
-        "dev-cluster",
-    )
-    await jobs.display(job)
-    ````
-
+    ```  
 </CodeGroup>
 
 <Frame>
@@ -295,7 +219,7 @@ Fortunately, Tilebox Workflows offers a way to resolve this issue by using **rec
 As an example, the `RecursiveTask` below is a perfectly valid task that recursively submits smaller instances of itself as subtasks.
 
 <CodeGroup title="Recursive Subtasks">
-    ```python Python (Sync)
+    ```python Python
     class RecursiveTask(Task):
         num: int
 
@@ -304,16 +228,6 @@ As an example, the `RecursiveTask` below is a perfectly valid task that recursiv
             if self.num >= 2:
                 context.submit_subtask(RecursiveTask(self.num // 2))
     ```
-    ```python Python (Async)
-    class RecursiveTask(Task):
-        num: int
-
-        async def execute(self, context: ExecutionContext) -> None:
-            print(f"Executing RecursiveTask with num={self.num}")
-            if self.num >= 2:
-                context.submit_subtask(RecursiveTask(self.num // 2))
-    ```
-
 </CodeGroup>
 
 ### Recursive subtask Example
@@ -335,7 +249,7 @@ downloading as soon as the first image URLs are retrieved.
 An implementation of this recursive subtask submission could look like this:
 
 <CodeGroup title="Task Composition">
-    ```python Python (Sync)
+    ```python Python
     class DownloadRandomDogImages(Task):
         num_images: int
 
@@ -351,24 +265,6 @@ An implementation of this recursive subtask submission could look like this:
                 for dog_image in response.json()[:self.num_images]:
                     context.submit_subtask(DownloadImage(dog_image["url"]))
     ```
-    ```python Python (Async)
-    class DownloadRandomDogImages(Task):
-        num_images: int
-
-        async def execute(self, context: ExecutionContext) -> None:
-            if self.num_images > 4:
-                half = self.num_images // 2
-                remaining = self.num_images - half  # account for uneven numbers
-                context.submit_subtask(DownloadRandomDogImages(half))
-                context.submit_subtask(DownloadRandomDogImages(remaining))
-            else:
-                url = f"https://api.thedogapi.com/v1/images/search?limit={self.num_images}"
-                async with httpx.AsyncClient() as client:
-                    response = await client.get(url)
-                    for dog_image in response.json()[:self.num_images]:
-                        context.submit_subtask(DownloadImage(dog_image["url"]))
-    ```
-
 </CodeGroup>
 
 With this implementation, downloading a large number of images (for example 9 in the workflow below) results in the following tasks being executed:
@@ -401,7 +297,7 @@ If the `FlakyTask` then fails, it gets retried for up to 5 times before eventual
 </Note>
 
 <CodeGroup title="Submitting Subtasks">
-    ```python Python (Sync)
+    ```python Python
     import random
 
     class RootTask(Task):
@@ -417,23 +313,6 @@ If the `FlakyTask` then fails, it gets retried for up to 5 times before eventual
 
     task = RootTask()
     ```
-    ```python Python (Async)
-    import random
-
-    class RootTask(Task):
-        async def execute(self, context: ExecutionContext) -> None:
-            context.submit_subtask(FlakyTask(), max_retries=5)
-
-    class FlakyTask(Task):
-        async def execute(self, context: ExecutionContext) -> None:
-            print(f"Executing FlakyTask")
-
-            if random.random() < 0.1:
-                raise Exception("FlakyTask failed randomly")
-
-    task = RootTask()
-    ```
-
 </CodeGroup>
 
 ## Dependencies
@@ -449,7 +328,7 @@ Up until now all tasks were independent of one another. But often, tasks have de
 A workflow that has tasks with dependencies on other tasks is implemented as follows:
 
 <CodeGroup title="Task Composition">
-    ```python Python (Sync)
+    ```python Python
     class RootTask(Task):
         def execute(self, context: ExecutionContext) -> None:
             first_task = context.submit_subtask(PrintTask("Executing first"))
@@ -462,20 +341,6 @@ A workflow that has tasks with dependencies on other tasks is implemented as fol
         def execute(self, context: ExecutionContext) -> None:
             print(self.message)
     ```
-    ```python Python (Async)
-    class RootTask(Task):
-        async def execute(self, context: ExecutionContext) -> None:
-            first_task = context.submit_subtask(PrintTask("Executing first"))
-            second_task = context.submit_subtask(PrintTask("Executing second"), depends_on=[first_task])
-            third_task = context.submit_subtask(PrintTask("Executing last"), depends_on=[second_task])
-
-    class PrintTask(Task):
-        message: str
-
-        async def execute(self, context: ExecutionContext) -> None:
-            print(self.message)
-    ```
-
 </CodeGroup>
 
 The `RootTask` submits three `PrintTask` tasks as subtasks. Those tasks are dependent on one another, meaning that the
@@ -492,7 +357,7 @@ This results in the tasks being executed sequentially.
 As a practical example, below is a workflow that fetches news articles from an API and then processes them using [News API](https://newsapi.org/).
 
 <CodeGroup title="Task Dependencies">
-    ```python Python (Sync)
+    ```python Python
     from pathlib import Path
     import json
     from collections import Counter
@@ -538,7 +403,6 @@ As a practical example, below is a workflow that fetches news articles from an A
     )
     job_client.visualize(job, direction="right")
     ```
-
 </CodeGroup>
 
 ```plaintext Output
@@ -603,7 +467,7 @@ why it must return a tuple of two strings, where the first string is the identif
 See the section on [semantic versioning](#semantic-versioning) down below for more information.
 
 <CodeGroup title="Overriding the Task Identifier">
-    ```python Python (Sync)
+    ```python Python
     class MyTask(Task):
         def execute(self, context: ExecutionContext) -> None:
             pass
@@ -620,24 +484,6 @@ See the section on [semantic versioning](#semantic-versioning) down below for mo
 
     # MyTask2 has the identifier "tilebox.com/example_workflow/MyTask" and the version "v1.0"
     ```
-    ```python Python (Async)
-    class MyTask(Task):
-        async def execute(self, context: ExecutionContext) -> None:
-            pass
-
-    # MyTask has the identifier "MyTask" and the default version of "v0.0"
-
-    class MyTask2(Task):
-        @staticmethod
-        def identifier() -> tuple[str, str]:
-            return "tilebox.com/example_workflow/MyTask", "v0.0"
-
-        async def execute(self, context: ExecutionContext) -> None:
-            pass
-
-    # MyTask2 has the identifier "tilebox.com/example_workflow/MyTask" and the version "v1.0"
-    ```
-
 </CodeGroup>
 
 <Note>
@@ -666,7 +512,7 @@ The version number must match the pattern `vX.Y`, where `X` and `Y` are non-nega
 As an example, below is a task that has the identifier `"tilebox.com/example_workflow/MyTask"` and the version `"v1.3"`:
 
 <CodeGroup title="Overriding the Task Identifier">
-    ```python Python (Sync)
+    ```python Python
     class MyTask(Task):
         @staticmethod
         def identifier() -> tuple[str, str]:
@@ -675,16 +521,6 @@ As an example, below is a task that has the identifier `"tilebox.com/example_wor
         def execute(self, context: ExecutionContext) -> None:
             pass
     ```
-    ```python Python (Async)
-    class MyTask(Task):
-        @staticmethod
-        def identifier() -> tuple[str, str]:
-            return "tilebox.com/example_workflow/MyTask", "v1.3"
-
-        async def execute(self, context: ExecutionContext) -> None:
-            pass
-    ```
-
 </CodeGroup>
 
 When task runners execute a task, they need to have a task with a matching identifier string and a compatible version number registered.

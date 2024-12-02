@@ -41,7 +41,7 @@ Implementing a task runner consists of the following steps:
 A simple example of those steps put together might look like this:
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Client
     # your own workflow:
     from my_workflow import MyTask, OtherTask
@@ -58,25 +58,6 @@ A simple example of those steps put together might look like this:
     if __name__ == "__main__":
         main()
     ```
-    ```python Python (Async)
-    import asyncio
-    from tilebox.workflows.aio import Client
-    # your own workflow:
-    from my_workflow import MyTask, OtherTask
-
-    async def main():
-        client = Client()  # 1. connect to the Tilebox Workflows API
-        cluster = "dev-cluster"  # 2. select a cluster to join
-        runner = await client.runner(
-            cluster,
-            tasks=[MyTask, OtherTask]  # 3. register tasks
-        )
-        await runner.run_forever()  # 4. listen for new tasks to execute
-
-    if __name__ == "__main__":
-        asyncio.run(main())
-    ```
-
 </CodeGroup>
 
 To now start the task runner locally, simply run it as a Python script:
@@ -169,7 +150,7 @@ with a large amount of memory.
 Below is an example of a distributed workflow:
 
 <CodeGroup title="Distributed Workflow">
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Task, ExecutionContext
 
     class DistributedWorkflow(Task):
@@ -194,32 +175,6 @@ Below is an example of a distributed workflow:
         def execute(self, context: ExecutionContext) -> None:
             pass
     ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Task, ExecutionContext
-
-    class DistributedWorkflow(Task):
-        async def execute(self, context: ExecutionContext) -> None:
-            download_task = context.submit_subtask(DownloadData())
-            process_task = context.submit_subtask(ProcessData(), depends_on=[download_task])
-
-    class DownloadData(Task):
-        """
-        Download a dataset and put it into a shared internal bucket
-        Requires a good network connection for a high download bandwidth
-        """
-    async def execute(self, context: ExecutionContext) -> None:
-            pass
-
-    class ProcessData(Task):
-        """
-        Perform a compute intensive processing of a dataset
-        The dataset needs to be available in an internal bucket
-        Requires access to a GPU for optimal performance
-        """
-    async def execute(self, context: ExecutionContext) -> None:
-            pass
-    ```
-
 </CodeGroup>
 
 To achieve a distributed execution of this workflow, no single task runner capable of executing all three of the tasks is set up.
@@ -250,7 +205,6 @@ executed by either one of them.
     )
     gpu_runner.run_forever()
     ```
-
 </CodeGroup>
 
 Now, both `download_task_runner.py` and `gpu_task_runner.py`are started, in parallel, on different machines with the required hardware for each.

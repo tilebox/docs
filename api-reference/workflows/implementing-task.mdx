@@ -8,15 +8,7 @@ A [task](/workflows/concepts/tasks) can be implemented by subclassing the Task c
 
 <RequestExample>
 
-```python Python (Sync)
-from tilebox.workflows import Task, ExecutionContext
-
-class MyFirstTask(Task):
-    def execute(self, context: ExecutionContext):
-        print(f"Hello World!")
-```
-
-```python Python (Async)
+```python Python
 from tilebox.workflows import Task, ExecutionContext
 
 class MyFirstTask(Task):

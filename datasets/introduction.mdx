@@ -60,13 +60,8 @@ With the prerequisites out of the way, you can now create a client instance to s
 
 <CodeGroup>
 
-    ```python Python (Sync)
+    ```python Python
     from tilebox.datasets import Client
-
-    client = Client(token="YOUR_TILEBOX_API_KEY")
-    ```
-    ```python Python (Async)
-    from tilebox.datasets.aio import Client
 
     client = Client(token="YOUR_TILEBOX_API_KEY")
     ```
@@ -78,14 +73,8 @@ without passing the `token` argument. Python automatically pick up the environme
 
 <CodeGroup>
 
-    ```python Python (Sync)
+    ```python Python
     from tilebox.datasets import Client
-
-    # requires a TILEBOX_API_KEY environment variable
-    client = Client()
-    ```
-    ```python Python (Async)
-    from tilebox.datasets.aio import Client
 
     # requires a TILEBOX_API_KEY environment variable
     client = Client()
@@ -107,13 +96,8 @@ of your IDE or inside your Jupyter notebook.
 
 <CodeGroup>
  
-```python Python (Sync)
+```python Python
 datasets = client.datasets()
-datasets. # trigger autocomplete here to get an overview of the available datasets
-```
-
-```python Python (Async)
-datasets = await client.datasets()
 datasets. # trigger autocomplete here to get an overview of the available datasets
 ```
 
@@ -129,14 +113,9 @@ directly, but only when you try to make a request to the API.
 
 <CodeGroup>
  
-```python Python (Sync)
+```python Python
 client = Client(token="invalid-key") # runs without error
 datasets = client.datasets() # raises AuthenticationError
-```
-
-```python Python (Async)
-client = Client(token="invalid-key") # runs without error
-datasets = await client.datasets() # raises AuthenticationError
 ```
 
 </CodeGroup>
