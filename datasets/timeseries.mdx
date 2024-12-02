@@ -27,18 +27,11 @@ For example, to access a dataset called dataset in a dataset group called some, 
 
 <CodeGroup>
 
-    ```python Python (Sync)
+    ```python Python
     from tilebox.datasets import Client
 
     client = Client()
     datasets = client.datasets()
-    dataset = datasets.open_data.copernicus.sentinel1_sar
-    ```
-    ```python Python (Async)
-    from tilebox.datasets.aio import Client
-
-    client = Client()
-    datasets = await client.datasets()
     dataset = datasets.open_data.copernicus.sentinel1_sar
     ```
 

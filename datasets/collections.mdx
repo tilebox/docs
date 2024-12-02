@@ -26,19 +26,13 @@ assume that you have already [created a client](/datasets/introduction#creating-
 
 <CodeGroup>
 
-    ```python Python (Sync)
+    ```python Python
     from tilebox.datasets import Client
 
     client = Client()
     datasets = client.datasets()
     ```
-    ```python Python (Async)
-    from tilebox.datasets.aio import Client
-
-    client = Client()
-    datasets = await client.datasets()
-    ```
-
+    
 </CodeGroup>
 
 ## Listing collections
@@ -48,18 +42,12 @@ Each dataset has a list of collections associated with it. You can list the coll
 
 <CodeGroup>
   
-  ```python Python (Sync)
+  ```python Python
   dataset = datasets.open_data.copernicus.landsat8_oli_tirs
   collections = dataset.collections()
   print(collections)
   ```
   
-  ```python Python (Async)
-  dataset = datasets.open_data.copernicus.landsat8_oli_tirs
-  collections = await dataset.collections()
-  print(collections)
-  ```
-
 </CodeGroup>
 
 ```plaintext Output
@@ -80,18 +68,12 @@ method.
 
 <CodeGroup>
   
-  ```python Python (Sync)
+  ```python Python
   dataset = datasets.open_data.copernicus.landsat8_oli_tirs
   collections = dataset.collections()
   print(collections)
   ```
   
-  ```python Python (Async)
-  dataset = datasets.open_data.copernicus.landsat8_oli_tirs
-  collections = await dataset.collections()
-  print(collections)
-  ```
-
 </CodeGroup>
 
 ```plaintext Output
@@ -110,20 +92,13 @@ You can then use the `info()` method on the collection object to get information
 
 <CodeGroup>
   
-  ```python Python (Sync)
+  ```python Python
   collections = dataset.collections()
   terrain_correction = collections["L1GT"]
   collection_info = terrain_correction.info()
   print(collection_info)
   ```
   
-  ```python Python (Async)
-  collections = await dataset.collections()
-  terrain_correction = collections["L1GT"]
-  collection_info = await terrain_correction.info()
-  print(collection_info)
-  ```
-
 </CodeGroup>
 
 ```plaintext Output
@@ -135,18 +110,12 @@ This has the advantage that you can directly access the collection without havin
 
 <CodeGroup>
   
-  ```python Python (Sync)
+  ```python Python
   terrain_correction = dataset.collection("L1GT")
   collection_info = terrain_correction.info()
   print(collection_info)
   ```
   
-  ```python Python (Async)
-  terrain_correction = dataset.collection("L1GT")
-  collection_info = await terrain_correction.info()
-  print(collection_info)
-  ```
-
 </CodeGroup>
 
 ```plaintext Output
@@ -161,12 +130,8 @@ If you try to access a collection with a name that does not exist, a `NotFoundEr
 
 <CodeGroup>
 
-```python Python (Sync)
+```python Python
 dataset.collection("Sat-X").info() # raises NotFoundError: 'No such collection Sat-X'
-```
-
-```python Python (Async)
-await dataset.collection("Sat-X").info() # raises NotFoundError: 'No such collection Sat-X'
 ```
 
 </CodeGroup>

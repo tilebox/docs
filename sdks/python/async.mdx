@@ -1,16 +1,15 @@
 ---
 title: Async support
-description: In this section we look at async support within the tilebox datasets python client.
+description: Tilebox offers a standard synchronous API by default, but also give you to option of an async client if you need it.
 icon: rotate
 ---
 
-Tilebox offer a standard synchronous API by default, but also give you to option of an async client if you need it.
+## Why async?
 
-The synchronous datasets client is great for data exploration in interactive environments like Jupyter notebooks.
-The asynchronous datasets client is great for building production ready applications that need to scale.
-
-Async is a concurrency model that is far more efficient than multi-threading, and can provide significant
-performance benefits.
+Often case when interacting with external datasets, such as [Tilebox datasets](/datasets/timeseries) loading data
+can take a little while. One way to speed up this process is to run those requests in parallel. This can be achieved
+by multi-threading or multi-processing, but this is not always easiest method of achieving this. An alternative is
+to perform data loading tasks in an async manner, leveraging co-routines and `asyncio` to achieve this.
 
 ## Switching to an async datasets client
 
@@ -18,18 +17,18 @@ Typically all you need to do is swap out your import statement of the `Client` a
 the example below to see how that is done works.
 
 <CodeGroup>
-    ```python Python (Sync)
-    from tilebox.datasets import Client
+```python Python (Sync)
+from tilebox.datasets import Client
 
-    # this client is sync
-    client = Client()
-    ```
-    ```python Python (Async)
-    from tilebox.datasets.aio import Client
+# this client is sync
+client = Client()
+```
+```python Python (Async)
+from tilebox.datasets.aio import Client
 
-    # this client is async
-    client = Client()
-    ```
+# this client is async
+client = Client()
+```
 
 </CodeGroup>
 
@@ -83,8 +82,8 @@ datapoint = await collection.find(datapoint_uuid)
 </CodeGroup>
 
 <Note>
-  Async concurrency is also supported in Jupyter notebooks or similar interactive environments. You can even use `await
-  some_async_call()` as the output of a code cell.
+  Jupyter notebooks or similar interactive environments also support asynchronous code execution. You can even use
+  `await some_async_call()` as the output of a code cell.
 </Note>
 
 ## Benefits
@@ -184,59 +183,49 @@ Fetching data took 7.45 seconds
 
 </CodeGroup>
 
-## Supported async environments
+## Async workflows
 
-The Tilebox Datasets Python client supports either `asyncio` or `trio` as an async backend.
-It auto-detects which of those two to use.
+The Tilebox workflows Python client doesn't offer an async client. That's because workflows are already designed to be
+executed in a distributed and concurrent fashion - outside of the context of a single async event loop.
+But within a single task execution, you may still want to use `async` code, to leverage the benefits of async execution, such
+as loading data in parallel. Achieving this is straightforward, by wrapping your async code in `asyncio.run`.
 
-### AsyncIO
+Below is an example of how you can leverage async code within a workflow task.
 
-AsyncIO is Python's [built-in library](https://docs.python.org/3/library/asyncio.html) for writing concurrent
-code with the async/await syntax.
-
-```python
+<CodeGroup>
+```python Python (Async)
 import asyncio
-from tilebox.datasets.aio import Client
+import xarray as xr
 
-async def main():
-    client = Client()
-    datasets = await client.datasets()
-    print(datasets)
+from tilebox.datasets.aio import Client as DatasetsClient
+from tilebox.datasets.data import TimeIntervalLike
+from tilebox.workflows import Task, ExecutionContext
 
-asyncio.run(main())
+class FetchData(Task):
+    def execute(self, ctx: ExecutionContext) -> None:
+        # the task execute itself is a synchronous function
+        # but we can leverage async code within the task, by using asyncio.run
+
+        # this will fetch the three months of data in parallel
+        data_jan, data_feb, data_mar = asyncio.run(load_first_three_months())
+        
+async def load_data(interval: TimeIntervalLike):
+    datasets = await DatasetsClient().datasets()
+    collections = await datasets.open_data.copernicus.landsat8_oli_tirs.collections()
+    return await collections["L1T"].load(interval)
+
+async def load_first_three_months() -> tuple[xr.Dataset, xr.Dataset, xr.Dataset]:
+    jan = load_data(("2020-01-01", "2020-02-01"))
+    feb = load_data(("2020-02-01", "2020-03-01"))
+    mar = load_data(("2020-03-01", "2020-04-01"))
+    jan, feb, mar = await asyncio.gather(jan, feb, mar)
+    return jan, feb, mar
 ```
+</CodeGroup>
 
-### Trio
-
-Trio is an [alternative async library](https://trio.readthedocs.io/en/stable/), designed around the
-[principles of structured concurrency](https://en.wikipedia.org/wiki/Structured_concurrency).
-
-```python
-import trio
-from tilebox.datasets.aio import Client
-
-async def main():
-    client = Client()
-    datasets = await client.datasets()
-    print(datasets)
-
-trio.run(main)
-```
-
-### AnyIO
-
-AnyIO is an [asynchronous networking and concurrency library](https://anyio.readthedocs.io/en/stable/) that works on
-top of either asyncio or trio. The Tilebox Datasets Python client is written using `anyio`, that way it can be used with
-either `asyncio` or `trio`.
-
-```python
-import anyio
-from tilebox.datasets.aio import Client
-
-async def main():
-    client = Client()
-    datasets = await client.datasets()
-    print(datasets)
-
-anyio.run(main, backend="asyncio")
-```
+<Tip>
+    If you encounter an error like `RuntimeError: asyncio.run() cannot be called from a running event loop`, it means
+    you are trying to start another asyncio event loop (with `asyncio.run`) from within an already running event loop.
+    One situation where this can easily occur is if you are using `asyncio.run` in a Jupyter notebook, since Jupyter
+    automatically starts an event loop for you. One way to work around this is to use [nest-asyncio](https://pypi.org/project/nest-asyncio/).
+</Tip>

@@ -10,8 +10,7 @@ Make sure to specify dependencies between tasks to ensure that certain cache key
 been written to.
 
 <RequestExample>
-
-```python Python (Sync)
+```python Python
 class WriterTask(Task):
     def execute(self, context: ExecutionContext):
         context.job_cache["some-key"] = b"my-value"
@@ -20,15 +19,4 @@ class ReaderTask(Task):
     def execute(self, context: ExecutionContext):
         data = context.job_cache["some-key"]
 ```
-
-```python Python (Async)
-class WriterTask(Task):
-    def execute(self, context: ExecutionContext):
-        context.job_cache["some-key"] = b"my-value"
-
-class ReaderTask(Task):
-    def execute(self, context: ExecutionContext):
-        data = context.job_cache["some-key"]
-```
-
 </RequestExample>

@@ -9,25 +9,12 @@ This can be done by calling the `submit` method of a `JobClient` instance.
 
 <RequestExample>
 
-```python Python (Sync)
+```python Python
 from tilebox.workflows import Client
 
 client = Client()
 job_client = client.jobs()
 job = job_client.submit(
-    "my-first-job",
-    MyFirstTask(message="Hello, World!", number=42, data={"key": "value"}),
-    "my-cluster-EdsdUozYprBJDL",
-    max_retries=0,
-)
-```
-
-```python Python (Async)
-from tilebox.workflows.aio import Client
-
-client = Client()
-job_client = await client.jobs()
-job = await job_client.submit(
     "my-first-job",
     MyFirstTask(message="Hello, World!", number=42, data={"key": "value"}),
     "my-cluster-EdsdUozYprBJDL",

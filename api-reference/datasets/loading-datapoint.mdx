@@ -8,17 +8,9 @@ To load a single data point from a collection using its id, use the find method 
 
 <RequestExample>
 
-```python Python (Sync)
+```python Python
 datapoint_id = "0186d6b6-66cc-fcfd-91df-bbbff72499c3"
 data = collection.find(
-    datapoint_id,
-    skip_data = False,
-)
-```
-
-```python Python (Async)
-datapoint_id = "0186d6b6-66cc-fcfd-91df-bbbff72499c3"
-data = await collection.find(
     datapoint_id,
     skip_data = False,
 )

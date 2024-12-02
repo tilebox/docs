@@ -9,7 +9,7 @@ It does not cache any files and expects an `output_dir` parameter for all downlo
 
 <RequestExample>
 
-```python Python (Sync)
+```python Python
 from pathlib import Path
 from tilebox.storage import ASFStorageClient
 # or UmbraStorageClient
@@ -20,25 +20,6 @@ direct_storage_client = ASFStorageClient(
     cache_directory=None
 )
 path_to_data = direct_storage_client.download(
-    datapoint,
-    output_dir=Path("./data"),
-    verify=True,
-    extract=True,
-    show_progress=True,
-)
-```
-
-```python Python (Async)
-from pathlib import Path
-from tilebox.storage.aio import ASFStorageClient
-# or UmbraStorageClient
-# or CopernicusStorageClient
-
-direct_storage_client = ASFStorageClient(
-    "ASF_USERNAME", "ASF_PASSWORD",
-    cache_directory=None
-)
-path_to_data = await direct_storage_client.download(
     datapoint,
     output_dir=Path("./data"),
     verify=True,

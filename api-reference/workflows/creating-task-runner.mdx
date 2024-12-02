@@ -8,24 +8,12 @@ From a client instance you can create a [TaskRunner](/workflows/concepts/task-ru
 
 <RequestExample>
 
-```python Python (Sync)
+```python Python
 from tilebox.workflows import Client
 from tilebox.workflows.cache import LocalFileSystemCache
 
 client = Client()
 runner = client.runner(
-    "my-cluster-EdsdUozYprBJDL",
-    [MyFirstTask, MySubtask],
-    cache=LocalFileSystemCache("cache_directory"),  # optional
-)
-```
-
-```python Python (Async)
-from tilebox.workflows.aio import Client
-from tilebox.workflows.cache import LocalFileSystemCache
-
-client = Client()
-runner = await client.runner(
     "my-cluster-EdsdUozYprBJDL",
     [MyFirstTask, MySubtask],
     cache=LocalFileSystemCache("cache_directory"),  # optional

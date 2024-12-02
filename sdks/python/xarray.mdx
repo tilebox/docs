@@ -54,23 +54,13 @@ To get an understanding of how Xarray works, a sample dataset is used, as it cou
 
 <CodeGroup>
 
-```python Python (Sync)
+```python Python
 from tilebox.datasets import Client
 
 client = Client()
 datasets = client.datasets()
 collection = datasets.open_data.copernicus.landsat8_oli_tirs.collection("L1GT")
 satellite_data = collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
-print(satellite_data)
-```
-
-```python Python (Async)
-from tilebox.datasets.aio import Client
-
-client = Client()
-datasets = await client.datasets()
-collection = datasets.open_data.copernicus.landsat8_oli_tirs.collection("L1GT")
-satellite_data = await collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
 print(satellite_data)
 ```
 

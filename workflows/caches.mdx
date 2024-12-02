@@ -26,7 +26,7 @@ This is a cache implementation useful for local development and quick prototypin
 for more options.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Client
     from tilebox.workflows.cache import InMemoryCache
 
@@ -37,18 +37,6 @@ for more options.
         cache=InMemoryCache(),
     )
     ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Client
-    from tilebox.workflows.cache import InMemoryCache
-
-    client = Client()
-    runner = await client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=InMemoryCache(),
-    )
-
-````
 </CodeGroup>
 
 By configuring such a cache, the `context` object that is passed to the execution of each task gains access to a `job_cache`
@@ -77,7 +65,7 @@ The Tilebox Workflow orchestrator uses the official Python Client for Google clo
 to learn how to set up the required authentication.
 
 <CodeGroup title="GoogleStorageCache">
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Client
     from tilebox.workflows.cache import GoogleStorageCache
     from google.cloud.storage import Client as StorageClient
@@ -87,21 +75,6 @@ to learn how to set up the required authentication.
 
     client = Client()
     runner = client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=GoogleStorageCache(bucket, prefix="jobs"),
-    )
-    ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Client
-    from tilebox.workflows.cache import GoogleStorageCache
-    from google.cloud.storage import Client as StorageClient
-
-    storage_client = StorageClient(project="gcp-project")
-    bucket = storage_client.bucket("cache-bucket")
-
-    client = Client()
-    runner = await client.runner(
         "dev-cluster",
         tasks=[...],
         cache=GoogleStorageCache(bucket, prefix="jobs"),
@@ -125,23 +98,12 @@ The Tilebox Workflow orchestrator uses the official `boto3` library to interact 
 to learn how to set up the required authentication.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Client
     from tilebox.workflows.cache import AmazonS3Cache
 
     client = Client()
     runner = client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=AmazonS3Cache("my-bucket-name", prefix="jobs")
-    )
-    ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Client
-    from tilebox.workflows.cache import AmazonS3Cache
-
-    client = Client()
-    runner = await client.runner(
         "dev-cluster",
         tasks=[...],
         cache=AmazonS3Cache("my-bucket-name", prefix="jobs")
@@ -161,23 +123,12 @@ all task runners are running on the same machine or have access to the same file
 workflows executing on different task runners, but not recommended for production use.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Client
     from tilebox.workflows.cache import LocalFileSystemCache
 
     client = Client()
     runner = client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=LocalFileSystemCache("/path/to/cache/directory"),
-    )
-    ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Client
-    from tilebox.workflows.cache import LocalFileSystemCache
-
-    client = Client()
-    runner = await client.runner(
         "dev-cluster",
         tasks=[...],
         cache=LocalFileSystemCache("/path/to/cache/directory"),
@@ -191,23 +142,12 @@ not shared between task runners, and not persisted between task runner restarts.
 prototyping of workflows executed on a single task runner.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Client
     from tilebox.workflows.cache import InMemoryCache
 
     client = Client()
     runner = client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=InMemoryCache(),
-    )
-    ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Client
-    from tilebox.workflows.cache import InMemoryCache
-
-    client = Client()
-    runner = await client.runner(
         "dev-cluster",
         tasks=[...],
         cache=InMemoryCache(),
@@ -239,7 +179,7 @@ any kind of data, such as pickled Python objects, serialized JSON, UTF-8 or ASCI
 The following code snippet shows how to store and retrieve data from the cache.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Task, ExecutionContext
 
     class ProducerTask(Task):
@@ -253,20 +193,6 @@ The following code snippet shows how to store and retrieve data from the cache.
             data = context.job_cache["data"]
             print(f"Read {data} from cache")
     ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Task, ExecutionContext
-
-    class ProducerTask(Task):
-        async def execute(self, context: ExecutionContext) -> None:
-            # store data in the cache
-            context.job_cache["data"] = b"my_binary_data_to_store"
-            context.submit_subtask(ConsumerTask())
-
-    class ConsumerTask(Task):
-        async def execute(self, context: ExecutionContext) -> None:
-            data = context.job_cache["data"]
-            print(f"Read {data} from cache")
-    ```
 </CodeGroup>
 
 The data passed to the `save` method is stored in the cache under the key `"data"`. It can be arbitrarily large binary
@@ -277,7 +203,7 @@ To test the preceding workflow, it's possible to start a task runner locally, th
 to execute the `ProducerTask` and the output of the `ConsumerTask` can be observed.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     # submit a job to test our workflow
     job_client = client.jobs()
     job_client.submit("testing-cache-access", ProducerTask(), cluster="dev-cluster")
@@ -289,19 +215,6 @@ to execute the `ProducerTask` and the output of the `ConsumerTask` can be observ
         cache=LocalFileSystemCache("/path/to/cache/directory"),
     )
     runner.run_forever()
-    ```
-    ```python Python (Async)
-    # submit a job to test our workflow
-    job_client = await client.jobs()
-    await job_client.submit("testing-cache-access", ProducerTask(), cluster="dev-cluster")
-
-    # start a runner to execute it
-    runner = await client.runner(
-        "dev-cluster",
-        tasks=[ProducerTask, ConsumerTask],
-        cache=LocalFileSystemCache("/path/to/cache/directory"),
-    )
-    await runner.run_forever()
     ```
 </CodeGroup>
 
@@ -322,7 +235,7 @@ the keys `"1"`, `"2"` and `"3"`. Then all keys in the group are listed and the c
 then displays the sum of all data points.
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     from tilebox.workflows import Task, ExecutionContext
     import random
 
@@ -367,58 +280,12 @@ then displays the sum of all data points.
 
             print(f"Sum of all numbers: {sum(numbers)}")
     ```
-    ```python Python (Async)
-    from tilebox.workflows.aio import Task, ExecutionContext
-    import random
-
-    class CacheGroupDemoWorkflow(Task):
-        n: int
-
-        async def execute(self, context: ExecutionContext):
-            # we define a cache group key, which we pass on to the subtasks
-            group_key = "random_numbers"
-            # produce numbers will write numerous entries to the cache group
-            produce_numbers = context.submit_subtask(ProduceRandomNumbers(self.n, group_key))
-            # print sum will then be able to list and read all entries from the cache group
-            sum_task = context.submit_subtask(PrintSum(group_key), depends_on=[produce_numbers])
-
-    class ProduceRandomNumbers(Task):
-        n: int
-        group_key: str
-
-        async def execute(self, context: ExecutionContext):
-            for i in range(self.n):
-                context.submit_subtask(ProduceRandomNumber(i, self.group_key))
-
-    class ProduceRandomNumber(Task):
-        index: int
-        group_key: str
-
-        async def execute(self, context: ExecutionContext) -> None:
-            number = random.randint(0, 100)
-            group = context.job_cache.group(self.group_key)
-            group[f"key_{self.index}"] = number.to_bytes()
-
-    class PrintSum(Task):
-        group_key: str
-
-        async def execute(self, context: ExecutionContext) -> None:
-            group = context.job_cache.group(self.group_key)
-
-            numbers = []
-            for key in group:  # iterate over all produced numbers
-                number = group[key]  # read data from cache
-                numbers.append(int.from_bytes(number))  # convert bytes back to int, and add to sum
-
-            print(f"Sum of all numbers: {sum(numbers)}")
-    ```
-
 </CodeGroup>
 
 Submitting a job of the `CacheGroupDemoWorkflow`, and then running it with a task runner, could look like this:
 
 <CodeGroup>
-    ```python Python (Sync)
+    ```python Python
     # submit a job to test our workflow
     job_client = client.jobs()
     job_client.submit("cache-groups", CacheGroupDemoWorkflow(5), cluster="dev-cluster")
@@ -431,20 +298,6 @@ Submitting a job of the `CacheGroupDemoWorkflow`, and then running it with a tas
     )
     runner.run_forever()
     ```
-    ```python Python (Async)
-    # submit a job to test our workflow
-    job_client = await client.jobs()
-    await job_client.submit("cache-groups", CacheGroupDemoWorkflow(5), cluster="dev-cluster")
-
-    # start a runner to execute it
-    runner = await client.runner(
-        "dev-cluster",
-        tasks=[CacheGroupDemoWorkflow, ProduceRandomNumbers, ProduceRandomNumber, PrintSum],
-        cache=LocalFileSystemCache("/path/to/cache/directory"),
-    )
-    await runner.run_forever()
-    ```
-
 </CodeGroup>
 
 ```plaintext Output

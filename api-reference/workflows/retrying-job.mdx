@@ -8,18 +8,11 @@ If a job fails, you can retry it by calling the `retry` method of the `JobClient
 
 <RequestExample>
 
-```python Python (Sync)
+```python Python
 job = job_client.submit(...)  # see above
 # job is now executing on some task runners, but fails
 # so let's retry it
 job_client.retry(job)
-```
-
-```python Python (Async)
-job = await job_client.submit(...)  # see above
-# job is now executing on some task runners, but fails
-# so let's retry it
-await job_client.retry(job)
 ```
 
 </RequestExample>
