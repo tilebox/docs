@@ -1,20 +1,20 @@
 ---
 title: Authentication
-description: You'll need to authenticate your requests to access the Tilebox API. In this guide, we'll look at how authentication works. Tilebox offers to authenticate your API requests with API keys passed as bearer tokens.
+description: To access the Tilebox API, you must authenticate your requests. This guide explains how authentication works, focusing on API keys used as bearer tokens.
 icon: key
 ---
 
 ## Creating an API key
 
-If you don't have an API key yet, you can create one by logging into the [Tilebox Console](https://console.tilebox.com), heading to [Account -> API Keys](https://console.tilebox.com/account/api-keys) and clicking on the "Create API Key" button.
+To create an API key, log into the [Tilebox Console](https://console.tilebox.com). Navigate to [Account -> API Keys](https://console.tilebox.com/account/api-keys) and click the "Create API Key" button.
 
 <Info>
-Always keep your API Keys safe and deactivate them if you suspect that they may have been compromised.
+Keep your API keys secure. Deactivate any keys if you suspect they have been compromised.
 </Info>
 
 ## Bearer token authentication
 
-Bearer tokens are the main form of authentication for the Tilebox API. You need to pass your API key as the token parameter when creating an instance of your client.
+The Tilebox API uses bearer tokens for authentication. You need to pass your API key as the `token` parameter when creating an instance of the client.
 
 <CodeGroup>
 ```python Python
@@ -27,5 +27,5 @@ workflows_client = WorkflowsClient(token="YOUR_TILEBOX_API_KEY")
 </CodeGroup>
 
 <Tip>
-If you configure your API key as an environment variable called `TILEBOX_API_KEY`, you can omit the token parameter when creating a client.
+If you set your API key as an environment variable named `TILEBOX_API_KEY`, you can skip the token parameter when creating a client.
 </Tip>
