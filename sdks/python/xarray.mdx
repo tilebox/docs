@@ -1,56 +1,41 @@
 ---
 title: Xarray
-description: Xarray library, common use-cases and how they can be implemented easily.
+description: Overview of the Xarray library, common use cases, and implementation details.
 icon: chart-bar
 ---
 
 [example_satellite_data.nc]: https://github.com/tilebox/docs/raw/main/assets/data/example_satellite_data.nc
 
-[Xarray](https://xarray.dev/) is a library for working with labelled multi-dimensional arrays.
-Xarray is built on top of [NumPy](https://numpy.org/) and [Pandas](https://pandas.pydata.org/). Xarray introduces labels in
-the form of dimensions, coordinates and attributes on top of raw NumPy-like arrays, which allows for a more intuitive,
-more concise, and less error-prone developer experience. The package includes a large and growing library of
-domain-agnostic functions for advanced analytics and visualization with these data structures.
+[Xarray](https://xarray.dev/) is a library designed for working with labeled multi-dimensional arrays. Built on top of [NumPy](https://numpy.org/) and [Pandas](https://pandas.pydata.org/), Xarray adds labels in the form of dimensions, coordinates, and attributes, enhancing the usability of raw NumPy-like arrays. This enables a more intuitive, concise, and less error-prone development experience. The library also includes a large and expanding collection of functions for advanced analytics and visualization.
 
 <Frame>
   <img src="/assets/xarray/xarray-datastructure.png" alt="Overview of the Xarray data structure" />
 </Frame>
 
 <Note>
-  A good overview of the Xarray library and why it's a perfect fit for N-dimensional data (such as Tilebox time series
-  datasets) can be found in the official [Why Xarray? documentation
-  page](https://xarray.pydata.org/en/stable/why-xarray.html).
+  An overview of the Xarray library and its suitability for N-dimensional data (such as Tilebox time series datasets) is available in the official [Why Xarray? documentation page](https://xarray.pydata.org/en/stable/why-xarray.html).
 </Note>
 
-The Tilebox Python client provides access to your satellite data in the form of a
-[xarray.Dataset](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset). This brings a great
-number of benefits compared to custom Tilebox specific data structures such as:
+The Tilebox Python client provides access to satellite data as an [xarray.Dataset](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset). This approach offers a great number of benefits over custom Tilebox-specific data structures:
 
 <AccordionGroup>
   <Accordion title="Familiarity">
-    Xarray is built on top of NumPy and Pandas, which are two of the most popular Python libraries for scientific
-    computing. If you are already familiar with these libraries, you are right at home with Xarray.
+    Xarray is based on NumPy and Pandas—two of the most widely used Python libraries for scientific computing. Familiarity with these libraries translates well to using Xarray.
   </Accordion>
   <Accordion title="Performance">
-    By using NumPy under the hood, which in turn is built on top of C and Fortran, Xarray benefits from all the
-    performance optimizations that those libraries offer. This means that Xarray is fast and can handle large datasets
-    with ease.
+    Leveraging NumPy, which is built on C and Fortran, Xarray benefits from extensive performance optimizations. This allows Xarray to efficiently handle large datasets.
   </Accordion>
   <Accordion title="Interoperability">
-    Xarray is a popular library and is used by many other libraries. This means that you can easily integrate Xarray
-    into your existing workflows. Many third party libraries are available to extend Xarray with more capability for
-    different use cases.
+    As a widely used library, Xarray easily integrates with many other libraries. Many third-party libraries are also available to expand Xarray's capabilities for diverse use cases.
   </Accordion>
   <Accordion title="Flexibility">
-    Xarray is a flexible library and can be used for a wide range of use-cases. It's also easy to extend Xarray with
-    custom capability.
+    Xarray is versatile and supports a broad range of applications. It's also easy to extend with custom features.
   </Accordion>
 </AccordionGroup>
 
-## An example dataset
+## Example dataset
 
-To get an understanding of how Xarray works, a sample dataset is used, as it could be returned by
-[Tilebox datasets](/datasets/timeseries).
+To understand how Xarray functions, below is a quick a look at a sample dataset as it might be retrieved from a [Tilebox datasets](/datasets/timeseries) client.
 
 <CodeGroup>
 
@@ -91,45 +76,33 @@ Data variables: (12/28)
 ```
 
 <Note>
-  This is a simple dataset that was generated to showcase some common Xarray use-cases. If you want to follow along, you
-  can [download the dataset as a NetCDF file][example_satellite_data.nc]. The [Reading and writing files
-  section](/sdks/python/xarray#reading-and-writing-files) explains how to save and load Xarray datasets to and from
-  NetCDF files.
+  This basic dataset illustrates common use cases for Xarray. To follow along, you can [download the dataset as a NetCDF file][example_satellite_data.nc]. The [Reading and writing files section](/sdks/python/xarray#reading-and-writing-files) explains how to save and load Xarray datasets from NetCDF files.
 </Note>
 
-Here is a breakdown of the preceding output:
+Here's an overview of the output:
 
-- `satellite_data` **dataset** contains different **dimensions**, **coordinates** and **variables**
-- `time` **dimension** consists of 514 elements. This means there are 514 data points in the dataset
-- `time` **dimension coordinate** contains datetime values. This is the time when the data was measured.
-  The `*` mark shows that it's a dimension coordinate. Dimension coordinates are used for label based
-  indexing and alignment, it means you can use the time to access individual data points in the dataset
-- `ingestion_time` **non-dimension coordinate** contains datetime values. This is the time when the data was
-  ingested into the Tilebox database. Non-dimension coordinates are variables that contain coordinate data, but are not
-  used for label based indexing and alignment. They can [even be multidimensional](https://docs.xarray.dev/en/stable/examples/multidimensional-coords.html)
-- The dataset contains 28 **variables**
-- `bands` **variable** contains integers, this variable tells you how many bands the data contains
-- `sun_elevation` **variable** contains floating point values, this variable contains the sun elevation when the data was measured
+- The `satellite_data` **dataset** contains **dimensions**, **coordinates**, and **variables**.
+- The `time` **dimension** has 514 elements, indicating that there are 514 data points in the dataset.
+- The `time` **dimension coordinate** contains datetime values representing when the data was measured. The `*` indicates a dimension coordinate, which enables label-based indexing and alignment.
+- The `ingestion_time` **non-dimension coordinate** holds datetime values for when the data was ingested into Tilebox. Non-dimension coordinates carry coordinate data but are not used for label-based indexing. They can even be [multidimensional](https://docs.xarray.dev/en/stable/examples/multidimensional-coords.html).
+- The dataset includes 28 **variables**.
+- The `bands` **variable** contains integers indicating how many bands the data contains.
+- The `sun_elevation` **variable** contains floating-point values representing the sun's elevation when the data was measured.
 
 <Note>
-  Check out the [xarray terminology overview](https://docs.xarray.dev/en/stable/user-guide/terminology.html) to deepen
-  your understanding of **datasets**, **dimensions**, **coordinates**, and **variables**.
+  Explore the [xarray terminology overview](https://docs.xarray.dev/en/stable/user-guide/terminology.html) to broaden your understanding of **datasets**, **dimensions**, **coordinates**, and **variables**.
 </Note>
-
-The examples below showcase some of the most common use-cases for Xarray. Since the data is already loaded into memory,
-no more API requests are required, there is no difference between the sync and async Client in the examples below.
 
 ## Accessing data in a dataset
 
-### Accessing by index
+### By index
 
-There a couple of different ways that you can access data in a dataset. The Xarray documentation provides a
-[great overview](https://docs.xarray.dev/en/stable/user-guide/indexing.html) of all those methods.
+You can access data in different ways. The Xarray documentation offers a [comprehensive overview](https://docs.xarray.dev/en/stable/user-guide/indexing.html) of these methods.
 
-You can access the `sun_elevation` variable:
+To access the `sun_elevation` variable:
 
 ```python Accessing values
-# Let's print the first sun elevation value
+# Print the first sun elevation value
 print(satellite_data.sun_elevation[0])
 ```
 
@@ -142,9 +115,7 @@ Coordinates:
     time             datetime64[ns] 8B 2022-05-01T08:09:06.552000
 ```
 
-You can see in the preceding output that the first sun elevation value is `44.19904463`, but the output is not just a plain
-`float` containing that value. Instead it's an `xarray.DataArray` object. This is because that way you can still
-access the coordinates belonging to that value. To get the plain python object you can use the `item()` method:
+In the output, the first sun elevation value is `44.19904463`. It appears as an `xarray.DataArray` object to allow access to the corresponding coordinates. To retrieve the plain Python object, use the `item()` method:
 
 ```python Accessing raw values
 sun_elevation = satellite_data.sun_elevation[0].item()
@@ -155,8 +126,7 @@ print(sun_elevation)
 44.19904463
 ```
 
-You can access coordinates in a similar manner. For datetime fields Xarray additionally offers a special `dt` (datetime)
-accessor, which you can use to format the time as a string:
+You can access coordinates similarly. For datetime fields, Xarray provides a special `dt` (datetime) accessor for formatting time as a string:
 
 ```python Accessing and formatting datetime fields
 time_format = "%Y-%m-%d %H:%M:%S"
@@ -169,8 +139,7 @@ print(f"Measurement 0 was taken at {time} and ingested at {ingestion_time}")
 Measurement 0 was taken at 2022-05-01 08:09:06 and ingested at 2024-07-22 09:06:43
 ```
 
-Similarly you can also retrieve a whole dataset containing all variables and coordinates for a single data point in the
-example dataset. For this Xarray offers the `isel` method (it stands for index selection):
+You can also retrieve an entire dataset containing all variables and coordinates for a single data point using the `isel` method (index selection):
 
 ```python Accessing a whole datapoint by index
 datapoint = satellite_data.isel(time=0)
@@ -189,41 +158,32 @@ Data variables: (12/28)
     granule_name           object 8B 'LC08_L1GT_175018_20220501_20220504_02_T2'
     processing_level       <U2 8B 'L1'
     satellite              object 8B 'LANDSAT-8'
-    product_type           object 8B 'L1GT'
-    copernicus_id          <U36 144B '2181f9f6-1ef0-510c-b715-0f2993208b11'
-    online                 bool 1B True
     ...                     ...
-    resolution             int64 8B 0
-    bands                  int64 8B 12
-    path                   int64 8B 175
-    row                    int64 8B 18
-    sun_azimuth            float64 8B 164.0
-    sun_elevation          float64 8B 44.2
 ```
 
 ### Subsets of data
 
-You can also access a subsets of the data.
-Here are a couple of ways you can retrieve the first 3 and last 3 sun elevations.
+You can access subsets of the data as well. Here are methods to retrieve the first three and last three sun elevations.
 
 ```python Accessing raw values
-# individual variables
+# Individual variables
 first_3_sun_elevations = satellite_data.sun_elevation[0:3]
-print("First 3 sun_elevations", first_3_sun_elevations.values)
+print("First 3 sun elevations", first_3_sun_elevations.values)
 last_3_sun_elevations = satellite_data.sun_elevation[-3:]
-print("Last 3 sun_elevations", last_3_sun_elevations.values)
+print("Last 3 sun elevations", last_3_sun_elevations.values)
 
-# whole sub datasets
+# Whole sub datasets
 first_3 = satellite_data.isel(time=slice(0, 3))
 last_3 = satellite_data.isel(time=slice(-3, None))
-print("Sub dataset of the last 3 datapoints")
+print("Sub dataset of the last 3 data points")
 print(last_3)
 ```
 
 ```plaintext Output
-First 3 sun_elevations [44.19904463 57.77561083 58.76316786]
-Last 3 sun_elevations [55.60690523 56.72453179 57.81917624]
-Sub dataset of the last 3 datapoints
+First 3 sun elevations [44.19904463 57.77561083 58.76316786]
+Last 3 sun elevations [55.60690523 56.72453179 57.81917624]
+
+Sub dataset of the last 3 data points
 <xarray.Dataset> Size: 2kB
 Dimensions:                (time: 3, latlon: 2)
 Coordinates:
@@ -235,43 +195,28 @@ Data variables: (12/28)
     granule_name           (time) object 24B 'LC08_L1GT_209022_20220531_20220...
     processing_level       (time) <U2 24B 'L1' 'L1' 'L1'
     satellite              (time) object 24B 'LANDSAT-8' 'LANDSAT-8' 'LANDSAT-8'
-    product_type           (time) object 24B 'L1GT' 'L1GT' 'L1GT'
-    copernicus_id          (time) <U36 432B '0ed5c8aa-9ecb-5559-bb9a-773965ce...
-    online                 (time) bool 3B True True True
     ...                     ...
-    resolution             (time) int64 24B 0 0 0
-    bands                  (time) int64 24B 12 12 12
-    path                   (time) int64 24B 209 209 209
-    row                    (time) int64 24B 22 23 24
-    sun_azimuth            (time) float64 24B 155.4 153.5 151.6
-    sun_elevation          (time) float64 24B 55.61 56.72 57.82
 ```
 
 ## Filtering data
 
-Xarray also offers a convenient way of filtering a dataset based on a condition.
-For example, you can filter the dataset to only look at sun elevation values taken by cloud cover `0`.
+Xarray allows convenient filtering of datasets based on conditions. For example, filter a dataset to only include sun elevation values where cloud cover is `0`:
 
 ```python Filtering data by sensor
-sun_elevations_without_cloud = satellite_data.sun_elevation[satellite_data.cloud_cover == 0]
-print(sun_elevations_without_cloud)
+without_cloud = satellite_data.sun_elevation[satellite_data.cloud_cover == 0]
+print(without_cloud)
 ```
 
 ```plaintext Output
 <xarray.DataArray 'sun_elevation' (time: 27)> Size: 216B
-array([63.89629314, 63.35038654, 64.10330149, 64.11904038, 64.32007459,
-       65.00696561, 60.81739662, 65.72788105, 65.90881403, 65.90881403,
-       66.51835574, 66.51835574, 61.24068875, 66.34420723, 66.34420723,
-       65.07319907, 65.07319907, 67.19808628, 67.19808628, 67.69088228,
-       61.54950615, 67.76723723, 67.76723723, 68.23219829, 68.23219829,
-       64.37400345, 64.37400345])
+array([63.89629314, 63.35038654, ..., 64.37400345, 64.37400345])
 Coordinates:
     ingestion_time  (time) datetime64[ns] 216B 2024-07-22T09:06:43.558629 ......
     id              (time) <U36 4kB '01807f66-8411-2e5d-719b-ce51152175eb' .....
   * time            (time) datetime64[ns] 216B 2022-05-01T11:34:26.577000 ......
 ```
 
-You can combine conditions, for example to filter for sun elevation values between `45` and `90` taken by cloud cover `0`:
+You can combine conditions to filter for sun elevation values between `45` and `90` with cloud cover `0`:
 
 ```python Filtering data by cloud_cover and sun_elevation value
 data_filter = (
@@ -285,12 +230,7 @@ print(filtered_sun_elevations)
 
 ```plaintext Output
 <xarray.DataArray 'sun_elevation' (time: 27)> Size: 216B
-array([63.89629314, 63.35038654, 64.10330149, 64.11904038, 64.32007459,
-       65.00696561, 60.81739662, 65.72788105, 65.90881403, 65.90881403,
-       66.51835574, 66.51835574, 61.24068875, 66.34420723, 66.34420723,
-       65.07319907, 65.07319907, 67.19808628, 67.19808628, 67.69088228,
-       61.54950615, 67.76723723, 67.76723723, 68.23219829, 68.23219829,
-       64.37400345, 64.37400345])
+array([63.89629314, 63.35038654, ..., 64.37400345, 64.37400345])
 Coordinates:
     ingestion_time  (time) datetime64[ns] 216B 2024-07-22T09:06:43.558629 ......
     id              (time) <U36 4kB '01807f66-8411-2e5d-719b-ce51152175eb' .....
@@ -299,8 +239,11 @@ Coordinates:
 
 ## Selecting data by value
 
-You can use the values of a primary coordinate to index your dataset.
-For example, you can access the data point taken at `2022-05-01T11:28:28.249000`:
+You can use dimension coordinate values to index your dataset. For instance, access the data point recorded at `2022-05-01T11:28:28.249000`:
+
+<Tip>
+  Selecting data by value requires unique coordinate values. In case of duplicates, you will encounter an `InvalidIndexError`. To avoid this, you can [drop duplicates](#dropping-duplicates).
+</Tip>
 
 ```python Indexing by time
 specific_datapoint = satellite_data.sel(time="2022-05-01T11:28:28.249000")
@@ -318,44 +261,36 @@ Coordinates:
 Data variables: (12/28)
     granule_name           object 8B 'LC08_L1GT_207022_20220501_20220501_02_T2'
     processing_level       <U2 8B 'L1'
-    satellite              object 8B 'LANDSAT-8'
-    product_type           object 8B 'L1GT'
-    copernicus_id          <U36 144B 'c263b8a9-2b4d-5b76-ac46-eee32338ff37'
-    online                 bool 1B True
     ...                     ...
-    resolution             int64 8B 0
-    bands                  int64 8B 12
-    path                   int64 8B 207
-    row                    int64 8B 22
-    sun_azimuth            float64 8B 158.2
-    sun_elevation          float64 8B 49.03
 ```
 
-When trying to access a value that is not in the dataset, a `KeyError` is raised.
+Attempting to access a value not in the dataset raises a `KeyError`.
 
 ```python Indexing by time (not found)
 nearest_datapoint = satellite_data.sel(time="2022-05-01T11:28:28.000000")
 >>> raises KeyError: "2022-05-01T11:28:28.000000"
 ```
 
-The `method` parameter can be used to return the closest value instead of raising an error.
+To return the closest value instead of raising an error, specify a `method`.
 
 ```python Finding the closest data point
 nearest_datapoint = satellite_data.sel(time="2022-05-01T11:28:28.000000", method="nearest")
 assert nearest_datapoint.equals(specific_datapoint)  # passes
 ```
 
-<Note>
-  Indexing requires the coordinate values to be unique. If there are duplicated values, Xarray raises an error, because
-  it can not determine which value to return. An easy way to avoid this is to
-  [drop_duplicates](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.drop_duplicates.html) before indexing.
-  `satellite_data = satellite_data.drop_duplicates("time")`
-</Note>
+## Dropping duplicates
+
+Xarray allows you to drop duplicate values from a dataset. For example, to drop duplicate timestamps:
+
+```python Dropping duplicates
+deduped = satellite_data.drop_duplicates("time")
+```
+
+De-duped datasets are required for certain operations, like [selecting data by value](#selecting-data-by-value).
 
 ## Statistics
 
-Xarray and NumPy offer a wide range of statistical functions that can be applied to a dataset or a DataArray. Here are
-a few examples:
+Xarray and NumPy include a wide range of statistical functions that you can apply to a dataset or DataArray. Here are some examples:
 
 ```python Computing dataset statistics
 cloud_cover = satellite_data.cloud_cover
@@ -363,16 +298,14 @@ min_meas = cloud_cover.min().item()
 max_meas = cloud_cover.max().item()
 mean_meas = cloud_cover.mean().item()
 std_meas = cloud_cover.std().item()
-print(f"Cloud cover from {min_meas:.2f} to {max_meas:.2f} with mean {mean_meas:.2f} and a std of {std_meas:.2f}")
+print(f"Cloud cover ranges from {min_meas:.2f} to {max_meas:.2f} with a mean of {mean_meas:.2f} and a standard deviation of {std_meas:.2f}")
 ```
 
 ```plaintext Output
-Cloud cover from 0.00 to 100.00 with mean 76.48 and a std of 34.17
+Cloud cover ranges from 0.00 to 100.00 with a mean of 76.48 and a standard deviation of 34.17
 ```
 
-You can also use many NumPy functions directly on a dataset or DataArray. For example, to find out how many bands
-the data contains, you can use [np.unique](https://numpy.org/doc/stable/reference/generated/numpy.unique.html) to
-get all the unique values in the `bands` data array.
+You can also directly apply many NumPy functions to datasets or DataArrays. For example, to find out how many unique bands the data contains, use [np.unique](https://numpy.org/doc/stable/reference/generated/numpy.unique.html):
 
 ```python Finding unique values
 import numpy as np
@@ -385,21 +318,19 @@ Sensors: [12]
 
 ## Reading and writing files
 
-Xarray also offers a convenient way to save and load datasets to and from files. This is especially useful if you want
-to share your data with others or if you want to persist your data for later use. Xarray supports a wide range of file
-formats, including NetCDF, Zarr, GRIB, and many more. For a full list of supported formats, please refer to the
-[official documentation page](https://docs.xarray.dev/en/stable/user-guide/io.html).
+Xarray provides a simple method for saving and loading datasets from files. This is useful for sharing your data or storing it for future use. Xarray supports many different file formats, including NetCDF, Zarr, GRIB, and more. For a complete list of supported formats, refer to the [official documentation page](https://docs.xarray.dev/en/stable/user-guide/io.html).
 
-You might need to install the `netcdf4` package first. You can do this by running `pip install netcdf4`.
+To save the example dataset as a NetCDF file:
 
-Here is how you can save the example dataset to a NetCDF file:
+<Note>
+You may need to install the `netcdf4` package first.
+</Note>
 
 ```python Saving a dataset to a file
 satellite_data.to_netcdf("example_satellite_data.nc")
 ```
 
-It creates a file called `example_satellite_data.nc` in the current directory. You can now load this file back
-into memory:
+This creates a file named `example_satellite_data.nc` in your current directory. You can then load this file back into memory with:
 
 ```python Loading a dataset from a file
 import xarray as xr
@@ -407,16 +338,13 @@ import xarray as xr
 satellite_data = xr.open_dataset("example_satellite_data.nc")
 ```
 
-In case you want to follow along with the examples in this section, you can download the example dataset as a NetCDF
-file [here][example_satellite_data.nc].
+If you would like to follow along with the examples in this section, you can download the example dataset as a NetCDF file [here][example_satellite_data.nc].
 
 ## Further reading
 
-This section only covered a few of the most common use-cases for Xarray. Xarray offers many more functions and features.
-For more information, please refer to the [Xarray documentation](https://xarray.pydata.org/en/stable/)
-or check out the [Xarray Tutorials](https://tutorial.xarray.dev/intro.html).
+This section covers only a few common use cases for Xarray. The library offers many more functions and features. For more information, please see the [Xarray documentation](https://xarray.pydata.org/en/stable/) or explore the [Xarray Tutorials](https://tutorial.xarray.dev/intro.html).
 
-Some useful capability that this section did not cover include:
+Some useful capabilities not covered in this section include:
 
 <CardGroup cols={2}>
   <Card

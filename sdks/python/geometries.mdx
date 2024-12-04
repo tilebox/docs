@@ -1,14 +1,12 @@
 ---
 title: Geometries
-description: How geometries are handled in the Tilebox python client.
+description: How geometries are handled in the Tilebox Python client.
 icon: earth-americas
 ---
 
-Many datasets consist of granules that represent a certain geographical area on the earths surface.
-Often times a polygon defining the outline of this area - a footprint - is stored alongside other granule metadata in time series datasets.
-Tilebox provides special support for working with Geometries out of the box.
+Many datasets consist of granules that represent specific geographical areas on the Earth's surface. Often, a polygon defining the outline of these areas—a footprint—accompanies other granule metadata in time series datasets. Tilebox provides built-in support for working with geometries.
 
-Here is an example that loads some `granules` of the `ERS SAR` Opendata dataset, that contains geometries.
+Here's an example that loads some granules from the `ERS SAR` Opendata dataset, which contains geometries.
 
 ```python Loading ERS data
 from tilebox.datasets import Client
@@ -22,18 +20,14 @@ ers_data = ers_collection.load(("2008-02-10T21:00", "2008-02-10T22:00"))
 
 ## Shapely
 
-In the `ers_data` dataset each granule contains a `geometry` field which represents the footprint each granule as a polygon.
-Tilebox automatically converts such geometry fields to `Polygon` or `MultiPolygon` objects from the
-[shapely](https://shapely.readthedocs.io/en/stable/manual.html) library.
-By integrating with shapely, you can make use of the rich set of libraries and tooling around it, which includes support for computing
-polygon characteristics such as the total area, intersection checks or the conversion to other common formats.
-
-Here are some geometries which are part of the ERS granules loaded.
+In the `ers_data` dataset, each granule includes a `geometry` field that represents the footprint of each granule as a polygon. Tilebox automatically converts geometry fields to `Polygon` or `MultiPolygon` objects from the [Shapely](https://shapely.readthedocs.io/en/stable/manual.html) library. By integrating with Shapely, you can use the rich set of libraries and tools it provides. That includes support for computing polygon characteristics such as total area, intersection checks, and conversion to other formats.
 
 ```python Printing geometries
 geometries = ers_data.geometry.values
 print(geometries)
 ```
+
+Each geometry is a [shapely.Geometry](https://shapely.readthedocs.io/en/stable/geometry.html#geometry).
 
 ```plaintext Output
 [<POLYGON ((-150.753 74.25, -152.032 73.336, -149.184 73.002, -147.769 73.899...>
@@ -51,10 +45,13 @@ print(geometries)
  <POLYGON ((-159.669 64.814, -160.263 63.866, -158.317 63.624, -157.656 64.56...>]
 ```
 
+<Tip>
+    Geometries are not always [Polygon](https://shapely.readthedocs.io/en/stable/reference/shapely.Polygon.html#shapely.Polygon) objects. More complex footprint geometries are represented as [MultiPolygon](https://shapely.readthedocs.io/en/stable/reference/shapely.MultiPolygon.html#shapely.MultiPolygon) objects.
+</Tip>
+
 ### Accessing Coordinates
 
-You can select one polygon out of the geometries, and access the underlying coordinates, as well as an automatically
-computed centroid point.
+You can select a polygon from the geometries and access the underlying coordinates and an automatically computed centroid point.
 
 ```python Accessing coordinates and computing a centroid point
 polygon = geometries[0]
@@ -73,15 +70,12 @@ array('d', [74.250081, 73.336051, 73.001748, 73.899483, 74.250081])
 ```
 
 <Note>
-  Interactive environments such as [Jupyter Notebooks](/sdks/python/sample-notebooks) can also directly visualize
-  Polygon shapes graphically, when a `shapely.Polygon` is the output of a cell. Just type `polygon` in an empty cell and
-  execute it to get a visual representation of the shape of the polygon.
+  Interactive environments such as [Jupyter Notebooks](/sdks/python/sample-notebooks) can visualize Polygon shapes graphically. Just type `polygon` in an empty cell and execute it for a visual representation of the polygon shape.
 </Note>
 
 ### Visualization on a Map
 
-To visualize polygons on a map, you can use the [folium](https://pypi.org/project/folium/) library.
-Here is a short helper function which produces an OpenStreetMap with the Polygon overlaid on top.
+To visualize polygons on a map, you can use [Folium](https://pypi.org/project/folium/). Below is a helper function that produces an OpenStreetMap with the Polygon overlaid.
 
 ```python visualize helper function
 # pip install folium
@@ -105,17 +99,17 @@ def visualize(poly: Polygon | Iterable[Polygon], zoom=4):
     return fig
 ```
 
-Here is how you can use it.
+Here's how to use it.
 
-```python Visualizing our polygon
+```python Visualizing a polygon
 visualize(polygon)
 ```
 
 <img src="/assets/geometries/single.png" alt="Single visualization" />
 
-The `visualize` helper function also supports a whole list of polygons, which you can use to showcase the data layout of the ERS granules.
+The `visualize` helper function supports a list of polygons, which can display the data layout of the ERS granules.
 
-```python Visualizing our polygon
+```python Visualizing multiple polygons
 visualize(geometries)
 ```
 
@@ -123,8 +117,7 @@ visualize(geometries)
 
 ## Format conversion
 
-Shapely provides support out of the box for converting the Polygons to some common formats,
-such as [GeoJSON](https://geojson.org/) or [Well-Known Text (WKT)](https://docs.ogc.org/is/18-010r7/18-010r7.html)
+Shapely supports converting Polygons to some common formats, such as [GeoJSON](https://geojson.org/) or [Well-Known Text (WKT)](https://docs.ogc.org/is/18-010r7/18-010r7.html).
 
 ```python Converting to GeoJSON
 from shapely import to_geojson
@@ -148,13 +141,12 @@ POLYGON ((-150.753244 74.250081, -152.031574 73.336051, -149.183655 73.001748, -
 
 ## Checking intersections
 
-One common task when working with geometries is to check whether a given geometry falls into a certain area of interest.
-Fortunately, `shapely` provides an intersects method for this use case.
+One common task when working with geometries is checking if a given geometry falls into a specific area of interest. Shapely provides an `intersects` method for this purpose.
 
 ```python Checking intersections
 from shapely import box
 
-# box representing the rectangular area lon=(-160, -150) and lat=(69, 70)
+# Box representing the rectangular area lon=(-160, -150) and lat=(69, 70)
 area_of_interest = box(-160, 69, -150, 70)
 
 for i, polygon in enumerate(geometries):
@@ -182,10 +174,7 @@ E2_66974_STD_F289 doesn't intersect the area of interest!
 
 ## Combining polygons
 
-As you saw in the preceding visualization of the granule footprints, the granules all put together form a whole orbit from pole to pole.
-Often times measurements are then combined together in certain processing steps.
-you can also do the same thing for the geometries, and combine them into a single polygon, which represents the hull around all individual footprints.
-To do so, you can make use of [shapely.unary_union](https://shapely.readthedocs.io/en/stable/reference/shapely.unary_union.html)
+As shown in the visualization of the granule footprints, the granules collectively form an orbit from pole to pole. Measurements are often combined during processing. You can do the same with geometries by combining them into a single polygon, which represents the hull around all individual footprints using [shapely.unary_union](https://shapely.readthedocs.io/en/stable/reference/shapely.unary_union.html).
 
 ```python Combining multiple polygons
 from shapely.ops import unary_union
@@ -194,14 +183,13 @@ hull = unary_union(geometries)
 visualize(hull)
 ```
 
+The computed hull consists of two polygons due to a gap (probably a missing granule) in the geometries. Such geometries are represented as [Multi Polygons](#multi-polygons).
+
 <img src="/assets/geometries/unary_union.png" alt="Unary union visualization" />
 
 ## Multi Polygons
 
-As you can see, the computed hull actually consists of two polygons, because there is a gap (probably a missing granule) in the geometries.
-
-Shapely represents such geometries as a [shapely.MultiPolygon](https://shapely.readthedocs.io/en/latest/reference/shapely.MultiPolygon.html),
-which in essence just represent a series of individual polygons put together.
+A collection of one or more non-overlapping polygons combined into a single geometry is called a [MultiPolygon](https://shapely.readthedocs.io/en/latest/reference/shapely.MultiPolygon.html). Footprint geometries can be of type `MultiPolygon` due to gaps or pole discontinuities. The computed hull in the previous example is a `MultiPolygon`.
 
 ```python Accessing individual polygons of a MultiPolygon
 print(f"The computed hull of type {type(hull).__name__} consists of {len(hull.geoms)} sub polygons")
@@ -217,21 +205,16 @@ Sub polygon 1 has an area of 24.389998081651527
 
 ## Antimeridian Crossings
 
-One common problem when working with `longitude / latitude` geometries like this are crossings of the 180-meridian, or the antimeridian.
-Consider the coordinates of a `LineString` from Japan to the United States. It's longitude coordinates would look something like the following.
+A common issue with `longitude / latitude` geometries is crossings of the 180-degree meridian, or the antimeridian. For example, the coordinates of a `LineString` from Japan to the United States might look like this:
 
 `140, 141, 142, ..., 179, 180, -179, -178, ..., -125, -124`
 
-Libraries like `shapely` are not designed for handling spherical coordinate systems, extra care needs to be taken when handling such geometries.
+Libraries like Shapely are not designed to handle spherical coordinate systems, so caution is necessary with such geometries.
 
-The `GeoJSON` spec actually provides a solution for this problem.
-In the section [Antimeridian Cutting](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.9) they propose to
-always cut lines and polygons into two parts, one representing the eastern hemisphere, and the other one the western hemisphere.
-
-As an example, here is an `ERS` granule where this exact problem occurs.
+Here's an `ERS` granule demonstrating this issue.
 
 ```python Antimeridian Crossing
-# a granule that crosses the antimeridian
+# A granule that crosses the antimeridian
 granule = ers_collection.find("0119bb86-0260-5819-6aab-f99796417155")
 polygon = granule.geometry.item()
 print(polygon.exterior.coords.xy)
@@ -245,18 +228,17 @@ array('d', [74.983185, 74.074615, 73.727752, 74.61847, 74.983185])
 
 <img src="/assets/geometries/antimeridian_buggy.png" alt="Antimeridian buggy visualization" />
 
-This 2D visualization doesn't seem right. Not only the visualization is wrong, the same also applies for
-calculations which you may want to do. For example, testing whether the granule intersects the 0-meridian gives the wrong result.
+This 2D visualization appears incorrect. Both the visualization and any calculations performed may yield inaccurate results. For instance, testing whether the granule intersects the 0-degree meridian provides a false positive.
 
 ```python Problems with calculating intersections
 from shapely import LineString
 
 null_meridian = LineString([(0, -90), (0, 90)])
-print(polygon.intersects(null_meridian))  # True - but this is wrong!
+print(polygon.intersects(null_meridian))  # True - but this is incorrect!
 ```
 
-One solution to solve this issue is to cut the polygon into two parts.
-The [antimeridian](https://pypi.org/project/antimeridian/) package does exactly that.
+The GeoJSON specification offers a solution for this problem. In the section [Antimeridian Cutting](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.9), it suggests always cutting lines and polygons into two parts—one for the eastern hemisphere and one for the western hemisphere.
+In python, this can be achieved using the [antimeridian](https://pypi.org/project/antimeridian/) package.
 
 ```python Cutting the polygon along the antimeridian
 # pip install antimeridian
@@ -270,13 +252,12 @@ print(fixed_polygon.intersects(null_meridian))  # False - this is correct now
 
 <img src="/assets/geometries/antimeridian_fixed.png" alt="Antimeridian fixed visualization" />
 
-Since `shapely` is not aware of the spherical nature of the data, the `centroid` of this fixed polygon is still wrong.
-The `antimeridian` package also has a function to correct this.
+Since Shapely is unaware of the spherical nature of this data, the **centroid** of the fixed polygon **is still incorrect**. The antimeridian package also includes a function to correct this.
 
-```python Calculating the centroid of a fixed polygon crossing the antimeridian
-print("Wrongly computed centroid coordinates (shapely)")
+```python Calculating the centroid of a cut polygon crossing the antimeridian
+print("Wrongly computed centroid coordinates (Shapely)")
 print(list(fixed_polygon.centroid.coords))
-print("Correct centroid coordinates (antimeridian taken into account)")
+print("Correct centroid coordinates (Antimeridian taken into account)")
 print(list(antimeridian.centroid(fixed_polygon).coords))
 ```
 
@@ -289,11 +270,9 @@ Correct centroid coordinates (antimeridian taken into account)
 
 ## Spherical Geometry
 
-Another approach to handling the antimeridian issue is to perform all coordinate related calculations,
-such as polygon intersections, in a [3D spherical coordinate system](https://en.wikipedia.org/wiki/Spherical_coordinate_system).
+Another approach to handle the antimeridian issue is performing all coordinate-related calculations, such as polygon intersections, in a [spherical coordinate system](https://en.wikipedia.org/wiki/Spherical_coordinate_system).
 
-One great library to do this is [spherical_geometry](https://spherical-geometry.readthedocs.io/en/latest/).
-Here is an example.
+One useful library for this is [spherical_geometry](https://spherical-geometry.readthedocs.io/en/latest/). Here’s an example.
 
 ```python Spherical Geometry
 # pip install spherical-geometry
@@ -303,7 +282,7 @@ from spherical_geometry.vector import lonlat_to_vector
 
 lon, lat = polygon.exterior.coords.xy
 spherical_poly = SphericalPolygon.from_lonlat(lon, lat)
-# let's check the x, y, z coordinates of the spherical polygon:
+# Let's check the x, y, z coordinates of the spherical polygon:
 print(list(spherical_poly.points))
 ```
 
@@ -315,13 +294,12 @@ print(list(spherical_poly.points))
        [-0.25894363,  0.00907234,  0.96584983]])]
 ```
 
-Now you can easily compute intersections or check whether a certain point is inside the polygon.
-You can compare the incorrect computation from `shapely` with the fixed version when using `spherical_geometry`.
+Now, you can compute intersections or check if a particular point is within the polygon. You can compare the incorrect calculation using `shapely` with the correct version when using `spherical_geometry`.
 
 ```python Correct calculations using spherical geometry
-# a point on the null-meridian, way off from our polygon
+# A point on the null-meridian, way off from our polygon
 null_meridian_point = 0, 74.4
-# a point actually inside our polygon
+# A point actually inside our polygon
 point_inside = 178.8, 74.4
 
 print("Shapely results:")

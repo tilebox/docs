@@ -1,42 +1,35 @@
 ---
 title: Async support
-description: Tilebox offers a standard synchronous API by default, but also give you to option of an async client if you need it.
+description: Tilebox offers a standard synchronous API by default but also provides an async client option when needed.
 icon: rotate
 ---
 
-## Why async?
+## Why use async?
 
-Often case when interacting with external datasets, such as [Tilebox datasets](/datasets/timeseries) loading data
-can take a little while. One way to speed up this process is to run those requests in parallel. This can be achieved
-by multi-threading or multi-processing, but this is not always easiest method of achieving this. An alternative is
-to perform data loading tasks in an async manner, leveraging co-routines and `asyncio` to achieve this.
+When working with external datasets, such as [Tilebox datasets](/datasets/timeseries), loading data may take some time. To speed up this process, you can run requests in parallel. While you can use multi-threading or multi-processing, which can be complex, often times a simpler option is to perform data loading tasks asynchronously using coroutines and `asyncio`.
 
 ## Switching to an async datasets client
 
-Typically all you need to do is swap out your import statement of the `Client` and you're good to go. Check out
-the example below to see how that is done works.
+To switch to the async client, change the import statement for the `Client`. The example below illustrates this change.
 
 <CodeGroup>
 ```python Python (Sync)
 from tilebox.datasets import Client
 
-# this client is sync
+# This client is synchronous
 client = Client()
 ```
 ```python Python (Async)
 from tilebox.datasets.aio import Client
 
-# this client is async
+# This client is asynchronous
 client = Client()
 ```
-
 </CodeGroup>
 
-Once you have switched to the async client, you can use the `async` and `await` keywords to make your code async.
-Check out the examples below to see how that works for a few examples.
+After switching to the async client, use `await` for operations that interact with the Tilebox API.
 
 <CodeGroup>
-
 ```python Python (Sync)
 # Listing datasets
 datasets = client.datasets()
@@ -78,93 +71,82 @@ data = await collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
 datapoint_uuid = "01910b3c-8552-7671-3345-b902cc0813f3"
 datapoint = await collection.find(datapoint_uuid)
 ```
-
 </CodeGroup>
 
 <Note>
-  Jupyter notebooks or similar interactive environments also support asynchronous code execution. You can even use
+  Jupyter notebooks and similar interactive environments support asynchronous code execution. You can use
   `await some_async_call()` as the output of a code cell.
 </Note>
 
-## Benefits
+## Fetching data concurrently
 
-The main benefit of using an async client is that you can run requests concurrently, which improve performance.
-This is especially useful when you are loading data from different collections.
-Check out the example below to see how that works.
-
-## Example: Fetching data concurrently
-
-The following example fetches data from different collections.
-In the synchronous example, it fetches the data sequentially, whereas in the async example it fetches the data concurrently.
-This means that the async approach is faster for such use cases.
+The primary benefit of the async client is that it allows concurrent requests, enhancing performance.
+In below example, data is fetched from various collections. The synchronous approach retrieves data sequentially, while the async approach does so concurrently, resulting in faster execution.
 
 <CodeGroup>
-
 ```python Python (Sync)
-# example: fetching data sequentially
+# Example: fetching data sequentially
 
+# switch to the async example to compare the differences
 import time
 from tilebox.datasets import Client
-from tilebox.datasets.timeseries import RemoteTimeseriesDatasetCollection  # for type hinting
+from tilebox.datasets.sync.timeseries import TimeseriesCollection
 
 client = Client()
 datasets = client.datasets()
 collections = datasets.open_data.copernicus.landsat8_oli_tirs.collections()
 
-def stats_for_2020(collection: RemoteTimeseriesDatasetCollection) -> None:
+def stats_for_2020(collection: TimeseriesCollection) -> None:
     """Fetch data for 2020 and print the number of data points that were loaded."""
     data = collection.load(("2020-01-01", "2021-01-01"), show_progress=True)
     n = data.sizes['time'] if 'time' in data else 0
-    print(f"There are {n} datapoints in {collection.name} for 2020.")
+    return (collection.name, n)
 
-start = time.time()
+start = time.monotonic()
+results = [stats_for_2020(collections[name]) for name in collections]
+duration = time.monotonic() - start
 
-# for each collection
-for name in collections:
-    # fetch the data, print the number of datapoints and then continue to the next collection
-    stats_for_2020(collections[name])
-
-end = time.time()
-print(f"Fetching data took {end - start:.2f} seconds")
+for collection_name, n in results:
+    print(f"There are {n} datapoints in {collection_name} for 2020.")
+print(f"Fetching data took {duration:.2f} seconds")
 ```
 
 ```python Python (Async)
-# example: fetching data concurrently
+# Example: fetching data concurrently
 
 import asyncio
 import time
 from tilebox.datasets.aio import Client
-from tilebox.datasets.timeseries import RemoteTimeseriesDatasetCollection  # for type hinting
+from tilebox.datasets.aio.timeseries import TimeseriesCollection
 
 client = Client()
 datasets = await client.datasets()
 collections = await datasets.open_data.copernicus.landsat8_oli_tirs.collections()
 
-async def stats_for_2020(collection: RemoteTimeseriesDatasetCollection) -> None:
+async def stats_for_2020(collection: TimeseriesCollection) -> None:
     """Fetch data for 2020 and print the number of data points that were loaded."""
     data = await collection.load(("2020-01-01", "2021-01-01"), show_progress=True)
     n = data.sizes['time'] if 'time' in data else 0
-    print(f"There are {n} datapoints in {collection.name} for 2020.")
+    return (collection.name, n)
 
-start = time.time()
+start = time.monotonic()
 
-# initiate all requests concurrently
+# Initiate all requests concurrently
 requests = [stats_for_2020(collections[name]) for name in collections]
-# and then wait for all to finish in parallel before continuing
-await asyncio.gather(*requests)
+# Wait for all requests to finish in parallel
+results = await asyncio.gather(*requests)
 
-end = time.time()
-print(f"Fetching data took {end - start:.2f} seconds")
+duration = time.monotonic() - start
+
+for collection_name, n in results:
+    print(f"There are {n} datapoints in {collection_name} for 2020.")
+print(f"Fetching data took {duration:.2f} seconds")
 ```
-
 </CodeGroup>
 
-The output is shown below. As you can see, the async approach is 5 seconds faster. If you have `show_progress` enabled,
-the progress bars are updated concurrently. In this example the second collection contains less data than the first one,
-so it finishes first.
+The output demonstrates that the async approach runs approximately 30% faster for this example. With `show_progress` enabled, the progress bars update concurrently.
 
 <CodeGroup>
-
 ```plaintext Python (Sync)
 There are 19624 datapoints in L1GT for 2020.
 There are 1281 datapoints in L1T for 2020.
@@ -174,23 +156,19 @@ Fetching data took 10.92 seconds
 ```
 
 ```plaintext Python (Async)
-There are 1281 datapoints in L1T for 2020.
 There are 19624 datapoints in L1GT for 2020.
-There are 25375 datapoints in L2SP for 2020.
+There are 1281 datapoints in L1T for 2020.
 There are 65313 datapoints in L1TP for 2020.
+There are 25375 datapoints in L2SP for 2020.
 Fetching data took 7.45 seconds
 ```
-
 </CodeGroup>
 
 ## Async workflows
 
-The Tilebox workflows Python client doesn't offer an async client. That's because workflows are already designed to be
-executed in a distributed and concurrent fashion - outside of the context of a single async event loop.
-But within a single task execution, you may still want to use `async` code, to leverage the benefits of async execution, such
-as loading data in parallel. Achieving this is straightforward, by wrapping your async code in `asyncio.run`.
+The Tilebox workflows Python client does not have an async client. This is because workflows are designed for distributed and concurrent execution outside a single async event loop. However, within a single task, you may use `async` code to benefit from asynchronous execution, such as parallel data loading. You can achieve this by wrapping your async code in `asyncio.run`.
 
-Below is an example of how you can leverage async code within a workflow task.
+Below is an example of using async code within a workflow task.
 
 <CodeGroup>
 ```python Python (Async)
@@ -202,11 +180,11 @@ from tilebox.datasets.data import TimeIntervalLike
 from tilebox.workflows import Task, ExecutionContext
 
 class FetchData(Task):
-    def execute(self, ctx: ExecutionContext) -> None:
-        # the task execute itself is a synchronous function
-        # but we can leverage async code within the task, by using asyncio.run
+    def execute(self, context: ExecutionContext) -> None:
+        # The task execution itself is synchronous
+        # But we can leverage async code within the task using asyncio.run
 
-        # this will fetch the three months of data in parallel
+        # This will fetch three months of data in parallel
         data_jan, data_feb, data_mar = asyncio.run(load_first_three_months())
         
 async def load_data(interval: TimeIntervalLike):
@@ -218,14 +196,12 @@ async def load_first_three_months() -> tuple[xr.Dataset, xr.Dataset, xr.Dataset]
     jan = load_data(("2020-01-01", "2020-02-01"))
     feb = load_data(("2020-02-01", "2020-03-01"))
     mar = load_data(("2020-03-01", "2020-04-01"))
+    # load the three months in parallel
     jan, feb, mar = await asyncio.gather(jan, feb, mar)
     return jan, feb, mar
 ```
 </CodeGroup>
 
 <Tip>
-    If you encounter an error like `RuntimeError: asyncio.run() cannot be called from a running event loop`, it means
-    you are trying to start another asyncio event loop (with `asyncio.run`) from within an already running event loop.
-    One situation where this can easily occur is if you are using `asyncio.run` in a Jupyter notebook, since Jupyter
-    automatically starts an event loop for you. One way to work around this is to use [nest-asyncio](https://pypi.org/project/nest-asyncio/).
+    If you encounter an error like `RuntimeError: asyncio.run() cannot be called from a running event loop`, it means you're trying to start another asyncio event loop (with `asyncio.run`) from within an existing one. This often happens in Jupyter notebooks since they automatically start an event loop. A way to resolve this is by using [nest-asyncio](https://pypi.org/project/nest-asyncio/).
 </Tip>

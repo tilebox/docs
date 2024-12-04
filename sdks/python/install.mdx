@@ -6,8 +6,7 @@ icon: download
 
 ## Package Overview
 
-Tilebox provides a Python SDK to interact with the Tilebox services. The SDK is structured into separate packages, which can be installed
-independently based on the services you want to interact with or all together for a complete experience.
+Tilebox offers a Python SDK for accessing Tilebox services. The SDK includes separate packages that can be installed individually based on the services you wish to use, or all together for a comprehensive experience.
 
 <CardGroup cols={2}>
   <Card title="tilebox-datasets" icon="database" href="https://pypi.org/project/tilebox-datasets/" horizontal>
@@ -20,23 +19,59 @@ independently based on the services you want to interact with or all together fo
 
 ## Installation
 
-You your favorite package manager to install:
+Install the Tilebox python packages using your preferred package manager:
 
 <CodeGroup>
 ```bash pip
 pip install tilebox-datasets tilebox-workflows
 ```
-
 ```bash uv
 uv add tilebox-datasets tilebox-workflows
 ```
-
 ```bash poetry
 poetry add tilebox-datasets="*" tilebox-workflows="*"
 ```
-
 ```bash pipenv
 pipenv install tilebox-datasets tilebox-workflows
 ```
-
 </CodeGroup>
+
+## Setting up a local JupyterLab environment
+
+<Tip>
+  To get started quickly, you can also use an existing Jupyter-compatible cloud environment such as [Google Colab](https://colab.research.google.com/).
+</Tip>
+
+If you want to set up a local Jupyter environment to explore the SDK or to run the [Sample notebooks](/sdks/python/sample-notebooks) locally, install [JupyterLab](https://github.com/jupyterlab/jupyterlab) for a browser-based development environment. It's advised to install the Tilebox packages along with JupyterLab, [ipywidgets](https://ipywidgets.readthedocs.io/en/latest/user_install.html), and [tqdm](https://tqdm.github.io/) for an enhanced experience.
+
+```uv uv
+mkdir tilebox-exploration
+cd tilebox-exploration
+
+uv init --no-package
+uv add tilebox-datasets tilebox-workflows
+uv add jupyterlab ipywidgets tqdm
+uv run jupyter lab
+```
+
+### Trying it out
+
+After installation, create a new notebook and paste the following code snippet to verify your installation. If you're new to Jupyter, you can refer to the guide on [interactive environments](/sdks/python/sample-notebooks#interactive-environments).
+
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+datasets = client.datasets()
+
+collection = datasets.open_data.copernicus.landsat8_oli_tirs.collection("L1T")
+data = collection.load(("2015-01-01", "2020-01-01"), show_progress=True)
+data
+```
+
+If the installation is successful, the output should appear as follows.
+
+<Frame>
+  <img src="/assets/jupyter/local-jupyter-light.png" alt="Local JupyterLab" className="dark:hidden" />
+  <img src="/assets/jupyter/local-jupyter-dark.png" alt="Local JupyterLab" className="hidden dark:block" />
+</Frame>
