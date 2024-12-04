@@ -137,32 +137,32 @@
     {
       "group": "tilebox.datasets",
       "pages": [
-        "api-reference/datasets/Client",
-        "api-reference/datasets/Client.datasets",
-        "api-reference/datasets/Client.dataset",
-        "api-reference/datasets/Dataset.collections",
-        "api-reference/datasets/Dataset.collection",
-        "api-reference/datasets/Collection.info",
-        "api-reference/datasets/Collection.load",
-        "api-reference/datasets/Collection.find"
+        "api-reference/tilebox.datasets/Client",
+        "api-reference/tilebox.datasets/Client.datasets",
+        "api-reference/tilebox.datasets/Client.dataset",
+        "api-reference/tilebox.datasets/Dataset.collections",
+        "api-reference/tilebox.datasets/Dataset.collection",
+        "api-reference/tilebox.datasets/Collection.info",
+        "api-reference/tilebox.datasets/Collection.load",
+        "api-reference/tilebox.datasets/Collection.find"
       ]
     },
     {
       "group": "tilebox.workflows",
       "pages": [
-        "api-reference/workflows/Client",
-        "api-reference/workflows/Task",
-        "api-reference/workflows/Client.runner",
-        "api-reference/workflows/TaskRunner.run_all",
-        "api-reference/workflows/TaskRunner.run_forever",
-        "api-reference/workflows/ExecutionContext.submit_subtask",
-        "api-reference/workflows/ExecutionContext.job_cache",
-        "api-reference/workflows/JobCache.group",
-        "api-reference/workflows/JobCache.__iter__",
-        "api-reference/workflows/JobClient.submit",
-        "api-reference/workflows/JobClient.retry",
-        "api-reference/workflows/JobClient.cancel",
-        "api-reference/workflows/JobClient.visualize"
+        "api-reference/tilebox.workflows/Client",
+        "api-reference/tilebox.workflows/Task",
+        "api-reference/tilebox.workflows/Client.runner",
+        "api-reference/tilebox.workflows/TaskRunner.run_all",
+        "api-reference/tilebox.workflows/TaskRunner.run_forever",
+        "api-reference/tilebox.workflows/ExecutionContext.submit_subtask",
+        "api-reference/tilebox.workflows/ExecutionContext.job_cache",
+        "api-reference/tilebox.workflows/JobCache.group",
+        "api-reference/tilebox.workflows/JobCache.__iter__",
+        "api-reference/tilebox.workflows/JobClient.submit",
+        "api-reference/tilebox.workflows/JobClient.retry",
+        "api-reference/tilebox.workflows/JobClient.cancel",
+        "api-reference/tilebox.workflows/JobClient.visualize"
       ]
     }
   ],
