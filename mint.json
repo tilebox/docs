@@ -5,6 +5,13 @@
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
   },
+  "sidebar": {
+    "items": "border"
+  },
+  "topbar": {
+    "style": "default"
+  },
+  "rounded": "sharp",
   "favicon": "/favicon.svg",
   "colors": {
     "primary": "#f43f5e",
@@ -96,7 +103,8 @@
         "datasets/timeseries",
         "datasets/collections",
         "datasets/loading-data",
-        "datasets/open-data"
+        "datasets/open-data",
+        "datasets/storage-clients"
       ]
     },
     {

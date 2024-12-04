@@ -23,16 +23,16 @@ Install the Tilebox python packages using your preferred package manager:
 
 <CodeGroup>
 ```bash pip
-pip install tilebox-datasets tilebox-workflows
+pip install tilebox-datasets tilebox-workflows tilebox-storage
 ```
 ```bash uv
-uv add tilebox-datasets tilebox-workflows
+uv add tilebox-datasets tilebox-workflows tilebox-storage
 ```
 ```bash poetry
-poetry add tilebox-datasets="*" tilebox-workflows="*"
+poetry add tilebox-datasets="*" tilebox-workflows="*" tilebox-storage="*"
 ```
 ```bash pipenv
-pipenv install tilebox-datasets tilebox-workflows
+pipenv install tilebox-datasets tilebox-workflows tilebox-storage
 ```
 </CodeGroup>
 
@@ -49,7 +49,7 @@ mkdir tilebox-exploration
 cd tilebox-exploration
 
 uv init --no-package
-uv add tilebox-datasets tilebox-workflows
+uv add tilebox-datasets tilebox-workflows tilebox-storage
 uv add jupyterlab ipywidgets tqdm
 uv run jupyter lab
 ```

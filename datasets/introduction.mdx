@@ -4,59 +4,53 @@ description: Learn about Tilebox Datasets
 icon: house
 ---
 
-As the name suggests, time series datasets refer to a certain kind of datasets where each data point is associated with a timestamp.
-This is a common format for datasets that are collected over time, such as satellite data.
+Time series datasets refer to datasets where each data point is linked to a timestamp. This format is common for data collected over time, such as satellite data.
 
 This section covers:
 
 <CardGroup cols={2}>
   <Card title="Available Datasets" icon="list" href="/datasets/timeseries#listing-datasets" horizontal>
-    Which time series datasets are available and how to list them.
+    Discover available time series datasets and learn how to list them.
   </Card>
   <Card title="Common Fields" icon="file-code" href="/datasets/timeseries#common-fields" horizontal>
-    Which common fields all time series datasets share.
+    Understand the common fields shared by all time series datasets.
   </Card>
   <Card title="Collections" icon="layer-group" href="/datasets/collections" horizontal>
-    What collections are and how to access them.
+    Learn what collections are and how to access them.
   </Card>
   <Card title="Loading Data" icon="download" href="/datasets/loading-data" horizontal>
-    How to access data from a collection for a given time interval.
+    Find out how to access data from a collection for specific time intervals.
   </Card>
 </CardGroup>
 
 <Note>
-  If you want to quickly look up the name of some API method or the meaning of a specific parameter [check out the
-  complete time series API Reference](/api-reference/datasets/).
+  For a quick reference to API methods or specific parameter meanings, [check out the complete time series API Reference](/api-reference/datasets/).
 </Note>
 
 ## Terminology
 
-Here are some terms used throughout this section.
+Get familiar with some key terms when working with time series datasets.
 
 <AccordionGroup>
   <Accordion title="Data points">
-    Time series data points are the individual entities that make up a dataset. Each data point is associated with a
-    timestamp. Each data point consists of a set of fixed [metadata fields](/datasets/timeseries#common-fields) as well
-    as individual fields that are defined on a dataset level.
+    Time series data points are individual entities that form a dataset. Each data point has a timestamp and consists of a set of fixed [metadata fields](/datasets/timeseries#common-fields) along with dataset-specific fields.
   </Accordion>
   <Accordion title="Datasets">
-    Time series datasets are a container for individual data points. All data points in a time series dataset share the
-    same data type, so all data points in a dataset share the same set of fields.
+    Time series datasets act as containers for data points. All data points in a dataset share the same type and fields.
   </Accordion>
   <Accordion title="Collections">
-    Collections are a way of grouping data points within a dataset. They are useful for representing a logical grouping
-    of data points that are commonly queried together.
+    Collections group data points within a dataset. They help represent logical groupings of data points that are often queried together.
   </Accordion>
 </AccordionGroup>
 
-## Creating a datasets Client
+## Creating a datasets client
 
 Prerequisites
 
-- You've [installed](/sdks/python/install) the `tilebox-datasets` package
-- You've [created](/authentication) a Tilebox API key
+- You have [installed](/sdks/python/install) the `tilebox-datasets` package.
+- You have [created](/authentication) a Tilebox API key.
 
-With the prerequisites out of the way, you can now create a client instance to start interacting with your Tilebox Datasets.
+After meeting these prerequisites, you can create a client instance to interact with Tilebox Datasets.
 
 <CodeGroup>
 
@@ -68,8 +62,7 @@ With the prerequisites out of the way, you can now create a client instance to s
 
 </CodeGroup>
 
-As an alternative, you can also set the `TILEBOX_API_KEY` environment variable to your API key and instantiate the client
-without passing the `token` argument. Python automatically pick up the environment variable and use it to authenticate with the API.
+Alternatively, you can set the `TILEBOX_API_KEY` environment variable to your API key. You can then instantiate the client without passing the `token` argument. Python will automatically use this environment variable for authentication.
 
 <CodeGroup>
 
@@ -82,42 +75,36 @@ without passing the `token` argument. Python automatically pick up the environme
 
 </CodeGroup>
 
-Tilebox datasets offers a standard synchronous API by default, but also give you the option of an async client if you need it.
-
-The synchronous client is great for data exploration in interactive environments like Jupyter notebooks.
-The asynchronous client is great for building production ready applications that need to scale. To find out more
-about the differences between the two clients, check out the [Async support](/sdks/python/async) page.
+<Tip>
+  Tilebox datasets provide a standard synchronous API by default but also offers an [asynchronous client](/sdks/python/async) if needed.
+</Tip>
 
 ### Exploring datasets
 
-Now that you have a client instance, you can start exploring the datasets that are available. An easy way to do this
-is to [list all datasets](/api-reference/datasets/listing-datasets) and then using the autocomplete capability
-of your IDE or inside your Jupyter notebook.
+After creating a client instance, you can start exploring available datasets. A straightforward way to do this in an interactive environment is to [list all datasets](/api-reference/tilebox.datasets/Client.datasets) and use the autocomplete feature in your Jupyter notebook.
 
 <CodeGroup>
- 
 ```python Python
 datasets = client.datasets()
-datasets. # trigger autocomplete here to get an overview of the available datasets
+datasets. # trigger autocomplete here to view available datasets
 ```
-
 </CodeGroup>
+
+<Tip>
+  The Console also provides an [overview](https://console.tilebox.com/datasets/explorer) of all available datasets.
+</Tip>
 
 ### Errors you might encounter
 
 #### AuthenticationError
 
-`AuthenticationError` is raised when the client is unable to authenticate with the Tilebox API. This can happen when
-the provided API key is invalid or expired. Instantiating a client with an invalid API key does not raise an error
-directly, but only when you try to make a request to the API.
+`AuthenticationError` occurs when the client fails to authenticate with the Tilebox API. This may happen if the provided API key is invalid or expired. A client instantiated with an invalid API key won't raise an error immediately, but an error will occur when making a request to the API.
 
 <CodeGroup>
- 
 ```python Python
 client = Client(token="invalid-key") # runs without error
 datasets = client.datasets() # raises AuthenticationError
 ```
-
 </CodeGroup>
 
 ## Next steps
