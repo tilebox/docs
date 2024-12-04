@@ -16,6 +16,9 @@
       "family": "Poppins"
     }
   },
+  "codeBlock": {
+    "mode": "auto"
+  },
   "topbarLinks": [
     {
       "name": "Website",
@@ -45,6 +48,11 @@
       "name": "Book a Demo",
       "icon": "calendar",
       "url": "https://book.vimcal.com/p/lauracosta/tilebox-demo"
+    },
+    {
+      "name": "Discord",
+      "icon": "discord",
+      "url": "https://discord.gg/NYe5g5z5"
     }
   ],
   "navigation": [
@@ -127,45 +135,34 @@
       ]
     },
     {
-      "group": "Datasets",
+      "group": "tilebox.datasets",
       "pages": [
-        "api-reference/datasets/listing-datasets",
-        "api-reference/datasets/accessing-dataset",
-        "api-reference/datasets/listing-collection",
-        "api-reference/datasets/accessing-collection",
-        "api-reference/datasets/collection-info",
-        "api-reference/datasets/loading-data",
-        "api-reference/datasets/loading-datapoint"
+        "api-reference/datasets/Client",
+        "api-reference/datasets/Client.datasets",
+        "api-reference/datasets/Client.dataset",
+        "api-reference/datasets/Dataset.collections",
+        "api-reference/datasets/Dataset.collection",
+        "api-reference/datasets/Collection.info",
+        "api-reference/datasets/Collection.load",
+        "api-reference/datasets/Collection.find"
       ]
     },
     {
-      "group": "Storage Providers",
+      "group": "tilebox.workflows",
       "pages": [
-        "api-reference/storage-providers/creating-storage-client",
-        "api-reference/storage-providers/downloading-products",
-        "api-reference/storage-providers/downloading-quicklook-images",
-        "api-reference/storage-providers/previewing-quicklook-images",
-        "api-reference/storage-providers/deleting-products",
-        "api-reference/storage-providers/deleting-cache",
-        "api-reference/storage-providers/direct-storage-access"
-      ]
-    },
-    {
-      "group": "Workflows",
-      "pages": [
-        "api-reference/workflows/implementing-task",
-        "api-reference/workflows/task-inputs",
-        "api-reference/workflows/subtasks",
-        "api-reference/workflows/task-display-name",
-        "api-reference/workflows/creating-task-runner",
-        "api-reference/workflows/starting-task-runner",
-        "api-reference/workflows/submitting-job",
-        "api-reference/workflows/retrying-job",
-        "api-reference/workflows/cancelling-job",
-        "api-reference/workflows/visualizing-job",
-        "api-reference/workflows/cluster-management",
-        "api-reference/workflows/cache-access",
-        "api-reference/workflows/hierarchical-caches"
+        "api-reference/workflows/Client",
+        "api-reference/workflows/Task",
+        "api-reference/workflows/Client.runner",
+        "api-reference/workflows/TaskRunner.run_all",
+        "api-reference/workflows/TaskRunner.run_forever",
+        "api-reference/workflows/ExecutionContext.submit_subtask",
+        "api-reference/workflows/ExecutionContext.job_cache",
+        "api-reference/workflows/JobCache.group",
+        "api-reference/workflows/JobCache.__iter__",
+        "api-reference/workflows/JobClient.submit",
+        "api-reference/workflows/JobClient.retry",
+        "api-reference/workflows/JobClient.cancel",
+        "api-reference/workflows/JobClient.visualize"
       ]
     }
   ],
