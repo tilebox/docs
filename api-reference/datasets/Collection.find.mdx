@@ -1,0 +1,42 @@
+---
+title: Collection.find
+icon: download
+---
+
+```python
+def Collection.find(
+    datapoint_id: str,
+    skip_data: bool = False
+) -> xarray.Dataset
+```
+
+Find a specific datapoint in a collection by its id.
+
+## Parameters
+
+<ParamField path="datapoint_id" type="str">
+    The id of the datapoint to find.
+</ParamField>
+
+<ParamField path="skip_data" type="bool">
+    Whether to skip loading the data for the datapoint. If `True`, only the metadata for the datapoint is loaded.
+</ParamField>
+
+## Returns
+
+An [`xarray.Dataset`](/sdks/python/xarray) containing the requested data point.
+
+## Errors
+
+<ParamField path="NotFoundError" type="No such datapoint: <id>">
+  The specified datapoint does not exist in this collection.
+</ParamField>
+
+<RequestExample>
+```python Python
+data = collection.find(
+    "0186d6b6-66cc-fcfd-91df-bbbff72499c3",
+    skip_data = False,
+)
+```
+</RequestExample>

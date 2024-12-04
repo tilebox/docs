@@ -1,0 +1,64 @@
+---
+title: Task
+icon: code
+---
+
+```python
+class Task:
+    def execute(context: ExecutionContext) -> None
+
+    @staticmethod
+    def identifier() -> tuple[str, str]
+```
+
+Base class for Tilebox workflows [tasks](/workflows/concepts/tasks). Inherit from this class to create a task.
+Inheriting also automatically applies the dataclass decorator.
+
+## Methods
+
+```python
+def Task.execute(context: ExecutionContext) -> None
+```
+
+The entry point for the execution of the task.
+
+```python
+@staticmethod
+def Task.identifier() -> tuple[str, str]
+```
+Override a task identifier and specify its version. If not overridden, the identifier of a task defaults to the class name, and the version to `v0.0`.
+
+## Task Input Parameters
+
+```python
+class MyTask(Task):
+    message: str
+    value: int
+    data: dict[str, int]
+```
+
+Optional task [input parameters](/workflows/concepts/tasks#input-parameters), defined as class attributes. Supported types
+are `str`, `int`, `float`, `bool`, as well as `lists` and `dicts` thereof.
+
+<RequestExample>
+```python Python
+from tilebox.workflows import Task, ExecutionContext
+
+class MyFirstTask(Task):
+    def execute(self, context: ExecutionContext):
+        print(f"Hello World!")
+
+    @staticmethod
+    def identifier() -> tuple[str, str]:
+        return ("tilebox.workflows.MyTask", "v3.2")
+
+class MyFirstParameterizedTask(Task):
+    name: str
+    greet: bool
+    data: dict[str, str]
+
+    def execute(self, context: ExecutionContext):
+        if self.greet:
+            print(f"Hello {self.name}!")
+```
+</RequestExample>

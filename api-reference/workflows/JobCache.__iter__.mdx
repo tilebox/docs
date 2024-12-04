@@ -1,0 +1,34 @@
+---
+title: JobCache.__iter__
+icon: box-archive
+---
+
+```python
+def JobCache.__iter__() -> Iterator[str]
+```
+
+List all available keys in a job cache group. Only keys that are direct children of the current group are returned.
+For nested groups, first access the group and then iterate over its keys.
+
+## Parameters
+
+<RequestExample>
+
+```python Python
+# within a Tasks execute method, access the job cache
+# def execute(context: ExecutionContext)
+cache = context.job_cache
+
+# iterate over all keys
+for key in cache:
+  print(cache[key])
+
+# or collect as list
+keys = list(cache)
+
+# also works with nested groups
+for key in cache.group("some-group"):
+  print(cache[key])
+```
+
+</RequestExample>

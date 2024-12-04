@@ -1,0 +1,35 @@
+---
+title: Client
+icon: code
+---
+
+```python
+class Client(url: str, token: str)
+```
+
+Create a Tilebox datasets client.
+
+## Parameters
+
+<ParamField path="url" type="string">
+  Tilebox API Url. Defaults to `https://api.tilebox.com`.
+</ParamField>
+
+<ParamField path="token" type="string">
+  The API Key to authenticate with. If not set the `TILEBOX_API_KEY` environment variable will be used.
+</ParamField>
+
+<RequestExample>
+```python Python
+from tilebox.datasets import Client
+
+# read token from an environment variable
+client = Client()
+
+# or provide connection details directly
+client = Client(
+    url="https://api.tilebox.com",
+    token="YOUR_TILEBOX_API_KEY"
+)
+```
+</RequestExample>

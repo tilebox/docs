@@ -1,0 +1,43 @@
+---
+title: Client.runner
+icon: laptop-code
+---
+
+```python
+def Client.runner(
+  cluster: ClusterSlugLike,
+  tasks: list[type[Task]],
+  cache: JobCache | None = None
+) -> TaskRunner
+```
+
+Initialize a task runner.
+
+## Parameters
+
+<ParamField path="cluster" type="str">
+  The [cluster slug](/workflows/concepts/clusters#managing-clusters) for the cluster associated with this task runner.
+</ParamField>
+
+<ParamField path="tasks" type="list[type[Task]]">
+  A list of task classes that this runner can execute.
+</ParamField>
+
+<ParamField path="cache" type="JobCache">
+  An optional [job cache](/workflows/caches) for caching results from tasks and sharing data between tasks.
+</ParamField>
+
+<RequestExample>
+```python Python
+from tilebox.workflows import Client
+from tilebox.workflows.cache import LocalFileSystemCache
+
+client = Client()
+runner = client.runner(
+    "my-cluster-EdsdUozYprBJDL",
+    [MyFirstTask, MySubtask],
+    # optional:
+    cache=LocalFileSystemCache("cache_directory"),
+)
+```
+</RequestExample>

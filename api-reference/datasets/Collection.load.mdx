@@ -1,0 +1,73 @@
+---
+title: Collection.load
+icon: download
+---
+
+```python
+def Collection.load(
+    time_or_interval: TimeIntervalLike,
+    skip_data: bool = False,
+    show_progress: bool = False
+) -> xarray.Dataset
+```
+
+Load a range of data points in this collection in a specified interval.
+If no data exists for the requested time or interval, an empty `xarray.Dataset` is returned.
+
+## Parameters
+
+<ParamField path="time_or_interval" type="TimeIntervalLike">
+    The time or time interval for which to load data. This can be a single time scalar, a tuple of two time scalars, or an array of time scalars.
+
+    Valid time scalars are: `datetime.datetime` objects, strings in ISO 8601 format, or Unix timestamps in seconds.
+
+    Behavior for each input type:
+
+    - **TimeScalar**: If a single time scalar is provided, `load` returns all data points for that exact millisecond.
+
+    - **TimeInterval**: If a time interval is provided, `load` returns all data points in that interval. Intervals can be a tuple of two `TimeScalars` or a `TimeInterval` object. Tuples are interpreted as a half-open interval `[start, end)`. With a `TimeInterval` object, the `start_exclusive` and `end_inclusive` parameters control whether the start and end time are inclusive or exclusive.
+
+    - **Iterable[TimeScalar]**: If an array of time scalars is provided, `load` constructs a time interval from the first and last time scalar in the array. Here, both the `start` and `end` times are inclusive.
+
+</ParamField>
+
+<ParamField path="skip_data" type="bool">
+  If `True`, the response contains only the [datapoint metadata](/datasets/timeseries) without the actual dataset-specific fields. Defaults to `False`.
+</ParamField>
+
+<ParamField path="show_progress" type="bool">
+  If `True`, a progress bar is displayed when pagination is required. Defaults to `False`.
+</ParamField>
+
+## Returns
+
+An [`xarray.Dataset`](/sdks/python/xarray) containing the requested data points.
+
+<RequestExample>
+```python Python
+from datetime import datetime
+from tilebox.clients.core.data import TimeInterval
+
+# loading a specific time
+time = "2023-05-01 12:45:33.423"
+data = collection.load(time)
+
+# loading a time interval
+interval = ("2023-05-01", "2023-08-01")
+data = collection.load(interval, show_progress=True)
+
+# loading a time interval with TimeInterval
+interval = TimeInterval(
+    start=datetime(2023, 5, 1),
+    end=datetime(2023, 8, 1),
+    start_exclusive=False,
+    end_inclusive=False,
+)
+data = collection.load(interval, show_progress=True)
+
+# loading with an iterable
+meta_data = collection.load(..., skip_data=True)
+first_50 = collection.load(meta_data.time[:50], skip_data=False)
+```
+</RequestExample>
+

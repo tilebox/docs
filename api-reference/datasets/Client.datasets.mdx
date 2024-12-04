@@ -1,0 +1,22 @@
+---
+title: Client.datasets
+icon: laptop-code
+---
+
+```python
+def Client.datasets() -> Datasets
+```
+
+Fetch all available datasets.
+
+## Returns
+
+An object containing all available datasets, accessible via dot notation.
+
+<RequestExample>
+```python Python
+datasets = client.datasets()
+
+s1_sar = datasets.open_data.copernicus.sentinel1_sar
+```
+</RequestExample>

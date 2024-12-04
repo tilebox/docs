@@ -1,0 +1,32 @@
+---
+title: Dataset.collection
+icon: layer-group
+---
+
+```python
+def Dataset.collection(name: str) -> Collection
+```
+
+Access a specific collection by its name.
+
+## Parameters
+
+<ParamField path="name" type="string">
+  The name of the collection
+</ParamField>
+
+## Returns
+
+A collection object.
+
+<RequestExample>
+```python Python
+collections = dataset.collection("My-collection")
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="NotFoundError" type="No such collection: Non-existent-Collection">
+  The specified collection does not exist in the dataset.
+</ParamField>

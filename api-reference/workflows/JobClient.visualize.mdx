@@ -1,0 +1,47 @@
+---
+title: JobClient.visualize
+icon: diagram-project
+---
+
+```python
+def JobClient.visualize(
+  job_or_id: Job | str,
+  direction: str = "down",
+  layout: str = "dagre",
+  sketchy: bool = True
+)
+```
+
+Create a visualization of a job as a diagram.
+
+<Tip>
+  If you are working in an interactive environment, such as Jupyter notebooks, you can use the `display` method to display the visualized job diagram directly in the notebook.
+</Tip>
+
+## Parameters
+
+<ParamField path="job" type="Job">
+  The job to visualize.
+</ParamField>
+
+<ParamField path="direction" type="str">
+  The direction for the diagram to flow. For more details, see the relevant section in the [D2 documentation](https://d2lang.com/tour/layouts/#direction). Valid values are `up`, `down`, `right`, and `left`. The default value is `down`.
+</ParamField>
+
+<ParamField path="layout" type="str">
+  The layout engine for the diagram. For further information, refer to the [D2 layout engines](https://d2lang.com/tour/layouts). Valid values are `dagre` and `elk`, with the default being `dagre`.
+</ParamField>
+
+<ParamField path="sketchy" type="bool">
+  Indicates whether to use a sketchy, hand-drawn style for the diagram. The default is `True`.
+</ParamField>
+
+<RequestExample>
+```python Python
+svg = job_client.visualize(job)
+Path("diagram.svg").write_text(svg)
+
+# in a notebook
+job_client.display(job)
+```
+</RequestExample>
