@@ -4,23 +4,16 @@ icon: diagram-project
 ---
 
 <Accordion title="What is a Job?">
-A job is a concrete execution of a workflow with specific input parameters. A job consists of one or more tasks which may run in
-parallel or in sequence, depending on their dependencies.
-Submitting a job involves instantiating a root task with concrete input parameters which then may trigger the execution of
-other tasks of the same workflow in the same job.
+    A job is a specific execution of a workflow with designated input parameters. It consists of one or more tasks that can run in parallel or sequentially, based on their dependencies. Submitting a job involves creating a root task with specific input parameters, which may trigger the execution of other tasks within the same job.
 </Accordion>
 
 ## Submission
 
-In order for a [task](/workflows/concepts/tasks) to be executed, it must be instantiated with concrete inputs and then submitted
-as a job. The task is then be executed in the context of the job, and if it spawns sub-tasks, they are executed as
-part of the same job as well.
+To execute a [task](/workflows/concepts/tasks), it must be initialized with concrete inputs and submitted as a job. The task will then run within the context of the job, and if it generates sub-tasks, those will also execute as part of the same job.
 
-Once a job is submitted, its root task is scheduled for execution, and any [eligible task runner](/workflows/concepts/task-runners#task-selection)
-may pick it up and execute it.
+After submitting a job, the root task is scheduled for execution, and any [eligible task runner](/workflows/concepts/task-runners#task-selection) can pick it up and execute it.
 
-For submitting a job, a job client needs to be instantiated first. This can be done by calling the `jobs` method on the
-workflows' client.
+First, instantiate a job client by calling the `jobs` method on the workflow client.
 
 <CodeGroup>
 ```python Python
@@ -31,145 +24,130 @@ job_client = client.jobs()
 ```
 </CodeGroup>
 
-Once you have a job client, you can submit a job by calling the `submit` method on it. This requires a name for the job, 
-an instance of the root [task](/workflows/concepts/tasks), and a [cluster](/workflows/concepts/clusters)
-to submit the job to.
+After obtaining a job client, submit a job using the [submit](/api-reference/tilebox.workflows/JobClient.submit) method. You need to provide a name for the job, an instance of the root [task](/workflows/concepts/tasks), and a [cluster](/workflows/concepts/clusters) to execute the root task on.
 
 <CodeGroup>
-    ```python Python
-    # import your own workflow
-    from my_workflow import MyTask
+```python Python
+# import your own workflow
+from my_workflow import MyTask
 
-    cluster = "dev-cluster"
-    job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
-    ```
+cluster = "dev-cluster"
+job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
+```
 </CodeGroup>
 
-Now that a job has been submitted, it's immediately scheduled for execution. As soon as a [eligible task runner](/workflows/concepts/task-runners#task-selection)
-is available, the root task of the job is picked up and executed.
+Once a job is submitted, it's immediately scheduled for execution. The root task will be picked up and executed as soon as an [eligible task runner](/workflows/concepts/task-runners#task-selection) is available.
 
 ## Retry Handling
 
-[Tasks support retry handling](/workflows/concepts/tasks#retry-handling) when their execution fails. This also applies to
-the root task of a job, where the number of retries can be specified by using the `max_retries` argument of the `submit` method.
+[Tasks support retry handling](/workflows/concepts/tasks#retry-handling) for failed executions. This applies to the root task of a job as well, where you can specify the number of retries using the `max_retries` argument of the `submit` method.
 
 <CodeGroup>
-    ```python Python
-    from my_workflow import MyFlakyTask
+```python Python
+from my_workflow import MyFlakyTask
 
-    cluster = "dev-cluster"
-    job = job_client.submit('my-job', MyFlakyTask(), cluster, max_retries=5)
-    ```
+cluster = "dev-cluster"
+job = job_client.submit('my-job', MyFlakyTask(), cluster, max_retries=5)
+```
 </CodeGroup>
 
-In this example, if `MyFlakyTask` fails, it gets retried up to 5 times before being eventually marked as failed.
+In this example, if `MyFlakyTask` fails, it will be retried up to five times before being marked as failed.
 
-## Fetching a specific Job by ID
+## Retrieving a specific job
 
-When a job is submitted, it gets assigned a unique identifier. This identifier can be used to retrieve the job at any time.
+When you submit a job, it's assigned a unique identifier that can be used to retrieve it later.
 
-To retrieve a job by its identifier, the `find` method on the job client can be used.
+You can use the `find` method on the job client to get a job by its ID.
 
 <CodeGroup title="Retrieving a Job by ID">
-    ```python Python
-    job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
-    print(job.id)  # 018dd029-58ca-74e5-8b58-b4f99d610f9a
+```python Python
+job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
+print(job.id)  # 018dd029-58ca-74e5-8b58-b4f99d610f9a
 
-    # later on, or in another process or on a completely different machine, job info can be retrieved
-    job = job_client.find("018dd029-58ca-74e5-8b58-b4f99d610f9a")
-    ```
+# Later, in another process or machine, retrieve job info
+job = job_client.find("018dd029-58ca-74e5-8b58-b4f99d610f9a")
+```
 </CodeGroup>
+
+<Tip>
+    `find` is also a useful tool for fetching a jobs state after a while, to check if it's still running or has already completed.
+</Tip>
 
 ## Visualization
 
-Sometimes it's useful to visualize the execution of a job.
-Since the workflow orchestrator keeps track of the execution of all tasks in a job, including [sub-tasks](/workflows/concepts/tasks#subtasks-and-task-composition)
-and [dependencies](/workflows/concepts/tasks#dependencies), it's possible to visualize the execution of a job as a graph diagram.
-
-Assuming you have submitted a job, you can use the `display` method on the job client to display the execution of the job as a graph diagram.
+Visualizing the execution of a job can be helpful. The Tilebox workflow orchestrator tracks all tasks in a job, including [sub-tasks](/workflows/concepts/tasks#task-composition-and-subtasks) and [dependencies](/workflows/concepts/tasks#dependencies). This enables the visualization of the execution of a job as a graph diagram.
 
 <Note>
-    The `display` method is designed to be used in an [interactive environment](/sdks/python/sample-notebooks#interactive-environments), such as a Jupyter notebook.
-    In non-interactive environments, use `job_client.visualize` instead which returns the rendered diagram as a string
-    in the SVG format.
+`display` is designed for use in an [interactive environment](/sdks/python/sample-notebooks#interactive-environments) such as a Jupyter notebook. In non-interactive environments, use [visualize](/api-reference/tilebox.workflows/JobClient.visualize), which returns the rendered diagram as an SVG string.
 </Note>
 
 <CodeGroup>
-    ```python Python
-    job = job_client.find("some-job-id")  # or a job that was just submitted
-    # and then visualize it
-    job_client.display(job)
-    ```
+```python Python
+job = job_client.find("some-job-id")  # or a recently submitted job
+# Then visualize it
+job_client.display(job)
+```
 </CodeGroup>
 
-The following diagram displays the execution of a job as a graph. Each task is represented as a node in the graph,
-and the edges between nodes represent a sub-task relationship. The diagram also shows the status of each task,
-by using a color code.
+The following diagram represents the job execution as a graph. Each task is shown as a node, with edges indicating sub-task relationships. The diagram also uses color coding to display the status of each task.
 
 <Frame>
     <img src="/assets/workflows/diagrams/svg/task-states.svg" alt="Color coding of task states" className="dark:hidden"/>
     <img src="/assets/workflows/diagrams/svg/task-states.dark.svg" alt="Color coding of task states" className="hidden dark:block" />
 </Frame>
 
-The color codes used to represent the state of a task are:
+The color codes for task states are:
 
 | Task State | Color | Description |
 |------------|-------|-------------|
-| Queued     | <span className="dark:hidden">Salmon</span><span className="hidden dark:block">Yellow</span>  | The task is queued and waiting for a task runner to pick it up. |
-| Running    | Blue | The task is currently being executed by a task runner. |
-| Succeeded  | Green | The task has successfully finished executing. |
-| Failed     | Red | The task has been executed, but resulted in an error. |
+| Queued     | <span className="dark:hidden">Salmon</span><span className="hidden dark:block">Yellow</span>  | The task is queued and waiting for execution. |
+| Running    | Blue | The task is currently being executed. |
+| Computed  | Green | The task has successfully been computed. If a task is computed, and all it's sub-tasks are also computed, the task is considered completed. |
+| Failed     | Red | The task has been executed but encountered an error. |
 
-Below is a visualization of another job that is currently being executed
-by some task runners.
+Below is another visualization of a job currently being executed by multiple task runners.
 
 <Frame>
-    <img src="/assets/workflows/diagrams/svg/multiple-runners.svg" alt="Job that is currently being executed by some runners" className="dark:hidden"/>
-    <img src="/assets/workflows/diagrams/svg/multiple-runners.dark.svg" alt="Job that is currently being executed by some runners" className="hidden dark:block" />
+    <img src="/assets/workflows/diagrams/svg/multiple-runners.svg" alt="Job being executed by multiple runners" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/multiple-runners.dark.svg" alt="Job being executed by multiple runners" className="hidden dark:block" />
 </Frame>
 
-From this visualization, the following observations can be made:
+This visualization shows:
 
-- The root task of the job, `MyTask`, was already executed and spawned three sub-tasks.
-- At least three task runners available, since currently three tasks are being executed at the same time.
-- The `SubTask` that is currently still being executed didn't spawn any sub-tasks yet. That is because submitted sub-tasks
-    are only queued for execution after the task that spawned them has itself finished executing.
-- The `DependentTask` that is still queued is waiting for the completion of the `LeafTask` before it can be executed.
+- The root task, `MyTask`, has executed and spawned three sub-tasks.
+- At least three task runners are available, as three tasks currently are executed simultaneously.
+- The `SubTask` that is still executing has not generated any sub-tasks yet, as sub-tasks are queued for execution only after the parent task finishes and becomes computed.
+- The queued `DependentTask` requires the `LeafTask` to complete before it can be executed.
 
 <Note>
-    Visualization of a job is intended to be used as help for development and debugging purposes. It's not
-    intended to be used for large jobs with hundreds or thousands of tasks, as the diagram may become too complex to
-    be useful or readable. That's why currently, the visualization is limited to jobs with a max of 200 tasks.
+Job visualizations are meant for development and debugging. They are not suitable for large jobs with hundreds of tasks, as the diagrams may become too complex. Currently, visualizations are limited to jobs with a maximum of 200 tasks.
 </Note>
 
 ### Customizing Task Display Names
 
-The text representing a task in the diagram defaults to the class name of the task. If you want to customize this text, you can do so by
-changing the `display` field of the `current_task` object in the execution context of a task execution. The max length of
-the display name is 1024 characters. Any string larger than that is truncated. The display name may optionally contain
-line breaks.
+The text representing a task in the diagram defaults to a tasks class name. You can customize this by modifying the `display` field of the `current_task` object in the task's execution context. The maximum length for a display name is 1024 characters, with any overflow truncated. Line breaks using `\n` are supported as well.
 
 <CodeGroup>
-    ```python Python
-    from tilebox.workflows import Task, ExecutionContext
+```python Python
+from tilebox.workflows import Task, ExecutionContext
 
-    class RootTask(Task):
-        num_subtasks: int
+class RootTask(Task):
+    num_subtasks: int
 
-        def execute(self, context: ExecutionContext):
-            context.current_task.display = f"Root({self.num_subtasks})"
-            for i in range(self.num_subtasks):
-                context.submit_subtask(SubTask(i))
+    def execute(self, context: ExecutionContext):
+        context.current_task.display = f"Root({self.num_subtasks})"
+        for i in range(self.num_subtasks):
+            context.submit_subtask(SubTask(i))
 
-    class SubTask(Task):
-        index: int
+class SubTask(Task):
+    index: int
 
-        def execute(self, context: ExecutionContext):
-            context.current_task.display = f"Leaf Nr. {self.index}"
+    def execute(self, context: ExecutionContext):
+        context.current_task.display = f"Leaf Nr. {self.index}"
 
-    job = job_client.submit('custom-display-names', RootTask(3), "dev-cluster")
-    job_client.display(job)
-    ```
+job = job_client.submit('custom-display-names', RootTask(3), "dev-cluster")
+job_client.display(job)
+```
 </CodeGroup>
 
 <Frame>
@@ -179,99 +157,83 @@ line breaks.
 
 ## Cancellation
 
-A job can be canceled at any time. When a job is canceled, all tasks of the job that are queued are removed from the
-queue. Even if there are idle task runners available, they the tasks of a canceled job are not being executed.
-But if a task is currently being executed, while the job is being cancelled, it doesn't get interrupted, but continue
-to execute until it finishes.
+You can cancel a job at any time. When a job is canceled, no queued tasks will be picked up by task runners and executed even if task runners are idle. Tasks that are already being executed will finish their execution and not be interrupted. All sub-tasks spawned from such tasks after the cancellation will not be picked up by task runners.
 
-To cancel a job you can use the `cancel` method on the job client.
+Use the `cancel` method on the job client to cancel a job.
 
 <CodeGroup>
-    ```python Python
-    job = job_client.submit('my-job', MyTask(), "dev-cluster")
-    # after a short while, the job gets canceled
-    job_client.cancel(job)
-    ```
+```python Python
+job = job_client.submit('my-job', MyTask(), "dev-cluster")
+# After a short while, the job gets canceled
+job_client.cancel(job)
+```
 </CodeGroup>
 
 <Note>
-    A canceled job can be resumed at any time, by [retrying](#retries) it.
+A canceled job can be resumed at any time by [retrying](#retries) it.
 </Note>
 
-If the execution of a task within a job fails, the job is automatically canceled. This is to prevent the execution
-of further tasks in the job, which may not be relevant anymore, due to the failure of the task. In a future release, this
-behaviour can be configured for each task individually, since there are use cases where you may want
-to continue the execution of a job, even if some of its tasks fail.
+If any task in a job fails, the job is automatically canceled to avoid executing irrelevant tasks. Future releases will allow configuring this behavior for each task to meet specific requirements.
 
 ## Retries
 
-If a task within a job fails due to a bug in the task's implementation, or a lack of resources, or any other reason,
-it's not necessary to resubmit the job again and re-execute all computed tasks after a fix is deployed. Instead, you can retry
-the job, and the execution of the job is resumed from the point of the failure. This means that all the work that
-was already done up until the point of the failure isn't lost.
+If a task fails due to a bug or lack of resources, there is no need to resubmit the entire job. You can simply retry the job, and it will resume from the point of failure. This ensures that all the work that was already done up until the point of the failure isn't lost.
 
 <Note>
-    In a future release, an automatic retry for a job for certain failure conditions can be configured.
-    This can be useful in cases where an automatic retry after a certain amount of time, or after a certain
-    condition makes sense.
+Future releases may introduce automatic retries for certain failure conditions, which can be useful for handling temporary issues.
 </Note>
 
-Below is an example of a failing job due to a bug in the task's implementation. After the initial buggy job submission, the bug
-is fixed and the job is retried.
-
-The following workflow accepts a list of movie titles, and then queries the [OMDb API](http://www.omdbapi.com/) for the
-release date of each movie.
+Below is an example of a failing job due to a bug in the task's implementation. The following workflow processes a list of movie titles and queries the [OMDb API](http://www.omdbapi.com/) for each movie's release date.
 
 <CodeGroup>
-    ```python Python
-    from urllib.parse import urlencode
-    import httpx
-    from tilebox.workflows import Task, ExecutionContext
+```python Python
+from urllib.parse import urlencode
+import httpx
+from tilebox.workflows import Task, ExecutionContext
 
-    class MoviesStats(Task):
-        titles: list[str]
+class MoviesStats(Task):
+    titles: list[str]
 
-        def execute(self, context: ExecutionContext) -> None:
-            for title in self.titles:
-                context.submit_subtask(PrintMovieStats(title))
+    def execute(self, context: ExecutionContext) -> None:
+        for title in self.titles:
+            context.submit_subtask(PrintMovieStats(title))
 
-    class PrintMovieStats(Task):
-        title: str
+class PrintMovieStats(Task):
+    title: str
 
-        def execute(self, context: ExecutionContext) -> None:
-            params = {"t": self.title, "apikey": "<OMDB API Key>"}
-            url = "http://www.omdbapi.com/?" + urlencode(params)
-            response = httpx.get(url).json()
-            # set the display name of the task to the title of the movie:
-            context.current_task.display = response["Title"]
-            print(f"{response['Title']} was released on {response['Released']}")
-    ```
+    def execute(self, context: ExecutionContext) -> None:
+        params = {"t": self.title, "apikey": "<OMDB API Key>"}
+        url = "http://www.omdbapi.com/?" + urlencode(params)
+        response = httpx.get(url).json()
+        # set the display name of the task to the title of the movie:
+        context.current_task.display = response["Title"]
+        print(f"{response['Title']} was released on {response['Released']}")
+```
 </CodeGroup>
 
-Submitting below job reveals a bug in the `PrintMovieStats` task.
+Submitting the workflow as a job reveals a bug in the `PrintMovieStats` task.
 
 <CodeGroup>
-    ```python Python
-    job = job_client.submit('movies-stats', MoviesStats([
-        "The Matrix",
-        "Shrek 2",
-        "Tilebox - The Movie",
-        "The Avengers",
-    ]), "dev-cluster")
+```python Python
+job = job_client.submit('movies-stats', MoviesStats([
+    "The Matrix",
+    "Shrek 2",
+    "Tilebox - The Movie",
+    "The Avengers",
+]), "dev-cluster")
 
-    job_client.display(job)
-    ```
+job_client.display(job)
+```
 </CodeGroup>
 
 <Frame>
-    <img src="/assets/workflows/diagrams/svg/movies-failed.svg" alt="Job that failed due to a bug in the task's implementation" className="dark:hidden"/>
-    <img src="/assets/workflows/diagrams/svg/movies-failed.dark.svg" alt="Job that failed due to a bug in the task's implementation" className="hidden dark:block" />
+    <img src="/assets/workflows/diagrams/svg/movies-failed.svg" alt="Job that failed due to a bug" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/movies-failed.dark.svg" alt="Job that failed due to a bug" className="hidden dark:block" />
 </Frame>
 
-It seems like one of the `PrintMovieStats` tasks failed with a `KeyError`. This probably occurs if a movie
-title is not found by the [OMDb API](http://www.omdbapi.com/), in which case the response doesn't contain the `Title` and `Released` fields.
+One of the `PrintMovieStats` tasks fails with a `KeyError`. This error occurs when a movie title is not found by the [OMDb API](http://www.omdbapi.com/), leading to a response without the `Title` and `Released` fields.
 
-The console output of the task runners confirms this:
+Console output from the task runners confirms this:
 
 ```plaintext Output
 The Matrix was released on 31 Mar 1999
@@ -279,42 +241,41 @@ Shrek 2 was released on 19 May 2004
 ERROR: Task PrintMovieStats failed with exception: KeyError('Title')
 ```
 
-A fixed version of the `PrintMovieStats` looks like this:
+The corrected version of `PrintMovieStats` is as follows:
 
 <CodeGroup title="Fixed Task Implementation">
-    ```python Python
-    class PrintMovieStats(Task):
-        title: str
+```python Python
+class PrintMovieStats(Task):
+    title: str
 
-        def execute(self, context: ExecutionContext) -> None:
-            params = {"t": self.title, "apikey": "<OMDB API Key>"}
-            url = "http://www.omdbapi.com/?" + urlencode(params)
-            response = httpx.get(url).json()
-            if "Title" in response and "Released" in response:
-                context.current_task.display = response["Title"]
-                print(f"{response['Title']} was released on {response['Released']}")
-            else:
-                context.current_task.display = f"NotFound: {self.title}"
-                print(f"Could not find the release date for {self.title}")
-    ```
+    def execute(self, context: ExecutionContext) -> None:
+        params = {"t": self.title, "apikey": "<OMDB API Key>"}
+        url = "http://www.omdbapi.com/?" + urlencode(params)
+        response = httpx.get(url).json()
+        if "Title" in response and "Released" in response:
+            context.current_task.display = response["Title"]
+            print(f"{response['Title']} was released on {response['Released']}")
+        else:
+            context.current_task.display = f"NotFound: {self.title}"
+            print(f"Could not find the release date for {self.title}")
+```
 </CodeGroup>
 
-Now with this fix in place, and the [task runners](/workflows/concepts/task-runners) redeployed with the updated
-implementation of the `PrintMovieStats` task, it's time to retry the job:
+With this fix, and after redeploying the task runners with the updated `PrintMovieStats` implementation, you can retry the job:
 
 <CodeGroup>
-    ```python Python
-    job_client.retry(job)
-    job_client.display(job)
-    ```
+```python Python
+job_client.retry(job)
+job_client.display(job)
+```
 </CodeGroup>
 
 <Frame>
-    <img src="/assets/workflows/diagrams/svg/movies-retried.svg" alt="Job that failed due to a bug in the task's implementation" className="dark:hidden"/>
-    <img src="/assets/workflows/diagrams/svg/movies-retried.dark.svg" alt="Job that failed due to a bug in the task's implementation" className="hidden dark:block" />
+    <img src="/assets/workflows/diagrams/svg/movies-retried.svg" alt="Job retried successfully" className="dark:hidden"/>
+    <img src="/assets/workflows/diagrams/svg/movies-retried.dark.svg" alt="Job retried successfully" className="hidden dark:block" />
 </Frame>
 
-The console output of the task now looks like this:
+Now the console output shows:
 
 ```plaintext Output
 Could not find the release date for Tilebox - The Movie
@@ -322,8 +283,7 @@ The Avengers was released on 04 May 2012
 ```
 
 <Note>
-    The output of the task runner confirms that only two tasks were executed, instead of a new task for all four movies.
+The output confirms that only two tasks were executed, resuming from the point of failure instead of re-executing all tasks.
 </Note>
 
-Great, the job was retried and now succeeded. The two tasks that were already executed successfully
-before the failure were not executed again, instead the execution was resumed from the point of the failure.
+The job was retried and succeeded. The two tasks that completed before the failure were not re-executed.

@@ -1,268 +1,106 @@
 ---
 title: Open Data
-description: Learn about the different storage providers that are available in Tilebox.
+description: Learn about the Open data available in Tilebox.
 icon: star
 ---
 
-Tilebox not only provides access to your own, private datasets but also to a growing number of public datasets.
-These datasets are available to all users of Tilebox and are a great way to get started and prototype your applications
-even before data from your own satellites is available.
+Tilebox not only provides access to your own, private datasets but also to a growing number of public datasets. These datasets are available to all users of Tilebox and are a great way to get started and prototype your applications even before data from your own satellites is available.
 
 <Note>
-  If there is an open data dataset you would like to see in Tilebox
+  If there is a public dataset you would like to see in Tilebox, 
   <a href="mailto:support@tilebox.com">please get in touch</a>.
 </Note>
 
 ## Accessing Open Data through Tilebox
 
-Accessing open data datasets in Tilebox is as easy as accessing your own datasets. Because Tilebox already ingested the required
-metadata for each available dataset for you, you can simply query, preview, and download the data. This allows you to take advantage of
-performance optimizations and simplify your workflows.
+Accessing open datasets in Tilebox is straightforward and as easy as accessing your own datasets. Tilebox has already ingested the required metadata for each available dataset, so you can query, preview, and download the data seamlessly. This setup enables you to leverage performance optimizations and simplifies your workflows.
 
-By accessing and implementing your applications using the [datasets API](/datasets), it's easy to start
-prototyping your applications and workflows and then later on switch to your own private data once it becomes available.
+By using the [datasets API](/datasets), you can start prototyping your applications and workflows easily.
 
-## Storage Providers
+## Available datasets
 
-Tilebox do not host the actual open data satellite products, but instead rely on publicly accessible storage providers which
-provide data access. Using the Tilebox API, you can query the relevant metadata for each dataset and then use Tilebox
-storage API to access the actual data.
-
-Below is a list of the storage providers that Tilebox currently support.
-
-### Alaska Satellite Facility (ASF)
-
-The [Alaska Satellite Facility (ASF)](https://asf.alaska.edu/) is a NASA-funded research center at the University of Alaska Fairbanks.
-ASF supports a wide variety of research and applications using synthetic aperture radar (SAR) and related remote sensing technologies.
-ASF is part of the Geophysical Institute at the University of Alaska Fairbanks.
-
-ASF provides access to different SAR datasets, such as the European Remote-Sensing Satellite (ERS).
-Tilebox currently supports the following ASF datasets:
-
-- ERS SAR
-
-#### Accessing ASF data
-
-You can query ASF metadata without any account, because Tilebox already indexed and ingested the relevant metadata.
-To access and download the actual satellite products, you need an ASF account.
-
-You can create an account for ASF in the [ASF Vertex Search Tool](https://search.asf.alaska.edu/).
-
-#### Further reading
-
-<CardGroup cols={2}>
-  <Card
-    title="Getting Started with ASF"
-    icon="arrow-up-right-from-square"
-    href="https://asf.alaska.edu/getstarted/"
-    horizontal
-  />
-  <Card
-    title="ASF Data Formats and Files"
-    icon="arrow-up-right-from-square"
-    href="https://asf.alaska.edu/information/data-formats/data-formats-in-depth/"
-    horizontal
-  />
-</CardGroup>
+<Tip>
+  The Tilebox Console contains in-depth descriptions of each dataset, including many code-snippets to help you get started. Check out the [Sentinel 5P Tropomi](https://console.tilebox.com/datasets/descriptions/feb2bcc9-8fdf-4714-8a63-395ee9d3f323) documentation as an example.
+</Tip>
 
 ### Copernicus Data Space
 
-The [Copernicus Data Space](https://dataspace.copernicus.eu/) is an open ecosystem that provides free instant access to
-a wide range of data and services from the Copernicus Sentinel missions.
+The [Copernicus Data Space](https://dataspace.copernicus.eu/) is an open ecosystem that provides free instant access to data and services from the Copernicus Sentinel missions.
 
-Tilebox currently supports the following Copernicus Data Space datasets:
+Tilebox currently supports the following datasets from the Copernicus Data Space:
 
-- Sentinel 1
-- Sentinel 2
-- Sentinel 3
-- Sentinel 5P
-- Landsat 8
+<AccordionGroup>
+  <Accordion title="Sentinel 1">
+  The Sentinel-1 mission is the European Radar Observatory for the Copernicus
+  joint initiative of the European Commission (EC) and the European Space
+  Agency (ESA). The Sentinel-1 mission includes C-band imaging operating in
+  four exclusive imaging modes with different resolution (down to 5 m) and
+  coverage (up to 400 km). It provides dual polarization capability, short
+  revisit times and rapid product delivery.
+  </Accordion>
+  <Accordion title="Sentinel 2">
+  Sentinel-2 is equipped with an optical instrument payload that samples 13
+  spectral bands: four bands at 10 m, six bands at 20 m and three bands at 60
+  m spatial resolution.
+  </Accordion>
+  <Accordion title="Sentinel 3">
+  Sentinel-3 is equipped with multiple instruments whose data is available in Tilebox.
 
-To download data products from the Copernicus Data Space after querying them using the Tilebox API you need
-to [create an account](https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/auth?client_id=cdse-public&response_type=code&scope=openid&redirect_uri=https%3A//dataspace.copernicus.eu/account/confirmed/1)
-and then generate [S3 Credentials here](https://eodata-s3keysmanager.dataspace.copernicus.eu/panel/s3-credentials).
+  `OLCI` (Ocean and Land Color Instrument) is an optical instrument used to provide
+  data continuity for ENVISAT MERIS.
+
+  `SLSTR` (Sea and Land Surface Temperature Radiometer) is a dual-view scanning
+  temperature radiometer, which flies in low Earth orbit (800 - 830 km
+  altitude).
+
+  The `SRAL` (SAR Radar Altimeter) instrument comprises one nadir-looking antenna,
+  and a central electronic chain composed of a Digital Processing Unit (DPU)
+  and a Radio Frequency Unit (RFU).
+
+  OLCI, in conjunction with the SLSTR instrument, provides the `SYN` products,
+  providing continuity with SPOT VEGETATION.
+  </Accordion>
+  <Accordion title="Sentinel 5P">
+  The primary goal of `TROPOMI` is to provide daily global observations of key
+  atmospheric constituents related to monitoring and forecasting air quality,
+  the ozone layer, and climate change.
+  </Accordion>
+  <Accordion title="Landsat 8">
+  Landsat-8 is part of the long-running Landsat programme led by USGS and NASA and
+  carries the Operational Land Imager (OLI) and the Thermal Infrared Sensor
+  (TIRS). The Operational Land Imager (OLI), on board Landsat-8 measures in
+  the VIS, NIR and SWIR portions of the spectrum. Its images have 15 m
+  panchromatic and 30 m multi-spectral spatial resolutions along a 185 km wide
+  swath, covering wide areas of the Earth's landscape while providing
+  high enough resolution to distinguish features like urban centres, farms,
+  forests and other land uses. The entire Earth falls within view once every
+  16 days due to Landsat-8's near-polar orbit. The Thermal Infra-Red Sensor
+  instrument, on board Landsat-8, is a thermal imager operating in pushbroom
+  mode with two Infra-Red channels: 10.8 µm and 12 µm with 100 m spatial
+  resolution.
+  </Accordion>
+</AccordionGroup>
+
+### Alaska Satellite Facility (ASF)
+
+The [Alaska Satellite Facility (ASF)](https://asf.alaska.edu/) is a NASA-funded research center at the University of Alaska Fairbanks. ASF supports a wide variety of research and applications using synthetic aperture radar (SAR) and related remote sensing technologies.
+
+Tilebox currently supports the following datasets from the Alaska Satellite Facility:
+
+<AccordionGroup>
+  <Accordion title="ERS SAR">
+  European Remote Sensing Satellite (ERS) Synthetic Aperture Radar (SAR) Granules
+  </Accordion>
+</AccordionGroup>
 
 ### Umbra Space
 
-[Umbra](https://umbra.space/) satellites generate the highest resolution Synthetic Aperture Radar (SAR) imagery ever offered from space, up to 16-cm resolution.
-SAR can capture images at night, through cloud cover, smoke, and rain. SAR is unique in its abilities to monitor changes.
-The Open Data Program (ODP) features over twenty diverse time-series locations that are updated frequently, allowing users to experiment with SAR's capabilities.
-They offer single-looked spotlight mode in either 16cm, 25cm, 35cm, 50cm, or 1m resolution, and multi-looked spotlight mode.
-The ODP also features an assorted collection of over 250+ images and counting of locations around the world, ranging from emergency response, to gee-whiz sites.
+[Umbra](https://umbra.space/) satellites provide up to 16 cm resolution Synthetic Aperture Radar (SAR) imagery from space. The Umbra Open Data Program (ODP) features over twenty diverse time-series locations that are frequently updated, allowing users to explore SAR's capabilities.
 
-Tilebox currently supports the following Umbra Space datasets:
+Tilebox currently supports the following datasets from Umbra Space:
 
-- Umbra Synthetic Aperture Radar (SAR)
-
-All data is provided with a Creative Commons License (CC by 4.0), which gives you the right to do just about anything you want with it.
-
-## Sample Code
-
-Here is a sample code snippets that shows how to access open data using the Tilebox Python client.
-
-<Tabs>
-  <Tab title="Alaska Satellite Facility">
-  <CodeGroup>
-
-```python Python
-from pathlib import Path
-
-from tilebox.datasets import Client
-from tilebox.storage import ASFStorageClient
-
-# Creating clients
-client = Client(token="YOUR_TILEBOX_API_KEY")
-datasets = client.datasets()
-storage_client = ASFStorageClient(
-    user="YOUR_ASF_USER",
-    password="YOUR_ASF_PASSWORD",
-    cache_directory=Path("./data")
-)
-
-# Choosing the dataset and collection
-ers_dataset = datasets.open_data.asf.ers_sar
-collections = ers_dataset.collections()
-collection = collections["ERS-2"]
-
-# Loading metadata
-ers_data = collection.load(("2009-01-01", "2009-01-02"), show_progress=True)
-
-# Selecting a data point to download
-selected = ers_data.isel(time=0)  # index 0 selected
-
-# Downloading the data
-downloaded_data = storage_client.download(selected, extract=True)
-
-print(f"Downloaded granule: {downloaded_data.name} to {downloaded_data}")
-print("Contents: ")
-for content in downloaded_data.iterdir():
-    print(f" - {content.relative_to(downloaded_data)}")
-```
-
-```plaintext Output
-Downloaded granule: E2_71629_STD_L0_F183 to data/ASF/E2_71629_STD_F183/E2_71629_STD_L0_F183
-Contents:
-  - E2_71629_STD_L0_F183.000.vol
-  - E2_71629_STD_L0_F183.000.meta
-  - E2_71629_STD_L0_F183.000.raw
-  - E2_71629_STD_L0_F183.000.pi
-  - E2_71629_STD_L0_F183.000.nul
-  - E2_71629_STD_L0_F183.000.ldr
-```
-
-  </CodeGroup>
-  </Tab>
-
-  <Tab title="Copernicus Data Space">
-  <CodeGroup>
-
-```python Python
-from pathlib import Path
-
-from tilebox.datasets import Client
-from tilebox.storage import CopernicusStorageClient
-
-# Creating clients
-client = Client(token="YOUR_TILEBOX_API_KEY")
-datasets = client.datasets()
-storage_client = CopernicusStorageClient(
-    access_key="YOUR_ACCESS_KEY",
-    secret_access_key="YOUR_SECRET_ACCESS_KEY",
-    cache_directory=Path("./data")
-)
-
-# Choosing the dataset and collection
-s2_dataset = datasets.open_data.copernicus.sentinel2_msi
-collections = s2_dataset.collections()
-collection = collections["S2A_S2MSI2A"]
-
-# Loading metadata
-s2_data = collection.load(("2024-08-01", "2024-08-02"), show_progress=True)
-
-# Selecting a data point to download
-selected = s2_data.isel(time=0)  # index 0 selected
-
-# Downloading the data
-downloaded_data = storage_client.download(selected)
-
-print(f"Downloaded granule: {downloaded_data.name} to {downloaded_data}")
-print("Contents: ")
-for content in downloaded_data.iterdir():
-    print(f" - {content.relative_to(downloaded_data)}")
-```
-
-```plaintext Output
-Downloaded granule: S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544.SAFE to data/Sentinel-2/MSI/L2A/2024/08/01/S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544.SAFE
-Contents:
-  - manifest.safe
-  - GRANULE
-  - INSPIRE.xml
-  - MTD_MSIL2A.xml
-  - DATASTRIP
-  - HTML
-  - rep_info
-  - S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544-ql.jpg
-```
-
-  </CodeGroup>
-  </Tab>
-
-  <Tab title="Umbra Space">
-  <CodeGroup>
-
-```python Python
-from pathlib import Path
-
-from tilebox.datasets import Client
-from tilebox.storage import UmbraStorageClient
-
-# Creating clients
-client = Client(token="YOUR_TILEBOX_API_KEY")
-datasets = client.datasets()
-storage_client = UmbraStorageClient(cache_directory=Path("./data"))
-
-# Choosing the dataset and collection
-umbra_dataset = datasets.open_data.umbra.sar
-collections = umbra_dataset.collections()
-collection = collections["SAR"]
-
-# Loading metadata
-umbra_data = collection.load(("2024-01-05", "2024-01-06"), show_progress=True)
-
-# Selecting a data point to download
-selected = umbra_data.isel(time=0)  # index 0 selected
-
-# Downloading the data
-downloaded_data = storage_client.download(selected)
-
-print(f"Downloaded granule: {downloaded_data.name} to {downloaded_data}")
-print("Contents: ")
-for content in downloaded_data.iterdir():
-    print(f" - {content.relative_to(downloaded_data)}")
-```
-
-```plaintext Output
-Downloaded granule: 2024-01-05-01-53-37_UMBRA-07 to data/Umbra/ad hoc/Yi_Sun_sin_Bridge_SK/6cf02931-ca2e-4744-b389-4844ddc701cd/2024-01-05-01-53-37_UMBRA-07
-Contents:
- - 2024-01-05-01-53-37_UMBRA-07_SIDD.nitf
- - 2024-01-05-01-53-37_UMBRA-07_SICD.nitf
- - 2024-01-05-01-53-37_UMBRA-07_CSI-SIDD.nitf
- - 2024-01-05-01-53-37_UMBRA-07_METADATA.json
- - 2024-01-05-01-53-37_UMBRA-07_GEC.tif
- - 2024-01-05-01-53-37_UMBRA-07_CSI.tif
-```
-
-  </CodeGroup>
-  </Tab>
-</Tabs>
-
-## Further reading
-
-<CardGroup cols={2}>
-  <Card
-    title="Storage Providers API Reference"
-    icon="database"
-    href="/api-reference/storage-providers/creating-storage-client"
-    horizontal
-  />
-</CardGroup>
+<AccordionGroup>
+  <Accordion title="Umbra SAR">
+  Time-series SAR data provided as Opendata by Umbra Space.
+  </Accordion>
+</AccordionGroup>

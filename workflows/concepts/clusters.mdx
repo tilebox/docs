@@ -4,37 +4,30 @@ icon: circle-nodes
 ---
 
 <Accordion title="What is a Cluster?">
-  Clusters are a way of grouping [task runners](/workflows/concepts/task-runners) together. This is useful when you have a large
-  number of task runners and you want to manage them as a group. For example, you might have a cluster defined for task
-  runners that are running on a particular cloud provider, or a cluster for task runners that share similar hardware.
+  Clusters are a logical grouping for [task runners](/workflows/concepts/task-runners). Using clusters, you can scope certain tasks to a specific group of task runners. Tasks, which are always submitted to a specific cluster, are only executed on task runners assigned to the same cluster.
 </Accordion>
 
 ## Use Cases
 
-You might want to organize task runners into clusters for many reasons, such as:
+Use clusters to organize [task runners](/workflows/concepts/clusters) into logical groups, which can help with:
 
-- Targeting a specific group of task runners for a particular job
-- Reserving a group of task runners for specific purpose, such as only running a particular kind of batch processing jobs
-- Set up different clusters for different environments (for example development, production)
+- Targeting specific task runners for a particular job
+- Reserving a group of task runners for specific purposes, such as running certain types of batch jobs
+- Setting up different clusters for different environments (like development and production)
 
-Even Task runners belonging to the same cluster may have different capabilities, for example different tasks registered that they can run.
-Distributing tasks to different runners can also be achieved using only a single cluster, see the
-[Distributed Execution](/workflows/concepts/task-runners#distributed-execution) example for more details.
-
-If you have different task runners that all have the same tasks registered, you then can use clusters to only target
-specific task runners for a particular job.
+Even when using different clusters, task runners within the same cluster may still have different capabilities, such as different registered tasks.
+If multiple task runners have the same set of registered tasks, you can assign them to different clusters to target specific task runners for a particular job.
 
 ### Adding Task Runners to a Cluster
 
-Task runners can be added to a cluster by specifying the [clusters' slug](#cluster-slug) when [registering a task runner](/workflows/concepts/task-runners).
+You can add task runners to a cluster by specifying the [cluster's slug](#cluster-slug) when [registering a task runner](/workflows/concepts/task-runners).
+Each task runner must always be assigned to a cluster.
 
 ## Managing Clusters
 
-Before registering a task runner, or submitting a job, you need to create a cluster. You can also list, fetch, and delete
-clusters as needed. The following sections illustrates how to do this.
+Before registering a task runner or submitting a job, you must create a cluster. You can also list, fetch, and delete clusters as needed. The following sections explain how to do this.
 
-To manage clusters, you first need to instantiate a cluster client. You can do this by calling the `clusters` method on the
-workflows' client.
+To manage clusters, first instantiate a cluster client using the `clusters` method in the workflows client.
 
 <CodeGroup title="Instantiating a Clusters Client">
     ```python Python
@@ -47,7 +40,7 @@ workflows' client.
 
 ### Creating a Cluster
 
-To create a cluster, call the `create` method on the cluster client. You'll need to provide a name for the cluster.
+To create a cluster, use the `create` method on the cluster client and provide a name for the cluster.
 
 <CodeGroup title="Creating a Cluster">
     ```python Python
@@ -62,13 +55,11 @@ Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
 
 ### Cluster Slug
 
-Each cluster is identified by a unique name, consisting of the cluster's name and a unique identifier. This identifier is
-generated automatically when the cluster is created. You can use this slug to reference the cluster in other operations,
-such as submitting a job or subtasks.
+Each cluster has a unique identifier, combining the cluster's name and an automatically generated identifier. Use this slug to reference the cluster for other operations, like submitting a job or subtasks.
 
 ### Listing Clusters
 
-To list all the clusters that are available to you, you can use `all`:
+To list all available clusters, use the `all` method:
 
 <CodeGroup title="Listing Clusters">
     ```python Python
@@ -82,9 +73,9 @@ To list all the clusters that are available to you, you can use `all`:
 Cluster(slug='production-EifhUozDpwAJDL', display_name='Production')]
 ```
 
-### Fetching a specific Cluster
+### Fetching a Specific Cluster
 
-To fetch a specific cluster, you can use the `fetch` method and pass in a cluster's slug:
+To fetch a specific cluster, use the `find` method and pass the cluster's slug:
 
 <CodeGroup title="Fetching a Cluster">
     ```python Python
@@ -99,7 +90,7 @@ Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
 
 ### Deleting a Cluster
 
-To delete a cluster, you can use the `delete` method and pass in a cluster's slug:
+To delete a cluster, use the `delete` method and pass the cluster's slug:
 
 <CodeGroup title="Deleting a Cluster">
     ```python Python
@@ -107,46 +98,39 @@ To delete a cluster, you can use the `delete` method and pass in a cluster's slu
     ```
 </CodeGroup>
 
-## Jobs spanning different clusters
+## Jobs Across Different Clusters
 
-[When submitting a job](/workflows/concepts/jobs) you need to specify the cluster that the job should be submitted to.
-This allows you to target a specific group of task runners for a particular job. All sub-tasks within the job are
-submitted to the same cluster by default. This can also be manually overridden to submit sub-tasks to other
-clusters if needed. Check out the example below to see how this can be done.
+When [submitting a job](/workflows/concepts/jobs), you need to specify which cluster the job's root task should be executed on. This allows you to direct the job to a specific set of task runners. By default, all sub-tasks within a job are also submitted to the same cluster, but this can be overridden to submit sub-tasks to different clusters if needed. See the example below for a job that spans across multiple clusters.
 
 <CodeGroup title="Multi-Cluster Workflow Example">
-    ```python Python
-    from tilebox.workflows import Task, ExecutionContext, Client
+```python Python
+from tilebox.workflows import Task, ExecutionContext, Client
 
-    class MultiClusterWorkflow(Task):
-        def execute(self, context: ExecutionContext) -> None:
-            # this will submit a task to the same cluster as the one currently executing this task
-            same_cluster = context.submit_subtask(DummyTask())
-            
-            other_cluster = context.submit_subtask(
-                DummyTask(),
-                # this task should only run on a task runner in the "other-cluster" cluster
-                cluster="other-cluster-As3dcSb3D9SAdK",
-                # dependencies can also be specified across clusters
-                depends_on=[same_cluster],
-            )
+class MultiClusterWorkflow(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        # this submits a task to the same cluster as the one currently executing this task
+        same_cluster = context.submit_subtask(DummyTask())
+        
+        other_cluster = context.submit_subtask(
+            DummyTask(),
+            # this task runs only on a task runner in the "other-cluster" cluster
+            cluster="other-cluster-As3dcSb3D9SAdK",
+            # dependencies can be specified across clusters
+            depends_on=[same_cluster],
+        )
 
-    class DummyTask(Task):
-        def execute(self, context: ExecutionContext) -> None:
-            pass
+class DummyTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        pass
 
-    # submit a job to the "testing" cluster
-    client = Client()
-    job_client = client.jobs()
-    job = job_client.submit(
-        MultiClusterWorkflow(),
-        cluster="testing-CvufcSxcC9SKfe",
-    )
-    ```
+# submit a job to the "testing" cluster
+client = Client()
+job_client = client.jobs()
+job = job_client.submit(
+    MultiClusterWorkflow(),
+    cluster="testing-CvufcSxcC9SKfe",
+)
+```
 </CodeGroup>
 
-This workflow requires at least two task runners to complete. One task runner must be in the "testing" cluster
-and the other must be in the "other-cluster" cluster. If for example no task runners are available in the "other-cluster"
-cluster, the task submitted to that cluster remains in the queue until a task runner becomes available. It won't
-be executed by a task runner in the "testing" cluster, even though the task runner would have the capability to execute it,
-since it has the `DummyTask` registered.
+This workflow requires at least two task runners to complete. One must be in the "testing" cluster, and the other must be in the "other-cluster" cluster. If no task runners are available in the "other-cluster," the task submitted to that cluster will remain queued until a task runner is available. It won't execute on a task runner in the "testing" cluster, even if the task runner has the `DummyTask` registered.

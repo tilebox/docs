@@ -1,84 +1,58 @@
 ---
-title: Time Series Data
-description: Learn about Time Series Datasets
+title: Time series data
+description: Learn about time series datasets
 icon: timeline
 ---
 
-Time series datasets are a container for individual data points.
-All data points within a time series dataset share the same data type, they share the same set of fields.
+Time series datasets act as containers for data points. All data points in a dataset share the same type and fields.
 
-Additionally all time series datasets share a few [common fields](#common-fields).
-One of those, the `time` field enables you to perform time-based data queries on a dataset.
-
-## Overview
-
-Here is a quick overview of the API for listing and accessing datasets which this page covers.
-Some usage examples for different use-cases are provided below.
-
-| Method                                        | API Reference                                                    | Description                  |
-| --------------------------------------------- | ---------------------------------------------------------------- | ---------------------------- |
-| `client.datasets`                             | [Listing datasets](/api-reference/datasets/listing-datasets)     | List all available datasets. |
-| `datasets.open_data.copernicus.sentinel1_sar` | [Accessing a dataset](/api-reference/datasets/accessing-dataset) | Access a specific dataset.   |
+Additionally, all time series datasets include a few [common fields](#common-fields). One of these fields, the `time` field, allows you to perform time-based data queries on a dataset.
 
 ## Listing datasets
 
-You can use [your Tilebox Python client instance](/datasets/introduction#creating-a-datasets-client) to access the datasets available to you.
-For example, to access a dataset called dataset in a dataset group called some, you can use the following code.
+You can use [your client instance](/datasets/introduction#creating-a-datasets-client) to access the datasets available to you. For example, to access the `sentinel1_sar` dataset in the `open_data.copernicus` dataset group, use the following code.
 
 <CodeGroup>
+```python Python
+from tilebox.datasets import Client
 
-    ```python Python
-    from tilebox.datasets import Client
-
-    client = Client()
-    datasets = client.datasets()
-    dataset = datasets.open_data.copernicus.sentinel1_sar
-    ```
-
+client = Client()
+datasets = client.datasets()
+dataset = datasets.open_data.copernicus.sentinel1_sar
+```
 </CodeGroup>
 
-Once you have your dataset object, you can then use it to [list the available collections](/datasets/collections) for
-the dataset.
+Once you have your dataset object, you can use it to [list the available collections](/datasets/collections) for the dataset.
 
-<Note>
-  Tip: if you're using an IDE or an interactive environment with auto-complete you can use it on your client instance to
-  discover the datasets that are available to you. Type `client.` and trigger auto-complete after the dot to do so.
-</Note>
+<Tip>
+  If you're using an IDE or an interactive environment with auto-complete, you can use it on your client instance to discover the datasets available to you. Type `client.` and trigger auto-complete after the dot to do so.
+</Tip>
 
-## Common Fields
+## Common fields
 
-While the actual data fields between data points of different time series datasets can vary greatly, there are common
-fields that all time series datasets share.
+While the specific data fields between different time series datasets can vary, there are common fields that all time series datasets share.
 
 <ParamField path="time" type="datetime">
-  The timestamp associated with each data point. Tilebox uses a milli-second precision for storing and indexing data
-  points. Timestamps are always in UTC.
+  The timestamp associated with each data point. Tilebox uses millisecond precision for storing and indexing data points. Timestamps are always in UTC.
 </ParamField>
 
 <ParamField path="id" type="string">
-  A [Universally_unique_identifier (UUID)](https://en.wikipedia.org/wiki/Universally_unique_identifier) which uniquely
-  identifies each datapoint. IDs are generated in such a way that sorting them lexicographically also means sorting them
-  by their time field.
+  A [universally unique identifier (UUID)](https://en.wikipedia.org/wiki/Universally_unique_identifier) that uniquely identifies each data point. IDs are generated so that sorting them lexicographically also sorts them by their time field.
 </ParamField>
 
 <ParamField path="ingestion_time" type="datetime">
   The time the data point was ingested into the Tilebox API. Timestamps are always in UTC.
 </ParamField>
 
-These fields are present on all time series datasets. Together they make up the metadata of a datapoint.
-Each dataset also have its own set of fields that are specific to that dataset.
+These fields are present in all time series datasets. Together, they make up the metadata of a data point. Each dataset also has its own set of fields that are specific to that dataset.
 
 <Note>
-  Tilebox is using milli-second precision timestamps for storing and indexing data points. If there are data points
-  within one milli-second, they share the same timestamp. Each data point can contain any number of timestamp fields
-  with an arbitrarily higher precision. For telemetry data for example it's common to have timestamp fields using a
-  nanosecond precision.
+  Tilebox uses millisecond precision timestamps for storing and indexing data points. If multiple data points share the same timestamp within one millisecond, they will all display the same timestamp. Each data point can have any number of timestamp fields with a higher precision. For example, telemetry data commonly includes timestamp fields with nanosecond precision.
 </Note>
 
-## Example datapoint
+## Example data point
 
-Below is an example datapoint from a time series dataset in the form of an [`xarray.Dataset`](/sdks/python/xarray).
-It contains the common fields. When using the Tilebox Python client library, you receive the data in this format.
+Below is an example data point from a time series dataset represented as an [`xarray.Dataset`](/sdks/python/xarray). It contains the common fields. When using the Tilebox Python client library, you receive the data in this format.
 
 ```plaintext Example timeseries datapoint
 <xarray.Dataset>

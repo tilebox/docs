@@ -1,40 +1,41 @@
 ---
 title: Quickstart
-description: This guide will get you all set up and ready to use the Tilebox API. We'll cover how to get started using our python API clients for the data access module as well as the workflow orchestrator.
+description: This guide helps you set up and get started using Tilebox. It covers how to install a Tilebox client for your preferred language and how to use it to query data from a dataset and run a workflow.
 icon: rocket
 ---
 
-## Start in a Notebook
-
-Check out the provided [Sample Notebooks](sdks/python/sample-notebooks) that you can use to get started with the Tilebox API.
-They provide a step-by-step guide to using the API and cover a wide variety of the features supported by Tilebox Python clients.
-You can also use the notebooks as a starting point for your own projects.
-
-## Start on your device
-
-If you prefer to work locally in your device, the steps below help you get started.
+Select your preferred language and follow the steps below to get started.
 
 <Tabs>
 <Tab title="Python">
+## Start in a Notebook
+
+Explore the provided [Sample Notebooks](/sdks/python/sample-notebooks) to begin your journey with Tilebox. These notebooks offer a step-by-step guide to using the API and showcase many features supported by Tilebox Python clients. You can also use these notebooks as a foundation for your own projects.
+
+## Start on Your Device
+
+If you prefer to work locally, follow these steps to get started.
+
   <Steps>
-    <Step title="Install packages">
-      Install the Tilebox python packages. The easiest way to do this is using `pip`.
+    <Step title="Install Packages">
+      Install the Tilebox Python packages. The easiest way to do this is using `pip`:
+
       ```
-      pip install tilebox-datasets tilebox-workflows
+      pip install tilebox-datasets tilebox-workflows tilebox-storage
       ```
     </Step>
-    <Step title="Create an API key">
-      Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), heading to [Account -> API Keys](https://console.tilebox.com/account/api-keys) and clicking on the "Create API Key" button.
+    <Step title="Create an API Key">
+      Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Account -> API Keys](https://console.tilebox.com/account/api-keys), and clicking the "Create API Key" button.
 
       <Frame>
         <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
         <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
       </Frame>
     </Step>
-    <Step title="Query data">
+    <Step title="Query Data">
       Use the datasets client to query data from a dataset.
 
-      ```python
+      ```python Python
       from tilebox.datasets import Client
 
       client = Client(token="YOUR_TILEBOX_API_KEY")
@@ -48,10 +49,10 @@ If you prefer to work locally in your device, the steps below help you get start
       data_january_2022 = collection.load(("2022-01-01", "2022-02-01"))
       ```
     </Step>
-    <Step title="Run a workflow task">
-      Use the workflows client to create and submit a task.
+    <Step title="Run a Workflow">
+      Use the workflows client to create a task and submit it as a job.
 
-      ```python
+      ```python Python
       from tilebox.workflows import Client, Task
 
       class MyFirstTask(Task):
@@ -70,11 +71,11 @@ If you prefer to work locally in your device, the steps below help you get start
       ```
 
       <Note>
-        For this snippet to work you need to have a cluster already created. Check out the guide on [clusters](/workflows/concepts/clusters) to learn how to create one.
+        To use this snippet, you need to have a cluster already created. Check out the guide on [clusters](/workflows/concepts/clusters) to learn how to create one.
       </Note>
     </Step>
-    <Step title="Explore further">
-      Check out the following guides to learn more about the individual modules that make up Tilebox:
+    <Step title="Explore Further">
+      Review the following guides to learn more about the modules that make up Tilebox:
 
       <CardGroup cols={2}>
         <Card

@@ -1,0 +1,34 @@
+---
+title: Client.dataset
+icon: laptop-code
+---
+
+```python
+def Client.dataset(slug: str) -> Dataset
+```
+
+Get a dataset by its slug.
+
+## Parameters
+
+<ParamField path="slug" type="string">
+  The slug of the dataset
+</ParamField>
+
+## Returns
+
+A dataset object.
+
+<RequestExample>
+```python Python
+s1_sar = client.dataset(
+    "open_data.copernicus.sentinel1_sar"
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="NotFoundError" type="No such dataset: non.existent.dataset">
+  The specified dataset does not exist.
+</ParamField>

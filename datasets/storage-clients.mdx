@@ -1,0 +1,200 @@
+---
+title: Storage Clients
+description: Learn about the different storage clients available in Tilebox to access open data.
+icon: hard-drive
+---
+
+Tilebox does not host the actual open data satellite products but instead relies on publicly accessible storage providers for data access. Instead Tilebox ingests available metadata as [datasets](/datasets/timeseries) to enable high performance querying and structured access of the data as [xarray.Dataset](/sdks/python/xarray).
+
+Below is a list of the storage providers currently supported by Tilebox.
+
+## Copernicus Data Space
+
+The [Copernicus Data Space](https://dataspace.copernicus.eu/) is an open ecosystem that provides free instant access to data and services from the Copernicus Sentinel missions. Check out the [ASF Open Data datasets](/datasets/open-data#copernicus-data-space) that are available in Tilebox.
+
+### Access Copernicus data
+
+To download data products from the Copernicus Data Space after querying them via the Tilebox API, you need to [create an account](https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/auth?client_id=cdse-public&response_type=code&scope=openid&redirect_uri=https%3A//dataspace.copernicus.eu/account/confirmed/1) and then generate [S3 credentials here](https://eodata-s3keysmanager.dataspace.copernicus.eu/panel/s3-credentials).
+
+The following code snippet demonstrates how to query and download Copernicus data using the Tilebox Python SDK.
+
+<CodeGroup>
+```python Python {4,9-13,27}
+from pathlib import Path
+
+from tilebox.datasets import Client
+from tilebox.storage import CopernicusStorageClient
+
+# Creating clients
+client = Client(token="YOUR_TILEBOX_API_KEY")
+datasets = client.datasets()
+storage_client = CopernicusStorageClient(
+    access_key="YOUR_ACCESS_KEY",
+    secret_access_key="YOUR_SECRET_ACCESS_KEY",
+    cache_directory=Path("./data")
+)
+
+# Choosing the dataset and collection
+s2_dataset = datasets.open_data.copernicus.sentinel2_msi
+collections = s2_dataset.collections()
+collection = collections["S2A_S2MSI2A"]
+
+# Loading metadata
+s2_data = collection.load(("2024-08-01", "2024-08-02"), show_progress=True)
+
+# Selecting a data point to download
+selected = s2_data.isel(time=0)  # index 0 selected
+
+# Downloading the data
+downloaded_data = storage_client.download(selected)
+
+print(f"Downloaded granule: {downloaded_data.name} to {downloaded_data}")
+print("Contents: ")
+for content in downloaded_data.iterdir():
+    print(f" - {content.relative_to(downloaded_data)}")
+```
+```plaintext Output
+Downloaded granule: S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544.SAFE to data/Sentinel-2/MSI/L2A/2024/08/01/S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544.SAFE
+Contents:
+  - manifest.safe
+  - GRANULE
+  - INSPIRE.xml
+  - MTD_MSIL2A.xml
+  - DATASTRIP
+  - HTML
+  - rep_info
+  - S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544-ql.jpg
+```
+</CodeGroup>
+
+## Alaska Satellite Facility (ASF)
+
+The [Alaska Satellite Facility (ASF)](https://asf.alaska.edu/) is a NASA-funded research center at the University of Alaska Fairbanks. Check out the [ASF Open Data datasets](/datasets/open-data#alaska-satellite-facility-asf) that are available in Tilebox.
+
+### Accessing ASF Data
+
+You can query ASF metadata without needing an account, as Tilebox has indexed and ingested the relevant metadata. To access and download the actual satellite products, you will need an ASF account.
+
+You can create an ASF account in the [ASF Vertex Search Tool](https://search.asf.alaska.edu/).
+
+The following code snippet demonstrates how to query and download ASF data using the Tilebox Python SDK.
+
+<CodeGroup>
+```python Python {4,9-13,27}
+from pathlib import Path
+
+from tilebox.datasets import Client
+from tilebox.storage import ASFStorageClient
+
+# Creating clients
+client = Client(token="YOUR_TILEBOX_API_KEY")
+datasets = client.datasets()
+storage_client = ASFStorageClient(
+    user="YOUR_ASF_USER",
+    password="YOUR_ASF_PASSWORD",
+    cache_directory=Path("./data")
+)
+
+# Choosing the dataset and collection
+ers_dataset = datasets.open_data.asf.ers_sar
+collections = ers_dataset.collections()
+collection = collections["ERS-2"]
+
+# Loading metadata
+ers_data = collection.load(("2009-01-01", "2009-01-02"), show_progress=True)
+
+# Selecting a data point to download
+selected = ers_data.isel(time=0)  # index 0 selected
+
+# Downloading the data
+downloaded_data = storage_client.download(selected, extract=True)
+
+print(f"Downloaded granule: {downloaded_data.name} to {downloaded_data}")
+print("Contents: ")
+for content in downloaded_data.iterdir():
+    print(f" - {content.relative_to(downloaded_data)}")
+```
+
+```plaintext Output
+Downloaded granule: E2_71629_STD_L0_F183 to data/ASF/E2_71629_STD_F183/E2_71629_STD_L0_F183
+Contents:
+  - E2_71629_STD_L0_F183.000.vol
+  - E2_71629_STD_L0_F183.000.meta
+  - E2_71629_STD_L0_F183.000.raw
+  - E2_71629_STD_L0_F183.000.pi
+  - E2_71629_STD_L0_F183.000.nul
+  - E2_71629_STD_L0_F183.000.ldr
+```
+</CodeGroup>
+
+### Further Reading
+
+<CardGroup cols={2}>
+  <Card
+    title="Getting Started with ASF"
+    icon="arrow-up-right-from-square"
+    href="https://asf.alaska.edu/getstarted/"
+    horizontal
+  />
+  <Card
+    title="ASF Data Formats and Files"
+    icon="arrow-up-right-from-square"
+    href="https://asf.alaska.edu/information/data-formats/data-formats-in-depth/"
+    horizontal
+  />
+</CardGroup>
+
+## Umbra Space
+
+[Umbra](https://umbra.space/) satellites provide high resolution Synthetic Aperture Radar (SAR) imagery from space. Check out the [Umbra datasets](/datasets/open-data#umbra-space) that are available in Tilebox.
+
+### Accessing Umbra data
+
+You don't need an account to access Umbra data. All data is provided under a Creative Commons License (CC BY 4.0), allowing you to freely use it.
+
+The following code snippet demonstrates how to query and download Copernicus data using the Tilebox Python SDK.
+
+<CodeGroup>
+```python Python {4,9,23}
+from pathlib import Path
+
+from tilebox.datasets import Client
+from tilebox.storage import UmbraStorageClient
+
+# Creating clients
+client = Client(token="YOUR_TILEBOX_API_KEY")
+datasets = client.datasets()
+storage_client = UmbraStorageClient(cache_directory=Path("./data"))
+
+# Choosing the dataset and collection
+umbra_dataset = datasets.open_data.umbra.sar
+collections = umbra_dataset.collections()
+collection = collections["SAR"]
+
+# Loading metadata
+umbra_data = collection.load(("2024-01-05", "2024-01-06"), show_progress=True)
+
+# Selecting a data point to download
+selected = umbra_data.isel(time=0)  # index 0 selected
+
+# Downloading the data
+downloaded_data = storage_client.download(selected)
+
+print(f"Downloaded granule: {downloaded_data.name} to {downloaded_data}")
+print("Contents: ")
+for content in downloaded_data.iterdir():
+    print(f" - {content.relative_to(downloaded_data)}")
+```
+
+```plaintext Output
+Downloaded granule: 2024-01-05-01-53-37_UMBRA-07 to data/Umbra/ad hoc/Yi_Sun_sin_Bridge_SK/6cf02931-ca2e-4744-b389-4844ddc701cd/2024-01-05-01-53-37_UMBRA-07
+Contents:
+ - 2024-01-05-01-53-37_UMBRA-07_SIDD.nitf
+ - 2024-01-05-01-53-37_UMBRA-07_SICD.nitf
+ - 2024-01-05-01-53-37_UMBRA-07_CSI-SIDD.nitf
+ - 2024-01-05-01-53-37_UMBRA-07_METADATA.json
+ - 2024-01-05-01-53-37_UMBRA-07_GEC.tif
+ - 2024-01-05-01-53-37_UMBRA-07_CSI.tif
+```
+</CodeGroup>
+

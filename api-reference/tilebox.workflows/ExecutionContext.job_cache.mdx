@@ -1,0 +1,18 @@
+---
+title: Context.job_cache
+icon: folder-gear
+---
+
+```python
+ExecutionContext.job_cache: JobCache
+```
+
+Access the job cache for a task.
+
+<RequestExample>
+```python Python
+# within a Tasks execute method, access the job cache
+# def execute(self, context: ExecutionContext):
+context.job_cache["some-key"] = b"my-value"
+```
+</RequestExample>

@@ -1,0 +1,22 @@
+---
+title: JobClient.retry
+icon: diagram-project
+---
+
+```python
+def JobClient.retry(job_or_id: Job | str)
+```
+
+Retry a job.
+
+## Parameters
+
+<ParamField path="job" type="Job">
+  The job or job id to retry.
+</ParamField>
+
+<RequestExample>
+```python Python
+job_client.retry(job)
+```
+</RequestExample>

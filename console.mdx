@@ -1,23 +1,21 @@
 ---
 title: Console
-description: Check out the Tilebox Console to interactively explore your datasets and workflows
+description: Explore your datasets and workflows with the Tilebox Console
 icon: terminal
 ---
 
-The [Tilebox Console](https://console.tilebox.com) is a web-based interface that allows you to explore your datasets and workflows.
-It's structured into tabs which correspond to the different modules of Tilebox.
+The [Tilebox Console](https://console.tilebox.com) is a web interface that enables you to explore your datasets and workflows, manage your account and API keys, add collaborators to your team and monitor your usage.
 
-## Datasets Tab
+## Datasets
 
-The datasets tab allows you to explore the datasets that are available for your organization. You can select a dataset,
-view its collections and load data for a collection in a given time range.
+The datasets explorer lets you explore available datasets for your team. You can select a dataset, view its collections, and load data for a collection within a specified time range.
 
 <Frame>
   <img src="/assets/console/datasets-light.png" alt="Tilebox Console" className="dark:hidden" />
   <img src="/assets/console/datasets-dark.png" alt="Tilebox Console" className="hidden dark:block" />
 </Frame>
 
-If you click a specific event time within the data point list view, you'll see a detailed view of that data point.
+When you click a specific event time in the data point list view, a detailed view of that data point will appear.
 
 <Frame>
   <img src="/assets/console/datapoint-light.png" alt="Tilebox Console" className="dark:hidden" />
@@ -26,10 +24,9 @@ If you click a specific event time within the data point list view, you'll see a
 
 ### Export as Code
 
-Once you have selected a dataset, collection, and time range, you can export the current selection as a python code snippet.
-This pastes a code snippet like the one below into your clipboard.
+After selecting a dataset, collection, and time range, you can export the current selection as a Python code snippet. This will copy a code snippet like the one below to your clipboard.
 
-```python
+```python Python
 from tilebox.datasets import Client
 
 client = Client()
@@ -46,20 +43,20 @@ data = sentinel2_msi.collection("S2A_S2MSI1C").load(
   [`xarray.Dataset`](/sdks/python/xarray) that is returned.
 </Tip>
 
-## Workflows Tab
+## Workflows
 
-The workflows tab allows you to create recurrent and near real time tasks.
+The workflows section of the console allows you to view jobs, create clusters and create recurring and near real-time tasks.
 
 <Frame>
   <img src="/assets/console/recurrent-task-light.png" alt="Tilebox Console" className="dark:hidden" />
   <img src="/assets/console/recurrent-task-dark.png" alt="Tilebox Console" className="hidden dark:block" />
 </Frame>
 
-## Account Tab
+## Account
 
 ### API Keys
 
-The API keys tab allows you to manage your API keys. You can create new API keys, revoke existing ones, and view the currently active API keys.
+The API Keys page enables you to manage your API keys. You can create new API keys, revoke existing ones, and view currently active API keys.
 
 <Frame>
   <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden" />
@@ -68,7 +65,7 @@ The API keys tab allows you to manage your API keys. You can create new API keys
 
 ### Usage
 
-The usage tab allows you to view your current usage of the Tilebox API.
+The Usage page allows you to view your current usage of the Tilebox API.
 
 <Frame>
   <img src="/assets/console/usage-light.png" alt="Tilebox Console" className="dark:hidden" />

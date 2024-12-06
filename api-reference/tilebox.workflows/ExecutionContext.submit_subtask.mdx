@@ -1,0 +1,56 @@
+---
+title: Context.submit_subtask
+icon: folder-gear
+---
+
+```python
+def ExecutionContext.submit_subtask(
+  task: Task,
+  depends_on: list[FutureTask] = None,
+  cluster: str | None = None,
+  max_retries: int = 0
+) -> FutureTask
+```
+
+Submit a [subtask](/workflows/concepts/tasks#subtasks-and-task-composition) from a currently executing task.
+
+## Parameters
+
+<ParamField path="task" type="Task">
+  The task to submit as a subtask.
+</ParamField>
+
+<ParamField path="depends_on" type="list[FutureTask]">
+  An optional list of tasks already submitted within the same context that this subtask depends on.
+</ParamField>
+
+<ParamField path="cluster" type="str">
+  An optional [cluster slug](/workflows/concepts/clusters#managing-clusters) for running the subtask. If not provided, the subtask runs on the same cluster as the parent task.
+</ParamField>
+
+<ParamField path="max_retries" type="int">
+  Specify the maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case of failure. The default is 0.
+</ParamField>
+
+## Returns
+
+A `FutureTask` object that represents the submitted subtask. Can be used to set up dependencies between tasks.
+
+<RequestExample>
+```python Python
+# within the execute method of a Task:
+subtask = context.submit_subtask(MySubtask())
+dependent_subtask = context.submit_subtask(
+    MyOtherSubtask(), depends_on=[subtask]
+)
+gpu_task = context.submit_subtask(
+    MyGPUTask(),
+    cluster="gpu-cluster-slug"
+)
+flaky_task = context.submit_subtask(
+    MyFlakyTask(),
+    max_retries=5
+)
+```
+</RequestExample>
+

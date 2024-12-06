@@ -1,14 +1,12 @@
 ---
-title: Cron Triggers
+title: Cron triggers
 description: Trigger jobs based on a Cron schedule.
 icon: clock
 ---
 
-## Creating a Cron Task
+## Creating Cron tasks
 
-Cron Tasks are recurrent tasks that are triggered on a [Cron](https://en.wikipedia.org/wiki/Cron) schedule.
-To create a Cron task, subclass `CronTask` class and overwrite it's `execute` method exactly
-as you would any other regular task.
+Cron tasks run repeatedly on a specified [cron](https://en.wikipedia.org/wiki/Cron) schedule. To create a Cron task, use `tilebox.workflows.recurrent_tasks.CronTask` as your tasks base class instead of the regular `tilebox.workflows.Task`.
 
 ```python Python
 from tilebox.workflows import ExecutionContext
@@ -25,11 +23,9 @@ class MyCronTask(CronTask):
         print(f"This task was triggered at {self.trigger.time}")
 ```
 
-## Registering a Cron Trigger
+## Registering a Cron trigger
 
-Once a Cron task is implemented, it can be registered to be triggered on a Cron schedule.
-This means, every minute for which the Cron expression matches, a new job gets be submitted, consisting of
-a single task instance derived from the Cron registered task prototype.
+After implementing a Cron task, register it to be triggered according to a Cron schedule. When the Cron expression matches, a new job is submitted consisting of a single task instance derived from the Cron task prototype.
 
 ```python Python
 from tilebox.workflows import Client
@@ -53,13 +49,10 @@ cron_task = recurrent_tasks.create_recurring_cron_task(
     A helpful tool to test your cron expressions is [crontab.guru](https://crontab.guru/).
 </Tip>
 
-## Start a Task Runner capable of executing Cron Tasks
+## Starting a Cron Task Runner
 
-With the Cron task registered, a job gets submitted whenever the Cron expression matches. But for the tasks to actually
-run, a [task runner](/workflows/concepts/task-runners) needs to be available capable of executing the Cron task.
-If no task runner is available, the submitted jobs remain in a task queue. Once a 
-[eligible task runner](/workflows/concepts/task-runners#task-selection) becomes available, all jobs in the 
-queue are picked up and executed.
+With the Cron task registered, a job is submitted whenever the Cron expression matches. But unless a [task runner](/workflows/concepts/task-runners) is available to execute the Cron task the submitted jobs remain in a task queue.
+Once an [eligible task runner](/workflows/concepts/task-runners#task-selection) becomes available, all jobs in the queue are executed.
 
 ```python Python
 from tilebox.workflows import Client
@@ -69,7 +62,7 @@ runner = client.runner("dev-cluster", tasks=[MyCronTask])
 runner.run_forever()
 ```
 
-Leaving this task runner running, after a while it's output looks like this:
+If this task runner runs continuously, its output may resemble the following:
 
 ```plaintext Output
 Hello World from a Cron Task!
@@ -84,25 +77,20 @@ Hello World from a Cron Task!
 This task was triggered at 2023-09-25 19:12:00
 ```
 
-## Inspecting the registered Cron Task
+## Inspecting in the Console
 
-The [Tilebox Console](https://console.tilebox.com/workflows/recurrent-tasks) offers a convenient way to inspect all
-the recurrent tasks that are registered to run on a schedule.
-
-Once you've registered a cron task, you can inspect it in the console. Here is an example of what it looks like:
+The [Tilebox Console](https://console.tilebox.com/workflows/recurrent-tasks) provides a straightforward way to inspect all registered Cron tasks.
 
 <Frame>
   <img src="/assets/workflows/recurrent-tasks/cron-light.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="dark:hidden" />
   <img src="/assets/workflows/recurrent-tasks/cron-dark.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="hidden dark:block" />
 </Frame>
 
-You can use the console to view, edit, and delete the cron tasks that are registered.
+Use the console to view, edit, and delete the registered Cron tasks.
 
-## Deleting Cron Triggers
+## Deleting Cron triggers
 
-To delete a registered cron task, use `recurrent_tasks.delete`. After deletion, no new jobs get submitted by
-a cron trigger. But jobs submitted in the past, which are still in the queue, remain in the queue and can still be
-picked up by a task runner.
+To delete a registered Cron task, use `recurrent_tasks.delete`. After deletion, no new jobs will be submitted by that Cron trigger. Past jobs already triggered will still remain queued.
 
 ```python Python
 from tilebox.workflows import Client
@@ -119,14 +107,10 @@ recurrent_tasks.delete("0190bafc-b3b8-88c4-008b-a5db044380d0")
 
 ## Submitting Cron jobs manually
 
-To test cron tasks, they can be submitted as regular tasks. This is useful for testing purposes, or if you
-want to submit a cron task as part of a larger workflow. To do so, it needs to be instantiated with a specific trigger
-time using the `once` method.
+You can submit Cron tasks as regular tasks for testing purposes or as part of a larger workflow. To do so, instantiate the task with a specific trigger time using the `once` method.
 
 <Note>
-    Submitting a job with a cron task once immediately schedules the task, and a runner could pick
-    it up and execute it immediately. The given time specified in the `once` method does not influence the time at which
-    the task gets executed, only the `self.trigger.time` attribute of the cron task corresponds to the specified time.
+    Submitting a job with a Cron task using `once` immediately schedules the task, and a runner may pick it up and execute it. The trigger time set in the `once` method does not influence the execution time; it only sets the `self.trigger.time` attribute for the Cron task.
 </Note>
 
 ```python Python
@@ -141,13 +125,13 @@ task = MyCronTask(message="Hello")
 # CronTask cannot be submitted without being triggered. Use task.once().
 job_client.submit("manual-cron-job", task, cluster="dev-cluster")
 
-# we need to specify a trigger time, so we can submit the task as a regular task
+# specify a trigger time to submit the task as a regular task
 triggered_task = task.once()  # same as task.once(datetime.now())
 job_client.submit("manual-cron-job", triggered_task, cluster="dev-cluster")
 
-# or we can simulate a trigger at a specific time
+# simulate a trigger at a specific time
 triggered_task = task.once(datetime(2030, 12, 12, 15, 15, tzinfo=timezone.utc))
 # the task will be scheduled to run immediately, even with a future trigger time
-# but self.trigger.time will be 2023-12-12T15:15:00Z for the task instance
+# but the self.trigger.time will be 2023-12-12T15:15:00Z for the task instance
 job_client.submit("manual-cron-job", triggered_task, cluster="dev-cluster")
 ```

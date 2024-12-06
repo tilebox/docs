@@ -5,6 +5,7 @@ Tilebox
 NumPy
 (?i)async
 (?i)antimeridian
+(?i)cloud
 Datalore
 Colab
 Tropomi
@@ -25,6 +26,8 @@ subclassing
 Unary
 iterable
 iterables
+inclusivity
+requirement
 equivalent
 monitor
 SAR's
@@ -37,5 +40,9 @@ deserializing
 idempotency
 SDKs
 SDK
+coroutines
 (?i)cron
 (?i)LLMs
+(?i)Imager
+(?i)pushbroom
+rollout

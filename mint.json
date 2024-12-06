@@ -5,6 +5,13 @@
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
   },
+  "sidebar": {
+    "items": "border"
+  },
+  "topbar": {
+    "style": "default"
+  },
+  "rounded": "sharp",
   "favicon": "/favicon.svg",
   "colors": {
     "primary": "#f43f5e",
@@ -15,6 +22,9 @@
     "headings": {
       "family": "Poppins"
     }
+  },
+  "codeBlock": {
+    "mode": "auto"
   },
   "topbarLinks": [
     {
@@ -45,6 +55,11 @@
       "name": "Book a Demo",
       "icon": "calendar",
       "url": "https://book.vimcal.com/p/lauracosta/tilebox-demo"
+    },
+    {
+      "name": "Discord",
+      "icon": "discord",
+      "url": "https://discord.gg/NYe5g5z5"
     }
   ],
   "navigation": [
@@ -88,7 +103,8 @@
         "datasets/timeseries",
         "datasets/collections",
         "datasets/loading-data",
-        "datasets/open-data"
+        "datasets/open-data",
+        "datasets/storage-clients"
       ]
     },
     {
@@ -127,45 +143,34 @@
       ]
     },
     {
-      "group": "Datasets",
+      "group": "tilebox.datasets",
       "pages": [
-        "api-reference/datasets/listing-datasets",
-        "api-reference/datasets/accessing-dataset",
-        "api-reference/datasets/listing-collection",
-        "api-reference/datasets/accessing-collection",
-        "api-reference/datasets/collection-info",
-        "api-reference/datasets/loading-data",
-        "api-reference/datasets/loading-datapoint"
+        "api-reference/tilebox.datasets/Client",
+        "api-reference/tilebox.datasets/Client.datasets",
+        "api-reference/tilebox.datasets/Client.dataset",
+        "api-reference/tilebox.datasets/Dataset.collections",
+        "api-reference/tilebox.datasets/Dataset.collection",
+        "api-reference/tilebox.datasets/Collection.info",
+        "api-reference/tilebox.datasets/Collection.load",
+        "api-reference/tilebox.datasets/Collection.find"
       ]
     },
     {
-      "group": "Storage Providers",
+      "group": "tilebox.workflows",
       "pages": [
-        "api-reference/storage-providers/creating-storage-client",
-        "api-reference/storage-providers/downloading-products",
-        "api-reference/storage-providers/downloading-quicklook-images",
-        "api-reference/storage-providers/previewing-quicklook-images",
-        "api-reference/storage-providers/deleting-products",
-        "api-reference/storage-providers/deleting-cache",
-        "api-reference/storage-providers/direct-storage-access"
-      ]
-    },
-    {
-      "group": "Workflows",
-      "pages": [
-        "api-reference/workflows/implementing-task",
-        "api-reference/workflows/task-inputs",
-        "api-reference/workflows/subtasks",
-        "api-reference/workflows/task-display-name",
-        "api-reference/workflows/creating-task-runner",
-        "api-reference/workflows/starting-task-runner",
-        "api-reference/workflows/submitting-job",
-        "api-reference/workflows/retrying-job",
-        "api-reference/workflows/cancelling-job",
-        "api-reference/workflows/visualizing-job",
-        "api-reference/workflows/cluster-management",
-        "api-reference/workflows/cache-access",
-        "api-reference/workflows/hierarchical-caches"
+        "api-reference/tilebox.workflows/Client",
+        "api-reference/tilebox.workflows/Task",
+        "api-reference/tilebox.workflows/Client.runner",
+        "api-reference/tilebox.workflows/TaskRunner.run_all",
+        "api-reference/tilebox.workflows/TaskRunner.run_forever",
+        "api-reference/tilebox.workflows/ExecutionContext.submit_subtask",
+        "api-reference/tilebox.workflows/ExecutionContext.job_cache",
+        "api-reference/tilebox.workflows/JobCache.group",
+        "api-reference/tilebox.workflows/JobCache.__iter__",
+        "api-reference/tilebox.workflows/JobClient.submit",
+        "api-reference/tilebox.workflows/JobClient.retry",
+        "api-reference/tilebox.workflows/JobClient.cancel",
+        "api-reference/tilebox.workflows/JobClient.visualize"
       ]
     }
   ],

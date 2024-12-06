@@ -1,15 +1,12 @@
 ---
 title: Logging
-description: Set up distributed logging using the open telemetry logging protocol
+description: Set up distributed logging using the OpenTelemetry logging protocol
 icon: rectangle-terminal
 ---
 
 ## Overview
 
-Since Tilebox workflows are designed to be executed in a distributed fashion, properly setting up logging to a centralized
-logging system is a key aspect. Tilebox comes with built-in support for OpenTelemetry logging, which is an easy and
-convenient way to log messages from your tasks, and export them to a backend of your choice. Collecting and visualizing
-logs from a distributed cluster of task runners and visualizing them in a tool such as [Axiom](https://axiom.co/) might look like the following:
+Tilebox workflows are designed for distributed execution, making it essential to set up logging to a centralized system. Tilebox supports OpenTelemetry logging, which simplifies sending log messages from your tasks to a chosen backend. Collecting and visualizing logs from a distributed cluster of task runners in a tool like [Axiom](https://axiom.co/) can look like this:
 
 <Frame>
   <img src="/assets/workflows/observability/logs-light.png" alt="Tilebox Workflows logging in Axiom" className="dark:hidden" />
@@ -18,14 +15,11 @@ logs from a distributed cluster of task runners and visualizing them in a tool s
 
 ## Configure logging
 
-The Tilebox workflow SDKs contain built-in support for exporting open telemetry logs. To enable logging, simply
-call the corresponding configuration functions during the start up of your [task runner](/workflows/concepts/task-runners)
-and then use to Tilebox provided `logger` to emit log messages from your tasks.
+The Tilebox workflow SDKs include support for exporting OpenTelemetry logs. To enable logging, call the appropriate configuration functions during the startup of your[task runner](/workflows/concepts/task-runners). Then, use the provided `logger` to send log messages from your tasks.
 
 <Tabs>
     <Tab title="Axiom">
-    To configure logging with Axiom, you first need to create a [Axiom Dataset](https://axiom.co/docs/reference/datasets)
-    to export Tilebox workflow logs to. Additionally, an API key with ingest permissions to that dataset is required.
+    To configure logging with Axiom, you first need to create a [Axiom Dataset](https://axiom.co/docs/reference/datasets) to export your workflow logs to. You will also need an [Axiom API key](https://axiom.co/docs/reference/tokens) with the necessary write permissions for your Axiom dataset.
     
     ```python Python
     from tilebox.workflows import Client, Task, ExecutionContext
@@ -36,14 +30,14 @@ and then use to Tilebox provided `logger` to emit log messages from your tasks.
 
     def main():
         configure_otel_logging_axiom(
-            # specify an axiom dataset to export logs to
+            # specify an Axiom dataset to export logs to
             dataset="my-axiom-logs-dataset",
-            # along with an axiom api key with ingest permissions to that dataset
+            # along with an Axiom API key with ingest permissions for that dataset
             api_key="my-axiom-api-key",
         )
 
-        # below task runner will export logs from 
-        # the tasks it executes to the specified axiom dataset
+        # the task runner will export logs from 
+        # the executed tasks to the specified dataset
         client = Client()
         runner = client.runner("dev-cluster", tasks=[MyTask])
         runner.run_forever()
@@ -53,14 +47,12 @@ and then use to Tilebox provided `logger` to emit log messages from your tasks.
     ```
 
     <Tip>
-        If you set environment variables `AXIOM_API_KEY` and `AXIOM_LOGS_DATASET` you can omit those arguments
-        to the `configure_otel_logging_axiom` function.
+        Setting the environment variables `AXIOM_API_KEY` and `AXIOM_LOGS_DATASET` allows you to omit these arguments in the `configure_otel_logging_axiom` function.
     </Tip>
     
     </Tab>
     <Tab title="OpenTelemetry-compatible backend">
-    If you are using a OpenTelemetry-compatible backend other than Axiom, such as OpenTelemetry Collector or Jaeger,
-    you can still easily configure logging by manually specifying the endpoint to export logs to.
+    If you are using another OpenTelemetry-compatible backend besides Axiom, such as OpenTelemetry Collector or Jaeger, you can configure logging by specifying the URL endpoint to export log messages to.
 
     ```python Python
     from tilebox.workflows import Client
@@ -71,14 +63,15 @@ and then use to Tilebox provided `logger` to emit log messages from your tasks.
 
     def main():
         configure_otel_logging(
-            # specify an endpoint to export logs to, in this case a
-            # locally running instance of opentelemetry collector
+            # specify an endpoint to export logs to, such as a
+            # locally running instance of OpenTelemetry Collector
             endpoint="http://localhost:4318/v1/logs",
-            headers={"Authorization": "Bearer some-api-key"},  # optional headers to send with each request
+            # optional headers for each request
+            headers={"Authorization": "Bearer some-api-key"},
         )
 
-        # below task runner will export logs from 
-        # the tasks it executes to the specified endpoint
+        # the task runner will export logs from 
+        # the executed tasks to the specified endpoint
         client = Client()
         runner = client.runner("dev-cluster", tasks=[MyTask])
         runner.run_forever()
@@ -88,13 +81,11 @@ and then use to Tilebox provided `logger` to emit log messages from your tasks.
     ```
 
     <Tip>
-        If you set environment variable `OTEL_LOGS_ENDPOINT` you can omit that argument
-        to the `configure_otel_logging` function.
+        If you set the environment variable `OTEL_LOGS_ENDPOINT`, you can omit that argument in the `configure_otel_logging` function.
     </Tip>
     </Tab>
     <Tab title="Console">
-        If you want to log messages to the standard output of the console, you can use the `configure_console_logging` 
-        function.
+        To log messages to the standard console output, use the `configure_console_logging` function.
 
         ```python Python
         from tilebox.workflows import Client
@@ -106,8 +97,8 @@ and then use to Tilebox provided `logger` to emit log messages from your tasks.
         def main():
             configure_console_logging()
 
-            # below task runner will print log messages from
-            # the tasks it executes to the console
+            # the task runner will print log messages from
+            # the executed tasks to the console
             client = Client()
             runner = client.runner("dev-cluster", tasks=[MyTask])
             runner.run_forever()
@@ -117,9 +108,7 @@ and then use to Tilebox provided `logger` to emit log messages from your tasks.
         ```
 
         <Warning>
-            The console logging backend is not recommended for production use, since log messages are emitted to the
-            standard output of each task runner, and not to a centralized logging system. It is intended for local
-            development and testing of workflows.
+            The console logging backend is not recommended for production use. Log messages will be emitted to the standard output of each task runner rather than a centralized logging system. It is intended for local development and testing of workflows.
         </Warning>
     </Tab>
 
@@ -127,29 +116,25 @@ and then use to Tilebox provided `logger` to emit log messages from your tasks.
 
 ## Emitting log messages
 
-The Tilebox SDKs provide a `logger` that can be used to emit log messages from your tasks. Use it within
-a tasks `execute` method to emit log messages to the [configured logging backend](#configure-logging).
+Use the logger provided by the Tilebox SDK to emit log messages from your tasks. You can then use it to send log messages to the [configured logging backend](#configure-logging).
+Log messages emitted within a task's `execute` method are also automatically recorded as span events for the current [job trace](/workflows/observability/tracing).
 
 ```python Python
 import logging
 from tilebox.workflows import Task, ExecutionContext
 from tilebox.workflows.observability.logging import get_logger
 
+logger = get_logger()
+
 class MyTask(Task):
     def execute(self, context: ExecutionContext) -> None:
-        # emit a log message to the configured open telemetry backend
+        # emit a log message to the configured OpenTelemetry backend
         logger.info("Hello world from configured logger!")
 ```
 
-<Tip>
-    The `logger` is a global singleton, so you can use it anywhere in your workflow. If you want to use a different
-    logger for a specific task, you can create a new logger using the `get_logger` function.
-</Tip>
-
 ## Logging task runner internals
 
-Tilebox Task runners also use such a logger internally. By default it's configured to the WARNING level, but you
-can change this by explicitly configuring a logger for the workflows client constructing the task runner.
+Tilebox task runners also internally use a logger. By default, it's set to the WARNING level, but you can change it by explicitly configuring a logger for the workflows client when constructing the task runner.
 
 ```python Python
 from tilebox.workflows import Client
@@ -157,18 +142,18 @@ from tilebox.workflows import Client
 from tilebox.workflows.observability.logging import configure_otel_logging_axiom
 from tilebox.workflows.observability.logging import get_logger
 
-# configure axiom or any other logging backend
+# configure Axiom or another logging backend
 configure_otel_logging_axiom(
     dataset="my-axiom-logs-dataset",
     api_key="my-axiom-api-key",
 )
 
-# configure a logger for the Tilebox client, with a level of INFO
+# configure a logger for the Tilebox client at the INFO level
 client = Client()
 client.configure_logger(get_logger(level=logging.INFO))
 
-# now the task runner will inherit this logger and use
-# it to emit its own, internal log messages as well
+# now the task runner inherits this logger and uses
+# it to emit its own internal log messages as well
 runner = client.runner("dev-cluster", tasks=[MyTask])
 runner.run_forever()
 ```

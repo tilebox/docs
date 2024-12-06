@@ -1,0 +1,48 @@
+---
+title: JobClient.submit
+icon: diagram-project
+---
+
+```python
+def JobClient.submit(
+  job_name: str,
+  root_task_or_tasks: Task | Iterable[Task],
+  cluster: str | Cluster | Iterable[str | Cluster],
+  max_retries: int = 0
+) -> Job
+```
+
+## Parameters
+
+<ParamField path="job_name" type="str">
+  The name of the job.
+</ParamField>
+
+<ParamField path="root_task_or_tasks" type="Task">
+  The root task for the job. This task is executed first and can submit subtasks to manage the entire workflow. A job can have optionally consist of multiple root tasks.
+</ParamField>
+
+<ParamField path="cluster" type="str">
+  The [cluster slug](/workflows/concepts/clusters#managing-clusters) for the cluster to run the root task on. In case of multiple root tasks, a list of cluster slugs can be provided.
+</ParamField>
+
+<ParamField path="max_retries" type="int">
+  The maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case it fails. Defaults to 0.
+</ParamField>
+
+<RequestExample>
+```python Python
+from my_workflow import MyTask
+
+job = job_client.submit(
+    "my-job",
+    MyTask(
+      message="Hello, World!", 
+      value=42,
+      data={"key": "value"}
+    ),
+    "my-cluster-EdsdUozYprBJDL",
+    max_retries=0,
+)
+```
+</RequestExample>

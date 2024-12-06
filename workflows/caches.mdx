@@ -1,29 +1,22 @@
 ---
 title: Caches
-description: One important aspect of workflows is the ability to share data between tasks. This is especially useful when working with large datasets, as it is often the case in domains such as satellite imagery processing. Tilebox Workflows provides a simple API that allows you to store and retrieve data from a cache that is shared between tasks.
+description: Sharing data between tasks is crucial for workflows, especially in satellite imagery processing, where large datasets are the norm. Tilebox Workflows offers a straightforward API for storing and retrieving data from a shared cache.
 icon: box-archive
 ---
 
 <Warning>
-  The cache API is currently in an experimental state, with many more features, as well as [planned
-  backends](#cache-backends) on the roadmap. There might be breaking changes to the Cache API in the future.
+  The cache API is currently experimental and may undergo changes in the future. Many more features and new [backends](#cache-backends) are on the roadmap. There might be breaking changes to the Cache API in the future.
 </Warning>
 
-Caches are configured on a [task runner](/workflows/concepts/task-runners) level. Since task runners can be deployed in a distributed
-fashion, caches also need to be accessible from all task runners contributing to the execution of a workflow.
+Caches are configured at the [task runner](/workflows/concepts/task-runners) level. Because task runners can be deployed across multiple locations, caches must be accessible from all task runners contributing to a workflow.
 
-That is why the current default cache implementation is backed by a Google cloud Storage bucket. This allows for a simple and
-scalable way to share data between tasks. For quick prototyping and local development you can also use a local file
-system cache, which is also provided out of the box.
+Currently, the default cache implementation uses a Google Cloud Storage bucket, providing a scalable method to share data between tasks. For quick prototyping and local development, you can also use a local file system cache, which is included by default.
 
-You can also write your own cache backend by implementing the `Cache` interface.
+If needed, you can create your own cache backend by implementing the `Cache` interface.
 
 ## Configuring a Cache
 
-A cache can be configured when instantiating a task runner, by passing a suitable cache instance to the `cache` parameter.
-For example, to use an in-memory cache, you can use the `InMemoryCache` class from the `tilebox.workflows.cache` module.
-This is a cache implementation useful for local development and quick prototyping. Check out different supported [cache backends](#cache-backends)
-for more options.
+You can configure a cache while creating a task runner by passing a cache instance to the `cache` parameter. To use an in-memory cache, use `tilebox.workflows.cache.InMemoryCache`. This implementation is helpful for local development and quick testing. For alternatives, see the supported [cache backends](#cache-backends).
 
 <CodeGroup>
     ```python Python
@@ -51,132 +44,115 @@ Tilebox Workflows comes with four cache implementations out of the box, each bac
   <Card title="Amazon S3" icon="aws" href="#amazon-s3-cache" horizontal />
   <Card title="Local File System" icon="folder-open" href="#local-file-system-cache" horizontal />
   <Card title="In-Memory" icon="memory" href="#in-memory-cache" horizontal />
-
 </CardGroup>
 
 ### Google Storage Cache
 
-A cache implementation backed by a Google cloud Storage bucket to store and retrieve data. This is a scalable and reliable
-way to share data between tasks, even when running in a distributed fashion. This is a recommended cache
-implementation for production. All you need is a GCP project and a bucket you have access to.
+A cache implementation backed by a Google cloud Storage bucket to store and retrieve data. It's a reliable method for sharing data across tasks, suitable for production environments. You will need access to a GCP project and a bucket.
 
-The Tilebox Workflow orchestrator uses the official Python Client for Google cloud Storage. Check out the
-<Link href="https://cloud.google.com/storage/docs/reference/libraries#authentication" target='_blank'>official documentation</Link>
-to learn how to set up the required authentication.
+The Tilebox Workflow orchestrator uses the official Python Client for Google Cloud Storage. To set up authentication, refer to the <Link href="https://cloud.google.com/storage/docs/reference/libraries#authentication" target='_blank'>official documentation</Link>.
 
 <CodeGroup title="GoogleStorageCache">
-    ```python Python
-    from tilebox.workflows import Client
-    from tilebox.workflows.cache import GoogleStorageCache
-    from google.cloud.storage import Client as StorageClient
+```python Python
+from tilebox.workflows import Client
+from tilebox.workflows.cache import GoogleStorageCache
+from google.cloud.storage import Client as StorageClient
 
-    storage_client = StorageClient(project="gcp-project")
-    bucket = storage_client.bucket("cache-bucket")
+storage_client = StorageClient(project="gcp-project")
+bucket = storage_client.bucket("cache-bucket")
 
-    client = Client()
-    runner = client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=GoogleStorageCache(bucket, prefix="jobs"),
-    )
-    ```
+client = Client()
+runner = client.runner(
+    "dev-cluster",
+    tasks=[...],
+    cache=GoogleStorageCache(bucket, prefix="jobs"),
+)
+```
 </CodeGroup>
 
 <Tip>
-    The `prefix` parameter is optional and can be used to assign a common prefix to all cache keys. This can be useful to scope all
-    cache objects to a certain prefix, for example when using the same bucket for other purposes.
+    The `prefix` parameter is optional and can be used to set a common prefix for all cache keys, which helps organize objects within a bucket when re-using the same bucket for other purposes.
 </Tip>
 
 ### Amazon S3 Cache
 
-A cache implementation backed by an Amazon S3 bucket to store and retrieve data. This is a scalable and reliable
-way to share data between tasks, even when running in a distributed fashion. This is a recommended cache
-implementation for production. All you need is a bucket you have access to.
+A cache implementation backed by an Amazon S3 bucket to store and retrieve data. Like the Google Cloud Storage option, it's reliable and scalable for production use.
 
-The Tilebox Workflow orchestrator uses the official `boto3` library to interact with Amazon S3. Check out
-<Link href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration" target='_blank'>it's documentation</Link>
-to learn how to set up the required authentication.
+Tilebox utilizes the `boto3` library to communicate with Amazon S3. For the necessary authentication setup, refer to [its documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration).
 
 <CodeGroup>
-    ```python Python
-    from tilebox.workflows import Client
-    from tilebox.workflows.cache import AmazonS3Cache
+```python Python
+from tilebox.workflows import Client
+from tilebox.workflows.cache import AmazonS3Cache
 
-    client = Client()
-    runner = client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=AmazonS3Cache("my-bucket-name", prefix="jobs")
-    )
-    ```
+client = Client()
+runner = client.runner(
+    "dev-cluster",
+    tasks=[...],
+    cache=AmazonS3Cache("my-bucket-name", prefix="jobs")
+)
+```
 </CodeGroup>
 
 <Tip>
-    The `prefix` parameter is optional and can be used to assign a common prefix to all cache keys. This can be useful to scope all
-    cache objects to a certain prefix, for example when using the same bucket for other purposes.
+    The `prefix` parameter is optional and can be used to set a common prefix for all cache keys, which helps organize objects within a bucket when re-using the same bucket for other purposes.
 </Tip>
 
 ### Local File System Cache
 
-A cache implementation backed by the local file system. Also useful for quick prototyping and local development, when
-all task runners are running on the same machine or have access to the same file system. Intended for the testing of
-workflows executing on different task runners, but not recommended for production use.
+A cache implementation backed by a local file system. It's suitable for quick prototyping and local development, assuming all task runners share the same machine or access the same file system.
 
 <CodeGroup>
-    ```python Python
-    from tilebox.workflows import Client
-    from tilebox.workflows.cache import LocalFileSystemCache
+```python Python
+from tilebox.workflows import Client
+from tilebox.workflows.cache import LocalFileSystemCache
 
-    client = Client()
-    runner = client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=LocalFileSystemCache("/path/to/cache/directory"),
-    )
-    ```
+client = Client()
+runner = client.runner(
+    "dev-cluster",
+    tasks=[...],
+    cache=LocalFileSystemCache("/path/to/cache/directory"),
+)
+```
 </CodeGroup>
 
+<Tip>
+    Local file system caches can also be used in conjunction with network attached storage or similar tools, making it a viable option also for distributed setups.
+</Tip>
+
 ### In-Memory Cache
-A simple in-memory cache implementation. This is useful for quick prototyping and local development. Cache data is
-not shared between task runners, and not persisted between task runner restarts. Only use this cache for quick
-prototyping of workflows executed on a single task runner.
+
+A simple in-memory cache useful for quick prototyping and development. The data is not shared between task runners and is lost upon task runner restarts. Use this cache only for workflows executed on a single task runner.
 
 <CodeGroup>
-    ```python Python
-    from tilebox.workflows import Client
-    from tilebox.workflows.cache import InMemoryCache
+```python Python
+from tilebox.workflows import Client
+from tilebox.workflows.cache import InMemoryCache
 
-    client = Client()
-    runner = client.runner(
-        "dev-cluster",
-        tasks=[...],
-        cache=InMemoryCache(),
-    )
-    ```
+client = Client()
+runner = client.runner(
+    "dev-cluster",
+    tasks=[...],
+    cache=InMemoryCache(),
+)
+```
 </CodeGroup>
 
 ## Data Isolation
 
-Caches are isolated for each job. This means that data stored in a cache is only accessible by tasks within the same job.
-This avoids conflicts in cache keys between different jobs from the same workflow. But it also means that currently
-data cannot be shared between jobs.
+Caches are isolated per job, meaning that each job's cache data is only accessible to tasks within that job. This setup prevents key conflicts between different job executions. Currently, accessing cache data of other jobs is not supported.
 
 <Note>
-    The ability to share data between jobs is on the roadmap. That can be especially useful for near-real-time
-    processing workflows, or for workflows that require auxiliary data from third party sources.
+    The capability to share data across jobs is planned for future updates. This feature will be beneficial for real-time processing workflows or workflows requiring auxiliary data from external sources.
 </Note>
 
 ## Storing and Retrieving Data
 
-To access the cache from within a task, you can use the `job_cache` attribute of the `context` object that is passed to
-the task function. This attribute is an instance of the `JobCache` interface, which provides methods to store and
-retrieve data from the cache. Where and how the data is stored depends on the cache backend that is used.
+The job cache can be accessed via the `ExecutionContext` passed to a tasks `execute` function. This [`job_cache`](/api-reference/tilebox.workflows/ExecutionContext.job_cache) object provides methods to handle data storage and retrieval from the cache. The specifics of data storage depend on the chosen cache backend.
 
-Since the cache API is designed to be simple and generic, and to handle all kinds of data, it's capable of storing
-arbitrary binary data in the form of a `bytes` object under a specific cache key `str`. This means that you can store
-any kind of data, such as pickled Python objects, serialized JSON, UTF-8 or ASCII encoded strings or raw binary data.
+The cache API is designed to be simple and can handle all types of data, supporting binary data in the form of `bytes`, identified by `str` cache keys. This allows for storing many different data types, such as pickled Python objects, serialized JSON, UTF-8, or binary data.
 
-The following code snippet shows how to store and retrieve data from the cache.
+The following snippet illustrates storing and retrieving data from the cache.
 
 <CodeGroup>
     ```python Python
@@ -195,12 +171,9 @@ The following code snippet shows how to store and retrieve data from the cache.
     ```
 </CodeGroup>
 
-The data passed to the `save` method is stored in the cache under the key `"data"`. It can be arbitrarily large binary
-data, as long as it fits into the constraints of the cache backend. The chosen key should be unique within the scope of
-the job, to avoid conflicts with other tasks that might use the same key.
+In this example, data stored under the key `"data"` can be any size that fits the cache backend constraints. Ensure the key remains unique within the job's scope to avoid conflicts.
 
-To test the preceding workflow, it's possible to start a task runner locally, that uses the `InMemoryCache` backend. That way a job can be submitted
-to execute the `ProducerTask` and the output of the `ConsumerTask` can be observed.
+To test the workflow, you can start a local task runner using the `InMemoryCache` backend. Then, submit a job to execute the `ProducerTask` and observe the output of the `ConsumerTask`.
 
 <CodeGroup>
     ```python Python
@@ -220,69 +193,68 @@ to execute the `ProducerTask` and the output of the `ConsumerTask` can be observ
 
 ```plaintext Output
 Read b'my_binary_data_to_store' from cache
-````
+```
 
 ## Groups and Hierarchical Keys
 
-The cache API also supports the concept of groups and hierarchical keys. This behaves in a similar way to the concept of directories
-and files in a file system. Groups can be used to organize cache keys into a hierarchical structure, which can be useful
-to avoid conflicts between keys, or to organize data in a more structured way. Additionally, groups are iterable, yielding
-all keys in the group. This can be especially useful when a workflow spawns many tasks that store data
-in the cache, and a successive task needs to access all the produced data, for example to produce an aggregated result.
+The cache API supports groups and hierarchical keys, analogous to directories and files in a file system. Groups help organize cache keys hierarchically, preventing key conflicts and allowing data to be structured better. Additionally, groups are iterable, enabling retrieval of all keys within the group. This feature is useful when multiple tasks create cache data, and a later task needs to list all produced data by earlier tasks.
 
-The following code snippet shows how to use groups and hierarchical keys. Data is stored in a group called `"random_numbers"` under
-the keys `"1"`, `"2"` and `"3"`. Then all keys in the group are listed and the cached data is retrieved for each key. The output
-then displays the sum of all data points.
+The following code shows an example of how cache groups can be used.
 
 <CodeGroup>
-    ```python Python
-    from tilebox.workflows import Task, ExecutionContext
-    import random
+```python Python {39,44-45}
+from tilebox.workflows import Task, ExecutionContext
+import random
 
-    class CacheGroupDemoWorkflow(Task):
-        n: int
+class CacheGroupDemoWorkflow(Task):
+    n: int
 
-        def execute(self, context: ExecutionContext):
-            # we define a cache group key, which we pass on to the subtasks
-            group_key = "random_numbers"
-            # produce numbers will write numerous entries to the cache group
-            produce_numbers = context.submit_subtask(ProduceRandomNumbers(self.n, group_key))
-            # print sum will then be able to list and read all entries from the cache group
-            sum_task = context.submit_subtask(PrintSum(group_key), depends_on=[produce_numbers])
+    def execute(self, context: ExecutionContext):
+        # define a cache group key for subtasks
+        group_key = "random_numbers"
+        produce_numbers = context.submit_subtask(
+            ProduceRandomNumbers(self.n, group_key)
+        )
+        sum_task = context.submit_subtask(
+            PrintSum(group_key),
+            depends_on=[produce_numbers],
+        )
 
-    class ProduceRandomNumbers(Task):
-        n: int
-        group_key: str
+class ProduceRandomNumbers(Task):
+    n: int
+    group_key: str
 
-        def execute(self, context: ExecutionContext):
-            for i in range(self.n):
-                context.submit_subtask(ProduceRandomNumber(i, self.group_key))
+    def execute(self, context: ExecutionContext):
+        for i in range(self.n):
+            context.submit_subtask(ProduceRandomNumber(i, self.group_key))
 
-    class ProduceRandomNumber(Task):
-        index: int
-        group_key: str
+class ProduceRandomNumber(Task):
+    index: int
+    group_key: str
 
-        def execute(self, context: ExecutionContext) -> None:
-            number = random.randint(0, 100)
-            group = context.job_cache.group(self.group_key)
-            group[f"key_{self.index}"] = number.to_bytes()
+    def execute(self, context: ExecutionContext) -> None:
+        number = random.randint(0, 100)
+        group = context.job_cache.group(self.group_key)
+        group[f"key_{self.index}"] = str(number).encode()
 
-    class PrintSum(Task):
-        group_key: str
+class PrintSum(Task):
+    group_key: str
 
-        def execute(self, context: ExecutionContext) -> None:
-            group = context.job_cache.group(self.group_key)
+    def execute(self, context: ExecutionContext) -> None:
+        group = context.job_cache.group(self.group_key)
 
-            numbers = []
-            for key in group:  # iterate over all produced numbers
-                number = group[key]  # read data from cache
-                numbers.append(int.from_bytes(number))  # convert bytes back to int, and add to sum
+        # PrintSum doesn't know how many numbers were produced,
+        # instead it iterates over all keys in the cache group
+        numbers = []
+        for key in group:  # iterate over all stored numbers
+            number = group[key]  # read data from cache
+            numbers.append(int(number.decode()))  # convert bytes back to int
 
-            print(f"Sum of all numbers: {sum(numbers)}")
-    ```
+        print(f"Sum of all numbers: {sum(numbers)}")
+```
 </CodeGroup>
 
-Submitting a job of the `CacheGroupDemoWorkflow`, and then running it with a task runner, could look like this:
+Submitting a job of the `CacheGroupDemoWorkflow` and running it with a task runner can be done as follows:
 
 <CodeGroup>
     ```python Python
@@ -303,9 +275,3 @@ Submitting a job of the `CacheGroupDemoWorkflow`, and then running it with a tas
 ```plaintext Output
 Sum of all numbers: 284
 ```
-
-## Different Concurrent Caches
-
-Currently, only one cache can be configured per task runner. This means that all tasks executed by the task runner
-share the same cache. It's possible to configure different task runners with different cache configurations to
-achieve a similar effect. Adding support for different concurrent caches is on the roadmap for a future release.

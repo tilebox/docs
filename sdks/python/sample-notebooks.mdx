@@ -1,31 +1,31 @@
 ---
-title: Sample Notebooks
-description: Sample code that is maintained and available to use and learn from.
+title: Sample notebooks
+description: Sample code maintained to use and learn from.
 icon: notebook
 ---
 
-To get the hang of the Python client quickly and effortlessly you can check out some provided sample notebooks. Each notebook can be
-executed from top to bottom, and does not require any setup.
+To quickly become familiar with the Python client, you can explore some sample notebooks. Each notebook can be executed standalone from top to bottom.
 
-## Sample Notebooks
+## Sample notebooks
 
-Sample notebooks are accessible on [<Icon icon="google-drive" /> Google Drive](https://drive.google.com/drive/folders/1I7G35LLeB2SmKQJFsyhpSVNyZK9uOeJt).
+You can access the sample notebooks on [<Icon icon="google-drive" /> Google Drive](https://drive.google.com/drive/folders/1I7G35LLeB2SmKQJFsyhpSVNyZK9uOeJt).
 
-### Notebook Overview
+<Tip>
+  Right click a notebook in Google Drive and select `Open with -> Google Colaboratory` to open it directly in the browser using [Google Colab](https://colab.research.google.com/).
+</Tip>
+
+### Notebook overview
 
 <AccordionGroup>
   <Accordion title="Tilebox ERS Opendata Demo">
-    This notebook shows how to use the Python client to query metadata from the ERS-SAR Opendata dataset. Then it shows
-    how to filter the results based on geographical location, and then download the product data for a specific granule.
+    This notebook demonstrates how to use the Python client to query metadata from the ERS-SAR Opendata dataset. It shows how to filter results by geographical location and download product data for a specific granule.
 
     [<Icon icon="arrow-up-right-from-square" /> Open in
     Colab](https://colab.research.google.com/drive/1LTYhLKy8m9psMhu0DvANs7hyS3ViVpas)
 
   </Accordion>
   <Accordion title="Tilebox S5P Tropomi Methane Data Access">
-    This notebook shows how to use the Python client to query the S5P Tropomi Opendata dataset for Methane products.
-    Then it shows how to filter the results based on geographical location, and then download the product data for a
-    specific granule.
+    This notebook illustrates how to use the Python client to query the S5P Tropomi Opendata dataset for methane products. It also explains how to filter results based on geographical location and download product data for a specific granule.
 
     [<Icon icon="arrow-up-right-from-square" /> Open in
     Colab](https://colab.research.google.com/drive/1eVYARNFnTIeQqBs6gqeay01EDvRk2EI4)
@@ -33,71 +33,54 @@ Sample notebooks are accessible on [<Icon icon="google-drive" /> Google Drive](h
   </Accordion>
 </AccordionGroup>
 
-Cells are executed one-by-one by typing `Shift+Enter`, most commonly used libraries are pre-installed.
+Execute cells one by one using `Shift+Enter`. Most commonly used libraries are pre-installed.
 
-<Note>All the demo notebooks require python 3.10 or upwards.</Note>
+<Note>All demo notebooks require Python 3.10 or higher.</Note>
 
-## Interactive Environments
+## Interactive environments
 
-Jupyter, Google Colab or JetBrains Datalore are interactive environments that make developing and sharing algorithmic code simple and accessible.
-They allow to work in notebooks, which are documents that contains both code and rich text elements, such as figures, links, equations, and more.
-Notebooks don't need any setup and can be shared with others.
+Jupyter, Google Colab, and JetBrains Datalore are interactive environments that simplify the development and sharing of algorithmic code. They allow users to work with notebooks, which combine code and rich text elements like figures, links, and equations. Notebooks require no setup and can be easily shared.
 
 <AccordionGroup>
   <Accordion title="Jupyter">
-    [Jupyter notebooks](https://jupyter.org/) are the original interactive environment for Python. They are great to
-    work with, but require a local installation.
+    [Jupyter notebooks](https://jupyter.org/) are the original interactive environment for Python. They are useful but require local installation.
   </Accordion>
   <Accordion title="Google Colab">
-    [Google Colab](https://colab.research.google.com/) is a free tool that offers a hosted interactive Python
-    environment. Google Colab is great to connect to local Jupyter instances, and to share code using Google
-    credentials, or within organizations that use Google Workspace.
+    [Google Colab](https://colab.research.google.com/) is a free tool that provides a hosted interactive Python environment. It easily connects to local Jupyter instances and allows code sharing using Google credentials or within organizations using Google Workspace.
   </Accordion>
   <Accordion title="JetBrains Datalore">
-    [JetBrains Datalore](https://datalore.jetbrains.com/) is a free and convenient way to collaboratively test, develop
-    and share Python code and algorithms. It comes with secret management built in, so you can store your credentials
-    and share notebooks. Datalore comes with the advanced JetBrains syntax highlighting and autocompletion software
-    developers are used to. Note that it currently supports only Python 3.8, which is not compatible with the Tilebox
-    Python client.
+    [JetBrains Datalore](https://datalore.jetbrains.com/) is a free platform for collaborative testing, development, and sharing of Python code and algorithms. It has built-in secret management for storing credentials. Datalore also features advanced JetBrains syntax highlighting and autocompletion. Currently, it only supports Python 3.8, which is not compatible with the Tilebox Python client.
   </Accordion>
 </AccordionGroup>
 
-Seeing that Colab is a hosted, free tool that supports all requirements including Python ≥3.10, it's recommended to use Colab.
+Since Colab is a hosted free tool that meets all requirements, including Python ≥3.10, it's recommended for use.
 
-## Installing Packages
+## Installing packages
 
-From within your interactive environment you can install missing packages via pip in "magic" cells started with
-an exclamation mark.
+Within your interactive environment, you can install missing packages using pip in "magic" cells, which start with an exclamation mark.
 
 ```bash
 # pip is already installed in your interactive environment
 !pip3 install ....
 ```
 
-All APIs or commands that require authentication can be used through client libraries that hide the tokens, such that
-notebooks can be shared without sharing personal credentials.
+All APIs or commands that require authentication can be accessed through client libraries that hide tokens, allowing notebooks to be shared without exposing personal credentials.
 
-## Executing Code
+## Executing code
 
-Code can be executed by pressing the play button in the top left corner of the cell, or by pressing `Shift + Enter`.
-While the code is running the cell show a spinning icon, and when the code is done the icon is replaced by
-a number. This number indicates the order in which the cells were executed. The output of the cell is shown below
-the code.
+Execute code by clicking the play button in the top left corner of the cell or by pressing `Shift + Enter`. While the code is running, a spinning icon appears. When the execution finishes, the icon changes to a number, indicating the order of execution. The output displays below the code.
 
 ## Authorization
 
-When sharing notebooks it's important to not share your Tilebox API key by using it directly.
-Instead, there are two methods to use the Tilebox Python client in interactive environments.
-Using environment variables, or interactively.
+When sharing notebooks, avoid directly sharing your Tilebox API key. Instead, use one of two methods to authenticate the Tilebox Python client in interactive environments: through environment variables or interactively.
 
 ```python Using environment variables to store your API key
-# first define an environment variable "TILEBOX_API_KEY" which contains your API key
+# Define an environment variable "TILEBOX_API_KEY" that contains your API key
 import os
 token = os.getenv("TILEBOX_API_KEY")
 ```
 
-**Interactive** authorization is possible by using the builtin `getpass` module. It prompts the user for the API key
-when running the code, which is stored in memory and again is not shared with other users when a notebook is shared.
+**Interactive** authorization is possible using the built-in `getpass` module. This prompts the user for the API key when running the code, storing it in memory without sharing it when the notebook is shared.
 
 ```python Interactively providing your API key
 from getpass import getpass

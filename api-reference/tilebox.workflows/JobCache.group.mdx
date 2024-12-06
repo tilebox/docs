@@ -1,0 +1,37 @@
+---
+title: JobCache.group
+icon: box-archive
+---
+
+```python
+def JobCache.group(name: str) -> JobCache
+```
+
+You can nest caches in a hierarchical manner using [groups](/workflows/caches#groups-and-hierarchical-keys).
+Groups are separated by a forward slash (/) in the key. This hierarchical structure functions similarly to a file system.
+
+## Parameters
+
+<ParamField path="name" type="str">
+  The name of the cache group.
+</ParamField>
+
+<RequestExample>
+
+```python Python
+# within a Tasks execute method, access the job cache
+# def execute(context: ExecutionContext)
+cache = context.job_cache
+
+# use groups to nest related cache values
+group = cache.group("some-group")
+group["value"] = b"my-value"
+
+nested = group.group("nested")
+nested["value"] = b"nested-value"
+
+# access nested groups directly via / notation
+value = cache["some-group/nested/value"]
+```
+
+</RequestExample>

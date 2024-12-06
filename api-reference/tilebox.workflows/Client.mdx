@@ -1,0 +1,73 @@
+---
+title: Client
+icon: code
+---
+
+```python
+class Client(url: str, token: str)
+```
+
+Create a Tilebox workflows client.
+
+## Parameters
+
+<ParamField path="url" type="string">
+  Tilebox API Url. Defaults to `https://api.tilebox.com`.
+</ParamField>
+
+<ParamField path="token" type="string">
+  The API Key to authenticate with. If not set the `TILEBOX_API_KEY` environment variable will be used.
+</ParamField>
+
+## Sub clients
+
+The workflows client exposes sub clients for interacting with different parts of the Tilebox workflows API.
+
+```python
+def Client.jobs() -> JobClient
+```
+
+A client for interacting with jobs.
+
+```python
+def Client.clusters() -> ClusterClient
+```
+
+A client for managing clusters.
+
+```python
+def Client.recurrent_tasks() -> RecurrentTaskClient
+```
+
+A client for scheduling recurrent tasks.
+
+## Task runners
+
+```python
+def Client.runner(...) -> TaskRunner
+```
+
+A client is also used to instantiate task runners. Check out the [`Client.runner` API reference](/api-reference/tilebox.workflows/Client.runner) for more information.
+
+<RequestExample>
+```python Python
+from tilebox.workflows import Client
+
+# read token from an environment variable
+client = Client()
+
+# or provide connection details directly
+client = Client(
+    url="https://api.tilebox.com",
+    token="YOUR_TILEBOX_API_KEY"
+)
+
+# access sub clients
+job_client = client.jobs()
+cluster_client = client.clusters()
+recurrent_task_client = client.recurrent_tasks()
+
+# or instantiate a task runner
+runner = client.runner("dev-cluster", tasks=[...])
+```
+</RequestExample>

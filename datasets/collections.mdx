@@ -1,79 +1,42 @@
 ---
 title: Collections
-description: Learn about Time Series Dataset Collections
+description: Learn about time series dataset collections
 icon: layer-group
 ---
 
-Collections are a way of grouping together data points from the same dataset. They are useful for representing
-a logical grouping of data points that are commonly queried together. For example, if you have a dataset
-that contains data from a specific instrument which is onboard different satellites, you may want to group the data
-points from each satellite together into a collection.
+Collections group data points within a dataset. They help represent logical groupings of data points that are commonly queried together. For example, if your dataset includes data from a specific instrument on different satellites, you can group the data points from each satellite into a collection.
 
 ## Overview
 
-Here is a quick overview of the API for listing and accessing collections which is covered in this page.
-Some usage examples for different use-cases are provided below.
+This section provides a quick overview of the API for listing and accessing collections. Below are some usage examples for different scenarios.
 
-| Method                | API Reference                                                          | Description                                   |
-| --------------------- | ---------------------------------------------------------------------- | --------------------------------------------- |
-| `dataset.collections` | [Listing collections](/api-reference/datasets/listing-collection)      | List all available collections for a dataset. |
-| `dataset.collection`  | [Accessing a collection](/api-reference/datasets/accessing-collection) | Access an individual collection by its name.  |
-| `collection.info`     | [Collection information](/api-reference/datasets/collection-info)      | Request data information for a collection.    |
+| Method                | API Reference                                                                   | Description                                   |
+| --------------------- | ------------------------------------------------------------------------------- | --------------------------------------------- |
+| `dataset.collections` | [Listing collections](/api-reference/tilebox.datasets/Dataset.collections)      | List all available collections for a dataset. |
+| `dataset.collection`  | [Accessing a collection](/api-reference/tilebox.datasets/Dataset.collection)    | Access an individual collection by its name.  |
+| `collection.info`     | [Collection information](/api-reference/tilebox.datasets/Collection.info)       | Request information about a collection.       |
 
-Check out the examples below for some common use-cases when working with collections. The examples
-assume that you have already [created a client](/datasets/introduction#creating-a-datasets-client) and
-[listed the available datasets](/api-reference/datasets/listing-datasets).
+Refer to the examples below for common use cases when working with collections. These examples assume that you have already [created a client](/datasets/introduction#creating-a-datasets-client) and [listed the available datasets](/api-reference/tilebox.datasets/Client.datasets).
 
 <CodeGroup>
+```python Python
+from tilebox.datasets import Client
 
-    ```python Python
-    from tilebox.datasets import Client
-
-    client = Client()
-    datasets = client.datasets()
-    ```
-    
+client = Client()
+datasets = client.datasets()
+```
 </CodeGroup>
 
 ## Listing collections
 
-Each dataset has a list of collections associated with it. You can list the collections for a dataset using the
-`collections` method on the dataset object.
+To list the collections for a dataset, use the `collections` method on the dataset object.
 
 <CodeGroup>
-  
-  ```python Python
-  dataset = datasets.open_data.copernicus.landsat8_oli_tirs
-  collections = dataset.collections()
-  print(collections)
-  ```
-  
-</CodeGroup>
-
-```plaintext Output
-{'L1GT': Collection L1GT: [2013-03-25T12:08:43.699 UTC, 2024-08-19T12:57:32.456 UTC],
- 'L1T': Collection L1T: [2013-03-26T09:33:19.763 UTC, 2020-08-24T03:21:50.000 UTC],
- 'L1TP': Collection L1TP: [2013-03-24T00:25:55.457 UTC, 2024-08-19T12:58:20.229 UTC],
- 'L2SP': Collection L2SP: [2015-01-01T07:53:35.391 UTC, 2024-08-12T12:52:03.243 UTC]}
+```python Python
+dataset = datasets.open_data.copernicus.landsat8_oli_tirs
+collections = dataset.collections()
+print(collections)
 ```
-
-The `collections` variable is a dictionary, where the keys are the names of the collections and the values are
-the collection objects themselves. Each collection within a dataset has a unique name. When listing collections, you
-can optionally also request the `availability` of each collection. This returns the time range for which data points
-are available in the collection. This is useful for determining which collections contain data points for a specific
-time range. You can request the availability by passing `availability=True` to the `collections` method (which is set by default).
-
-Additionally you can also request the number of data points in each collection by passing `count=True` to the `collections`
-method.
-
-<CodeGroup>
-  
-  ```python Python
-  dataset = datasets.open_data.copernicus.landsat8_oli_tirs
-  collections = dataset.collections()
-  print(collections)
-  ```
-  
 </CodeGroup>
 
 ```plaintext Output
@@ -83,39 +46,33 @@ method.
  'L2SP': Collection L2SP: [2015-01-01T07:53:35.391 UTC, 2024-08-12T12:52:03.243 UTC] (191110 data points)}
 ```
 
+[dataset.collections](/api-reference/tilebox.datasets/Dataset.collections) returns a dictionary mapping collection names to their corresponding collection objects. Each collection has a unique name within its dataset.
+
 ## Accessing individual collections
 
-If you have already listed the collections for a dataset using `dataset.collections()`, you can access a
-specific collection by accessing the resulting dictionary of `collections()` with the name of an individual collection.
-You can then use the `info()` method on the collection object to get information
-(name, availability, and count) about the collection.
+Once you have listed the collections for a dataset using [dataset.collections()](/api-reference/tilebox.datasets/Dataset.collections), you can access a specific collection by retrieving it from the resulting dictionary with its name. Use [collection.info()](/api-reference/tilebox.datasets/Collection.info) to get details (name, availability, and count) about it.
 
-<CodeGroup>
-  
-  ```python Python
-  collections = dataset.collections()
-  terrain_correction = collections["L1GT"]
-  collection_info = terrain_correction.info()
-  print(collection_info)
-  ```
-  
+<CodeGroup>  
+```python Python
+collections = dataset.collections()
+terrain_correction = collections["L1GT"]
+collection_info = terrain_correction.info()
+print(collection_info)
+```
 </CodeGroup>
 
 ```plaintext Output
 L1GT: [2013-03-25T12:08:43.699 UTC, 2024-08-19T12:57:32.456 UTC] (154288 data points)
 ```
 
-You can also access a specific collection by using the `collection` method on the dataset object as well.
-This has the advantage that you can directly access the collection without having to list all collections first.
+You can also access a specific collection directly using the [dataset.collection](/api-reference/tilebox.datasets/Dataset.collection) method on the dataset object. This method allows you to get the collection without having to list all collections first.
 
 <CodeGroup>
-  
-  ```python Python
-  terrain_correction = dataset.collection("L1GT")
-  collection_info = terrain_correction.info()
-  print(collection_info)
-  ```
-  
+```python Python
+terrain_correction = dataset.collection("L1GT")
+collection_info = terrain_correction.info()
+print(collection_info)
+```
 </CodeGroup>
 
 ```plaintext Output
@@ -126,20 +83,18 @@ L1GT: [2013-03-25T12:08:43.699 UTC, 2024-08-19T12:57:32.456 UTC] (154288 data po
 
 ### NotFoundError
 
-If you try to access a collection with a name that does not exist, a `NotFoundError` error is raised. For example:
+If you attempt to access a collection with a non-existent name, a `NotFoundError` is raised. For example:
 
 <CodeGroup>
-
 ```python Python
 dataset.collection("Sat-X").info() # raises NotFoundError: 'No such collection Sat-X'
 ```
-
 </CodeGroup>
 
 ## Next steps
 
 <CardGroup cols={2}>
   <Card title="Loading Data" icon="download" href="/datasets/loading-data" horizontal>
-    How to load data points from a collection.
+    Learn how to load data points from a collection.
   </Card>
 </CardGroup>

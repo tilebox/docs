@@ -1,0 +1,18 @@
+---
+title: TaskRunner.run_forever
+icon: gear-code
+---
+
+```python
+def TaskRunner.run_forever()
+```
+
+Run the task runner forever. This will poll for new tasks and execute them as they come in.
+If no tasks are available, it will sleep for a short time and then try again.
+
+<RequestExample>
+```python Python
+# run forever, until the current process is stopped
+runner.run_forever()
+```
+</RequestExample>
