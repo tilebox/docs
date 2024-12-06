@@ -5,6 +5,7 @@
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
   },
+  "layout": "topnav",
   "sidebar": {
     "items": "border"
   },
@@ -59,7 +60,7 @@
     {
       "name": "Discord",
       "icon": "discord",
-      "url": "https://discord.gg/NYe5g5z5"
+      "url": "https://tilebox.com/discord"
     }
   ],
   "navigation": [

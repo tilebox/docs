@@ -7,11 +7,11 @@ icon: diagram-project
 def JobClient.retry(job_or_id: Job | str)
 ```
 
-Retry a job.
+Retry a job. All failed tasks will become queued again, and queued tasks will be picked up by task runners again.
 
 ## Parameters
 
-<ParamField path="job" type="Job">
+<ParamField path="job_or_id" type="Job | str">
   The job or job id to retry.
 </ParamField>
 

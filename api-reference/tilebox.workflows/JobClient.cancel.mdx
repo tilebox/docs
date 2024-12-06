@@ -7,11 +7,11 @@ icon: diagram-project
 def JobClient.cancel(job_or_id: Job | str)
 ```
 
-Cancel a job.
+Cancel a job. When a job is canceled, no queued tasks will be picked up by task runners and executed even if task runners are idle. Tasks that are already being executed will finish their execution and not be interrupted. All sub-tasks spawned from such tasks after the cancellation will not be picked up by task runners.
 
 ## Parameters
 
-<ParamField path="job" type="Job">
+<ParamField path="job_or_id" type="Job | str">
   The job or job id to cancel.
 </ParamField>
 
