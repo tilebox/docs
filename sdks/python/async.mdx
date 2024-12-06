@@ -81,7 +81,7 @@ datapoint = await collection.find(datapoint_uuid)
 ## Fetching data concurrently
 
 The primary benefit of the async client is that it allows concurrent requests, enhancing performance.
-In below example, data is fetched from various collections. The synchronous approach retrieves data sequentially, while the async approach does so concurrently, resulting in faster execution.
+In below example, data is fetched from multiple collections. The synchronous approach retrieves data sequentially, while the async approach does so concurrently, resulting in faster execution.
 
 <CodeGroup>
 ```python Python (Sync)
@@ -166,7 +166,7 @@ Fetching data took 7.45 seconds
 
 ## Async workflows
 
-The Tilebox workflows Python client does not have an async client. This is because workflows are designed for distributed and concurrent execution outside a single async event loop. However, within a single task, you may use `async` code to benefit from asynchronous execution, such as parallel data loading. You can achieve this by wrapping your async code in `asyncio.run`.
+The Tilebox workflows Python client does not have an async client. This is because workflows are designed for distributed and concurrent execution outside a single async event loop. But within a single task, you may use still use`async` code to take advantage of asynchronous execution, such as parallel data loading. You can achieve this by wrapping your async code in `asyncio.run`.
 
 Below is an example of using async code within a workflow task.
 

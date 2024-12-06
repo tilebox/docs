@@ -6,9 +6,7 @@ icon: right-to-line
 
 ## Creating a Storage Event Task
 
-Storage Event Tasks are recurrent tasks that are triggered when objects are created or modified in a [storage location](#storage-locations).
-To create a Storage Event task, subclass `StorageEventTask` class and overwrite it's `execute` method just
-as you would any other regular task.
+Storage Event Tasks are recurring tasks triggered when objects are created or modified in a [storage location](#storage-locations). To create a Cron task, use `tilebox.workflows.recurrent_tasks.StorageEventTask` as your tasks base class instead of the regular `tilebox.workflows.Task`.
 
 ```python Python
 from tilebox.workflows import ExecutionContext
@@ -35,10 +33,9 @@ class LogObjectCreation(StorageEventTask):
             logger.info(f"The object's first {self.head_bytes} bytes are: {data[:self.head_bytes]}")
 ```
 
-## Storage locations
+## Storage Locations
 
-Storage Event tasks are triggered when objects are created or modified in a storage location. This storage location
-can be a buckets in a cloud storage or a local file system. Tilebox supports the following storage locations:
+Storage Event tasks are triggered when objects are created or modified in a storage location. This location can be a cloud storage bucket or a local file system. Tilebox supports the following storage locations:
 
 <CardGroup cols={2}>
     <Card title="Google Cloud Storage" icon="google" horizontal />
@@ -46,20 +43,15 @@ can be a buckets in a cloud storage or a local file system. Tilebox supports the
     <Card title="Local File System" icon="folder-open" horizontal />
 </CardGroup>
 
-### Registering a storage location
+### Registering a Storage Location
 
-In order for a storage location to be available within Tilebox workflows, it needs to be registered first.
-Registering not only consists of specifying the location, but also setting up a notification system that forwards
-events to Tilebox, such that tasks can be triggered. How this notifier is set up depends on the storage location type.
+To make a storage location available within Tilebox workflows, it must be registered first. This involves specifying the location and setting up a notification system that forwards events to Tilebox, enabling task triggering. The setup varies depending on the storage location type.
 
-For example, a GCP storage bucket is integrated by setting up a
-[PubSub Notification with a push subscription](https://cloud.google.com/storage/docs/pubsub-notifications). A local
-file system requires the installation of a filesystem watcher. If you are interested in setting up a storage location
-registered with Tilebox, please [get in touch](mailto:engineering@tilebox.com).
+For example, a GCP storage bucket is integrated by setting up a [PubSub Notification with a push subscription](https://cloud.google.com/storage/docs/pubsub-notifications). A local file system requires installing a filesystem watcher. To set up a storage location registered with Tilebox, please [get in touch](mailto:engineering@tilebox.com).
 
-### Listing available storage locations
+### Listing Available Storage Locations
 
-To list all available storage locations, you can use the `all` method on the storage location client.
+To list all available storage locations, use the `all` method on the storage location client.
 
 ```python Python
 from tilebox.workflows import Client
@@ -88,7 +80,7 @@ print(storage_locations)
 ]
 ```
 
-### Reading files from a storage location
+### Reading Files from a Storage Location
 
 Once a storage location is registered, you can read files from it using the `read` method on the storage client.
 
@@ -103,9 +95,9 @@ local_object = local_folder.read("my-object.txt")
 ```
 
 <Note>
-    `read` instantiates a client for the specific storage location. This of course requires that the storage location
-    is actually accessible by a task runner and may require credentials for a cloud storage, or physical/network
-    access to a locally mounted file system.
+    The `read` method instantiates a client for the specific storage location. This requires that
+    the storage location is accessible by a task runner and may require credentials for cloud storage
+    or physical/network access to a locally mounted file system.
 </Note>
 
 <Tip>
@@ -114,9 +106,7 @@ local_object = local_folder.read("my-object.txt")
 
 ## Registering a Storage Event Trigger
 
-Once a Storage Event task is implemented, it can be registered to be triggered every time a storage event occurs in a
-storage location. This means, every time a new object is created or modified in a storage location, a new job gets be submitted, consisting of
-a single task instance derived from the Storage Event registered task prototype.
+After implementing a Storage Event task, register it to trigger each time a storage event occurs. This registration submits a new job consisting of a single task instance derived from the registered Storage Event task prototype.
 
 ```python Python
 from tilebox.workflows import Client
@@ -136,11 +126,11 @@ storage_event_task = recurrent_tasks.create_recurring_storage_event_task(
 ```
 
 <Tip>
-    The syntax for specifying glob patterns are [Standard Wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
-    Additionally you can use `**` as super-asterisk, a matching operator not sensitive to slash separators.
+    The syntax for specifying glob patterns follows [Standard Wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
+    Additionally, you can use `**` as a super-asterisk, a matching operator not sensitive to slash separators.
 </Tip>
 
-Below are some examples of valid glob patterns:
+Here are some examples of valid glob patterns:
 
 | Pattern | Matches |
 |---------|---------|
@@ -151,13 +141,10 @@ Below are some examples of valid glob patterns:
 | `folder/**` | Any file directly or recursively part of a `folder` subdirectory |
 | `[a-z].txt`| Matches `a.txt`, `b.txt`, etc. |
 
-## Start a Task Runner capable of executing Storage Event Tasks
+## Start a Storage Event Task Runner
 
-With the Storage Event task registered, a job gets submitted whenever the storage event occurs. But for the tasks to actually
-run, a [task runner](/workflows/concepts/task-runners) needs to be available capable of executing the Storage Event task.
-If no task runner is available, the submitted jobs remain in a task queue. Once a 
-[eligible task runner](/workflows/concepts/task-runners#task-selection) becomes available, all jobs in the 
-queue are picked up and executed.
+With the Storage Event task registered, a job is submitted whenever a storage event occurs. But unless a [task runner](/workflows/concepts/task-runners) is available to execute the Storage Event task the submitted jobs remain in a task queue.
+Once an [eligible task runner](/workflows/concepts/task-runners#task-selection) becomes available, all jobs in the queue are executed.
 
 ```python Python
 from tilebox.workflows import Client
@@ -167,15 +154,16 @@ runner = client.runner("dev-cluster", tasks=[LogObjectCreation])
 runner.run_forever()
 ```
 
-### Triggering an event
-Creating an object in the bucket that the task is registered on results in a job being submitted:
+### Triggering an Event
+
+Creating an object in the bucket where the task is registered results in a job being submitted:
 
 ```bash Creating an object
 echo "Hello World" > my-object.txt
 gcloud storage cp my-object.txt gs://gcs-bucket-fab3fa2
 ```
 
-Inspecting the task runner output now, reveals that the job was submitted and the task executed:
+Inspecting the task runner output reveals that the job was submitted and the task executed:
 
 ```plaintext Output
 2024-09-25 16:51:45,621 INFO A new object was created: my-object.txt
@@ -183,23 +171,18 @@ Inspecting the task runner output now, reveals that the job was submitted and th
 2024-09-25 16:51:45,858 INFO The object's first 20 bytes are: b'Hello World\n'
 ```
 
-## Inspecting the registered Storage Event Task
+## Inspecting in the Console
 
-The [Tilebox Console](https://console.tilebox.com/workflows/recurrent-tasks) offers a convenient way to inspect all
-the recurrent tasks that are registered to run on a schedule.
-
-Once you've registered a storage event task, you can inspect it in the console. Here is an example of what it looks like:
+The [Tilebox Console](https://console.tilebox.com/workflows/recurrent-tasks) provides an easy way to inspect all registered storage event tasks.
 
 <Frame>
   <img src="/assets/workflows/recurrent-tasks/storage-event-light.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="dark:hidden" />
   <img src="/assets/workflows/recurrent-tasks/storage-event-dark.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="hidden dark:block" />
 </Frame>
 
-## Deleting Storage Event Triggers
+## Deleting Storage Event triggers
 
-To delete a registered storage event task, use `recurrent_tasks.delete`. After deletion, no new jobs get submitted by
-a storage event trigger. But jobs submitted in the past, which are still in the queue, remain in the queue and can still be
-picked up by a task runner.
+To delete a registered storage event task, use `recurrent_tasks.delete`. After deletion, no new jobs will be submitted by the storage event trigger. Past jobs already triggered will still remain queued.
 
 ```python Python
 from tilebox.workflows import Client
@@ -216,22 +199,14 @@ recurrent_tasks.delete("0190bafc-b3b8-88c4-008b-a5db044380d0")
 
 ## Submitting Storage Event jobs manually
 
-To test storage event tasks, they can be submitted as regular tasks. This is useful for testing purposes, or if you
-want to submit a storage event task as part of a larger workflow. To do so, it needs to be instantiated with a specific trigger
-time using the `once` method.
-
-<Note>
-    Submitting a job with a storage event task once immediately schedules the task, and a runner could pick
-    it up and execute it immediately. The storage location and object location specified in the `once` method
-    only influence the `self.trigger` attribute that the storage event task receives.
-</Note>
+You can submit Storage event tasks as regular tasks for testing purposes or as part of a larger workflow. To do so, instantiate the task with a specific storage location and object name using the `once` method.
 
 ```python Python
 job_client = client.jobs()
 
 task = LogObjectCreation(head_bytes=20)
 
-# submitting it directly won't work: raises ValueError:
+# submitting it directly won't work; raises ValueError:
 # StorageEventTask cannot be submitted without being triggered. Use task.once().
 job_client.submit(
     "manual-storage-event-job",
@@ -239,7 +214,7 @@ job_client.submit(
     cluster="dev-cluster"
 )
 
-# instead we need to specify a trigger,
+# instead, specify a trigger,
 # so that we can submit the task as a regular task
 triggered_task = task.once(gcs_bucket, "my-object.txt")
 job_client.submit(

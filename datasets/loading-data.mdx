@@ -146,7 +146,7 @@ Data variables: (12/30)
 ```
 
 <Note>
-  Tilebox uses millisecond precision for timestamps. To load all data points for a specific second, it is a [time interval](/datasets/loading-data#time-intervals) request. Refer to the examples below for details.
+  Tilebox uses millisecond precision for timestamps. To load all data points for a specific second, it's a [time interval](/datasets/loading-data#time-intervals) request. Refer to the examples below for details.
 </Note>
 
 The output of the `load` method is an `xarray.Dataset` object. To learn more about Xarray, visit the dedicated [Xarray page](/sdks/python/xarray).
@@ -184,7 +184,7 @@ This feature works by constructing a `TimeInterval` object from the first and la
 
 ## Fetching only metadata
 
-Sometimes, it may be useful to load only the [time series metadata](/datasets/timeseries#common-fields) without the actual data fields. This can be done by setting the `skip_data` parameter to `True` when using `load`. Here’s an example.
+Sometimes, it may be useful to load only the [time series metadata](/datasets/timeseries#common-fields) without the actual data fields. This can be done by setting the `skip_data` parameter to `True` when using `load`. Here's an example.
 
 <CodeGroup>
     ```python Python

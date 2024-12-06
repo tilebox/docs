@@ -24,7 +24,7 @@ This section covers:
 </CardGroup>
 
 <Note>
-  For a quick reference to API methods or specific parameter meanings, [check out the complete time series API Reference](/api-reference/datasets/).
+  For a quick reference to API methods or specific parameter meanings, [check out the complete time series API Reference](/api-reference/tilebox.datasets/Client).
 </Note>
 
 ## Terminology
@@ -53,26 +53,22 @@ Prerequisites
 After meeting these prerequisites, you can create a client instance to interact with Tilebox Datasets.
 
 <CodeGroup>
+```python Python
+from tilebox.datasets import Client
 
-    ```python Python
-    from tilebox.datasets import Client
-
-    client = Client(token="YOUR_TILEBOX_API_KEY")
-    ```
-
+client = Client(token="YOUR_TILEBOX_API_KEY")
+```
 </CodeGroup>
 
-Alternatively, you can set the `TILEBOX_API_KEY` environment variable to your API key. You can then instantiate the client without passing the `token` argument. Python will automatically use this environment variable for authentication.
+You can also set the `TILEBOX_API_KEY` environment variable to your API key. You can then instantiate the client without passing the `token` argument. Python will automatically use this environment variable for authentication.
 
 <CodeGroup>
+```python Python
+from tilebox.datasets import Client
 
-    ```python Python
-    from tilebox.datasets import Client
-
-    # requires a TILEBOX_API_KEY environment variable
-    client = Client()
-    ```
-
+# requires a TILEBOX_API_KEY environment variable
+client = Client()
+```
 </CodeGroup>
 
 <Tip>
