@@ -35,7 +35,7 @@ If you prefer to work locally, follow these steps to get started.
       Copy the API key and keep it somewhere safe. You will need it to authenticate your requests.
     </Step>
     <Step title="Create a Cluster">
-      Create cluster by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Workflows -> Clusters](https://console.tilebox.com/workflows/clusters), and clicking the "Create cluster" button.
+      Create a cluster by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Workflows -> Clusters](https://console.tilebox.com/workflows/clusters), and clicking the "Create cluster" button.
 
       <Frame>
         <img src="/assets/console/cluster-light.png" alt="Tilebox Console" className="dark:hidden"  />
@@ -77,7 +77,7 @@ If you prefer to work locally, follow these steps to get started.
 
           def execute(self, context):
               print(f"{self.greeting} {self.name}, from the main task!")
-              context.submit_subtask(HelloSubtask(name=self.name), cluster=cluster, depends_on=None)
+              context.submit_subtask(HelloSubtask(name=self.name))
 
       class HelloSubtask(Task):
           name: str
