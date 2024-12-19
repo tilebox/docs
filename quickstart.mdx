@@ -31,6 +31,18 @@ If you prefer to work locally, follow these steps to get started.
         <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
         <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
       </Frame>
+
+      <Tip>Copy the API key and keep it somewhere safe. You will need it to authenticate your requests.</Tip>
+    </Step>
+    <Step title="Create a Cluster">
+      Create a cluster by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Workflows -> Clusters](https://console.tilebox.com/workflows/clusters), and clicking the "Create cluster" button.
+
+      <Frame>
+        <img src="/assets/console/cluster-light.png" alt="Tilebox Console" className="dark:hidden"  />
+        <img src="/assets/console/cluster-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+      </Frame>
+
+      <Tip>Copy the cluster slug, you will need it to run your workflows.</Tip>
     </Step>
     <Step title="Query Data">
       Use the datasets client to query data from a dataset.
@@ -55,24 +67,32 @@ If you prefer to work locally, follow these steps to get started.
       ```python Python
       from tilebox.workflows import Client, Task
 
-      class MyFirstTask(Task):
-        def execute(self):
-          print("Hello World from my first Tilebox task!")
-
+      # Replace with your actual cluster and token
+      cluster = "YOUR_COMPUTE_CLUSTER"
       client = Client(token="YOUR_TILEBOX_API_KEY")
 
-      # submit a job
-      jobs = client.jobs()
-      jobs.submit("my-very-first-job", MyFirstTask(), "some-compute-cluster")
+      class HelloWorldTask(Task):
+          greeting: str = "Hello"
+          name: str = "World"
 
-      # and run it
-      runner = client.runner("some-compute-cluster", tasks=[MyFirstTask])
+          def execute(self, context):
+              print(f"{self.greeting} {self.name}, from the main task!")
+              context.submit_subtask(HelloSubtask(name=self.name))
+
+      class HelloSubtask(Task):
+          name: str
+
+          def execute(self, context):
+              print(f"Hello from the subtask, {self.name}!")
+
+      # Initiate the job
+      jobs = client.jobs()
+      jobs.submit("parameterized-hello-world", HelloWorldTask(greeting="Greetings", name="Universe"), cluster)
+
+      # Run the tasks
+      runner = client.runner(cluster, tasks=[HelloWorldTask, HelloSubtask])
       runner.run_all()
       ```
-
-      <Note>
-        To use this snippet, you need to have a cluster already created. Check out the guide on [clusters](/workflows/concepts/clusters) to learn how to create one.
-      </Note>
     </Step>
     <Step title="Explore Further">
       Review the following guides to learn more about the modules that make up Tilebox:
