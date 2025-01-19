@@ -46,3 +46,4 @@ coroutines
 (?i)Imager
 (?i)pushbroom
 rollout
+(?i)automations
