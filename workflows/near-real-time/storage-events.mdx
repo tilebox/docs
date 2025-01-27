@@ -6,7 +6,7 @@ icon: right-to-line
 
 ## Creating a Storage Event Task
 
-Storage Event Tasks are recurring tasks triggered when objects are created or modified in a [storage location](#storage-locations).
+Storage Event Tasks are automations triggered when objects are created or modified in a [storage location](#storage-locations).
 To create a Storage Event task, use `tilebox.workflows.automations.StorageEventTask` as your tasks base class instead of the regular `tilebox.workflows.Task`.
 
 ```python Python
@@ -115,7 +115,7 @@ from tilebox.workflows import Client
 client = Client()
 automations = client.automations()
 storage_event_automation = automations.create_storage_event_automation(
-    "log-object-creations",  # name of the recurring storage event automation
+    "log-object-creations",  # name of the storage event automation
     "dev-cluster",  # cluster slug to submit jobs to
     LogObjectCreation(head_bytes=20),  # the task (and its input parameters) to run repeatedly
     triggers=[
