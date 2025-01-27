@@ -136,7 +136,7 @@
           "group": "Near-Real Time",
           "icon": "bolt",
           "pages": [
-            "workflows/near-real-time/recurrent-tasks",
+            "workflows/near-real-time/automations",
             "workflows/near-real-time/cron",
             "workflows/near-real-time/storage-events"
           ]

@@ -36,10 +36,10 @@ def Client.clusters() -> ClusterClient
 A client for managing clusters.
 
 ```python
-def Client.recurrent_tasks() -> RecurrentTaskClient
+def Client.automations() -> AutomationClient
 ```
 
-A client for scheduling recurrent tasks.
+A client for scheduling automations.
 
 ## Task runners
 
@@ -65,7 +65,7 @@ client = Client(
 # access sub clients
 job_client = client.jobs()
 cluster_client = client.clusters()
-recurrent_task_client = client.recurrent_tasks()
+automation_client = client.automations()
 
 # or instantiate a task runner
 runner = client.runner("dev-cluster", tasks=[...])

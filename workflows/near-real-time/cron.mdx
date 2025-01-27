@@ -6,11 +6,12 @@ icon: clock
 
 ## Creating Cron tasks
 
-Cron tasks run repeatedly on a specified [cron](https://en.wikipedia.org/wiki/Cron) schedule. To create a Cron task, use `tilebox.workflows.recurrent_tasks.CronTask` as your tasks base class instead of the regular `tilebox.workflows.Task`.
+Cron tasks run repeatedly on a specified [cron](https://en.wikipedia.org/wiki/Cron) schedule.
+To create a Cron task, use `tilebox.workflows.automations.CronTask` as your tasks base class instead of the regular `tilebox.workflows.Task`.
 
 ```python Python
 from tilebox.workflows import ExecutionContext
-from tilebox.workflows.recurrent_tasks import CronTask
+from tilebox.workflows.automations import CronTask
 
 class MyCronTask(CronTask):
     message: str
@@ -25,15 +26,16 @@ class MyCronTask(CronTask):
 
 ## Registering a Cron trigger
 
-After implementing a Cron task, register it to be triggered according to a Cron schedule. When the Cron expression matches, a new job is submitted consisting of a single task instance derived from the Cron task prototype.
+After implementing a Cron task, register it to be triggered according to a Cron schedule.
+When the Cron expression matches, a new job is submitted consisting of a single task instance derived from the Cron task prototype.
 
 ```python Python
 from tilebox.workflows import Client
 
 client = Client()
-recurrent_tasks = client.recurrent_tasks()
-cron_task = recurrent_tasks.create_recurring_cron_task(
-    "my-cron-task",  # name of the recurring cron task
+automations = client.automations()
+cron_automation = automations.create_cron_automation(
+    "my-cron-automation",  # name of the cron automation
     "dev-cluster",  # cluster slug to submit jobs to
     MyCronTask(message="World"),  # the task (and its input parameters) to run repeatedly
     cron_triggers=[
@@ -51,7 +53,7 @@ cron_task = recurrent_tasks.create_recurring_cron_task(
 
 ## Starting a Cron Task Runner
 
-With the Cron task registered, a job is submitted whenever the Cron expression matches. But unless a [task runner](/workflows/concepts/task-runners) is available to execute the Cron task the submitted jobs remain in a task queue.
+With the Cron automation registered, a job is submitted whenever the Cron expression matches. But unless a [task runner](/workflows/concepts/task-runners) is available to execute the Cron task the submitted jobs remain in a task queue.
 Once an [eligible task runner](/workflows/concepts/task-runners#task-selection) becomes available, all jobs in the queue are executed.
 
 ```python Python
@@ -79,30 +81,30 @@ This task was triggered at 2023-09-25 19:12:00
 
 ## Inspecting in the Console
 
-The [Tilebox Console](https://console.tilebox.com/workflows/recurrent-tasks) provides a straightforward way to inspect all registered Cron tasks.
+The [Tilebox Console](https://console.tilebox.com/workflows/automations) provides a straightforward way to inspect all registered Cron automations.
 
 <Frame>
-  <img src="/assets/workflows/recurrent-tasks/cron-light.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="dark:hidden" />
-  <img src="/assets/workflows/recurrent-tasks/cron-dark.png" alt="Tilebox Workflows recurrent tasks in the Tilebox Console" className="hidden dark:block" />
+  <img src="/assets/console/automation-edit-light.png" alt="Tilebox Workflows automations in the Tilebox Console" className="dark:hidden" />
+  <img src="/assets/console/automation-edit-dark.png" alt="Tilebox Workflows automations in the Tilebox Console" className="hidden dark:block" />
 </Frame>
 
-Use the console to view, edit, and delete the registered Cron tasks.
+Use the console to view, edit, and delete the registered Cron automations.
 
-## Deleting Cron triggers
+## Deleting Cron automations
 
-To delete a registered Cron task, use `recurrent_tasks.delete`. After deletion, no new jobs will be submitted by that Cron trigger. Past jobs already triggered will still remain queued.
+To delete a registered Cron automation, use `automations.delete`. After deletion, no new jobs will be submitted by that Cron trigger. Past jobs already triggered will still remain queued.
 
 ```python Python
 from tilebox.workflows import Client
 
 client = Client()
-recurrent_tasks = client.recurrent_tasks()
+automations = client.automations()
 
-# delete the task as returned by create_recurring_cron_task
-recurrent_tasks.delete(cron_task)
+# delete the automation as returned by create_cron_automation
+automations.delete(cron_automation)
 
 # or manually by id:
-recurrent_tasks.delete("0190bafc-b3b8-88c4-008b-a5db044380d0")
+automations.delete("0190bafc-b3b8-88c4-008b-a5db044380d0")
 ```
 
 ## Submitting Cron jobs manually

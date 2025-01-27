@@ -1,0 +1,92 @@
+---
+title: Automations
+description: Process data in near-real-time by triggering jobs based on external events
+icon: repeat
+---
+
+## Introduction
+
+Tilebox Workflows can execute jobs in two ways: a one-time execution triggered by a user, typically a batch processing, and near-real-time execution based on specific external events.
+By defining trigger conditions, you can automatically submit jobs based on external events.
+
+Tilebox Workflows currently supports the following trigger conditions:
+
+<CardGroup cols={1}>
+    <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal>
+        Trigger jobs based on a Cron schedule.
+    </Card>
+    <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/near-real-time/storage-events" horizontal>
+        Trigger jobs after objects are created or modified in a storage location such as a cloud bucket.
+    </Card>
+</CardGroup>
+
+<Info>
+    Dataset Event Triggers, which will trigger jobs when new data points are ingested into a Tilebox dataset, are on the roadmap. Stay tuned for updates.
+</Info>
+
+## Automations
+
+To create a trigger, define a special task that serves as a prototype. In response to a trigger condition met, this task will be submitted as a new job. Such tasks are referred to as automations.
+
+Each automation has a [task identifier](/workflows/concepts/tasks#task-identifiers), a [version](/workflows/concepts/tasks#semantic-versioning), and [input parameters](/workflows/concepts/tasks#input-parameters), just like regular tasks.
+Automations also automatically provide a special `trigger` attribute that contains information about the event that initiated the task's execution.
+
+## Automation Client
+
+The Tilebox Workflows client includes a sub-client for managing automations. You can create this sub-client by calling the `automations` method on the main client instance.
+
+### Listing Registered Automations
+
+To list all registered automations, use the `all` method on the automation client.
+
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+automations = client.automations()
+
+automations = automations.all()
+print(automations)
+```
+
+```plaintext Output
+[
+    AutomationPrototype(
+        name='Run MyCronTask every hour at 15 minutes past the hour',
+        prototype=TaskSubmission(
+            cluster_slug='dev-cluster',
+            identifier=TaskIdentifier(name='MyCronTask', version='v0.0'),
+            input=b'{"message": "Hello"},
+            dependencies=[],
+            display='MyCronTask',
+            max_retries=0), 
+        storage_event_triggers=[],
+        cron_triggers=[CronTrigger(schedule='15 * * * *')],
+    )
+]
+```
+
+### Registering Automations
+
+To register an automation, use the `create_*_automation` methods specific to each trigger type provided by the automation client. Refer to the documentation for each trigger type for more details.
+
+<CardGroup>
+    <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal />
+    <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/near-real-time/storage-events" horizontal />
+</CardGroup>
+
+## Overview in the Tilebox Console
+
+You can also use the Tilebox Console to manage automations. Visit [the automations section](https://console.tilebox.com/workflows/automations) to check it out.
+
+<Frame>
+  <img src="/assets/console/automations-light.png" alt="Tilebox Workflows automations in the Tilebox Console" className="dark:hidden" />
+  <img src="/assets/console/automations-dark.png" alt="Tilebox Workflows automations in the Tilebox Console" className="hidden dark:block" />
+</Frame>
+
+You can also register new automations or edit and delete existing ones directly from the console.
+
+<Frame>
+  <img src="/assets/console/automation-edit-light.png" alt="Tilebox Workflows automations in the Tilebox Console" className="dark:hidden" />
+  <img src="/assets/console/automation-edit-dark.png" alt="Tilebox Workflows automations in the Tilebox Console" className="hidden dark:block" />
+</Frame>
