@@ -18,7 +18,6 @@ To download data products from the Copernicus Data Space after querying them via
 
 The following code snippet demonstrates how to query and download Copernicus data using the Tilebox Python SDK.
 
-<CodeGroup>
 ```python Python {4,9-13,27}
 from pathlib import Path
 
@@ -53,6 +52,7 @@ print("Contents: ")
 for content in downloaded_data.iterdir():
     print(f" - {content.relative_to(downloaded_data)}")
 ```
+
 ```plaintext Output
 Downloaded granule: S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544.SAFE to data/Sentinel-2/MSI/L2A/2024/08/01/S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544.SAFE
 Contents:
@@ -65,7 +65,39 @@ Contents:
   - rep_info
   - S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544-ql.jpg
 ```
-</CodeGroup>
+
+### Partial product downloads
+
+For cases where only a subset of the available file objects for a product is needed, you may restrict your download to just that subset. First, list available objects using `list_objects`, filter them, and then download using `download_objects`.
+
+For example, a Sentinel-2 L2A product includes many files such as metadata, different bands in various resolutions, masks, and quicklook images. The following example shows how to download only specific files from a Sentinel-2 L2A product.
+
+```python Python {4, 15}
+collection = datasets.open_data.copernicus.sentinel2_msi.collections()["S2A_S2MSI2A"]
+s2_data = collection.load(("2024-08-01", "2024-08-02"), show_progress=True)
+selected = s2_data.isel(time=0)  # download the first granule in the given time range
+
+objects = storage_client.list_objects(selected)
+print(f"Granule {selected.granule_name.item()} consists of {len(objects)} individual objects.")
+
+# only select specific objects to download
+want_products = ["B02_10m", "B03_10m", "B08_10m"]
+objects = [obj for obj in objects if any(prod in obj for prod in want_products)]  # remove all other objects
+print(f"Downloading {len(objects)} objects.")
+for obj in objects:
+    print(f" - {obj}")
+
+# Finally, download the selected data
+downloaded_data = storage_client.download_objects(selected, objects)
+```
+
+```plaintext Output
+Granule S2A_MSIL2A_20240801T002611_N0511_R102_T58WET_20240819T170544.SAFE consists of 95 individual objects.
+Downloading 3 objects.
+ - GRANULE/L2A_T58WET_A047575_20240801T002608/IMG_DATA/R10m/T58WET_20240801T002611_B02_10m.jp2
+ - GRANULE/L2A_T58WET_A047575_20240801T002608/IMG_DATA/R10m/T58WET_20240801T002611_B03_10m.jp2
+ - GRANULE/L2A_T58WET_A047575_20240801T002608/IMG_DATA/R10m/T58WET_20240801T002611_B08_10m.jp2
+```
 
 ## Alaska Satellite Facility (ASF)
 
@@ -79,7 +111,6 @@ You can create an ASF account in the [ASF Vertex Search Tool](https://search.asf
 
 The following code snippet demonstrates how to query and download ASF data using the Tilebox Python SDK.
 
-<CodeGroup>
 ```python Python {4,9-13,27}
 from pathlib import Path
 
@@ -125,7 +156,6 @@ Contents:
   - E2_71629_STD_L0_F183.000.nul
   - E2_71629_STD_L0_F183.000.ldr
 ```
-</CodeGroup>
 
 ### Further Reading
 
@@ -150,11 +180,10 @@ Contents:
 
 ### Accessing Umbra data
 
-You don't need an account to access Umbra data. All data is provided under a Creative Commons License (CC BY 4.0), allowing you to freely use it.
+No account is needed to access Umbra data. All data is under a Creative Commons License (CC BY 4.0), allowing you to use it freely.
 
 The following code snippet demonstrates how to query and download Umbra data using the Tilebox Python SDK.
 
-<CodeGroup>
 ```python Python {4,9,23}
 from pathlib import Path
 
@@ -196,5 +225,33 @@ Contents:
  - 2024-01-05-01-53-37_UMBRA-07_GEC.tif
  - 2024-01-05-01-53-37_UMBRA-07_CSI.tif
 ```
-</CodeGroup>
 
+### Partial product downloads
+
+For cases where only a subset of the available file objects for a given Umbra data point is necessary, you can limit your download to just that subset. First, list available objects using `list_objects`, filter the list, and then use `download_objects`.
+
+The below example shows how to download only the metadata file for a given data point.
+
+```python Python {4, 15}
+collection = datasets.open_data.umbra.sar.collections()["SAR"]
+umbra_data = collection.load(("2024-01-05", "2024-01-06"), show_progress=True)
+# Selecting a data point to download
+selected = umbra_data.isel(time=0)  # index 0 selected
+
+objects = storage_client.list_objects(selected)
+print(f"Data point {selected.granule_name.item()} consists of {len(objects)} individual objects.")
+
+# only select specific objects to download
+objects = [obj for obj in objects if "METADATA" in obj]  # remove all other objects
+print(f"Downloading {len(objects)} object.")
+print(objects)
+
+# Finally, download the selected data
+downloaded_data = storage_client.download_objects(selected, objects)
+```
+
+```plaintext Output
+Data point 2024-01-05-01-53-37_UMBRA-07 consists of 6 individual objects.
+Downloading 1 object.
+['2024-01-05-01-53-37_UMBRA-07_METADATA.json']
+```
