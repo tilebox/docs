@@ -1,0 +1,69 @@
+---
+title: Data types
+description: Learn
+icon: file-binary
+---
+
+Tilebox supports primitives and data for data fields. These are defined in [well_known_types.proto](https://github.com/tilebox/tilebox-go/blob/main/apis/datasets/v1/well_known_types.proto).
+Tilebox also uses Google well-known-types [Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) and [Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp).
+
+<Note>
+  If there is a data type you want to see in Tilebox,
+  <a href="mailto:support@tilebox.com">please get in touch</a>.
+</Note>
+
+## Primitive types
+
+<ParamField path="string" type="Some string">
+  A string of characters.
+</ParamField>
+
+<ParamField path="int64" type="123">
+  A 64-bit signed integer.
+</ParamField> 
+
+<ParamField path="uint64" type="123">
+  A 64-bit unsigned integer.
+</ParamField>
+
+<ParamField path="float64" type="123.45">
+  A 64-bit floating-point number.
+</ParamField>
+
+<ParamField path="bool" type="true">
+  A boolean.
+</ParamField>
+
+<ParamField path="bytes" type="Some bytes">
+  A sequence of bytes.
+</ParamField>
+
+## Time types
+
+<ParamField path="Duration" type="12s 345ms">
+  A duration of time. See [Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) for more information.
+</ParamField>
+
+<ParamField path="Timestamp" type="2023-05-17T14:30:00Z">
+  A point in time. See [Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) for more information.
+</ParamField>
+
+## Identifier types
+
+<ParamField path="UUID" type="126a2531-c98d-4e06-815a-34bc5b1228cc">
+  A [universally unique identifier (UUID)](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+</ParamField>
+
+## Geospatial types
+
+<ParamField path="LatLon" type="48.8583° 2.2945°">
+  A latitude and longitude pair.
+</ParamField>
+
+<ParamField path="LatLonAlt" type="48.8583° 2.2945° 35m">
+  A latitude, longitude, and altitude triplet.
+</ParamField>
+
+<ParamField path="GeobufData" type="POLYGON ((12.3 -5.4, 12.5 -5.4, ...))">
+  Geospatial geometries of type Point, LineString, Polygon or MultiPolygon.
+</ParamField>
