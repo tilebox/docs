@@ -72,99 +72,62 @@ Tilebox also uses Google well-known-types [Duration](https://protobuf.dev/refere
   <a href="mailto:support@tilebox.com">please get in touch</a>.
 </Note>
 
-Here's how to import the types.
-
-<Tabs>
-<Tab title="Python">
-```python Python
-from google.protobuf import duration_pb2, timestamp_pb2
-from tilebox.datasets.datasetsv1 import well_known_types_pb2
-```
-</Tab>
-
-<Tab title="Go">
-```go Go
-import (
-    datasetsv1 "github.com/tilebox/tilebox-go/protogen/go/datasets/v1"
-    "google.golang.org/protobuf/types/known/durationpb"
-    "google.golang.org/protobuf/types/known/timestamppb"
-)
-```
-</Tab>
-</Tabs>
-
-### Table of types per language
-
-| Tilebox Type   | Python Type | Go Type     |
-| -------------- | ----------- | ----------- |
-| string         | str /  object? | string      |
-| int64          | int         | int64       |
-| uint64         | np.uint64   | uint64      |
-| float64        | np.float32  | float64     |
-| bool           | bool        | bool        |
-| bytes          | ?       | []byte      |
-| Duration       |             |     |
-| Timestamp      |             |     |
-| UUID           |             |     |
-| LatLon         |             |     |
-| LatLonAlt      |             |     |
-| GeobufData     |             |     |
-
 ### Primitive types
 
-`string` represents a string of characters.
+<ParamField path="string" type="Some string">
+  A string of characters.
+</ParamField>
 
-example : "Some string"
 
-`int64` represents a 64-bit signed integer.
+<ParamField path="int64" type="123">
+  A 64-bit signed integer.
+</ParamField> 
 
-example : "123"
+<ParamField path="uint64" type="123">
+  A 64-bit unsigned integer.
+</ParamField>
 
-`uint64` represents a 64-bit unsigned integer.
+<ParamField path="float64" type="123.45">
+  A 64-bit floating-point number.
+</ParamField>
 
-example : "123"
+<ParamField path="bool" type="true">
+  A boolean.
+</ParamField>
 
-`float64` represents a 64-bit floating-point number.
-
-example : "123.45"
-
-`bool` represents a boolean .
-
-example : "true"
-
-`bytes` represents a sequence of bytes.
-
-example : "Some bytes"
+<ParamField path="bytes" type="Some bytes">
+  A sequence of bytes.
+</ParamField>
 
 ### Time types
 
-`Duration` represents a duration of time. See [Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) for more information.
+<ParamField path="Duration" type="12s 345ms">
+  A duration of time. See [Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) for more information.
+</ParamField>
 
-example : "12s 345ms"
-
-`Timestamp` represents a point in time. See [Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) for more information.
-
-example : "2023-05-17T14:30:00Z"
+<ParamField path="Timestamp" type="2023-05-17T14:30:00Z">
+  A point in time. See [Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) for more information.
+</ParamField>
 
 ### Identifier types
 
-`UUID` represents a universally unique identifier.
-
-example : "126a2531-c98d-4e06-815a-34bc5b1228cc"
+<ParamField path="UUID" type="126a2531-c98d-4e06-815a-34bc5b1228cc">
+  A [universally unique identifier (UUID)](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+</ParamField>
 
 ### Geospatial types
 
-`LatLon` represents a latitude and longitude pair.
+<ParamField path="LatLon" type="48.8583° 2.2945°">
+  A latitude and longitude pair.
+</ParamField>
 
-example : "48.8583° 2.2945°"
+<ParamField path="LatLonAlt" type="48.8583° 2.2945° 35m">
+  A latitude, longitude, and altitude triplet.
+</ParamField>
 
-`LatLonAlt` represents a latitude, longitude, and altitude triplet.
-
-example :"48.8583° 2.2945° 35m"
-
-`GeobufData` represents [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON) data.
-
-example : "?"
+<ParamField path="GeobufData" type="POLYGON ((12.3 -5.4, 12.5 -5.4, ...))">
+  Geospatial geometries of type Point, LineString, Polygon or MultiPolygon.
+</ParamField>
 
 ## Editing a dataset
 
