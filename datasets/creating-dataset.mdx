@@ -1,0 +1,196 @@
+---
+title: Creating a dataset
+description: Learn how to create a dataset
+icon: database
+---
+
+## Step by step guide
+
+<Steps>
+  <Step title="Click create">
+    Create a dataset in Tilebox by navigating to [My datasets](https://console.tilebox.com/datasets/my-datasets), and clicking the "Create dataset" button.  
+  </Step>
+  <Step title="Select a dataset kind">
+    Choose a dataset kind from the dropdown menu. It will automatically add prefilled fields for the selected dataset kind.
+    Common fields for time series can be found [here](/datasets/timeseries#common-fields).
+    Support for STAC-compatible datasets is coming soon.
+
+    <Frame>
+      <img src="/assets/console/datasets-create-light.png" alt="Tilebox Console" className="dark:hidden" />
+      <img src="/assets/console/datasets-create-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    </Frame>
+  </Step>
+  <Step title="Fill in name, code name, and description">
+   Fill in the following fields:
+
+    - `Name` is the name of your dataset
+    - `Code name` is a unique identifier for the dataset within your team. It's automatically generated and you can adjust it if needed
+    - `Description` is a brief description of the dataset purpose
+
+    <Frame>
+      <img src="/assets/console/datasets-create-temporal-light.png" alt="Tilebox Console" className="dark:hidden" />
+      <img src="/assets/console/datasets-create-temporal-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    </Frame>
+  </Step>
+  <Step title="Fill in the fields">
+    Common fields for each dataset kind are automatically added for you. Click "Add field" to add more fields.
+
+    Each field has a couple of properties:
+    - `Name` is the name of the field (it should be snake_case)
+    - `Type` and `Array` allows you to specify the field data type and whether it's an array. See below for an explanation of the available types
+    - `Description` is an optional brief description of the field. You can use it to provide more context and details about the data
+    - `Example value` is an optional example value for this field. It can be useful for documentation purposes
+
+    <Frame>
+      <img src="/assets/console/datasets-create-temporal-light.png" alt="Tilebox Console" className="dark:hidden" />
+      <img src="/assets/console/datasets-create-temporal-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    </Frame>
+  </Step>
+  <Step title="Create the dataset">
+    Once you're done filling in the fields, click "Create" to create the dataset. You will be redirected to your newly created dataset.
+  </Step>
+</Steps>
+
+The next steps would be to create at least one collection and ingest data into it.
+// TODO write docs for that
+
+It then might look like this:
+<Frame>
+  <img src="/assets/console/datasets-overview-light.png" alt="Tilebox Console" className="dark:hidden" />
+  <img src="/assets/console/datasets-overview-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+</Frame>
+
+## Available types
+
+Tilebox supports a variety of and primitives and types for data fields, they all are defined in [well_known_types.proto](https://github.com/tilebox/tilebox-go/blob/main/apis/datasets/v1/well_known_types.proto).
+Additionally Tilebox uses Google well-known-types [Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) and [Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp).
+
+<Note>
+  If there is a data type you would like to see in Tilebox,
+  <a href="mailto:support@tilebox.com">please get in touch</a>.
+</Note>
+
+Here is how to import the types.
+
+<Tabs>
+<Tab title="Python">
+```python
+from google.protobuf import duration_pb2, timestamp_pb2
+from tilebox.datasets.datasetsv1 import well_known_types_pb2
+```
+</Tab>
+
+<Tab title="Go">
+```go
+import (
+    datasetsv1 "github.com/tilebox/tilebox-go/protogen/go/datasets/v1"
+    "google.golang.org/protobuf/types/known/durationpb"
+    "google.golang.org/protobuf/types/known/timestamppb"
+)
+```
+</Tab>
+</Tabs>
+
+### Table of types per language
+
+| Tilebox Type   | Python Type | Go Type     |
+| -------------- | ----------- | ----------- |
+| string         | str /  object? | string      |
+| int64          | int         | int64       |
+| uint64         | np.uint64   | uint64      |
+| float64        | np.float32  | float64     |
+| bool           | bool        | bool        |
+| bytes          | ?       | []byte      |
+| Duration       |             |     |
+| Timestamp      |             |     |
+| UUID           |             |     |
+| LatLon         |             |     |
+| LatLonAlt      |             |     |
+| GeobufData     |             |     |
+
+### Primitive types
+
+`string` represents a string of characters.
+
+example value: "Some string"
+
+`int64` represents a 64-bit signed integer.
+
+example value: "123"
+
+`uint64` represents a 64-bit unsigned integer.
+
+example value: "123"
+
+`float64` represents a 64-bit floating-point number.
+
+example value: "123.45"
+
+`bool` represents a boolean value.
+
+example value: "true"
+
+`bytes` represents a sequence of bytes.
+
+example value: "Some bytes"
+
+### Time types
+
+`Duration` represents a duration of time. See [Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) for more information.
+
+example value: "12s 345ms"
+
+`Timestamp` represents a point in time. See [Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) for more information.
+
+example value: "2023-05-17T14:30:00Z"
+
+### Identifier types
+
+`UUID` represents a universally unique identifier.
+
+example value: "126a2531-c98d-4e06-815a-34bc5b1228cc"
+
+### Geospatial types
+
+`LatLon` represents a latitude and longitude pair.
+
+example value: "48.8583° 2.2945°"
+
+`LatLonAlt` represents a latitude, longitude, and altitude triplet.
+
+example value:"48.8583° 2.2945° 35m"
+
+`GeobufData` represents [GeoJSON](https://en.wikipedia.org/wiki/GeoJSON) data.
+
+example value: "?"
+
+## Editing a dataset
+
+You can edit the dataset by clicking on the edit pencil button on the dataset overview page.
+
+In this page you can change the dataset name, description, add new fields and edit both description and example value for existing fields.
+
+<Note>
+  If you don't see the edit pencil button, it means that you don't have the required permissions to edit the
+  documentation.
+</Note>
+
+## Adding documentation
+
+On top of the auto-generated overview page, you can also add custom documentation to your dataset.
+This documentation will be displayed on the dataset page and can be used to provide more context and details about the data.
+
+<Frame>
+  <img src="/assets/console/datasets-documentation-light.png" alt="Tilebox Console" className="dark:hidden" />
+  <img src="/assets/console/datasets-documentation-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+</Frame>
+
+To add documentation, click the edit pencil button on the dataset page to open the documentation editor.
+You can use Markdown to format your documentation, you can include links, tables, code snippets, and any other Markdown features.
+
+<Note>
+  If you don't see the edit pencil button, it means that you don't have the required permissions to edit the
+  documentation.
+</Note>
+
+Once you are done editing the documentation, click the `Save` button to save your changes.
