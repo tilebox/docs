@@ -104,6 +104,14 @@
         "datasets/timeseries",
         "datasets/collections",
         "datasets/loading-data",
+        {
+          "group": "Managed datasets",
+          "icon": "bars-progress",
+          "pages": [
+            "datasets/managed-datasets/creating-dataset",
+            "datasets/managed-datasets/data-types"
+          ]
+        },
         "datasets/open-data",
         "datasets/storage-clients"
       ]

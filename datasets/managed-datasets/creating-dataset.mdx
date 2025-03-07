@@ -1,0 +1,93 @@
+---
+title: Creating a dataset
+description: Learn how to create a dataset
+icon: database
+---
+
+This page guides you through the process of creating a dataset in Tilebox.
+
+## Step-by-step guide
+
+<Steps>
+  <Step title="Click create">
+    Create a dataset in Tilebox by going to [My datasets](https://console.tilebox.com/datasets/my-datasets) and clicking the "Create dataset" button.
+  </Step>
+  <Step title="Select a dataset kind">
+    Choose a dataset kind from the dropdown menu. Prefilled fields for the selected dataset kind are automatically added.
+    Common fields for time series can be found [here](/datasets/timeseries#common-fields).
+    Support for STAC-compatible datasets is coming soon.
+
+    <Frame>
+      <img src="/assets/console/datasets-create-light.png" alt="Tilebox Console" className="dark:hidden" />
+      <img src="/assets/console/datasets-create-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    </Frame>
+  </Step>
+  <Step title="Fill in name, code name, and description">
+   Complete these fields:
+
+    - `Name` is the name of your dataset.
+    - `Code name` is a unique identifier for the dataset within your team. It's automatically generated, but you can adjust it if needed.
+    - `Description` is a brief description of the dataset purpose.
+
+    <Frame>
+      <img src="/assets/console/datasets-create-temporal-light.png" alt="Tilebox Console" className="dark:hidden" />
+      <img src="/assets/console/datasets-create-temporal-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    </Frame>
+  </Step>
+  <Step title="Fill in the fields">
+    Common fields for each dataset kind are added automatically. Click "Add field" to add more fields.
+
+    Each field has these properties:
+    - `Name` is the name of the field (it should be snake_case).
+    - `Type` and `Array` let you specify the field data type and whether it's an array. See below for an explanation of the available data.
+    - `Description` is an optional brief description of the field. You can use it to provide more context and details about the data.
+    - `Example value` is an optional example for this field. It can be useful for documentation purposes.
+
+    <Frame>
+      <img src="/assets/console/datasets-create-temporal-light.png" alt="Tilebox Console" className="dark:hidden" />
+      <img src="/assets/console/datasets-create-temporal-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    </Frame>
+  </Step>
+  <Step title="Create the dataset">
+    Once you're done completing the fields, click "Create" to create the dataset. You are redirected to your newly created dataset.
+  </Step>
+</Steps>
+
+The next steps are to create at least one collection and ingest data into it.
+
+It might then resemble this:
+<Frame>
+  <img src="/assets/console/datasets-overview-light.png" alt="Tilebox Console" className="dark:hidden" />
+  <img src="/assets/console/datasets-overview-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+</Frame>
+
+## Editing a dataset
+
+You can edit the dataset by clicking the edit pencil button on the dataset overview page.
+
+On this page, you can change the dataset name, description, add new fields, and edit both description and example for existing fields.
+
+<Note>
+  If you don't see the edit pencil button, you don't have the required permissions to edit the
+  documentation.
+</Note>
+
+## Adding documentation
+
+In addition to the auto-generated overview page, you can add custom documentation to your dataset.
+This documentation is displayed on the dataset page and can be used to provide more context and details about the data.
+
+<Frame>
+  <img src="/assets/console/datasets-documentation-light.png" alt="Tilebox Console" className="dark:hidden" />
+  <img src="/assets/console/datasets-documentation-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+</Frame>
+
+To add documentation, click the edit pencil button on the dataset page to open the documentation editor.
+You can use Markdown to format your documentation; you can include links, tables, code snippets, and other Markdown features.
+
+<Note>
+  If you don't see the edit pencil button, you don't have the required permissions to edit the
+  documentation.
+</Note>
+
+Once you are done editing the documentation, click the `Save` button to save your changes.
