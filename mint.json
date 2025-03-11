@@ -158,6 +158,8 @@
         "api-reference/tilebox.datasets/Client.datasets",
         "api-reference/tilebox.datasets/Client.dataset",
         "api-reference/tilebox.datasets/Dataset.collections",
+        "api-reference/tilebox.datasets/Dataset.create_collection",
+        "api-reference/tilebox.datasets/Dataset.get_or_create_collection",
         "api-reference/tilebox.datasets/Dataset.collection",
         "api-reference/tilebox.datasets/Collection.info",
         "api-reference/tilebox.datasets/Collection.load",

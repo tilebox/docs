@@ -1,0 +1,26 @@
+---
+title: Dataset.get_or_create_collection
+icon: layer-group
+---
+
+```python
+def Dataset.get_or_create_collection(name: str) -> Collection
+```
+
+Get a collection by its name. If the collection does not exist, it will be created.
+
+## Parameters
+
+<ParamField path="name" type="string">
+  The name of the collection
+</ParamField>
+
+## Returns
+
+A collection object.
+
+<RequestExample>
+```python Python
+collection = dataset.get_or_create_collection("My-collection")
+```
+</RequestExample>
