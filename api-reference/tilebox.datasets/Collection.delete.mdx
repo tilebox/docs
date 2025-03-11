@@ -1,0 +1,34 @@
+---
+title: Collection.delete
+icon: download
+---
+
+```python
+def Collection.delete(datapoints: xr.Dataset) -> int
+```
+
+Delete datapoints from the collection.
+
+Datapoints are identified and deleted by their ids.
+
+<Note>
+  You need to have write permission on the collection to be able to delete datapoints.
+</Note>
+
+## Parameters
+
+<ParamField path="datapoints" type="xr.Dataset">
+    An [`xarray.Dataset`](/sdks/python/xarray) containing an "id" variable consisting of datapoint IDs to delete.
+</ParamField>
+
+## Returns
+
+The number of datapoints that were deleted.
+
+<RequestExample>
+```python Python
+datapoints = collection.load("2023-05-01 12:45:33.423")
+
+n_deleted = collection.delete(datapoints)
+```
+</RequestExample>

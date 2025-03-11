@@ -104,6 +104,7 @@
         "datasets/timeseries",
         "datasets/collections",
         "datasets/loading-data",
+        "datasets/ingest-delete-data",
         {
           "group": "Managed datasets",
           "icon": "bars-progress",
@@ -163,7 +164,9 @@
         "api-reference/tilebox.datasets/Dataset.collection",
         "api-reference/tilebox.datasets/Collection.info",
         "api-reference/tilebox.datasets/Collection.load",
-        "api-reference/tilebox.datasets/Collection.find"
+        "api-reference/tilebox.datasets/Collection.find",
+        "api-reference/tilebox.datasets/Collection.delete",
+        "api-reference/tilebox.datasets/Collection.delete_ids"
       ]
     },
     {
