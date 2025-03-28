@@ -4,28 +4,232 @@ description: Learn how to ingest data into a Tilebox dataset
 icon: up-from-bracket
 ---
 
-Create or load data to ingest.
+import { CodeOutputHeader } from '/snippets/components.mdx';
 
-## CSV
+This page guides you through the process of ingesting data into a Tilebox dataset. Starting from an existing
+dataset available as file in the [GeoParquet](https://geoparquet.org/) format, we'll walk you through the process of
+ingestion that data into Tilebox as a [Timeseries](/datasets/types/timeseries) dataset.
 
-todo
+<CardGroup cols={1}>
+    <Card title="Open as Notebook" icon="book" href="https://colab.research.google.com/drive/1QS-srlWPMJg4csc0ycn36yCX9U6mvIpW" horizontal>
+        This example is also available as a Google Colab notebook. Click here to navigate to an interactive example.
+    </Card>
+</CardGroup>
 
-## Parquet
+## Downloading the example dataset
 
-todo
+The dataset used in this example is available as a [GeoParquet](https://geoparquet.org/) file. You can download it
+from here: [modis_MCD12Q1.geoparquet](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/modis_MCD12Q1.geoparquet).
 
-## Create a dataset with that schema
+## Installing the necessary packages
 
-todo
+This example uses a couple of python packages for reading parquet files and for visualizing the dataset. Install the 
+required packages using your preferred package manager. For new projects, we recommend using [uv](https://docs.astral.sh/uv/).
 
-## Ingest
+<CodeGroup>
+```bash uv
+uv add tilebox-datasets geopandas folium matplotlib mapclassify
+```
+```bash pip
+pip install tilebox-datasets geopandas folium matplotlib mapclassify
+```
+```bash poetry
+poetry add tilebox-datasets="*" geopandas="*" folium="*" matplotlib="*" mapclassify="*"
+```
+```bash pipenv
+pipenv install tilebox-datasets geopandas folium matplotlib mapclassify
+```
+</CodeGroup>
 
-todo
+## Reading and previewing the dataset
 
-## Query it
+The dataset is available as a [GeoParquet](https://geoparquet.org/) file. You can read it using the `geopandas.read_parquet` function.
 
-todo
+<CodeGroup>
+```python Python
+import geopandas as gpd
 
-## View it in the console
+modis_data = gpd.read_parquet("modis_MCD12Q1.geoparquet")
+modis_data.head(5)
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+             time                  end_time                                   granule_name                                           geometry  horizontal_tile_number  vertical_tile_number   tile_id  file_size    checksum checksum_type day_night_flag browse_granule_id                     published_at
+0 2001-01-01 00:00:00+00:00 2001-12-31 23:59:59+00:00  MCD12Q1.A2001001.h00v08.061.2022146024956.hdf  POLYGON ((-180 10, -180 0, -170 0, -172.62252 ...                       0                     8  51000008     275957   941243048         CKSUM            Day              None 2022-06-23 10:54:43.824000+00:00
+1 2001-01-01 00:00:00+00:00 2001-12-31 23:59:59+00:00  MCD12Q1.A2001001.h00v09.061.2022146024922.hdf  POLYGON ((-180 0, -180 -10, -172.62252 -10, -1...                       0                     9  51000009     285389  3014510714         CKSUM            Day              None 2022-06-23 10:54:44.697000+00:00
+2 2001-01-01 00:00:00+00:00 2001-12-31 23:59:59+00:00  MCD12Q1.A2001001.h00v10.061.2022146032851.hdf  POLYGON ((-180 -10, -180 -20, -180 -20, -172.6...                       0                    10  51000010     358728  2908215698         CKSUM            Day              None 2022-06-23 10:54:44.669000+00:00
+3 2001-01-01 00:00:00+00:00 2001-12-31 23:59:59+00:00  MCD12Q1.A2001001.h01v08.061.2022146025203.hdf  POLYGON ((-172.62252 10, -170 0, -160 0, -162....                       1                     8  51001008     146979  1397661843         CKSUM            Day              None 2022-06-23 10:54:44.309000+00:00
+4 2001-01-01 00:00:00+00:00 2001-12-31 23:59:59+00:00  MCD12Q1.A2001001.h01v09.061.2022146025902.hdf  POLYGON ((-170 0, -172.62252 -10, -162.46826 -...                       1                     9  51001009     148935  2314263965         CKSUM            Day              None 2022-06-23 10:54:44.023000+00:00
+```
+</CodeGroup>
+
+## Exploring it visually
+
+Geopandas comes with a built in explorer to visually explore the dataset.
+
+<CodeGroup>
+```python Python
+modis_data.head(1000).explore(width=800, height=600)
+```
+</CodeGroup>
+
+<Frame>
+  <img src="/assets/guides/ingest/modis-explore-light.png" alt="Explore the MODIS dataset" className="dark:hidden" />
+  <img src="/assets/guides/ingest/modis-explore-dark.png" alt="Explore the MODIS dataset" className="hidden dark:block" />
+</Frame>
+
+## Create a Tilebox dataset
+
+Now we'll create a [Timeseries](/datasets/types/timeseries) dataset with the same schema as the given MODIS dataset.
+To do so, we'll use the [Tilebox Console](/console), navigate to `My Datasets` and click `Create Dataset`. We then select
+`Timeseries Dataset` as the dataset type.
+
+<Tip>
+    For more information on creating a dataset, check out the [Creating a dataset](/guides/datasets/create) guide for a
+    Step by step guide.
+</Tip>
+
+Now, to match the given MODIS dataset, we'll specify the following fields:
+
+| Field | Type | Note |
+| --- | --- | --- |
+| granule_name | string | MODIS granule name |
+| geometry | Geometry | Tile boundary coords of the granule |
+| end_time | Timestamp | Measurement end time |
+| horizontal_tile_number | int64 | Horizontal modis tile number (0-35) |
+| vertical_tile_number | int64 | Vertical modis tile number (0-17) |
+| tile_id | int64 | Modis Tile ID |
+| file_size | uint64 | File size of the product in bytes |
+| checksum | string | Hash checksum of the file |
+| checksum_type | string | Checksum algorithm (MD5 / CKSUM) |
+| day_night_flag | int64 | Day / Night / Both |
+| browse_granule_id | string | Optional granule ID for browsing |
+| published_at | Timestamp | The time the product was published |
+
+In the console, this will look like the following:
+
+<Frame>
+  <img src="/assets/guides/ingest/dataset-schema-light.png" alt="Tilebox Console" className="dark:hidden" />
+  <img src="/assets/guides/ingest/dataset-schema-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+</Frame>
+
+## Access the dataset from Python
+
+Our newly created dataset is now available. Let's access it from Python. For this, we'll need to know the dataset slug,
+which was assigned automatically based on the specified `code_name`. To find out the slug, navigate to the dataset overview
+in the console.
+
+<Frame>
+  <img src="/assets/guides/ingest/dataset-slug-light.png" alt="Explore the MODIS dataset" className="dark:hidden" />
+  <img src="/assets/guides/ingest/dataset-slug-dark.png" alt="Explore the MODIS dataset" className="hidden dark:block" />
+</Frame>
+
+We can now instantiate the dataset client and access the dataset.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+dataset = client.dataset("tilebox.modis")  # replace with your dataset slug
+```
+</CodeGroup>
+
+## Create a collection
+
+Next, we'll create a collection to insert our data into.
+
+<CodeGroup>
+```python Python
+collection = dataset.get_or_create_collection("MCD12Q1")
+```
+</CodeGroup>
+
+## Ingest the data
+
+Now, we'll finally ingest the MODIS data into the collection. 
+
+<CodeGroup>
+```python Python
+datapoint_ids = collection.ingest(modis_data)
+print(f"Successfully ingested {len(datapoint_ids)} datapoints!")
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+Successfully ingested 7245 datapoints!
+```
+</CodeGroup>
+
+## Query the newly ingested data
+
+We can now query the newly ingested data. Let's query a subset of the data for a specific time range.
+
+<Tip>
+    Since the data is now stored directly in the Tilebox dataset, you can query and access it from anywhere.
+</Tip>
+
+<CodeGroup>
+```python Python
+data = collection.load(("2015-01-01", "2020-01-01"))
+data
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+<xarray.Dataset> Size: 403kB
+Dimensions:                 (time: 1575)
+Coordinates:
+  * time                    (time) datetime64[ns] 13kB 2015-01-01 ... 2019-01-01
+Data variables: (12/14)
+    id                      (time) <U36 227kB '014aa2ca-b000-0155-ab96-2239bf...
+    ingestion_time          (time) datetime64[ns] 13kB 2025-03-25T13:46:19.39...
+    granule_name            (time) object 13kB 'MCD12Q1.A2015001.h12v02.061.2...
+    geometry                (time) object 13kB POLYGON ((-175.4282639365679 6...
+    end_time                (time) datetime64[ns] 13kB 2015-12-31T23:59:59 .....
+    horizontal_tile_number  (time) int64 13kB 12 17 13 30 21 ... 32 21 13 31 30
+    ...                      ...
+    file_size               (time) uint64 13kB 16411708 146059 ... 2843975
+    checksum                (time) object 13kB '2554844679' ... '3579360945'
+    checksum_type           (time) object 13kB 'CKSUM' 'CKSUM' ... 'CKSUM'
+    day_night_flag          (time) object 13kB 'Day' 'Day' 'Day' ... 'Day' 'Day'
+    browse_granule_id       (time) object 13kB 'UR:10:DsShESDTUR:UR:15:DsShSc...
+    published_at            (time) datetime64[ns] 13kB 2022-06-14T18:33:34.36...
+```
+</CodeGroup>
+
+<Tip>
+    For more information on accessing and querying data, check out [querying data](/datasets/query).
+</Tip>
 
 
+## View the data in the console
+
+You can also view your data in the Console, by navigate to the dataset, selecting the collection and then clicking
+on one of the data points.
+
+<Frame>
+  <img src="/assets/guides/ingest/explorer-light.png" alt="Explore the MODIS dataset" className="dark:hidden" />
+  <img src="/assets/guides/ingest/explorer-dark.png" alt="Explore the MODIS dataset" className="hidden dark:block" />
+</Frame>
+
+## Next steps
+
+Congrats! You've successfully ingested data into Tilebox. You can now explore the data in the console and use it for
+further processing and analysis.
+
+<CardGroup cols={2}>
+  <Card title="Query Data" icon="server" href="/datasets/query" horizontal>
+    Learn all about [querying your newly created dataset](https://docs.tilebox.com/datasets/query)
+  </Card>
+  <Card title="Dataset Types" icon="puzzle" href="/datasets/types/timeseries" horizontal>
+    Explore the different dataset types available in Tilebox
+  </Card>
+  <Card title="Open Data" icon="star" href="/datasets/open-data" horizontal>
+     Check out a growing number of publicly available open data datasets on Tilebox
+  </Card>
+</CardGroup>

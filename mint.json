@@ -49,10 +49,6 @@
     {
       "name": "API Reference",
       "url": "api-reference"
-    },
-    {
-      "name": "Changelog",
-      "url": "changelog"
     }
   ],
   "primaryTab": {
@@ -216,12 +212,6 @@
         "api-reference/tilebox.workflows/JobClient.retry",
         "api-reference/tilebox.workflows/JobClient.cancel",
         "api-reference/tilebox.workflows/JobClient.visualize"
-      ]
-    },
-    {
-      "group": "Changelog",
-      "pages": [
-        "changelog"
       ]
     }
   ],

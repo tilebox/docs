@@ -126,7 +126,7 @@ You can load all datapoints linked to a specific timestamp by specifying a `Time
     A collection may contain multiple datapoints for one millisecond, so multiple data points could still be returned. If you want to fetch only a single data point, [query the collection by id](#loading-a-data-point-by-id) instead.
 </Tip>
 
-Here's how to load a data point at a specific millisecond from a [collection](/datasets/collections).
+Here's how to load a data point at a specific millisecond from a [collection](/datasets/concepts/collections).
 
 <CodeGroup>
     ```python Python
@@ -151,7 +151,7 @@ Data variables: (12/30)
 ```
 
 <Note>
-  Tilebox uses millisecond precision for timestamps. To load all data points for a specific second, it's a [time interval](/datasets/loading-data#time-intervals) request. Refer to the examples below for details.
+  Tilebox uses millisecond precision for timestamps. To load all data points for a specific second, it's a [time interval](/datasets/query#time-interval) request. Refer to the examples below for details.
 </Note>
 
 The output of the `load` method is an `xarray.Dataset` object. To learn more about Xarray, visit the dedicated [Xarray page](/sdks/python/xarray).
