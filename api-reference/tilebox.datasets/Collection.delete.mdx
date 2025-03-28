@@ -1,10 +1,10 @@
 ---
 title: Collection.delete
-icon: download
+icon: layer-group
 ---
 
 ```python
-def Collection.delete(datapoints: xr.Dataset) -> int
+def Collection.delete(datapoints: DatapointIDs) -> int
 ```
 
 Delete datapoints from the collection.
@@ -17,8 +17,17 @@ Datapoints are identified and deleted by their ids.
 
 ## Parameters
 
-<ParamField path="datapoints" type="xr.Dataset">
-    An [`xarray.Dataset`](/sdks/python/xarray) containing an "id" variable consisting of datapoint IDs to delete.
+<ParamField path="datapoints" type="DatapointIDs">
+  Datapoint IDs to delete from the collection.
+
+  Supported `DatapointIDs` types are.
+  - A `pandas.DataFrame` containing an `id` column.
+  - A `pandas.Series` containing datapoint IDs.
+  - An `xarray.Dataset` containing an "id" variable.
+  - An `xarray.DataArray` containing datapoint IDs.
+  - A `numpy.ndarray` containing datapoint IDs.
+  - A `Collection[UUID]` containing datapoint IDs as python built-in `UUID` objects, e.g. `list[UUID]`.
+  - A `Collection[str]` containing datapoint IDs as strings, e.g. `list[str]`.
 </ParamField>
 
 ## Returns
@@ -27,8 +36,19 @@ The number of datapoints that were deleted.
 
 <RequestExample>
 ```python Python
-datapoints = collection.load("2023-05-01 12:45:33.423")
-
-n_deleted = collection.delete(datapoints)
+collection.delete([
+  "0195c87a-49f6-5ffa-e3cb-92215d057ea6",
+  "0195c87b-bd0e-3998-05cf-af6538f34957",
+])
 ```
 </RequestExample>
+
+## Errors
+
+<ParamField path="NotFoundError" type="No such collection: Non-existent-Collection">
+  One of the data points is not found in the collection. If any of the data points are not found,
+  nothing will be deleted.
+</ParamField>
+<ParamField path="ValueError" type="Invalid UUID">
+  One of the specified ids is not a valid UUID
+</ParamField>

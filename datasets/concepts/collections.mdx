@@ -1,6 +1,6 @@
 ---
 title: Collections
-description: Learn about time series dataset collections
+description: Learn about dataset collections
 icon: layer-group
 ---
 
@@ -10,13 +10,13 @@ Collections group data points within a dataset. They help represent logical grou
 
 This section provides a quick overview of the API for listing and accessing collections. Below are some usage examples for different scenarios.
 
-| Method                             | API Reference                                                                                          | Description                                      |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| `dataset.collections`              | [Listing collections](/api-reference/tilebox.datasets/Dataset.collections)                             | List all available collections for a dataset.    |
-| `dataset.create_collection`        | [Creating a collection](/api-reference/tilebox.datasets/Dataset.create_collection)                     | Create a collection in a dataset.                |
-| `dataset.get_or_create_collection` | [Accessing or creating a collection](/api-reference/tilebox.datasets/Dataset.get_or_create_collection) | Get a collection, create it if it doesn't exist. |
-| `dataset.collection`               | [Accessing a collection](/api-reference/tilebox.datasets/Dataset.collection)                           | Access an individual collection by its name.     |
-| `collection.info`                  | [Collection information](/api-reference/tilebox.datasets/Collection.info)                              | Request information about a collection.          |
+| Method                                                               | Description                                          |
+| -------------------------------------------------------------------- | ---------------------------------------------------- |
+| [`dataset.collections`](/api-reference/tilebox.datasets/Dataset.collections) |  List all available collections for a dataset.                 |
+| [`dataset.create_collection`](/api-reference/tilebox.datasets/Dataset.create_collection) | Create a collection in a dataset.   |
+| [`dataset.get_or_create_collection`](/api-reference/tilebox.datasets/Dataset.get_or_create_collection) | Get a collection, create it if it doesn't exist. |
+| [`dataset.collection`](/api-reference/tilebox.datasets/Dataset.collection) | Access an individual collection by its name.     |
+| [`collection.info`](/api-reference/tilebox.datasets/Collection.info) | Request information about a collection.          |
 
 Refer to the examples below for common use cases when working with collections. These examples assume that you have already [created a client](/datasets/introduction#creating-a-datasets-client) and [listed the available datasets](/api-reference/tilebox.datasets/Client.datasets).
 
@@ -114,7 +114,7 @@ dataset.collection("Sat-X").info() # raises NotFoundError: 'No such collection S
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Loading Data" icon="download" href="/datasets/loading-data" horizontal>
-    Learn how to load data points from a collection.
+  <Card title="Query Data" icon="download" href="/datasets/loading-data" horizontal>
+    Learn how to query data from a collection.
   </Card>
 </CardGroup>

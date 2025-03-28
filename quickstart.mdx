@@ -18,11 +18,26 @@ If you prefer to work locally, follow these steps to get started.
 
   <Steps>
     <Step title="Install Packages">
-      Install the Tilebox Python packages. The easiest way to do this is using `pip`:
+      Install the Tilebox Python packages.
 
+      <CodeGroup>
+      ```bash uv
+      uv add tilebox-datasets tilebox-workflows tilebox-storage
       ```
+      ```bash pip
       pip install tilebox-datasets tilebox-workflows tilebox-storage
       ```
+      ```bash poetry
+      poetry add tilebox-datasets="*" tilebox-workflows="*" tilebox-storage="*"
+      ```
+      ```bash pipenv
+      pipenv install tilebox-datasets tilebox-workflows tilebox-storage
+      ```
+      </CodeGroup>
+
+      <Tip>
+        For new projects we recommend using [uv](https://docs.astral.sh/uv/). More information about installing the Tilebox Python SDKs can be found in the [Installation](/sdks/python/install) section.
+      </Tip>
     </Step>
     <Step title="Create an API Key">
       Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Account -> API Keys](https://console.tilebox.com/account/api-keys), and clicking the "Create API Key" button.
@@ -98,18 +113,12 @@ If you prefer to work locally, follow these steps to get started.
       Review the following guides to learn more about the modules that make up Tilebox:
 
       <CardGroup cols={2}>
-        <Card
-          title="Datasets Quickstart"
-          icon="database"
-          href="/datasets/introduction#quickstart"
-          horizontal
-        />
-        <Card
-          title="Workflows Quickstart"
-          icon="network-wired"
-          href="/workflows/introduction#quickstart"
-          horizontal
-        />
+        <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
+          Learn how to create a Timeseries dataset using the Tilebox Console.
+        </Card>
+        <Card title="Ingesting data" icon="up-from-bracket" href="/guides/datasets/ingest" horizontal>
+          Learn how to ingest an existing CSV dataset into a Timeseries dataset collection.
+        </Card>
       </CardGroup>
     </Step>
 

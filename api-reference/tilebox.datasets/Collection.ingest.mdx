@@ -1,0 +1,62 @@
+---
+title: Collection.ingest
+icon: layer-group
+---
+
+```python
+def Collection.ingest(
+    data: IngestionData,
+    allow_existing: bool = True
+) -> list[UUID]
+```
+
+Ingest data into a collection.
+
+<Note>
+  You need to have write permission on the collection to be able to delete datapoints.
+</Note>
+
+## Parameters
+
+<ParamField path="data" type="IngestionData">
+  The data to ingest.
+
+  Supported `IngestionData` data types are:
+  - A `pandas.DataFrame`, mapping the column names to dataset fields.
+  - An `xarray.Dataset`, mapping variables and coordinates to dataset fields.
+  - `Iterable`, `dict` or `nd-array`: Ingest any object that can be converted to a `pandas.DataFrame` using
+    it's constructor, equivalent to `ingest(pd.DataFrame(data))`.
+</ParamField>
+<ParamField path="allow_existing" type="bool">
+  Datapoint fields are used to generate a deterministic unique `UUID` for each
+  datapoint in a collection. Duplicate datapoints result in the same ID being generated.
+  If `allow_existing` is `True`, `ingest` will skip those datapoints, since they already exist.
+  If `allow_existing` is `False`, `ingest` will raise an error if any of the generated datapoint IDs already exist.
+  Defaults to `True`.
+</ParamField>
+
+## Returns
+
+List of datapoint ids that were ingested, including the IDs of already existing datapoints in case of duplicates and 
+`allow_existing=True`.
+
+<RequestExample>
+```python Python
+import pandas as pd
+
+collection.ingest(pd.DataFrame({
+    "time": [
+      "2023-05-01T12:00:00Z",
+      "2023-05-02T12:00:00Z",
+    ],
+    "value": [1, 2],
+    "sensor": ["A", "B"],
+}))
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="ArgumentError" type="found existing datapoints with same id">
+  If `allow_existing` is `False` and any of the datapoints attempting to ingest already exist.
+</ParamField>
