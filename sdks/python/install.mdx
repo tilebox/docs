@@ -19,14 +19,18 @@ Tilebox offers a Python SDK for accessing Tilebox services. The SDK includes sep
 
 ## Installation
 
-Install the Tilebox python packages using your preferred package manager:
+Install the Tilebox python packages using your preferred package manager.
+
+<Tip>
+  For new projects we recommend using [uv](https://docs.astral.sh/uv/).
+</Tip>
 
 <CodeGroup>
-```bash pip
-pip install tilebox-datasets tilebox-workflows tilebox-storage
-```
 ```bash uv
 uv add tilebox-datasets tilebox-workflows tilebox-storage
+```
+```bash pip
+pip install tilebox-datasets tilebox-workflows tilebox-storage
 ```
 ```bash poetry
 poetry add tilebox-datasets="*" tilebox-workflows="*" tilebox-storage="*"

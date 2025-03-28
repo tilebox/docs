@@ -1,0 +1,345 @@
+---
+title: Ingesting Data
+sidebarTitle: Ingest
+description: Learn how to delete data points from Tilebox datasets.
+icon: up-from-bracket
+---
+
+import { CodeOutputHeader } from '/snippets/components.mdx';
+
+## Overview
+
+This section provides an overview of the API for ingesting and deleting data from a collection. It includes usage examples for many common scenarios.
+
+| Method                  | Description                                          |
+| ----------------------- | ---------------------------------------------------- |
+| [`collection.ingest`](/api-reference/tilebox.datasets/Collection.ingest) | Ingest data into a collection.               |
+
+<Note>
+  You need to have write permission on the collection to be able to ingest data.
+</Note>
+
+Check out the examples below for common scenarios of ingesting data into a collection.
+
+## Dataset schema
+
+Tilebox Datasets are strongly-typed. This means you can only ingest data that matches the schema of a dataset. The schema is defined during dataset creation time.
+The examples on this page assume that you have access to a [Timeseries dataset](/datasets/types/timeseries) that has the following schema:
+
+<Tip>
+  Check out the [Creating a dataset](/guides/datasets/create) guide for an example of how to create such a dataset.
+</Tip>
+
+**MyCustomDataset schema**
+
+| Field name | Type | Description |
+| ---------- | ---- | ----------- |
+| `time`     | <span class="text-primary dark:text-primary-light font-mono font-semibold">Timestamp</span> | Timestamp of the data point. Required by the [Timeseries dataset](/datasets/types/timeseries) type. |
+| `id`    | <span class="text-primary dark:text-primary-light font-mono font-semibold">UUID</span> | Auto-generated UUID for each datapoint. |
+| `ingestion_time`   | <span class="text-primary dark:text-primary-light font-mono font-semibold">Timestamp</span> | Auto-generated timestamp for when the data point was ingested into the Tilebox API. |
+| `value` | <span class="text-primary dark:text-primary-light font-mono font-semibold">float64</span> | A numeric measurement value. |
+| `sensor` | <span class="text-primary dark:text-primary-light font-mono font-semibold">string</span> | A name of the sensor that generated the data point. |
+| `precise_time` | <span class="text-primary dark:text-primary-light font-mono font-semibold">Timestamp</span> | A precise measurement time in nanosecond precision. |
+| `sensor_history` | <span class="text-primary dark:text-primary-light font-mono font-semibold">Array[float64]</span> | The last few measurements of the sensor. |
+
+<Tip>
+  A full overview of available data types can be found in the [here](/datasets/concepts/datasets#field-types).
+</Tip>
+
+Once we've defined the schema and created a dataset, we can access it and create a collection to ingest data into.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+dataset = client.dataset("my_org.my_custom_dataset")
+collection = dataset.get_or_create_collection("Measurements")
+```
+</CodeGroup>
+
+## Preparing data for ingestion
+
+[`collection.ingest`](/api-reference/tilebox.datasets/Collection.ingest) supports a wide range of input types. Below is an example of using either a `pandas.DataFrame` or an `xarray.Dataset` as input.
+
+### pandas.DataFrame
+
+A [pandas.DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) is a representation of two-dimensional, potentially heterogeneous tabular data. It is a powerful tool for working with structured data, and Tilebox supports it as input for `ingest`.
+
+The example below shows how to construct a `pandas.DataFrame` from scratch, that matches the schema of the `MyCustomDataset` dataset and can therefore be ingested into it.
+
+<CodeGroup>
+```python Python
+import pandas as pd
+
+data = pd.DataFrame({
+    "time": [
+      "2025-03-28T11:44:23Z",
+      "2025-03-28T11:45:19Z",
+    ],
+    "value": [45.16, 273.15],
+    "sensor": ["A", "B"],
+    "precise_time": [
+      "2025-03-28T11:44:23.345761444Z",
+      "2025-03-28T11:45:19.128742312Z",
+    ],
+    "sensor_history": [
+      [-12.15, 13.45, -8.2, 16.5, 45.16],
+      [300.16, 280.12, 273.15],
+    ],
+})
+print(data)
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+                   time   value sensor                    precise_time                      sensor_history
+0  2025-03-28T11:44:23Z   45.16      A  2025-03-28T11:44:23.345761444Z  [-12.15, 13.45, -8.2, 16.5, 45.16]
+1  2025-03-28T11:45:19Z  273.15      B  2025-03-28T11:45:19.128742312Z            [300.16, 280.12, 273.15]
+```
+</CodeGroup>
+
+Once we have the data ready in this format, we can `ingest` it into a collection.
+
+<CodeGroup>
+```python Python
+# now that we have the data frame in the correct format
+# we can ingest it into the Tilebox dataset
+collection.ingest(data)
+
+# To verify it now contains the 2 data points
+print(collection.info())
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+Measurements: [2025-03-28T11:44:23.000 UTC, 2025-03-28T11:45:19.000 UTC] (2 data points)
+```
+</CodeGroup>
+
+<Tip>
+  You can now also head on over to the [Tilebox Console](/console) and view the newly ingested data points there.
+</Tip>
+
+### xarray.Dataset
+
+[xarray.Dataset](/sdks/python/xarray) is the default format in which Tilebox Datasets returns data when
+[querying data](/datasets/query) from a collection.
+Tilebox also supports it as input for ingestion. The example below shows how to construct an `xarray.Dataset`
+from scratch, that matches the schema of the `MyCustomDataset` dataset and can therefore be ingested into it.
+To learn more about `xarray.Dataset`, visit our dedicated [Xarray documentation page](/sdks/python/xarray).
+
+<CodeGroup>
+```python Python
+import pandas as pd
+
+data = xr.Dataset({
+    "time": ("time", [
+      "2025-03-28T11:46:13Z",
+      "2025-03-28T11:46:54Z",
+    ]),
+    "value": ("time", [48.1, 290.12]),
+    "sensor": ("time", ["A", "B"]),
+    "precise_time": ("time", [
+      "2025-03-28T11:46:13.345761444Z",
+      "2025-03-28T11:46:54.128742312Z",
+    ]),
+    "sensor_history": (("time", "n_sensor_history"), [
+      [13.45, -8.2, 16.5, 45.16, 48.1],
+      [280.12, 273.15, 290.12, np.nan, np.nan],
+    ]),
+})
+print(data)
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+<xarray.Dataset> Size: 504B
+Dimensions:         (time: 2, n_sensor_history: 5)
+Coordinates:
+  * time            (time) <U20 160B '2025-03-28T11:46:13Z' '2025-03-28T11:46...
+Dimensions without coordinates: n_sensor_history
+Data variables:
+    value           (time) float64 16B 48.1 290.1
+    sensor          (time) <U1 8B 'A' 'B'
+    precise_time    (time) <U30 240B '2025-03-28T11:46:13.345761444Z' '2025-0...
+    sensor_history  (time, n_sensor_history) float64 80B 13.45 -8.2 ... nan nan
+```
+</CodeGroup>
+
+<Note>
+  Array fields manifest in xarray using an extra dimension, in this case `n_sensor_history`. Therefore in case
+  of different array sizes for each data point, remaining values are filled up with a fill value, depending on the
+  `dtype` of the array. For `float64` this is `np.nan` (not a number).
+  Don't worry - when ingesting data into a Tilebox dataset, Tilebox will automatically skip those padding fill values
+  and not store them in the dataset.
+</Note>
+
+Now that we have the `xarray.Dataset` in the correct format, we can ingest it into the Tilebox dataset collection.
+
+<CodeGroup>
+```python Python
+collection = dataset.get_or_create_collection("OtherMeasurements")
+collection.ingest(data)
+
+# To verify it now contains the 2 data points
+print(collection.info())
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+OtherMeasurements: [2025-03-28T11:46:13.000 UTC, 2025-03-28T11:46:54.000 UTC] (2 data points)
+```
+</CodeGroup>
+
+
+## Copying or moving data
+
+Since [collection.load](/datasets/query) returns a `xarray.Dataset`, and `ingest` takes such a dataset as input you
+can easily copy or move data from one collection to another.
+
+<Tip>
+  Copying data like this also works across datasets in case the dataset schemas are compatible.
+</Tip>
+
+<CodeGroup>
+```python Python
+src_collection = dataset.collection("Measurements")
+data_to_copy = src_collection.load(("2025-03-28", "2025-03-29"))
+
+dest_collection = dataset.collection("OtherMeasurements")
+dest_collection.ingest(data_to_copy)  # copy the data to the other collection
+
+# To verify it now contains 4 datapoints (2 we ingested already, and 2 we copied just now)
+print(dest_collection.info())
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+OtherMeasurements: [2025-03-28T11:44:23.000 UTC, 2025-03-28T11:46:54.000 UTC] (4 data points)
+```
+</CodeGroup>
+
+## Idempotency
+
+Tilebox will auto-generate datapoint IDs based on the data of all of its fields - except for the auto-generated
+`ingestion_time`, so ingesting the same data twice will result in the same ID being generated. By default, Tilebox
+will silently skip any data points that are duplicates of existing ones in a collection. This behavior is especially
+useful when implementing idempotent algorithms. That way, re-executions of certain ingestion tasks due to retries
+or other reasons will never result in duplicate data points.
+
+However, you can instead also request an error to be raised if any of the generated datapoint IDs already exist.
+This can be done by setting the `allow_existing` parameter to `False`.
+
+<CodeGroup>
+```python Python
+data = pd.DataFrame({
+    "time": [
+      "2025-03-28T11:45:19Z",
+    ],
+    "value": [45.16],
+    "sensor": ["A"],
+    "precise_time": [
+      "2025-03-28T11:44:23.345761444Z",
+    ],
+    "sensor_history": [
+      [-12.15, 13.45, -8.2, 16.5, 45.16],
+    ],
+})
+
+# we already ingested the same data point previously
+collection.ingest(data, allow_existing=False)
+
+# we can still ingest it, by setting allow_existing=True
+# but the total number of datapoints will still be the same
+# as before in that case, since it already exists and therefore
+# will be skipped
+collection.ingest(data, allow_existing=True)  # no-op
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Python
+ArgumentError: found existing datapoints with same id, refusing to ingest with "allow_existing=false"
+```
+</CodeGroup>
+
+## Ingestion from common file formats
+
+Through the usage of `xarray` and `pandas` you can also easily ingest existing datasets available in file
+formats, such as CSV, [Parquet](https://parquet.apache.org/), [Feather](https://arrow.apache.org/docs/python/feather.html) and more.
+
+### CSV
+
+Comma-separated values (CSV) is a common file format for tabular data. It is widely used in data science. Tilebox
+supports CSV ingestion using the `pandas.read_csv` function.
+
+Let's assume we have a CSV file named `data.csv` with the following content. If you want to follow along, you can
+download the file [here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.csv).
+
+```csv ingestion_data.csv
+time,value,sensor,precise_time,sensor_history,some_unwanted_column
+2025-03-28T11:44:23Z,45.16,A,2025-03-28T11:44:23.345761444Z,"[-12.15, 13.45, -8.2, 16.5, 45.16]","Unsupported"
+2025-03-28T11:45:19Z,273.15,B,2025-03-28T11:45:19.128742312Z,"[300.16, 280.12, 273.15]","Unsupported"
+```
+
+This data already conforms to the schema of the `MyCustomDataset` dataset, except for `some_unwanted_column` which
+we want to drop before we ingest it. Here is how this could look like:
+
+<CodeGroup>
+```python Python
+import pandas as pd
+
+data = pd.read_csv("ingestion_data.csv")
+data = data.drop(columns=["some_unwanted_column"])
+
+collection = dataset.get_or_create_collection("CSVMeasurements")
+collection.ingest(data)
+```
+</CodeGroup>
+
+### Parquet
+
+[Apache Parquet](https://parquet.apache.org/) is an open source, column-oriented data file format designed for efficient data storage and retrieval.
+Tilebox supports Parquet ingestion using the `pandas.read_parquet` function.
+
+The parquet file used in this example [is available here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.parquet).
+
+<CodeGroup>
+```python Python
+import pandas as pd
+
+data = pd.read_parquet("ingestion_data.parquet")
+
+# our data already conforms to the schema of the MyCustomDataset
+# dataset, so lets ingest it
+collection = dataset.get_or_create_collection("ParquetMeasurements")
+collection.ingest(data)
+```
+</CodeGroup>
+
+### Feather
+
+[Feather](https://arrow.apache.org/docs/python/feather.html) is a file format originating from the Apache Arrow project,
+designed for storing tabular data in a fast and memory-efficient way. It is supported by many programming languages,
+including Python. Tilebox supports Feather ingestion using the `pandas.read_feather` function.
+
+The feather file file used in this example [is available here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.feather).
+
+<CodeGroup>
+```python Python
+import pandas as pd
+
+data = pd.read_feather("ingestion_data.feather")
+
+# our data already conforms to the schema of the MyCustomDataset
+# dataset, so lets ingest it
+collection = dataset.get_or_create_collection("FeatherMeasurements")
+collection.ingest(data)
+```
+</CodeGroup>

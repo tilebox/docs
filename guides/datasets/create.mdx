@@ -13,16 +13,14 @@ This page guides you through the process of creating a dataset in Tilebox.
     Create a dataset in Tilebox by going to [My datasets](https://console.tilebox.com/datasets/my-datasets) and clicking the "Create dataset" button.
   </Step>
   <Step title="Select a dataset kind">
-    Choose a dataset kind from the dropdown menu. Prefilled fields for the selected dataset kind are automatically added.
-    Common fields for time series can be found [here](/datasets/timeseries#common-fields).
-    Support for STAC-compatible datasets is coming soon.
+    Choose a [dataset kind](/datasets/concepts/datasets#dataset-types) from the dropdown menu. Required fields for the selected dataset kind are automatically added.
 
     <Frame>
       <img src="/assets/console/datasets-create-light.png" alt="Tilebox Console" className="dark:hidden" />
       <img src="/assets/console/datasets-create-dark.png" alt="Tilebox Console" className="hidden dark:block" />
     </Frame>
   </Step>
-  <Step title="Fill in name, code name, and description">
+  <Step title="Specify a name, code name, and description">
    Complete these fields:
 
     - `Name` is the name of your dataset.
@@ -34,8 +32,8 @@ This page guides you through the process of creating a dataset in Tilebox.
       <img src="/assets/console/datasets-create-temporal-dark.png" alt="Tilebox Console" className="hidden dark:block" />
     </Frame>
   </Step>
-  <Step title="Fill in the fields">
-    Common fields for each dataset kind are added automatically. Click "Add field" to add more fields.
+  <Step title="Define the dataset schema">
+    Specify the fields for your dataset.
 
     Each field has these properties:
     - `Name` is the name of the field (it should be snake_case).
@@ -53,41 +51,32 @@ This page guides you through the process of creating a dataset in Tilebox.
   </Step>
 </Steps>
 
-The next steps are to create at least one collection and ingest data into it.
+## Automatic dataset schema documentation
 
-It might then resemble this:
+By specifying the fields for your dataset, including the data type, description and an example value for each one, Tilebox
+is capable of automatically generating a documentation page for your dataset schema.
+
 <Frame>
-  <img src="/assets/console/datasets-overview-light.png" alt="Tilebox Console" className="dark:hidden" />
-  <img src="/assets/console/datasets-overview-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    <img src="/assets/console/datasets-overview-light.png" alt="Dataset schema overview" className="dark:hidden" />
+    <img src="/assets/console/datasets-overview-dark.png" alt="Dataset schema overview" className="hidden dark:block" />
 </Frame>
 
-## Editing a dataset
+## Adding additional documentation
 
-You can edit the dataset by clicking the edit pencil button on the dataset overview page.
-
-On this page, you can change the dataset name, description, add new fields, and edit both description and example for existing fields.
-
-<Note>
-  If you don't see the edit pencil button, you don't have the required permissions to edit the
-  documentation.
-</Note>
-
-## Adding documentation
-
-In addition to the auto-generated overview page, you can add custom documentation to your dataset.
-This documentation is displayed on the dataset page and can be used to provide more context and details about the data.
+You can also add custom documentation to your dataset, providing more context and details about the data included data.
+This documentation supports rich formatting, including links, tables, code snippets, and more.
 
 <Frame>
-  <img src="/assets/console/datasets-documentation-light.png" alt="Tilebox Console" className="dark:hidden" />
-  <img src="/assets/console/datasets-documentation-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    <img src="/assets/console/datasets-documentation-light.png" alt="Tilebox Console" className="dark:hidden" />
+    <img src="/assets/console/datasets-documentation-dark.png" alt="Tilebox Console" className="hidden dark:block" />
 </Frame>
 
 To add documentation, click the edit pencil button on the dataset page to open the documentation editor.
 You can use Markdown to format your documentation; you can include links, tables, code snippets, and other Markdown features.
 
 <Note>
-  If you don't see the edit pencil button, you don't have the required permissions to edit the
-  documentation.
+    If you don't see the edit pencil button, you don't have the required permissions to edit the
+    documentation.
 </Note>
 
 Once you are done editing the documentation, click the `Save` button to save your changes.

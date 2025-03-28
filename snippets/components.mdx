@@ -10,3 +10,13 @@ export const HeroCard = ({ children, title, description, href }) => {
     </a>
   );
 };
+
+
+export const CodeOutputHeader = () => {
+  return (
+    <div class="p-0 pl-2 text-sm flex flex-row items-center m-0 ring-1 ring-gray-200 dark:ring-gray-800/50">
+      <Icon icon="square-terminal" iconType="solid" color="gray" />
+      <span class="font-mono pl-2">Output</span>
+    </div>
+  )
+}

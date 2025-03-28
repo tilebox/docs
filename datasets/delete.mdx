@@ -1,0 +1,84 @@
+---
+title: Deleting Data
+sidebarTitle: Delete
+description: Learn how to delete data points from Tilebox datasets.
+icon: trash-can
+---
+
+import { CodeOutputHeader } from '/snippets/components.mdx';
+
+## Overview
+
+This section provides an overview of the API for deleting data from a collection.
+
+| Method | Description |
+| ------ | ----------- |
+| [`collection.delete`](/api-reference/tilebox.datasets/Collection.delete) | Delete data points from a collection.                |
+
+<Note>
+  You need to have write permission on the collection to be able to delete datapoints.
+</Note>
+
+Check out the examples below for common scenarios of deleting data from a collection.
+
+## Deleting data by datapoint IDs
+
+To delete data from a collection, use the [delete](/api-reference/tilebox.datasets/Collection.delete) method. This method accepts a list of datapoint IDs to delete.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+datasets = client.datasets()
+collections = datasets.my_custom_dataset.collections()
+collection = collections["Sensor-1"]
+
+n_deleted = collection.delete([
+  "0195c87a-49f6-5ffa-e3cb-92215d057ea6",
+  "0195c87b-bd0e-3998-05cf-af6538f34957",
+])
+
+print(f"Deleted {n_deleted} data points.")
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Output
+Deleted 2 data points.
+```
+</CodeGroup>
+
+<Tip>
+  `delete` not only takes a list of datapoint IDs as string, but supports a wide range of other useful input types as well.
+  See the [delete](/api-reference/tilebox.datasets/Collection.delete) API documentation for more details.
+</Tip>
+
+
+### Possible errors
+
+- `NotFoundError`: raised if one of the data points is not found in the collection. If any of the data points are not found,
+  nothing will be deleted.
+- `ValueError`: raised if one of the specified ids is not a valid UUID
+
+
+## Deleting a time interval
+
+One common way to delete data is to first load it from a collection and then forward it to the `delete` method. For
+this use case it often is a good idea to query the datapoints with `skip_data=True` to avoid loading the data fields,
+since we only need the datapoint IDs. See [fetching only metadata](/datasets/query#fetching-only-metadata) for more details.
+
+<CodeGroup>
+```python Python
+to_delete = collection.load(("2023-05-01", "2023-06-01"), skip_data=True)
+
+n_deleted = collection.delete(datapoints)
+print(f"Deleted {n_deleted} data points.")
+```
+</CodeGroup>
+<CodeOutputHeader />
+<CodeGroup>
+```plaintext Output
+Deleted 104 data points.
+```
+</CodeGroup>

@@ -39,6 +39,14 @@
   },
   "tabs": [
     {
+      "name": "User Guides",
+      "url": "guides"
+    },
+    {
+      "name": "Languages & SDKs",
+      "url": "sdks"
+    },
+    {
       "name": "API Reference",
       "url": "api-reference"
     }
@@ -75,46 +83,35 @@
       ]
     },
     {
-      "group": "SDKs",
-      "pages": [
-        {
-          "group": "Python",
-          "icon": "python",
-          "pages": [
-            "sdks/python/install",
-            "sdks/python/sample-notebooks",
-            "sdks/python/xarray",
-            "sdks/python/async",
-            "sdks/python/geometries"
-          ]
-        },
-        {
-          "group": "Go",
-          "icon": "golang",
-          "pages": [
-            "sdks/go/introduction"
-          ]
-        }
-      ]
-    },
-    {
       "group": "Datasets",
       "pages": [
         "datasets/introduction",
-        "datasets/timeseries",
-        "datasets/collections",
-        "datasets/loading-data",
-        "datasets/ingest-delete-data",
         {
-          "group": "Managed datasets",
-          "icon": "bars-progress",
+          "group": "Concepts",
+          "icon": "circle-nodes",
           "pages": [
-            "datasets/managed-datasets/creating-dataset",
-            "datasets/managed-datasets/data-types"
+            "datasets/concepts/datasets",
+            "datasets/concepts/collections"
           ]
         },
-        "datasets/open-data",
-        "datasets/storage-clients"
+        {
+          "group": "Dataset Types",
+          "icon": "puzzle",
+          "pages": [
+            "datasets/types/timeseries",
+            "datasets/types/spatiotemporal"
+          ]
+        },
+        "datasets/query",
+        "datasets/ingest",
+        "datasets/delete",
+        "datasets/open-data"
+      ]
+    },
+    {
+      "group": "Storage",
+      "pages": [
+        "storage/clients"
       ]
     },
     {
@@ -153,20 +150,50 @@
       ]
     },
     {
+      "group": "Tilebox SDKs",
+      "pages": [
+        "sdks/introduction"
+      ]
+    },
+    {
+      "group": "Python",
+      "pages": [
+        "sdks/python/install",
+        "sdks/python/sample-notebooks",
+        "sdks/python/xarray",
+        "sdks/python/async",
+        "sdks/python/geometries"
+      ]
+    },
+    {
+      "group": "Go",
+      "icon": "golang",
+      "pages": [
+        "sdks/go/introduction"
+      ]
+    },
+    {
+      "group": "Datasets",
+      "pages": [
+        "guides/datasets/create",
+        "guides/datasets/ingest"
+      ]
+    },
+    {
       "group": "tilebox.datasets",
       "pages": [
         "api-reference/tilebox.datasets/Client",
         "api-reference/tilebox.datasets/Client.datasets",
         "api-reference/tilebox.datasets/Client.dataset",
         "api-reference/tilebox.datasets/Dataset.collections",
+        "api-reference/tilebox.datasets/Dataset.collection",
         "api-reference/tilebox.datasets/Dataset.create_collection",
         "api-reference/tilebox.datasets/Dataset.get_or_create_collection",
-        "api-reference/tilebox.datasets/Dataset.collection",
-        "api-reference/tilebox.datasets/Collection.info",
-        "api-reference/tilebox.datasets/Collection.load",
-        "api-reference/tilebox.datasets/Collection.find",
         "api-reference/tilebox.datasets/Collection.delete",
-        "api-reference/tilebox.datasets/Collection.delete_ids"
+        "api-reference/tilebox.datasets/Collection.find",
+        "api-reference/tilebox.datasets/Collection.info",
+        "api-reference/tilebox.datasets/Collection.ingest",
+        "api-reference/tilebox.datasets/Collection.load"
       ]
     },
     {

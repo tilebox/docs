@@ -1,0 +1,158 @@
+---
+title: Datasets
+description: Tilebox Datasets act as containers for data points. All data points in a dataset share the same type and fields.
+icon: database
+---
+
+## Overview
+
+This section provides a quick overview of the API for listing and accessing datasets.
+
+| Method                                                               | Description                                          |
+| -------------------------------------------------------------------- | ---------------------------------------------------- |
+| [`client.datasets`](/api-reference/tilebox.datasets/Client.datasets) |  List all available datasets.                        |
+| [`client.dataset`](/api-reference/tilebox.datasets/Client.dataset) | Access an individual dataset by its name.              |
+
+<Tip>
+  You can create your own, custom datasets via the [Tilebox Console](/console).
+</Tip>
+
+## Related Guides
+  
+<CardGroup cols={2}>
+  <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
+    Learn how to create a Timeseries dataset using the Tilebox Console.
+  </Card>
+  <Card title="Ingesting data" icon="up-from-bracket" href="/guides/datasets/ingest" horizontal>
+    Learn how to ingest an existing CSV dataset into a Timeseries dataset collection.
+  </Card>
+</CardGroup>
+
+## Dataset types
+
+Each dataset is of a specific type. Each dataset type comes with a set of required fields for each data point.
+The dataset type also determines the query capabilities for a dataset, e.g. whether a dataset supports time-based queries
+or additionally also spatially filtered queries.
+
+To find out which fields are required for each dataset type check out the documentation for the available dataset types
+below.
+
+<CardGroup cols={2}>
+  <Card title="Timeseries Data" icon="diamonds-4" href="/datasets/types/timeseries" horizontal>
+    Each data point is linked to a specific point in time. Common for satellite telemetry, or other time-based data.
+    Supports efficient time-based queries.
+  </Card>
+  <Card title="Spatio-temporal Data" icon="earth-europe" href="/datasets/types/spatiotemporal" horizontal>
+    Each data point is linked to a specific point in time and a location on the Earth's surface. Common for satellite
+    imagery. Supports efficient time-based and spatially filtered queries.
+  </Card>
+</CardGroup>
+
+## Dataset specific fields
+
+Additionally, each dataset has a set of fields that are specific to that dataset. Fields are defined during dataset
+creation. That way, all data points in a dataset are strongly typed and are validated during ingestion.
+The required fields of the dataset type, as well as the custom fields specific to each dataset together make up the
+**dataset schema**.
+
+Once a **dataset schema** is defined, existing fields cannot be removed or edited as soon as data has been ingested into it.
+However, you can always add new fields to a dataset, since all fields are always optional.
+
+<Tip>
+    The only exception to this rule are empty datasets. If you empty all collections in a dataset, you can freely
+    edit the data schema, since no conflicts with existing data points can occur.
+</Tip>
+
+
+## Field types
+
+When defining the data schema, you can specify the type of each field. The following field types are supported.
+
+### Primitives
+
+| Type | Description | Example value |
+| --- | --- | --- |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">string</span> | A string of characters of arbitrary length. | `Some string` |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">int64</span> | A 64-bit signed integer. | `123` |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">uint64</span> | A 64-bit unsigned integer. | `123` |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">float64</span> | A 64-bit floating-point number. | `123.45` |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">bool</span> | A boolean. | `true` |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">bytes</span> | A sequence of arbitrary length bytes. | `0xAF1E28D4` |
+
+### Time
+
+| Type | Description | Example value |
+| --- | --- | --- |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">Duration</span> | A signed, fixed-length span of time represented as a count of seconds and fractions of seconds at nanosecond resolution. See [Duration](https://protobuf.dev/reference/protobuf/google.protobuf/#duration) for more information. | `12s 345ms` |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">Timestamp</span> | A point in time, represented as seconds and fractions of seconds at nanosecond resolution in UTC Epoch time. See [Timestamp](https://protobuf.dev/reference/protobuf/google.protobuf/#timestamp) for more information. | `2023-05-17T14:30:00Z` |
+
+### Identifier
+
+| Type | Description | Example value |
+| --- | --- | --- |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">UUID</span> | A [universally unique identifier (UUID)](https://en.wikipedia.org/wiki/Universally_unique_identifier). | `126a2531-c98d-4e06-815a-34bc5b1228cc` |
+
+### Geospatial
+
+| Type | Description | Example value |
+| --- | --- | --- |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">Geometry</span> | Geospatial geometries of type Point, LineString, Polygon or MultiPolygon. | `POLYGON ((12.3 -5.4, 12.5 -5.4, ...))` |
+
+### Arrays
+
+Every type is also available as an array, allowing to ingest multiple values of the underlying type for each data point. The size of the array is flexible, and can be different for each data point.
+
+## Creating a dataset
+
+You can create a dataset in Tilebox using the [Tilebox Console](/console). Check out the [Creating a dataset](/guides/datasets/create) guide for an example of how to achieve this.
+
+## Listing datasets
+
+You can use [your client instance](/datasets/introduction#creating-a-datasets-client) to access the datasets available to you. To list all available datasets, use the `datasets` method of the client.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+datasets = client.datasets()
+print(datasets)
+```
+</CodeGroup>
+
+```plaintext Output
+open_data:
+    asf:
+        ers_sar: European Remote Sensing Satellite (ERS) Synthetic Aperture Radar (SAR) Granules
+    copernicus:
+        landsat8_oli_tirs: Landsat-8 is part of the long-running Landsat programme ...
+        sentinel1_sar: The Sentinel-1 mission is the European Radar Observatory for the ...
+        sentinel2_msi: Sentinel-2 is equipped with an optical instrument payload that samples ...
+        sentinel3_olci: OLCI (Ocean and Land Colour Instrument) is an optical instrument used to ...
+        ...
+```
+
+Once you have your dataset object, you can use it to [list the available collections](/datasets/concepts/collections) for the dataset.
+
+<Tip>
+  If you're using an IDE or an interactive environment with auto-complete, you can use it on your client instance to discover the datasets available to you. Type `client.` and trigger auto-complete after the dot to do so.
+</Tip>
+
+## Accessing a dataset
+
+Each dataset has an automatically generated *code name* that can be used to access it. The *code name* is the name of the group, followed by a dot, followed by the dataset name.
+For example, the *code name* for the Sentinel-2 MSI dataset above, which is part of the `open_data.copernicus` group, the code name is `open_data.copernicus.sentinel2_msi`.
+
+To access a dataset, use the `dataset` method of your client instance and pass the *code name* of the dataset as an argument.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+s2_msi_dataset = client.dataset("open_data.copernicus.sentinel2_msi")
+```
+</CodeGroup>
+
+Once you have your dataset object, you can use it to [access available collections](/datasets/concepts/collections) for the dataset.
+
