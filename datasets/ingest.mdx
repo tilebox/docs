@@ -1,7 +1,7 @@
 ---
 title: Ingesting Data
 sidebarTitle: Ingest
-description: Learn how to delete data points from Tilebox datasets.
+description: Learn how to ingest data into a Tilebox dataset.
 icon: up-from-bracket
 ---
 
@@ -24,8 +24,10 @@ Check out the examples below for common scenarios of ingesting data into a colle
 ## Dataset schema
 
 Tilebox Datasets are strongly-typed. This means you can only ingest data that matches the schema of a dataset. The schema is defined during dataset creation time.
+
 The examples on this page assume that you have access to a [Timeseries dataset](/datasets/types/timeseries) that has the following schema:
 
+<Accordion title="MyCustomDataset schema">
 <Tip>
   Check out the [Creating a dataset](/guides/datasets/create) guide for an example of how to create such a dataset.
 </Tip>
@@ -45,6 +47,7 @@ The examples on this page assume that you have access to a [Timeseries dataset](
 <Tip>
   A full overview of available data types can be found in the [here](/datasets/concepts/datasets#field-types).
 </Tip>
+</Accordion>
 
 Once we've defined the schema and created a dataset, we can access it and create a collection to ingest data into.
 
