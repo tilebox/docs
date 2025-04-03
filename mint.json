@@ -167,9 +167,10 @@
     },
     {
       "group": "Go",
-      "icon": "golang",
       "pages": [
-        "sdks/go/introduction"
+        "sdks/go/install",
+        "sdks/go/examples",
+        "sdks/go/protobuf"
       ]
     },
     {
