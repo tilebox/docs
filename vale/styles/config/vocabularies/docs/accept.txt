@@ -1,5 +1,6 @@
 # (?i) makes the regex case-insensitive, see https://vale.sh/docs/topics/vocab/#case-sensitivity
 
+tilebox-generate
 Tilebox
 (?i)Xarray
 NumPy
@@ -10,6 +11,7 @@ Datalore
 Colab
 Tropomi
 georeferenced
+Geospatial
 Fortran
 Zarr
 datetime
@@ -47,3 +49,6 @@ coroutines
 (?i)pushbroom
 rollout
 (?i)automations
+(?i)protobuf
+UUIDs
+(?i)getters
