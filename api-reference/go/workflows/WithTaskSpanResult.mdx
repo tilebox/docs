@@ -1,0 +1,47 @@
+---
+title: workflows.WithTaskSpanResult
+sidebarTitle: WithTaskSpanResult
+icon: code
+---
+
+```go
+workflows.WithTaskSpanResult[Result any](
+    ctx context.Context,
+    name string,
+    f func(ctx context.Context) (Result, error),
+) (Result, error)
+```
+
+Wrap a function with a [tracing span](/workflows/observability/tracing).
+
+This function is intended to be used in tasks.
+
+## Parameters
+
+<ParamField path="name" type="string">
+  The name of the span
+</ParamField>
+<ParamField path="f" type="func(context.Context) (Result, error)">
+  The function to wrap
+</ParamField>
+
+## Returns
+
+The result of the function and an error if any.
+
+<RequestExample>
+```go Go
+type Task struct{}
+
+func (t *Task) Execute(ctx context.Context) error {
+  result, err := workflows.WithTaskSpanResult(ctx, "Expensive Compute", func(ctx context.Context) (int, error) {
+		return 6 * 7, nil
+	})
+  if err != nil {
+    return fmt.Errorf("failed to compute: %w", err)
+  }
+
+	return nil
+}
+```
+</RequestExample>

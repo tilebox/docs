@@ -1,10 +1,11 @@
 ---
 title: Client.Datasets.Get
+sidebarTitle: Get
 icon: laptop-code
 ---
 
 ```go
-client.Datasets.Get(
+func (datasetClient) Get(
     ctx context.Context,
     slug string,
 ) (*Dataset, error)

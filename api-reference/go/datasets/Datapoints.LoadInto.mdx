@@ -1,10 +1,11 @@
 ---
 title: Client.Datapoints.LoadInto
+sidebarTitle: Datapoints.LoadInto
 icon: layer-group
 ---
 
 ```go
-client.Datapoints.LoadInto(
+func (datapointClient) LoadInto(
     ctx context.Context,
     collectionID uuid.UUID,
     interval interval.LoadInterval,
@@ -28,6 +29,13 @@ Load a range of data points in this collection in a specified interval.
 </ParamField>
 <ParamField path="options" type="[]LoadOption">
   Options for loading data points
+</ParamField>
+
+## Options
+
+<ParamField path="WithSkipData()" default="false">
+  Skip the data when loading datapoints.
+  If set, only the required and auto-generated fields will be returned.
 </ParamField>
 
 ## Returns

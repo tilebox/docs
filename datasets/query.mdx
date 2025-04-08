@@ -11,8 +11,8 @@ This section provides an overview of the API for loading data from a collection.
 
 | Method                                                               | Description                                          |
 | -------------------------------------------------------------------- | ---------------------------------------------------- |
-| [`collection.load`](/api-reference/tilebox.datasets/Collection.load) |  Query data points from a collection.                 |
-| [`collection.find`](/api-reference/tilebox.datasets/Collection.find) | Find a specific datapoint in a collection by its id. |
+| [`collection.load`](/api-reference/python/tilebox.datasets/Collection.load) |  Query data points from a collection.                 |
+| [`collection.find`](/api-reference/python/tilebox.datasets/Collection.find) | Find a specific datapoint in a collection by its id. |
 
 Check out the examples below for common scenarios when loading data from collections.
 
@@ -27,7 +27,7 @@ collection = collections["S1A_IW_RAW__0S"]
 ```
 </CodeGroup>
 
-To load data points from a dataset collection, use the [load](/api-reference/tilebox.datasets/Collection.load) method. It requires a `time_or_interval` parameter to specify the time or time interval for loading.
+To load data points from a dataset collection, use the [load](/api-reference/python/tilebox.datasets/Collection.load) method. It requires a `time_or_interval` parameter to specify the time or time interval for loading.
 
 ## Filtering by time
 
@@ -227,14 +227,14 @@ Data variables:
 [Spatio-temporal](/datasets/types/spatiotemporal) also come with spatial filtering capabilities. When querying, you can no longer specify a time interval, but additionally also specify a bounding box or a polygon as an area of interest to filter by.
 
 <Note>
-  Spatio-temporal datasets - including spatial filtering capabilities - are currently in development and not available yet. Stay tuned for updates!
+  Spatio-temporal datasets - including spatial filtering capabilities - are currently in development and not available yet. Stay tuned for updates.
 </Note>
 
 ## Fetching only metadata
 
 Sometimes, it may be useful to load only dataset metadata fields without the actual data fields. This can be done by setting the `skip_data` parameter to `True`.
 For example, when only checking if a datapoint exists, you may want to use `skip_data=True` to avoid loading the data fields.
-If this flag is set, the response will only include the required fields for the given dataset type, but no additional custom data fields.
+If this flag is set, the response will only include the required fields for the given dataset type, but no custom data fields.
 
 <CodeGroup>
     ```python Python
@@ -275,7 +275,7 @@ Data variables:
 
 ## By datapoint ID
 
-If you know the ID of the data point you want to load, you can use [collection.find](/api-reference/tilebox.datasets/Collection.find).
+If you know the ID of the data point you want to load, you can use [collection.find](/api-reference/python/tilebox.datasets/Collection.find).
 
 This method always returns a single data point or raises an exception if no data point with the specified ID exists.
 

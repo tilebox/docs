@@ -5,7 +5,7 @@ icon: earth-europe
 ---
 
 <Note>
-  Spatio-temporal datasets are currently in development and not available yet. Stay tuned for updates!
+  Spatio-temporal datasets are currently in development and not available yet. Stay tuned for updates
 </Note>
 
 Each spatio-temporal dataset comes with a set of required and auto-generated fields for each data point.
@@ -19,13 +19,12 @@ While the specific data fields between different time series datasets can vary, 
 </ParamField>
 
 <Tip>
-  For indexing and querying, Tilebox truncates timestamps to millisecond precision. However, Timeseries datasets may contain arbitrary custom `Timestamp` fields that store timestamps up to a nanosecond precision.
+  For indexing and querying, Tilebox truncates timestamps to millisecond precision. But Timeseries datasets may contain arbitrary custom `Timestamp` fields that store timestamps up to a nanosecond precision.
 </Tip>
 
 <ParamField path="geometry" type="Geometry">
     A location on the earth's surface associated with each data point. Supported geometry types are `Polygon`, `MultiPolygon`, `Point` and `MultiPoint`.
 </ParamField>
-
 
 ## Auto-generated fields
 
@@ -44,7 +43,7 @@ While the specific data fields between different time series datasets can vary, 
 ## Creating a spatio-temporal dataset
 
 To create a spatio-temporal dataset, use the [Tilebox Console](/console) and select `Spatio-temporal Dataset` as the dataset type. The required and auto-generated fields
-outlined above will be automatically added to the dataset schema.
+already outlined will be automatically added to the dataset schema.
 
 ## Spatio-temporal queries
 

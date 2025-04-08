@@ -1,0 +1,16 @@
+---
+title: TaskRunner.Run
+icon: gear-code
+---
+
+```go
+func (*TaskRunner) Run(ctx context.Context)
+```
+
+Run the task runner forever, looking for new tasks to run and polling for new tasks when idle.
+
+<RequestExample>
+```go Go
+runner.Run(ctx)
+```
+</RequestExample>

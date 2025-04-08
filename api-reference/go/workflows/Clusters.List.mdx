@@ -1,0 +1,21 @@
+---
+title: Client.Clusters.List
+sidebarTitle: Clusters.List
+icon: circle-nodes
+---
+
+```go
+func (*ClusterClient) List(ctx context.Context) ([]*Cluster, error)
+```
+
+Fetch all available clusters.
+
+## Returns
+
+A list of all available clusters.
+
+<RequestExample>
+```go Go
+clusters, err := client.Clusters.List(ctx)
+```
+</RequestExample>

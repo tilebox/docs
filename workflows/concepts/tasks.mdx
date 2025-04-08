@@ -32,7 +32,7 @@ This example demonstrates a simple task that prints "Hello World!" to the consol
     The `execute` method is the entry point for executing the task. This is where the task's logic is defined. It's invoked by a [task runner](/workflows/concepts/task-runners) when the task runs and performs the task's operation.
   </Accordion>
   <Accordion title="context: ExecutionContext">
-    The `context` argument is an `ExecutionContext` instance that provides access to an [API for submitting new tasks](/api-reference/tilebox.workflows/ExecutionContext.submit_subtask) as part of the same job and features like [shared caching](/api-reference/tilebox.workflows/ExecutionContext.job_cache).
+    The `context` argument is an `ExecutionContext` instance that provides access to an [API for submitting new tasks](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask) as part of the same job and features like [shared caching](/api-reference/python/tilebox.workflows/ExecutionContext.job_cache).
   </Accordion>
 </AccordionGroup>
 
@@ -46,14 +46,14 @@ This example demonstrates a simple task that prints "Hello World!" to the consol
 Tasks often require input parameters to operate. These inputs can range from simple values to complex data structures. By inheriting from the `Task` class, the task is treated as a Python `dataclass`, allowing input parameters to be defined as class attributes.
 
 <Info>
-  Tasks must be **serializable to JSON** because they may be distributed across a cluster of [task runners](/workflows/concepts/task-runners).
+  Tasks must be **serializable to JSON or to protobuf** because they may be distributed across a cluster of [task runners](/workflows/concepts/task-runners).
 </Info>
 
 Supported types for input parameters include:
 
 - Basic types such as `str`, `int`, `float`, `bool`
 - Lists and dictionaries of basic types
-- Nested data classes that are also JSON-serializable
+- Nested data classes that are also JSON-serializable or protobuf-serializable
 
 <CodeGroup>
     ```python Python
@@ -278,7 +278,7 @@ class FlakyTask(Task):
 
 ## Dependencies
 
-Tasks often rely on other tasks. For example, a task that processes data might depend on a task that fetches that data. **Tasks can express their dependencies on other tasks** by using the `depends_on` argument of the [submit_subtask](/api-reference/tilebox.workflows/ExecutionContext.submit_subtask) method. This means that a dependent task will only execute after the task it relies on has successfully completed.
+Tasks often rely on other tasks. For example, a task that processes data might depend on a task that fetches that data. **Tasks can express their dependencies on other tasks** by using the `depends_on` argument of the [`submit_subtask`](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask) method. This means that a dependent task will only execute after the task it relies on has successfully completed.
 
 <Note>
   The `depends_on` argument accepts a list of tasks, enabling a task to depend on multiple other tasks.

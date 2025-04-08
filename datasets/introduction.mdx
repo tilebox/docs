@@ -7,7 +7,7 @@ icon: house
 
 Tilebox Datasets ingests and structures metadata for efficient querying, significantly reducing data transfer and storage costs.
 
-Create your own [custom datasets](/datasets/concepts/datasets) and easily set up a private, custom, strongly-typed and highly-available catalogue, or 
+Create your own [Custom Datasets](/datasets/concepts/datasets) and easily set up a private, custom, strongly typed and highly available catalogue, or 
 explore any of the wide range of [available public open data datasets](/datasets/open-data) available on Tilebox.
 
 Learn more about datasets by exploring the following sections:
@@ -28,7 +28,7 @@ Learn more about datasets by exploring the following sections:
 </CardGroup>
 
 <Note>
-  For a quick reference to API methods or specific parameter meanings, [check out the complete Datasets API Reference](/api-reference/tilebox.datasets/Client).
+  For a quick reference to API methods or specific parameter meanings, [check out the complete datasets API Reference](/api-reference/python/tilebox.datasets/Client).
 </Note>
 
 ## Terminology
@@ -37,7 +37,7 @@ Get familiar with some key terms when working with time series datasets.
 
 <AccordionGroup>
   <Accordion title="Data points">
-    Data points are the individual entities that form a dataset. Each data point has a set of required [fields](/datasets/types/timeseries) determined by the dataset type, and can have additional, custom user-defined fields.
+    Data points are the individual entities that form a dataset. Each data point has a set of required [fields](/datasets/types/timeseries) determined by the dataset type, and can have custom user-defined fields.
   </Accordion>
   <Accordion title="Datasets">
     Datasets act as containers for data points. All data points in a dataset share the same type and fields. Tilebox supports different types of datasets, currently those are [Timeseries](/datasets/types/timeseries) and [Spatio-temporal](/datasets/types/spatiotemporal) datasets.
@@ -81,7 +81,7 @@ client = Client()
 
 ### Exploring datasets
 
-After creating a client instance, you can start exploring available datasets. A straightforward way to do this in an interactive environment is to [list all datasets](/api-reference/tilebox.datasets/Client.datasets) and use the autocomplete feature in your Jupyter notebook.
+After creating a client instance, you can start exploring available datasets. A straightforward way to do this in an interactive environment is to [list all datasets](/api-reference/python/tilebox.datasets/Client.datasets) and use the autocomplete feature in your Jupyter notebook.
 
 <CodeGroup>
 ```python Python

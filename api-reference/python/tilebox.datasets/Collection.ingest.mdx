@@ -24,7 +24,7 @@ Ingest data into a collection.
   Supported `IngestionData` data types are:
   - A `pandas.DataFrame`, mapping the column names to dataset fields.
   - An `xarray.Dataset`, mapping variables and coordinates to dataset fields.
-  - `Iterable`, `dict` or `nd-array`: ingest any object that can be converted to a `pandas.DataFrame` using
+  - An `Iterable`, `dict` or `nd-array`: ingest any object that can be converted to a `pandas.DataFrame` using
     it's constructor, equivalent to `ingest(pd.DataFrame(data))`.
 </ParamField>
 <ParamField path="allow_existing" type="bool">

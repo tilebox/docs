@@ -1,0 +1,47 @@
+---
+title: Client.Jobs.Submit
+sidebarTitle: Jobs.Submit
+icon: diagram-project
+---
+
+```go
+func (*JobClient) Submit(
+    ctx context.Context,
+    jobName string,
+    clusterSlug string,
+    maxRetries int,
+    tasks ...Task,
+) (*Job, error)
+```
+
+Submit a job.
+
+## Parameters
+
+<ParamField path="jobName" type="string">
+  The name of the job
+</ParamField>
+<ParamField path="clusterSlug" type="string">
+  The [cluster slug](/workflows/concepts/clusters#managing-clusters) for the cluster to run the root task on
+</ParamField>
+<ParamField path="maxRetries" type="int">
+  The maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case it fails
+</ParamField>
+<ParamField path="tasks" type="[]Task">
+  The root task for the job. This task is executed first and can submit subtasks to manage the entire workflow. A job can have optionally consist of multiple root tasks.
+</ParamField>
+
+## Returns
+
+A job object.
+
+<RequestExample>
+```go Go
+job, err := client.Jobs.Submit(ctx,
+    "My job",
+    "my-cluster-tZD9Ca1qsqt3V",
+    3,
+    rootTask,
+)
+```
+</RequestExample>

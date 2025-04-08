@@ -1,0 +1,38 @@
+---
+title: Client.Jobs.Retry
+sidebarTitle: Jobs.Retry
+icon: diagram-project
+---
+
+```go
+func (*JobClient) Retry(
+    ctx context.Context,
+    jobID uuid.UUID,
+) (int64, error)
+```
+
+Retry a job. All failed tasks will become queued again, and queued tasks will be picked up by task runners again.
+
+## Parameters
+
+<ParamField path="jobID" type="uuid.UUID">
+  The id of the job to retry
+</ParamField>
+
+## Returns
+
+The number of tasks that were rescheduled.
+
+<RequestExample>
+```go Go
+nbRescheduled, err := client.Jobs.Retry(ctx,
+    uuid.MustParse("0195c87a-49f6-5ffa-e3cb-92215d057ea6"),
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="job not found">
+  The specified job does not exist.
+</ParamField>

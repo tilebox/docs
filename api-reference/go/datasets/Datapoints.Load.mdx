@@ -1,10 +1,11 @@
 ---
 title: Client.Datapoints.Load
+sidebarTitle: Datapoints.Load
 icon: layer-group
 ---
 
 ```go
-client.Datapoints.Load(
+func (datapointClient) Load(
     ctx context.Context,
     collectionID uuid.UUID,
     interval interval.LoadInterval,
@@ -27,6 +28,13 @@ The output sequence can be transformed into a typed `proto.Message` using `Colle
 </ParamField>
 <ParamField path="options" type="[]LoadOption">
   Options for loading data points
+</ParamField>
+
+## Options
+
+<ParamField path="WithSkipData()" default="false">
+  Skip the data when loading datapoints.
+  If set, only the required and auto-generated fields will be returned.
 </ParamField>
 
 ## Returns

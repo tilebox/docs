@@ -1,0 +1,47 @@
+---
+title: workflows.SubmitSubtasks
+sidebarTitle: SubmitSubtasks
+icon: code
+---
+
+```go
+workflows.SubmitSubtasks(ctx context.Context, tasks ...Task) error
+```
+
+Submit multiple subtasks to the task runner.
+
+This function is intended to be used in tasks.
+
+## Parameters
+
+<ParamField path="tasks" type="[]Task">
+  A list of tasks to submit
+</ParamField>
+
+## Returns
+
+An error if the tasks could not be submitted.
+
+<RequestExample>
+```go Go
+
+type MySubTask struct {
+	Sensor string
+	Value  float64
+}
+
+type Task struct{}
+
+func (t *Task) Execute(ctx context.Context) error {
+	err := workflows.SubmitSubtasks(ctx, &MySubTask{
+		Sensor: "A",
+		Value:  42,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to submit subtasks: %w", err)
+	}
+
+	return nil
+}
+```
+</RequestExample>

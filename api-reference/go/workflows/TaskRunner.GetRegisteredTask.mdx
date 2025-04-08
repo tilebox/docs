@@ -1,0 +1,30 @@
+---
+title: TaskRunner.GetRegisteredTask
+icon: gear-code
+---
+
+```go
+func (*TaskRunner) GetRegisteredTask(identifier TaskIdentifier) (ExecutableTask, bool)
+```
+
+Get the task with the given identifier.
+
+## Parameters
+
+<ParamField path="identifier" type="TaskIdentifier">
+  A display name for the cluster
+</ParamField>
+
+## Returns
+
+The registered task. Returns `false` if not found.
+
+<RequestExample>
+```go Go
+identifier := workflows.NewTaskIdentifier("my-task", "v1.0")
+
+task, found := runner.GetRegisteredTask(
+    identifier,
+)
+```
+</RequestExample>

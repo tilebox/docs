@@ -1,0 +1,32 @@
+---
+title: Client.Clusters.Create
+sidebarTitle: Clusters.Create
+icon: circle-nodes
+---
+
+```go
+func (*ClusterClient) Create(
+    ctx context.Context,
+    name string,
+) (*Cluster, error)
+```
+
+Create a cluster.
+
+## Parameters
+
+<ParamField path="name" type="string">
+  A display name for the cluster
+</ParamField>
+
+## Returns
+
+The created cluster object.
+
+<RequestExample>
+```go Go
+cluster, err := client.Clusters.Create(ctx,
+    "My cluster"
+)
+```
+</RequestExample>

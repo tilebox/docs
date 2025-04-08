@@ -1,0 +1,88 @@
+---
+title: Task
+icon: code
+---
+
+```go
+type Task interface{}
+```
+
+Base interface for Tilebox workflows [tasks](/workflows/concepts/tasks).
+It doesn't need to be identifiable or executable, but it can be both (see below).
+
+## Methods
+
+```go
+Task.Execute(ctx context.Context) error
+```
+
+The entry point for the execution of the task.
+If not defined, the task can't be registered with a task runner but can still be submitted.
+
+```go
+Task.Identifier() TaskIdentifier
+```
+
+Provides a user-defined task identifier.
+The identifier is used to uniquely identify the task and specify its version.
+If not defined, the task runner will generate an identifier for it using reflection.
+
+## JSON-serializable task
+
+```go
+type SampleTask struct {
+	Message      string
+	Depth        int
+	BranchFactor int
+}
+```
+
+Optional task [input parameters](/workflows/concepts/tasks#input-parameters), defined as struct fields.
+Supported types are all types supported by [json.Marshal](https://pkg.go.dev/encoding/json#Marshal).
+
+## Protobuf-serializable task
+
+```go
+type SampleTask struct {
+	examplesv1.SpawnWorkflowTreeTask
+}
+```
+
+Task can also be defined as a protobuf message.
+An example using task protobuf messages can be found [here](https://github.com/tilebox/tilebox-go/tree/main/examples/sampleworkflow).
+
+<RequestExample>
+```go Go
+package helloworld
+
+import (
+	"context"
+	"fmt"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+type MyFirstTask struct{}
+
+func (t *MyFirstTask) Execute(ctx context.Context) error {
+	fmt.Println("Hello World!")
+	return nil
+}
+
+func (t *MyFirstTask) Identifier() workflows.TaskIdentifier {
+	return workflows.NewTaskIdentifier("tilebox.workflows.MyTask", "v3.2")
+}
+
+type MyFirstParameterizedTask struct {
+	Name    string
+	Greet   bool
+	Data    map[string]string
+}
+
+func (t *MyFirstParameterizedTask) Execute(ctx context.Context) error {
+	if t.Greet {
+		fmt.Printf("Hello %s!\n", t.Name)
+	}
+	return nil
+}
+```
+</RequestExample>

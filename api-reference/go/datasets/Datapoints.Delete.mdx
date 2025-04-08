@@ -1,10 +1,11 @@
 ---
 title: Client.Datapoints.Delete
+sidebarTitle: Datapoints.Delete
 icon: layer-group
 ---
 
 ```go
-client.Datapoints.Delete(
+func (datapointClient) Delete(
     ctx context.Context,
     collectionID uuid.UUID,
     datapoints any,
