@@ -1,0 +1,36 @@
+---
+title: Client.Collections.Create
+icon: layer-group
+---
+
+```go
+client.Collections.Create(
+    ctx context.Context,
+    datasetID uuid.UUID,
+    collectionName string,
+) (*Collection, error)
+```
+
+Create a collection in the dataset.
+
+## Parameters
+
+<ParamField path="datasetID" type="uuid.UUID">
+  The id of the dataset
+</ParamField>
+<ParamField path="collectionName" type="string">
+  The name of the collection
+</ParamField>
+
+## Returns
+
+The created collection object.
+
+<RequestExample>
+```go Go
+collection, err := client.Collections.Create(ctx,
+    datasetID,
+    "My-collection",
+)
+```
+</RequestExample>

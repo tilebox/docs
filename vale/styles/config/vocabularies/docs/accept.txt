@@ -19,7 +19,8 @@ accessor
 Pipenv
 Opendata
 APIs
-datapoint
+(?i)datapoint
+datapoints
 dataclass
 subtask
 subtasks
@@ -52,3 +53,4 @@ rollout
 (?i)protobuf
 UUIDs
 (?i)getters
+(?i)ingest

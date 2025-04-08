@@ -13,7 +13,7 @@ def Collection.ingest(
 Ingest data into a collection.
 
 <Note>
-  You need to have write permission on the collection to be able to delete datapoints.
+  You need to have write permission on the collection to be able to delete data points.
 </Note>
 
 ## Parameters
@@ -24,20 +24,20 @@ Ingest data into a collection.
   Supported `IngestionData` data types are:
   - A `pandas.DataFrame`, mapping the column names to dataset fields.
   - An `xarray.Dataset`, mapping variables and coordinates to dataset fields.
-  - `Iterable`, `dict` or `nd-array`: Ingest any object that can be converted to a `pandas.DataFrame` using
+  - `Iterable`, `dict` or `nd-array`: ingest any object that can be converted to a `pandas.DataFrame` using
     it's constructor, equivalent to `ingest(pd.DataFrame(data))`.
 </ParamField>
 <ParamField path="allow_existing" type="bool">
   Datapoint fields are used to generate a deterministic unique `UUID` for each
-  datapoint in a collection. Duplicate datapoints result in the same ID being generated.
-  If `allow_existing` is `True`, `ingest` will skip those datapoints, since they already exist.
+  datapoint in a collection. Duplicate data points result in the same ID being generated.
+  If `allow_existing` is `True`, `ingest` will skip those data points, since they already exist.
   If `allow_existing` is `False`, `ingest` will raise an error if any of the generated datapoint IDs already exist.
   Defaults to `True`.
 </ParamField>
 
 ## Returns
 
-List of datapoint ids that were ingested, including the IDs of already existing datapoints in case of duplicates and 
+List of datapoint ids that were ingested, including the IDs of existing data points in case of duplicates and 
 `allow_existing=True`.
 
 <RequestExample>
