@@ -10,11 +10,11 @@ This section provides a quick overview of the API for listing and accessing data
 
 | Method                                                               | Description                                          |
 | -------------------------------------------------------------------- | ---------------------------------------------------- |
-| [`client.datasets`](/api-reference/tilebox.datasets/Client.datasets) |  List all available datasets.                        |
-| [`client.dataset`](/api-reference/tilebox.datasets/Client.dataset) | Access an individual dataset by its name.              |
+| [`client.datasets`](/api-reference/python/tilebox.datasets/Client.datasets) |  List all available datasets.                        |
+| [`client.dataset`](/api-reference/python/tilebox.datasets/Client.dataset) | Access an individual dataset by its name.              |
 
 <Tip>
-  You can create your own, custom datasets via the [Tilebox Console](/console).
+  You can create your own, Custom Datasets via the [Tilebox Console](/console).
 </Tip>
 
 ## Related Guides
@@ -31,7 +31,7 @@ This section provides a quick overview of the API for listing and accessing data
 ## Dataset types
 
 Each dataset is of a specific type. Each dataset type comes with a set of required fields for each data point.
-The dataset type also determines the query capabilities for a dataset, e.g. whether a dataset supports time-based queries
+The dataset type also determines the query capabilities for a dataset, for example, whether a dataset supports time-based queries
 or additionally also spatially filtered queries.
 
 To find out which fields are required for each dataset type check out the documentation for the available dataset types
@@ -56,13 +56,12 @@ The required fields of the dataset type, as well as the custom fields specific t
 **dataset schema**.
 
 Once a **dataset schema** is defined, existing fields cannot be removed or edited as soon as data has been ingested into it.
-However, you can always add new fields to a dataset, since all fields are always optional.
+You can always add new fields to a dataset, since all fields are always optional.
 
 <Tip>
     The only exception to this rule are empty datasets. If you empty all collections in a dataset, you can freely
     edit the data schema, since no conflicts with existing data points can occur.
 </Tip>
-
 
 ## Field types
 
@@ -141,7 +140,7 @@ Once you have your dataset object, you can use it to [list the available collect
 ## Accessing a dataset
 
 Each dataset has an automatically generated *code name* that can be used to access it. The *code name* is the name of the group, followed by a dot, followed by the dataset name.
-For example, the *code name* for the Sentinel-2 MSI dataset above, which is part of the `open_data.copernicus` group, the code name is `open_data.copernicus.sentinel2_msi`.
+For example, the *code name* for the Sentinel-2 MSI dataset, which is part of the `open_data.copernicus` group, the code name is `open_data.copernicus.sentinel2_msi`.
 
 To access a dataset, use the `dataset` method of your client instance and pass the *code name* of the dataset as an argument.
 

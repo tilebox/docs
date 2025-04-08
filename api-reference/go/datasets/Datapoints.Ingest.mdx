@@ -1,10 +1,11 @@
 ---
 title: Client.Datapoints.Ingest
+sidebarTitle: Datapoints.Ingest
 icon: layer-group
 ---
 
 ```go
-client.Datapoints.Ingest(
+func (datapointClient) Ingest(
     ctx context.Context,
     collectionID uuid.UUID,
     datapoints any,

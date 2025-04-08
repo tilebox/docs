@@ -226,22 +226,39 @@
         {
           "group": "datasets",
           "pages": [
-            "api-reference/go/datasets/Client.Datasets.Get",
-            "api-reference/go/datasets/Client.Datasets.List",
-            "api-reference/go/datasets/Client.Collections.Create",
-            "api-reference/go/datasets/Client.Collections.Get",
-            "api-reference/go/datasets/Client.Collections.List",
-            "api-reference/go/datasets/Client.Datapoints.Load",
-            "api-reference/go/datasets/Client.Datapoints.LoadInto",
-            "api-reference/go/datasets/Client.Datapoints.Ingest",
-            "api-reference/go/datasets/Client.Datapoints.Delete",
-            "api-reference/go/datasets/Client.Datapoints.DeleteIDs"
+            "api-reference/go/datasets/Get",
+            "api-reference/go/datasets/List",
+            "api-reference/go/datasets/Collections.Create",
+            "api-reference/go/datasets/Collections.Get",
+            "api-reference/go/datasets/Collections.List",
+            "api-reference/go/datasets/Datapoints.Load",
+            "api-reference/go/datasets/Datapoints.LoadInto",
+            "api-reference/go/datasets/Datapoints.Ingest",
+            "api-reference/go/datasets/Datapoints.Delete",
+            "api-reference/go/datasets/Datapoints.DeleteIDs"
           ]
         },
         {
           "group": "workflows",
           "pages": [
-            "api-reference/go/workflows/Client.dataset"
+            "api-reference/go/workflows/Task",
+            "api-reference/go/workflows/GetCurrentCluster",
+            "api-reference/go/workflows/SubmitSubtasks",
+            "api-reference/go/workflows/WithTaskSpan",
+            "api-reference/go/workflows/WithTaskSpanResult",
+            "api-reference/go/workflows/NewTaskRunner",
+            "api-reference/go/workflows/TaskRunner.GetRegisteredTask",
+            "api-reference/go/workflows/TaskRunner.RegisterTasks",
+            "api-reference/go/workflows/TaskRunner.Run",
+            "api-reference/go/workflows/Clusters.Create",
+            "api-reference/go/workflows/Clusters.Get",
+            "api-reference/go/workflows/Clusters.Delete",
+            "api-reference/go/workflows/Clusters.List",
+            "api-reference/go/workflows/Jobs.Submit",
+            "api-reference/go/workflows/Jobs.Get",
+            "api-reference/go/workflows/Jobs.Retry",
+            "api-reference/go/workflows/Jobs.Cancel",
+            "api-reference/go/workflows/Jobs.List"
           ]
         }
       ]

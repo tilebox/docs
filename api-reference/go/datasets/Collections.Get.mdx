@@ -1,31 +1,37 @@
 ---
-title: Client.Collections.List
+title: Client.Collections.Get
+sidebarTitle: Collections.Get
 icon: layer-group
 ---
 
 ```go
-client.Collections.List(
+func (collectionClient) Get(
     ctx context.Context,
     datasetID uuid.UUID,
-) ([]*Collection, error)
+    name string,
+) (*Collection, error)
 ```
 
-List the available collections in a dataset.
+Get a dataset by its slug.
 
 ## Parameters
 
 <ParamField path="datasetID" type="uuid.UUID">
   The id of the dataset
 </ParamField>
+<ParamField path="name" type="string">
+  The name of the collection
+</ParamField>
 
 ## Returns
 
-A list of collection objects.
+The created collection object.
 
 <RequestExample>
 ```go Go
-collections, err := client.Collections.List(ctx,
+collection, err := client.Collections.Get(ctx,
     datasetID,
+    "My-collection",
 )
 ```
 </RequestExample>

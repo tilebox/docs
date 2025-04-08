@@ -1,10 +1,11 @@
 ---
 title: Client.Datasets.List
+sidebarTitle: List
 icon: laptop-code
 ---
 
 ```go
-client.Datasets.List(ctx context.Context) ([]*Dataset, error)
+func (datasetClient) List(ctx context.Context) ([]*Dataset, error)
 ```
 
 Fetch all available datasets.

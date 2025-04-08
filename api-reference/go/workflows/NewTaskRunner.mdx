@@ -1,0 +1,41 @@
+---
+title: Client.NewTaskRunner
+sidebarTitle: NewTaskRunner
+icon: gear-code
+---
+
+```go
+func (*Client) NewTaskRunner(options ...TaskRunnerOption) (*TaskRunner, error)
+```
+
+Initialize a task runner.
+
+## Parameters
+
+<ParamField path="options" type="[]TaskRunnerOption">
+  Options for initializing the task runner
+</ParamField>
+
+## Options
+
+<ParamField path="WithCluster(clusterSlug string)" default="">
+  Set the cluster slug to use for the task runner
+</ParamField>
+<ParamField path="WithRunnerLogger(logger *slog.Logger)" default="slog.Default()">
+  Set the logger to use for the task runner
+</ParamField>
+<ParamField path="WithDisableMetrics()">
+  Disable OpenTelemetry metrics for the task runner
+</ParamField>
+
+## Returns
+
+The created task runner object.
+
+<RequestExample>
+```go Go
+runner, err := client.NewTaskRunner(
+    workflows.WithCluster("my-cluster-tZD9Ca1qsqt3V"),
+)
+```
+</RequestExample>

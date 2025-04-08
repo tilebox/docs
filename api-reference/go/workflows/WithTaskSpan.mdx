@@ -1,0 +1,48 @@
+---
+title: workflows.WithTaskSpan
+sidebarTitle: WithTaskSpan
+icon: code
+---
+
+```go
+workflows.WithTaskSpan(
+    ctx context.Context,
+    name string,
+    f func(ctx context.Context) error,
+) error
+```
+
+Wrap a function with a [tracing span](/workflows/observability/tracing).
+
+This function is intended to be used in tasks.
+
+## Parameters
+
+<ParamField path="name" type="string">
+  The name of the span
+</ParamField>
+<ParamField path="f" type="func(context.Context) error">
+  The function to wrap
+</ParamField>
+
+## Returns
+
+An error if any.
+
+<RequestExample>
+```go Go
+type Task struct{}
+
+func (t *Task) Execute(ctx context.Context) error {
+	err := workflows.WithTaskSpan(ctx, "Database insert", func(ctx context.Context) error {
+		// Do something
+		return nil
+	})
+  if err != nil {
+    return fmt.Errorf("failed to insert into database: %w", err)
+  }
+
+	return nil
+}
+```
+</RequestExample>

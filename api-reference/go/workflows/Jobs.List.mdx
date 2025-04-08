@@ -1,0 +1,41 @@
+---
+title: Client.Jobs.List
+sidebarTitle: Jobs.List
+icon: diagram-project
+---
+
+```go
+func (*JobClient) List(
+    ctx context.Context,
+    interval interval.LoadInterval,
+) iter.Seq2[*Job, error]
+```
+
+List all available jobs.
+
+The jobs are loaded in a lazy manner, and returned as a sequence of Jobs.
+The jobs are returned sorted by creation time in reverse order.
+The output sequence can be transformed into a slice of Job using `Collect` function.
+
+## Parameters
+
+<ParamField path="interval" type="interval.LoadInterval">
+  The interval for which to load jobs
+</ParamField>
+
+## Returns
+
+A sequence of jobs.
+
+<RequestExample>
+```go Go
+interval := interval.NewStandardTimeInterval(
+  time.Now().Add(-24 * time.Hour),
+  time.Now(),
+)
+
+jobs, err := workflows.Collect(
+  client.Jobs.List(ctx, interval),
+)
+```
+</RequestExample>
