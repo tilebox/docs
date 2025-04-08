@@ -1,0 +1,62 @@
+---
+title: Client.Datapoints.Ingest
+icon: layer-group
+---
+
+```go
+client.Datapoints.Ingest(
+    ctx context.Context,
+    collectionID uuid.UUID,
+    datapoints any,
+    allowExisting bool,
+) (*IngestResponse, error)
+```
+
+Ingest data points into a collection.
+
+## Parameters
+
+<ParamField path="collectionID" type="uuid.UUID">
+  The id of the collection
+</ParamField>
+<ParamField path="datapoints" type="[]proto.Message">
+  The datapoints to ingest
+</ParamField>
+<ParamField path="allowExisting" type="bool">
+  Datapoint fields are used to generate a deterministic unique `UUID` for each
+  datapoint in a collection. Duplicate data points result in the same ID being generated.
+  If `allowExisting` is `true`, `ingest` will skip those datapoints, since they already exist.
+  If `allowExisting` is `false`, `ingest` will raise an error if any of the generated datapoint IDs already exist.
+</ParamField>
+
+## Returns
+
+The list of datapoint ids that were ingested, including the IDs of existing data points in case of duplicates and
+`allowExisting=true`.
+
+<RequestExample>
+```go Go
+datapoints := []*tileboxv1.Modis{
+  tileboxv1.Modis_builder{
+    Time:        timestamppb.New(time.Now()),
+    GranuleName: proto.String("Granule 1"),
+  }.Build(),
+  tileboxv1.Modis_builder{
+    Time:        timestamppb.New(time.Now().Add(-5 * time.Hour)),
+    GranuleName: proto.String("Past Granule 2"),
+  }.Build(),
+}
+
+ingestResponse, err := client.Datapoints.Ingest(ctx,
+    collectionID,
+    datapoints
+    false,
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="ArgumentError" type="found existing datapoints with same id">
+  If `allowExisting` is `False` and any of the datapoints attempting to ingest already exist.
+</ParamField>

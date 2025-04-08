@@ -1,0 +1,42 @@
+---
+title: Client.Collections.Get
+icon: layer-group
+---
+
+```go
+client.Collections.Get(
+    ctx context.Context,
+    datasetID uuid.UUID,
+    name string,
+) (*Collection, error)
+```
+
+Get a dataset by its slug.
+
+## Parameters
+
+<ParamField path="datasetID" type="uuid.UUID">
+  The id of the dataset
+</ParamField>
+<ParamField path="name" type="string">
+  The name of the collection
+</ParamField>
+
+## Returns
+
+The created collection object.
+
+<RequestExample>
+```go Go
+collection, err := client.Collections.Get(ctx,
+    datasetID,
+    "My-collection",
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="No such dataset">
+  The specified dataset does not exist.
+</ParamField>
