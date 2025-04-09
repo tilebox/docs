@@ -70,7 +70,7 @@ Contents:
 
 For cases where only a subset of the available file objects for a product is needed, you may restrict your download to just that subset. First, list available objects using `list_objects`, filter them, and then download using `download_objects`.
 
-For example, a Sentinel-2 L2A product includes many files such as metadata, different bands in various resolutions, masks, and quicklook images. The following example shows how to download only specific files from a Sentinel-2 L2A product.
+For example, a Sentinel-2 L2A product includes many files such as metadata, different bands in multiple resolutions, masks, and quicklook images. The following example shows how to download only specific files from a Sentinel-2 L2A product.
 
 ```python Python {4, 15}
 collection = datasets.open_data.copernicus.sentinel2_msi.collections()["S2A_S2MSI2A"]

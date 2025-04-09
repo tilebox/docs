@@ -1,0 +1,32 @@
+---
+title: workflows.GetCurrentCluster
+sidebarTitle: GetCurrentCluster
+icon: code
+---
+
+```go
+workflows.GetCurrentCluster(ctx context.Context) (string, error)
+```
+
+Get the current cluster slug.
+
+This function is intended to be used in tasks.
+
+## Returns
+
+The current cluster slug.
+
+<RequestExample>
+```go Go
+type Task struct{}
+
+func (t *Task) Execute(ctx context.Context) error {
+	clusterSlug, err := workflows.GetCurrentCluster(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get current cluster: %w", err)
+	}
+
+	return nil
+}
+```
+</RequestExample>

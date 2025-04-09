@@ -1,0 +1,29 @@
+---
+title: Client.Jobs.Cancel
+sidebarTitle: Jobs.Cancel
+icon: diagram-project
+---
+
+```go
+func (*JobClient) Cancel(ctx context.Context, jobID uuid.UUID) error
+```
+
+Cancel a job. When a job is canceled, no queued tasks will be picked up by task runners and executed even if task runners are idle. Tasks that are already being executed will finish their execution and not be interrupted. All sub-tasks spawned from such tasks after the cancellation will not be picked up by task runners.
+
+## Parameters
+
+<ParamField path="jobID" type="uuid.UUID">
+  The id of the job
+</ParamField>
+
+## Returns
+
+An error if the job could not be cancelled.
+
+<RequestExample>
+```go Go
+err := client.Jobs.Cancel(ctx,
+    uuid.MustParse("0195c87a-49f6-5ffa-e3cb-92215d057ea6"),
+)
+```
+</RequestExample>

@@ -12,13 +12,13 @@ This section provides a quick overview of the API for listing and accessing coll
 
 | Method                                                               | Description                                          |
 | -------------------------------------------------------------------- | ---------------------------------------------------- |
-| [`dataset.collections`](/api-reference/tilebox.datasets/Dataset.collections) |  List all available collections for a dataset.                 |
-| [`dataset.create_collection`](/api-reference/tilebox.datasets/Dataset.create_collection) | Create a collection in a dataset.   |
-| [`dataset.get_or_create_collection`](/api-reference/tilebox.datasets/Dataset.get_or_create_collection) | Get a collection, create it if it doesn't exist. |
-| [`dataset.collection`](/api-reference/tilebox.datasets/Dataset.collection) | Access an individual collection by its name.     |
-| [`collection.info`](/api-reference/tilebox.datasets/Collection.info) | Request information about a collection.          |
+| [`dataset.collections`](/api-reference/python/tilebox.datasets/Dataset.collections) |  List all available collections for a dataset.                 |
+| [`dataset.create_collection`](/api-reference/python/tilebox.datasets/Dataset.create_collection) | Create a collection in a dataset.   |
+| [`dataset.get_or_create_collection`](/api-reference/python/tilebox.datasets/Dataset.get_or_create_collection) | Get a collection, create it if it doesn't exist. |
+| [`dataset.collection`](/api-reference/python/tilebox.datasets/Dataset.collection) | Access an individual collection by its name.     |
+| [`collection.info`](/api-reference/python/tilebox.datasets/Collection.info) | Request information about a collection.          |
 
-Refer to the examples below for common use cases when working with collections. These examples assume that you have already [created a client](/datasets/introduction#creating-a-datasets-client) and [listed the available datasets](/api-reference/tilebox.datasets/Client.datasets).
+Refer to the examples below for common use cases when working with collections. These examples assume that you have already [created a client](/datasets/introduction#creating-a-datasets-client) and [listed the available datasets](/api-reference/python/tilebox.datasets/Client.datasets).
 
 <CodeGroup>
 ```python Python
@@ -48,11 +48,11 @@ print(collections)
  'L2SP': Collection L2SP: [2015-01-01T07:53:35.391 UTC, 2024-08-12T12:52:03.243 UTC] (191110 data points)}
 ```
 
-[dataset.collections](/api-reference/tilebox.datasets/Dataset.collections) returns a dictionary mapping collection names to their corresponding collection objects. Each collection has a unique name within its dataset.
+[dataset.collections](/api-reference/python/tilebox.datasets/Dataset.collections) returns a dictionary mapping collection names to their corresponding collection objects. Each collection has a unique name within its dataset.
 
 ## Creating collections
 
-To create a collection in a dataset, use [dataset.create_collection()](/api-reference/tilebox.datasets/Dataset.create_collection). This method returns the created collection object.
+To create a collection in a dataset, use [dataset.create_collection()](/api-reference/python/tilebox.datasets/Dataset.create_collection). This method returns the created collection object.
 
 <CodeGroup>
 ```python Python
@@ -60,7 +60,7 @@ collection = dataset.create_collection("My-collection")
 ```
 </CodeGroup>
 
-Alternatively, you can use [dataset.get_or_create_collection()](/api-reference/tilebox.datasets/Dataset.get_or_create_collection) to get a collection by its name. If the collection does not exist, it will be created.
+You can use [dataset.get_or_create_collection()](/api-reference/python/tilebox.datasets/Dataset.get_or_create_collection) to get a collection by its name. If the collection does not exist, it will be created.
 
 <CodeGroup>
 ```python Python
@@ -70,7 +70,7 @@ collection = dataset.get_or_create_collection("My-collection")
 
 ## Accessing individual collections
 
-Once you have listed the collections for a dataset using [dataset.collections()](/api-reference/tilebox.datasets/Dataset.collections), you can access a specific collection by retrieving it from the resulting dictionary with its name. Use [collection.info()](/api-reference/tilebox.datasets/Collection.info) to get details (name, availability, and count) about it.
+Once you have listed the collections for a dataset using [dataset.collections()](/api-reference/python/tilebox.datasets/Dataset.collections), you can access a specific collection by retrieving it from the resulting dictionary with its name. Use [collection.info()](/api-reference/python/tilebox.datasets/Collection.info) to get details (name, availability, and count) about it.
 
 <CodeGroup>  
 ```python Python
@@ -85,7 +85,7 @@ print(collection_info)
 L1GT: [2013-03-25T12:08:43.699 UTC, 2024-08-19T12:57:32.456 UTC] (154288 data points)
 ```
 
-You can also access a specific collection directly using the [dataset.collection](/api-reference/tilebox.datasets/Dataset.collection) method on the dataset object. This method allows you to get the collection without having to list all collections first.
+You can also access a specific collection directly using the [dataset.collection](/api-reference/python/tilebox.datasets/Dataset.collection) method on the dataset object. This method allows you to get the collection without having to list all collections first.
 
 <CodeGroup>
 ```python Python
