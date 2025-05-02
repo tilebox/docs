@@ -9,7 +9,7 @@ func (datapointClient) DeleteIDs(
     ctx context.Context,
     collectionID uuid.UUID,
     datapointIDs []uuid.UUID,
-) (*DeleteResponse, error)
+) (*datasets.DeleteResponse, error)
 ```
 
 Delete data points from a collection.

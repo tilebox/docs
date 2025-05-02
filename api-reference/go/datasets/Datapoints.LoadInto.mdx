@@ -10,7 +10,7 @@ func (datapointClient) LoadInto(
     collectionID uuid.UUID,
     interval interval.LoadInterval,
     datapoints any,
-    options ...LoadOption,
+    options ...datasets.LoadOption,
 ) error
 ```
 
@@ -27,7 +27,7 @@ Load a range of data points in this collection in a specified interval.
 <ParamField path="datapoints" type="[]proto.Message">
   The datapoints to load into
 </ParamField>
-<ParamField path="options" type="[]LoadOption">
+<ParamField path="options" type="[]datasets.LoadOption">
   Options for loading data points
 </ParamField>
 

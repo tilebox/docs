@@ -1,10 +1,13 @@
 ---
 title: TaskRunner.GetRegisteredTask
+sidebarTitle: TaskRunner.GetRegiste...
 icon: gear-code
 ---
 
 ```go
-func (*TaskRunner) GetRegisteredTask(identifier TaskIdentifier) (ExecutableTask, bool)
+func (*TaskRunner) GetRegisteredTask(
+  identifier workflows.TaskIdentifier,
+) (workflows.ExecutableTask, bool)
 ```
 
 Get the task with the given identifier.

@@ -31,6 +31,7 @@ The Tilebox workflow SDKs have built-in support for exporting OpenTelemetry trac
     <Tab title="Axiom">
     To configure tracing with Axiom, you first need to create a [Axiom Dataset](https://axiom.co/docs/reference/datasets) to export your workflow traces to. You will also need an [Axiom API key](https://axiom.co/docs/reference/tokens) with the necessary write permissions for your Axiom dataset.
     
+    <CodeGroup>
     ```python Python
     from tilebox.workflows import Client
     from tilebox.workflows.observability.tracing import configure_otel_tracing_axiom
@@ -55,6 +56,64 @@ The Tilebox workflow SDKs have built-in support for exporting OpenTelemetry trac
     if __name__ == "__main__":
         main()
     ```
+```go Go
+package main
+
+import (
+	"context"
+	"log/slog"
+	"os"
+
+	"github.com/tilebox/tilebox-go/examples/workflows/axiom"
+	"github.com/tilebox/tilebox-go/observability"
+	"github.com/tilebox/tilebox-go/observability/tracer"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+	"go.opentelemetry.io/otel"
+)
+
+// specify a service name and version to identify the instrumenting application in traces and logs
+var service = &observability.Service{Name: "task-runner", Version: "dev"}
+
+func main() {
+	ctx := context.Background()
+
+	tileboxAPIKey := os.Getenv("TILEBOX_API_KEY")
+	axiomAPIKey := os.Getenv("AXIOM_API_KEY")
+	axiomTracesDataset := os.Getenv("AXIOM_TRACES_DATASET")
+
+	// Setup an OpenTelemetry trace span processor, exporting traces and spans to Axiom
+	tileboxTracerProvider, shutdown, err := tracer.NewAxiomProvider(ctx, service, axiomTracesDataset, axiomAPIKey)
+	defer shutdown(ctx)
+	if err != nil {
+		slog.Error("failed to set up axiom tracer provider", slog.Any("error", err))
+		return
+	}
+	otel.SetTracerProvider(tileboxTracerProvider) // set the tilebox tracer provider as the global OTEL tracer provider
+
+	client := workflows.NewClient(workflows.WithAPIKey(tileboxAPIKey))
+
+	cluster, err := client.Clusters.Get(ctx, "dev-cluster")
+	if err != nil {
+		slog.Error("failed to get cluster", slog.Any("error", err))
+		return
+	}
+
+	taskRunner, err := client.NewTaskRunner(cluster)
+	if err != nil {
+		slog.Error("failed to create task runner", slog.Any("error", err))
+		return
+	}
+
+	err = taskRunner.RegisterTasks(&MyTask{})
+	if err != nil {
+		slog.Error("failed to register tasks", slog.Any("error", err))
+		return
+	}
+
+	taskRunner.RunForever(ctx)
+}
+```
+    </CodeGroup>
 
     <Tip>
         Set the environment variables `AXIOM_API_KEY` and `AXIOM_TRACES_DATASET` to omit those arguments
@@ -65,6 +124,7 @@ The Tilebox workflow SDKs have built-in support for exporting OpenTelemetry trac
     <Tab title="OpenTelemetry-compatible backend">
     If you are using another OpenTelemetry-compatible backend besides Axiom, like OpenTelemetry Collector or Jaeger, you can configure tracing by specifying the URL endpoint to export traces to.
 
+    <CodeGroup>
     ```python Python
     from tilebox.workflows import Client
     from tilebox.workflows.observability.tracing import configure_otel_tracing
@@ -90,6 +150,69 @@ The Tilebox workflow SDKs have built-in support for exporting OpenTelemetry trac
     if __name__ == "__main__":
         main()
     ```
+```go Go
+package main
+
+import (
+	"context"
+	"log/slog"
+	"os"
+
+	"github.com/tilebox/tilebox-go/examples/workflows/opentelemetry"
+	"github.com/tilebox/tilebox-go/observability"
+	"github.com/tilebox/tilebox-go/observability/tracer"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+	"go.opentelemetry.io/otel"
+)
+
+// specify a service name and version to identify the instrumenting application in traces and logs
+var service = &observability.Service{Name: "task-runner", Version: "dev"}
+
+func main() {
+	ctx := context.Background()
+
+	tileboxAPIKey := os.Getenv("TILEBOX_API_KEY")
+	endpoint := "http://localhost:4318"
+	headers := map[string]string{
+		"Authorization": "Bearer <ENDPOINT_AUTH>",
+	}
+
+	// Setup an OpenTelemetry trace span processor, exporting traces and spans to an OTEL compatible trace endpoint
+	tileboxTracerProvider, shutdown, err := tracer.NewOtelProvider(ctx, service,
+		tracer.WithEndpointURL(endpoint),
+		tracer.WithHeaders(headers),
+	)
+	defer shutdown(ctx)
+	if err != nil {
+		slog.Error("failed to set up otel span processor", slog.Any("error", err))
+		return
+	}
+	otel.SetTracerProvider(tileboxTracerProvider) // set the tilebox tracer provider as the global OTEL tracer provider
+
+	client := workflows.NewClient(workflows.WithAPIKey(tileboxAPIKey))
+
+	cluster, err := client.Clusters.Get(ctx, "dev-cluster")
+	if err != nil {
+		slog.Error("failed to get cluster", slog.Any("error", err))
+		return
+	}
+
+	taskRunner, err := client.NewTaskRunner(cluster)
+	if err != nil {
+		slog.Error("failed to create task runner", slog.Any("error", err))
+		return
+	}
+
+	err = taskRunner.RegisterTasks(&MyTask{})
+	if err != nil {
+		slog.Error("failed to register tasks", slog.Any("error", err))
+		return
+	}
+
+	taskRunner.RunForever(ctx)
+}
+```
+    </CodeGroup>
 
     <Tip>
         Set the environment variable `OTEL_TRACES_ENDPOINT` to omit that argument

@@ -9,7 +9,7 @@ func (datapointClient) Load(
     ctx context.Context,
     collectionID uuid.UUID,
     interval interval.LoadInterval,
-    options ...LoadOption,
+    options ...datasets.LoadOption,
 ) iter.Seq2[[]byte, error]
 ```
 
@@ -26,7 +26,7 @@ The output sequence can be transformed into a typed `proto.Message` using `Colle
 <ParamField path="interval" type="interval.LoadInterval">
   The interval for which to load data points
 </ParamField>
-<ParamField path="options" type="[]LoadOption">
+<ParamField path="options" type="[]datasets.LoadOption">
   Options for loading data points
 </ParamField>
 

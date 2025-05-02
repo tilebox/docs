@@ -8,7 +8,7 @@ icon: diagram-project
 func (*JobClient) List(
     ctx context.Context,
     interval interval.LoadInterval,
-) iter.Seq2[*Job, error]
+) iter.Seq2[*workflows.Job, error]
 ```
 
 List all available jobs.

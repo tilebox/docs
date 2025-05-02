@@ -36,6 +36,12 @@ To manage clusters, first instantiate a cluster client using the `clusters` meth
     client = Client()
     clusters = client.clusters()
     ```
+    ```go Go
+    import "github.com/tilebox/tilebox-go/workflows/v1"
+
+    client := workflows.NewClient()
+    clusterClient := client.Clusters
+    ```
 </CodeGroup>
 
 ### Creating a Cluster
@@ -47,11 +53,20 @@ To create a cluster, use the `create` method on the cluster client and provide a
     cluster = clusters.create("testing")
     print(cluster)
     ```
+    ```go Go
+    cluster := client.Clusters.Create("testing")
+    fmt.Println(cluster)
+    ```
 </CodeGroup>
 
-```plaintext Output
+<CodeGroup title="Output">
+```plaintext Python
 Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
 ```
+```go Go
+&{testing-CvufcSxcC9SKfe testing}
+```
+</CodeGroup>
 
 ### Cluster Slug
 
@@ -66,12 +81,29 @@ To list all available clusters, use the `all` method:
     all_clusters = clusters.all()
     print(all_clusters)
     ```
+    ```go Go
+    clusters, err := client.Clusters.List(ctx)
+    if err != nil {
+        slog.Error("failed to list clusters", slog.Any("error", err))
+        return
+    }
+
+    for _, cluster := range clusters {
+        fmt.Println(cluster)
+    }
+    ```
 </CodeGroup>
 
-```plaintext Output
+<CodeGroup title="Output">
+```plaintext Python
 [Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing'),
 Cluster(slug='production-EifhUozDpwAJDL', display_name='Production')]
 ```
+```go Go
+&{testing-CvufcSxcC9SKfe testing}
+&{production-EifhUozDpwAJDL Production}
+```
+</CodeGroup>
 
 ### Fetching a Specific Cluster
 
@@ -82,11 +114,24 @@ To fetch a specific cluster, use the `find` method and pass the cluster's slug:
     cluster = clusters.find("testing-CvufcSxcC9SKfe")
     print(cluster)
     ```
+    ```go Go
+    cluster, err := client.Clusters.Get(ctx, "testing-CvufcSxcC9SKfe")
+	if err != nil {
+		slog.Error("failed to get cluster", slog.Any("error", err))
+		return
+	}
+	fmt.Println(cluster)
+    ```
 </CodeGroup>
 
-```plaintext Output
+<CodeGroup title="Output">
+```plaintext Python
 Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
 ```
+```go Go
+&{testing-CvufcSxcC9SKfe testing}
+```
+</CodeGroup>
 
 ### Deleting a Cluster
 
@@ -95,6 +140,9 @@ To delete a cluster, use the `delete` method and pass the cluster's slug:
 <CodeGroup title="Deleting a Cluster">
     ```python Python
     clusters.delete("testing-CvufcSxcC9SKfe")
+    ```
+    ```go Go
+    err := client.Clusters.Delete(ctx, "testing-CvufcSxcC9SKfe")
     ```
 </CodeGroup>
 
@@ -127,9 +175,65 @@ class DummyTask(Task):
 client = Client()
 job_client = client.jobs()
 job = job_client.submit(
+    "my-job",
     MultiClusterWorkflow(),
     cluster="testing-CvufcSxcC9SKfe",
 )
+```
+```go Go
+package main
+
+import (
+	"context"
+	"os"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+    "github.com/tilebox/tilebox-go/workflows/v1/subtask"
+)
+
+type MultiClusterWorkflow struct{}
+
+func (t *MultiClusterWorkflow) Execute(ctx context.Context) error {
+	// this submits a task to the same cluster as the one currently executing this task
+	sameCluster, err := workflows.SubmitSubtask(ctx, &DummyTask{})
+	if err != nil {
+		return err
+	}
+
+	otherCluster, err := workflows.SubmitSubtask(
+		ctx,
+		&DummyTask{},
+		// this task runs only on a task runner in the "other-cluster" cluster
+		subtask.WithClusterSlug("other-cluster-As3dcSb3D9SAdK"),
+		// dependencies can be specified across clusters
+		subtask.WithDependencies(sameCluster),
+	)
+	if err != nil {
+		return err
+	}
+
+	_ = otherCluster
+	return nil
+}
+
+type DummyTask struct{}
+
+func main() {
+    ctx := context.Background()
+	client := workflows.NewClient(
+		workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+	)
+
+	// submit a job to the "testing" cluster
+	_, _ = client.Jobs.Submit(
+		ctx,
+		"my-job",
+		"testing-CvufcSxcC9SKfe",
+		[]workflows.Task{
+			&MultiClusterWorkflow{},
+		},
+	)
+}
 ```
 </CodeGroup>
 

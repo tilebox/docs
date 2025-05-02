@@ -5,22 +5,25 @@ icon: gear-code
 ---
 
 ```go
-func (*Client) NewTaskRunner(options ...TaskRunnerOption) (*TaskRunner, error)
+func (*Client) NewTaskRunner(
+  cluster *workflows.Cluster,
+  options ...runner.Option,
+) (*workflows.TaskRunner, error)
 ```
 
 Initialize a task runner.
 
 ## Parameters
 
-<ParamField path="options" type="[]TaskRunnerOption">
+<ParamField path="cluster" type="*Cluster">
+  The [cluster](/workflows/concepts/clusters#managing-clusters) to connect to
+</ParamField>
+<ParamField path="options" type="[]runner.Option">
   Options for initializing the task runner
 </ParamField>
 
 ## Options
 
-<ParamField path="WithCluster(clusterSlug string)" default="">
-  Set the cluster slug to use for the task runner
-</ParamField>
 <ParamField path="WithRunnerLogger(logger *slog.Logger)" default="slog.Default()">
   Set the logger to use for the task runner
 </ParamField>
@@ -34,8 +37,6 @@ The created task runner object.
 
 <RequestExample>
 ```go Go
-runner, err := client.NewTaskRunner(
-    workflows.WithCluster("my-cluster-tZD9Ca1qsqt3V"),
-)
+runner, err := client.NewTaskRunner()
 ```
 </RequestExample>

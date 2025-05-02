@@ -10,7 +10,7 @@ func (datapointClient) Ingest(
     collectionID uuid.UUID,
     datapoints any,
     allowExisting bool,
-) (*IngestResponse, error)
+) (*datasets.IngestResponse, error)
 ```
 
 Ingest data points into a collection.

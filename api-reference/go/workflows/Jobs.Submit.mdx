@@ -8,10 +8,10 @@ icon: diagram-project
 func (*JobClient) Submit(
     ctx context.Context,
     jobName string,
-    clusterSlug string,
-    maxRetries int,
-    tasks ...Task,
-) (*Job, error)
+    cluster *workflows.Cluster,
+    tasks []workflows.Task,
+    options ...job.SubmitOption
+) (*workflows.Job, error)
 ```
 
 Submit a job.
@@ -21,14 +21,20 @@ Submit a job.
 <ParamField path="jobName" type="string">
   The name of the job
 </ParamField>
-<ParamField path="clusterSlug" type="string">
-  The [cluster slug](/workflows/concepts/clusters#managing-clusters) for the cluster to run the root task on
-</ParamField>
-<ParamField path="maxRetries" type="int">
-  The maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case it fails
+<ParamField path="cluster" type="*Cluster">
+  The [cluster](/workflows/concepts/clusters#managing-clusters) to run the root task on
 </ParamField>
 <ParamField path="tasks" type="[]Task">
   The root task for the job. This task is executed first and can submit subtasks to manage the entire workflow. A job can have optionally consist of multiple root tasks.
+</ParamField>
+<ParamField path="options" type="[]job.SubmitOption">
+  Options for the job
+</ParamField>
+
+## Options
+
+<ParamField path="WithMaxRetries(maxRetries int64)" default="0">
+  Set the maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case it fails
 </ParamField>
 
 ## Returns
@@ -39,9 +45,8 @@ A job object.
 ```go Go
 job, err := client.Jobs.Submit(ctx,
     "My job",
-    "my-cluster-tZD9Ca1qsqt3V",
-    3,
-    rootTask,
+    cluster,
+    []workflows.Task{rootTask},
 )
 ```
 </RequestExample>

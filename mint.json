@@ -243,6 +243,7 @@
           "pages": [
             "api-reference/go/workflows/Task",
             "api-reference/go/workflows/GetCurrentCluster",
+            "api-reference/go/workflows/SubmitSubtask",
             "api-reference/go/workflows/SubmitSubtasks",
             "api-reference/go/workflows/WithTaskSpan",
             "api-reference/go/workflows/WithTaskSpanResult",

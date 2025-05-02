@@ -1,5 +1,6 @@
 # (?i) makes the regex case-insensitive, see https://vale.sh/docs/topics/vocab/#case-sensitivity
 
+Assistance
 Custom Dataset
 Custom Datasets
 tilebox-generate

@@ -22,6 +22,12 @@ from tilebox.workflows import Client
 client = Client()
 job_client = client.jobs()
 ```
+```go Go
+import "github.com/tilebox/tilebox-go/workflows/v1"
+
+client := workflows.NewClient()
+jobClient := client.Jobs
+```
 </CodeGroup>
 
 After obtaining a job client, submit a job using the [submit](/api-reference/python/tilebox.workflows/JobClient.submit) method. You need to provide a name for the job, an instance of the root [task](/workflows/concepts/tasks), and a [cluster](/workflows/concepts/clusters) to execute the root task on.
@@ -33,6 +39,25 @@ from my_workflow import MyTask
 
 cluster = "dev-cluster"
 job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
+```
+```go Go
+cluster, err := client.Clusters.Get(ctx, "dev-cluster")
+if err != nil {
+    slog.Error("failed to get cluster", slog.Any("error", err))
+    return
+}
+
+job, err := client.Jobs.Submit(ctx, "my-job", cluster,
+    []workflows.Task{
+        &MyTask{
+            Some: "parameters",
+        },
+    },
+)
+if err != nil {
+    slog.Error("Failed to submit job", slog.Any("error", err))
+    return
+}
 ```
 </CodeGroup>
 
@@ -48,6 +73,14 @@ from my_workflow import MyFlakyTask
 
 cluster = "dev-cluster"
 job = job_client.submit('my-job', MyFlakyTask(), cluster, max_retries=5)
+```
+```go Go
+myJob, err := client.Jobs.Submit(ctx, "my-job", cluster,
+    []workflows.Task{
+        &MyFlakyTask{},
+    },
+    job.WithMaxRetries(5),
+)
 ```
 </CodeGroup>
 
@@ -67,6 +100,25 @@ print(job.id)  # 018dd029-58ca-74e5-8b58-b4f99d610f9a
 # Later, in another process or machine, retrieve job info
 job = job_client.find("018dd029-58ca-74e5-8b58-b4f99d610f9a")
 ```
+```go Go
+myJob, err := client.Jobs.Submit(ctx, "my-job", cluster,
+    []workflows.Task{
+        &helloworld.HelloTask{
+            Some: "parameters",
+        },
+    },
+)
+if err != nil {
+    slog.Error("Failed to submit job", slog.Any("error", err))
+    return
+}
+
+// 018dd029-58ca-74e5-8b58-b4f99d610f9a
+slog.Info("Job submitted", slog.String("job_id", myJob.ID.String()))
+
+// Later, in another process or machine, retrieve job info
+job, err := client.Jobs.Get(ctx, uuid.MustParse("018dd029-58ca-74e5-8b58-b4f99d610f9a"))
+```
 </CodeGroup>
 
 <Tip>
@@ -79,6 +131,10 @@ Visualizing the execution of a job can be helpful. The Tilebox workflow orchestr
 
 <Note>
 `display` is designed for use in an [interactive environment](/sdks/python/sample-notebooks#interactive-environments) such as a Jupyter notebook. In non-interactive environments, use [visualize](/api-reference/python/tilebox.workflows/JobClient.visualize), which returns the rendered diagram as an SVG string.
+</Note>
+
+<Note>
+  Visualization isn't supported in Go yet.
 </Note>
 
 <CodeGroup>
@@ -148,6 +204,45 @@ class SubTask(Task):
 job = job_client.submit('custom-display-names', RootTask(3), "dev-cluster")
 job_client.display(job)
 ```
+```go Go
+type RootTask struct {
+	NumSubtasks int
+}
+
+func (t *RootTask) Execute(ctx context.Context) error {
+	err := workflows.SetTaskDisplay(ctx, fmt.Sprintf("Root(%d)", t.NumSubtasks))
+	if err != nil {
+		return fmt.Errorf("failed to set task display: %w", err)
+	}
+
+	for i := range t.NumSubtasks {
+		_, err := workflows.SubmitSubtask(ctx, &SubTask{Index: i})
+		if err != nil {
+			return fmt.Errorf("failed to submit subtask: %w", err)
+		}
+	}
+	return nil
+}
+
+type SubTask struct {
+	Index int
+}
+
+func (t *SubTask) Execute(ctx context.Context) error {
+	err := workflows.SetTaskDisplay(ctx, fmt.Sprintf("Leaf Nr. %d", t.Index))
+	if err != nil {
+		return fmt.Errorf("failed to set task display: %w", err)
+	}
+	return nil
+}
+
+// in main
+job, err := client.Jobs.Submit(ctx, "custom-display-names", cluster,
+	[]workflows.Task{&RootTask{
+		NumSubtasks: 3,
+	}},
+)
+```
 </CodeGroup>
 
 <Frame>
@@ -166,6 +261,18 @@ Use the `cancel` method on the job client to cancel a job.
 job = job_client.submit('my-job', MyTask(), "dev-cluster")
 # After a short while, the job gets canceled
 job_client.cancel(job)
+```
+```go Go
+job, err := client.Jobs.Submit(ctx, "my-job", cluster,
+    []workflows.Task{&MyTask{}},
+)
+if err != nil {
+    slog.Error("Failed to submit job", slog.Any("error", err))
+    return
+}
+
+// After a short while, the job gets canceled
+err = client.Jobs.Cancel(ctx, job.ID)
 ```
 </CodeGroup>
 
@@ -209,6 +316,72 @@ class PrintMovieStats(Task):
         context.current_task.display = response["Title"]
         print(f"{response['Title']} was released on {response['Released']}")
 ```
+```go Go
+package movie
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+type MoviesStats struct {
+	Titles []string
+}
+
+func (t *MoviesStats) Execute(ctx context.Context) error {
+	for _, title := range t.Titles {
+		_, err := workflows.SubmitSubtask(ctx, &PrintMovieStats{Title: title})
+		if err != nil {
+			return fmt.Errorf("failed to submit subtask: %w", err)
+		}
+	}
+	return nil
+}
+
+type Movie struct {
+	Title    *string `json:"Title"`
+	Released *string `json:"Released"`
+}
+
+type PrintMovieStats struct {
+	Title string
+}
+
+func (t *PrintMovieStats) Execute(ctx context.Context) error {
+	apiURL := fmt.Sprintf("http://www.omdbapi.com/?t=%s&apikey=%s", url.QueryEscape(t.Title), "<OMDB API Key>")
+	response, err := http.Get(apiURL)
+	if err != nil {
+		return fmt.Errorf("failed to fetch movie: %w", err)
+	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	var movie Movie
+	err = json.Unmarshal(body, &movie)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	// set the display name of the task to the title of the movie:
+    err := workflows.SetTaskDisplay(ctx, *movie.Title)
+	if err != nil {
+		return fmt.Errorf("failed to set task display: %w", err)
+	}
+
+	fmt.Printf("%s was released on %s\n", *movie.Title, *movie.Released)
+	return nil
+}
+```
 </CodeGroup>
 
 Submitting the workflow as a job reveals a bug in the `PrintMovieStats` task.
@@ -223,6 +396,18 @@ job = job_client.submit('movies-stats', MoviesStats([
 ]), "dev-cluster")
 
 job_client.display(job)
+```
+```go Go
+job, err := client.Jobs.Submit(ctx, "movies-stats", cluster,
+    []workflows.Task{&MoviesStats{
+        Titles: []string{
+            "The Matrix",
+            "Shrek 2",
+            "Tilebox - The Movie",
+            "The Avengers",
+        },
+    }},
+)
 ```
 </CodeGroup>
 
@@ -259,6 +444,47 @@ class PrintMovieStats(Task):
             context.current_task.display = f"NotFound: {self.title}"
             print(f"Could not find the release date for {self.title}")
 ```
+```go Go
+type PrintMovieStats struct {
+	Title string
+}
+
+func (t *PrintMovieStats) Execute(ctx context.Context) error {
+	url2 := fmt.Sprintf("http://www.omdbapi.com/?t=%s&apikey=%s", url.QueryEscape(t.Title), "<OMDB API Key>")
+	response, err := http.Get(url2)
+	if err != nil {
+		return fmt.Errorf("failed to fetch movie: %w", err)
+	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	var movie Movie
+	err = json.Unmarshal(body, &movie)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	if movie.Released != nil && movie.Title != nil {
+		err := workflows.SetTaskDisplay(ctx, *movie.Title)
+		if err != nil {
+			return fmt.Errorf("failed to set task display: %w", err)
+		}
+		fmt.Printf("%s was released on %s\n", *movie.Title, *movie.Released)
+	} else {
+		err := workflows.SetTaskDisplay(ctx, fmt.Sprintf("NotFound: %s", t.Title))
+		if err != nil {
+			return fmt.Errorf("failed to set task display: %w", err)
+		}
+		fmt.Printf("Could not find the release date for %s\n", t.Title)
+	}
+
+	return nil
+}
+```
 </CodeGroup>
 
 With this fix, and after redeploying the task runners with the updated `PrintMovieStats` implementation, you can retry the job:
@@ -267,6 +493,9 @@ With this fix, and after redeploying the task runners with the updated `PrintMov
 ```python Python
 job_client.retry(job)
 job_client.display(job)
+```
+```go Go
+err = client.Jobs.Retry(ctx, job.ID)
 ```
 </CodeGroup>
 
