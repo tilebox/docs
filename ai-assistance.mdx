@@ -4,7 +4,7 @@ description: Large Language Models (LLMs) are powerful tools for exploring and l
 icon: brain-circuit
 ---
 
-## Providing Tilebox-specific context
+## Providing complete Tilebox context
 
 AI assistants and Large Language Models (LLMs) can answer questions, guide you in using Tilebox, suggest relevant sections in the documentation, and assist you in creating workflows.
 
@@ -18,31 +18,18 @@ The full content of the Tilebox documentation is available in plain markdown for
 The [Documentation Context](https://docs.tilebox.com/llms-full.txt) is updated whenever the documentation changes. If you download the file, refresh it occasionally to stay up-to-date.
 </Tip>
 
-## Example prompt
+## Providing tailored context via MCP
 
-After you upload the [Documentation Context](https://docs.tilebox.com/llms-full.txt) to your AI assistant or LLM, you can ask it questions and receive tailored, up-to-date responses.
+Tilebox Docs can be installed as an MCP tool, so an MCP client can ask for detailed context on specific topics.
 
-Here's an example prompt to get you started.
+Run the following command to generate an MCP server for Tilebox Docs.
 
-```plaintext Example prompt
-Generate a script that
-
-- Creates a cluster
-- Configures console logging
-- Contains a Fibonacci calculator workflow that is using a local filesystem cache.
-  Make sure you get task dependencies right.
-  Make sure to only print the final result as the last step of the workflow.
-  Write logs to let us know what is happening.
-- Submits a job for the number 7
-- Starts a processing runner
-
-Do not invent APIs. All available Tilebox APIs are documented.
+```bash
+npx mint-mcp add tilebox
 ```
 
-## Claude
+The command line tool will guide you along the installation process for Cursor, Windsurf, Claude Code, Augment Code or other MCP clients.
 
-[Claude 3.5 Sonnet](https://docs.anthropic.com/en/docs/about-claude/models) is a great choice for an AI assistant for using Tilebox. To provide Claude with Tilebox-specific context, create a [new project](https://support.anthropic.com/en/articles/9517075-what-are-projects), and upload the [llms-full.txt](https://docs.tilebox.com/llms-full.txt) as project knowledge. You can then ask questions or use it to generate scripts.
-
-## ChatGPT
-
-Experiments with [GPT-4o](https://chatgpt.com/?model=gpt-4o) have shown mixed results. While it effectively answers questions, it has difficulties generating workflow scripts, often misapplying or inventing APIs. Consider using [Claude 3.5 Sonnet](#claude) for a better experience.
+<Tip>
+The MCP server always retrieves the most up to date version of the documentation.
+</Tip>
