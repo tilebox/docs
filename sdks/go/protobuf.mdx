@@ -166,7 +166,7 @@ The usual pattern to iterate over data in Go is by using a `for` loop.
 As an example, here is how to extract the `copernicus_id` fields from the datapoints.
 
 ```go Go
-// assuming datapoints has been filled using `client.Datapoints.LoadInto` method
+// assuming datapoints has been filled using `client.Datapoints.QueryInto` method
 var datapoints []*tileboxv1.Sentinel1Sar
 
 copernicusIDs := make([]uuid.UUID, len(datapoints))
@@ -201,7 +201,7 @@ for _, dp := range datapoints {
 ## Converting to JSON
 
 Protobuf messages can be converted to JSON without loss of information. This is useful for interoperability with other systems that doesn't use protobuf.
-A guide on protoJSON format here: https://protobuf.dev/programming-guides/json/
+A guide on protoJSON can be found format here: https://protobuf.dev/programming-guides/json/
 
 ```go Go
 originalDatapoint := datapoints[0]
@@ -222,7 +222,7 @@ It can also be converted back to a `proto.Message`.
 
 ```go Go
 // Convert JSON bytes to proto.Message
-unmarshalledDatapoint := &testv1.Modis{}
+unmarshalledDatapoint := &tileboxv1.Sentinel1Sar{}
 err = protojson.Unmarshal(jsonDatapoint, unmarshalledDatapoint)
 if err != nil {
   log.Fatalf("Failed to unmarshal datapoint: %v", err)

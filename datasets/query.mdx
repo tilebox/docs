@@ -5,15 +5,6 @@ description: Learn how to query and load data from Tilebox datasets.
 icon: server
 ---
 
-## Overview
-
-This section provides an overview of the API for loading data from a collection. It includes usage examples for many common scenarios.
-
-| Method                                                               | Description                                          |
-| -------------------------------------------------------------------- | ---------------------------------------------------- |
-| [`collection.load`](/api-reference/python/tilebox.datasets/Collection.load) |  Query data points from a collection.                 |
-| [`collection.find`](/api-reference/python/tilebox.datasets/Collection.find) | Find a specific datapoint in a collection by its id. |
-
 Check out the examples below for common scenarios when loading data from collections.
 
 <CodeGroup>
@@ -24,6 +15,33 @@ client = Client()
 datasets = client.datasets()
 collections = datasets.open_data.copernicus.sentinel1_sar.collections()
 collection = collections["S1A_IW_RAW__0S"]
+```
+```go Go
+package main
+
+import (
+	"context"
+	"log"
+	"os"
+
+	"github.com/tilebox/tilebox-go/datasets/v1"
+)
+
+func main() {
+	ctx := context.Background()
+
+	client := datasets.NewClient(datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")))
+
+	dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel1_sar")
+	if err != nil {
+		log.Fatalf("Failed to get dataset: %v", err)
+	}
+
+	collection, err := client.Collections.Get(ctx, dataset.ID, "S1A_IW_RAW__0S")
+	if err != nil {
+		log.Fatalf("Failed to get collection: %v", err)
+	}
+}
 ```
 </CodeGroup>
 
@@ -40,9 +58,29 @@ To load data for a specific time interval, use a `tuple` in the form `(start, en
 interval = ("2017-01-01", "2023-01-01")
 data = collection.load(interval, show_progress=True)
 ```
+```go Go
+startDate := time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC)
+endDate := time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)
+interval := query.NewTimeInterval(startDate, endDate)
+
+var datapoints []*v1.Sentinel1Sar
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID},
+  &datapoints,
+  datasets.WithTemporalExtent(interval),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+log.Printf("Queried %d datapoints", len(datapoints))
+```
 </CodeGroup>
 
-```plaintext Output
+Output
+
+<CodeGroup>
+```plaintext Python
 <xarray.Dataset> Size: 725MB
 Dimensions:                (time: 1109597, latlon: 2)
 Coordinates:
@@ -56,12 +94,18 @@ Data variables: (12/30)
     satellite              (time) object 9MB 'SENTINEL-1' ... 'SENTINEL-1'
     ...                     ...
 ```
+```plaintext Go
+Queried 1109597 datapoints
+```
+</CodeGroup>
 
 <Note>
   The `show_progress` parameter is optional and can be used to display a [tqdm](https://tqdm.github.io/) progress bar while loading data.
 </Note>
 
-A time interval specified as a tuple is interpreted as a half-closed interval. This means the start time is inclusive, and the end time is exclusive. For instance, using an end time of `2023-01-01` includes data points up to `2022-12-31 23:59:59.999`, but excludes those from `2023-01-01 00:00:00.000`. This behavior mimics the Python `range` function and is useful for chaining time intervals.
+A time interval specified as a tuple is interpreted as a half-closed interval. This means the start time is inclusive, and the end time is exclusive.
+For instance, using an end time of `2023-01-01` includes data points up to `2022-12-31 23:59:59.999`, but excludes those from `2023-01-01 00:00:00.000`.
+This behavior mimics the Python `range` function and is useful for chaining time intervals.
 
 <CodeGroup>
 ```python Python
@@ -75,6 +119,28 @@ for year in [2017, 2018, 2019, 2020, 2021, 2022]:
 # Concatenate the data into a single dataset, which is equivalent
 # to the result of the single request in the code example above.
 data = xr.concat(data, dim="time")
+```
+```go Go
+var datapoints []*v1.Sentinel1Sar
+
+for year := 2017; year <= 2022; year++ {
+  startDate := time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC)
+  interval := query.NewTimeInterval(startDate, startDate.AddDate(1, 0, 0))
+
+  var partialDatapoints []*v1.Sentinel1Sar
+  err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID},
+    &partialDatapoints,
+    datasets.WithTemporalExtent(interval),
+  )
+  if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+  }
+
+  // Concatenate the data into a single dataset, which is equivalent
+  // to the result of the single request in the code example above.
+  datapoints = append(datapoints, partialDatapoints...)
+}
 ```
 </CodeGroup>
 
@@ -108,6 +174,33 @@ print(interval2.to_half_open())
 # Query data for a time interval
 data = collection.load(interval1, show_progress=True)
 ```
+```go Go
+interval1 := query.TimeInterval{
+  Start:        time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC),
+  End:          time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC),
+  EndInclusive: false,
+}
+
+interval2 := query.TimeInterval{
+  Start:        time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC),
+  End:          time.Date(2022, time.December, 31, 23, 59, 59, 999999999, time.UTC),
+  EndInclusive: true,
+}
+
+log.Println("Inclusivity is indicated by interval notation: ( and [")
+log.Println(interval1.String())
+log.Println(interval2.String())
+log.Println("They are equivalent:", interval1.Equal(&interval2))
+log.Println(interval2.ToHalfOpen().String())
+
+// Query data for a time interval
+var datapoints []*v1.Sentinel1Sar
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID},
+  &datapoints,
+  datasets.WithTemporalExtent(interval1),
+)
+```
 </CodeGroup>
 
 ```plaintext Output
@@ -133,9 +226,24 @@ Here's how to load a data point at a specific millisecond from a [collection](/d
     data = collection.load("2024-08-01 00:00:01.362")
     print(data)
     ```
+    ```go Go
+    temporalExtent := query.NewPointInTime(time.Date(2024, time.August, 1, 0, 0, 1, 362000000, time.UTC))
+
+    var datapoints []*v1.Sentinel1Sar
+    err = client.Datapoints.QueryInto(ctx,
+      []uuid.UUID{collection.ID}, &datapoints,
+      datasets.WithTemporalExtent(temporalExtent),
+    )
+
+    log.Printf("Queried %d datapoints", len(datapoints))
+    log.Printf("First datapoint time: %s", datapoints[0].GetTime().AsTime())
+    ```
 </CodeGroup>
 
-```plaintext Output
+Output
+
+<CodeGroup>
+```plaintext Python
 <xarray.Dataset> Size: 721B
 Dimensions:                (time: 1, latlon: 2)
 Coordinates:
@@ -149,6 +257,11 @@ Data variables: (12/30)
     satellite              (time) object 8B 'SENTINEL-1'
     ...                     ...
 ```
+```plaintext Go
+Queried 1 datapoints
+First datapoint time: 2024-08-01 00:00:01.362 +0000 UTC
+```
+</CodeGroup>
 
 <Note>
   Tilebox uses millisecond precision for timestamps. To load all data points for a specific second, it's a [time interval](/datasets/query#time-interval) request. Refer to the examples below for details.
@@ -156,7 +269,7 @@ Data variables: (12/30)
 
 The output of the `load` method is an `xarray.Dataset` object. To learn more about Xarray, visit the dedicated [Xarray page](/sdks/python/xarray).
 
-### Time iterables
+### Time iterables (Python only)
 
 You can specify a time interval by using an iterable of `TimeScalar`s as the `time_or_interval` parameter. This is especially useful when you want to use the output of a previous `load` call as input for another load. Here's how that works.
 
@@ -205,11 +318,34 @@ tokyo_time = pytz.timezone('Asia/Tokyo').localize(
 )
 print(tokyo_time)
 data = collection.load(tokyo_time)
-print(data)  # time is in UTC since API always returns UTC timestamps
+print(data)
+```
+```go Go
+// Tokyo has a UTC+9 hours offset, so this is the same as
+// 2017-01-01 02:45:25.679 UTC
+location, _ := time.LoadLocation("Asia/Tokyo")
+tokyoTime := query.NewPointInTime(time.Date(2017, 1, 1, 11, 45, 25, 679000000, location))
+log.Println(tokyoTime)
+
+var datapoints []*v1.Sentinel1Sar
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID}, &datapoints,
+  datasets.WithTemporalExtent(tokyoTime),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+log.Printf("Queried %d datapoints", len(datapoints))
+// time is in UTC since API always returns UTC timestamps
+log.Printf("First datapoint time: %s", datapoints[0].GetTime().AsTime())
 ```
 </CodeGroup>
 
-```plaintext Output
+Output
+
+<CodeGroup>
+```plaintext Python
 2017-01-01 11:45:25.679000+09:00
 <xarray.Dataset> Size: 725B
 Dimensions:                (time: 1, latlon: 2)
@@ -221,6 +357,12 @@ Coordinates:
 Data variables:
     ...
 ```
+```plaintext Go
+[2017-01-01 11:45:25.679 +0900 JST, 2017-01-01 11:45:25.679 +0900 JST]
+Queried 1 datapoints
+First datapoint time: 2017-01-01 02:45:25.679 +0000 UTC
+```
+</CodeGroup>
 
 ## Filtering by area of interest
 
@@ -241,9 +383,28 @@ If this flag is set, the response will only include the required fields for the 
     data = collection.load("2024-08-01 00:00:01.362", skip_data=True)
     print(data)
     ```
+```go Go
+temporalExtent := query.NewPointInTime(time.Date(2024, time.August, 1, 0, 0, 1, 362000000, time.UTC))
+
+var datapoints []*v1.Sentinel1Sar
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID}, &datapoints,
+  datasets.WithTemporalExtent(temporalExtent),
+  datasets.WithSkipData(),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+log.Printf("Queried %d datapoints", len(datapoints))
+log.Printf("First datapoint time: %s", datapoints[0].GetTime().AsTime())
+```
 </CodeGroup>
 
-```plaintext Output
+Output
+
+<CodeGroup>
+```plaintext Python
 <xarray.Dataset> Size: 160B
 Dimensions:         (time: 1)
 Coordinates:
@@ -253,6 +414,11 @@ Coordinates:
 Data variables:
     *empty*
 ```
+```plaintext Go
+Queried 1 datapoints
+First datapoint time: 2024-08-01 00:00:01.362 +0000 UTC
+```
+</CodeGroup>
 
 ## Empty response
 
@@ -264,18 +430,39 @@ The `load` method always returns an `xarray.Dataset` object, even if there are n
     data = collection.load(time_with_no_data_points)
     print(data)
     ```
+```go Go
+timeWithNoDatapoints := query.NewPointInTime(time.Date(1997, time.February, 6, 10, 21, 0, 0, time.UTC))
+
+var datapoints []*v1.Sentinel1Sar
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID}, &datapoints,
+  datasets.WithTemporalExtent(timeWithNoDatapoints),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+log.Printf("Queried %d datapoints", len(datapoints))
+```
 </CodeGroup>
 
-```plaintext Output
+Output 
+
+<CodeGroup>
+```plaintext Python
 <xarray.Dataset> Size: 0B
 Dimensions:  ()
 Data variables:
     *empty*
 ```
+```plaintext Go
+Queried 0 datapoints
+```
+</CodeGroup>
 
 ## By datapoint ID
 
-If you know the ID of the data point you want to load, you can use [collection.find](/api-reference/python/tilebox.datasets/Collection.find).
+If you know the ID of the data point you want to load, you can use [find](/api-reference/python/tilebox.datasets/Collection.find).
 
 This method always returns a single data point or raises an exception if no data point with the specified ID exists.
 
@@ -285,12 +472,23 @@ This method always returns a single data point or raises an exception if no data
     datapoint = collection.find(datapoint_id)
     print(datapoint)
     ```
-    ```go Golang
-    fmt.Println("test")
-    ```
+```go Go
+datapointID := uuid.MustParse("01910b3c-8552-424d-e116-81d0c3402ccc")
+
+var datapoint v1.Sentinel1Sar
+err = client.Datapoints.GetInto(ctx,
+  []uuid.UUID{collection.ID}, datapointID, &datapoint,
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoint: %v", err)
+}
+
+fmt.Println(protojson.Format(&datapoint))
+```
 </CodeGroup>
 
-<div class="font-semibold font-mono border-l border-r">Output</div>
+Output
+
 <CodeGroup>
 ```plaintext Python
 <xarray.Dataset> Size: 725B
@@ -306,18 +504,42 @@ Data variables: (12/30)
     satellite              object 8B 'SENTINEL-1'
     ...                     ...
 ```
-```plaintext Golang
-Test        ...
+```plaintext Go
+{
+  "time":  "2024-08-01T00:00:01.362Z",
+  "id":  {
+    "uuid":  "AZELPIVSQk3hFoHQw0AszA=="
+  },
+  "ingestionTime":  "2025-04-26T20:03:12.682144768Z",
+  "geometry":  {
+    "wkb":  "AQMAACDmEAAAAQAAAAUAAAAAAAAAAExWwA3gLZCg+DNAXrpJDAK3VcBX7C+7Jz80QBB6Nqs+z1XA3GgAb4E0NkAgY+5aQmZWwOauJeSD7jVAAAAAAABMVsAN4C2QoPgzQA=="
+  },
+  "granuleName":  "S1A_IW_RAW__0SDV_20240801T000001_20240801T000033_055012_06B3B6_2345.SAFE",
+  "processingLevel":  "PROCESSING_LEVEL_L0",
+  "productType":  "IW_RAW__0S",
+  "copernicusId":  {
+    "uuid":  "qqUjpbjDTem9ET1YesYsPA=="
+  },
+  "platform":  "S1A",
+  "orbitNumber":  "55012",
+  "relativeOrbitNumber":  "165",
+  "processingBaseline":  "NaN",
+  "stopTime":  "2024-08-01T00:00:33.762Z",
+  "centroid":  {
+    "wkb":  "AQEAAAAlta8FMQ5WwAhqkiM6FzVA"
+  },
+  "published":  "2024-08-01T07:05:56.740Z",
+  "updated":  "2024-08-01T07:06:13.431Z",
+  "location":  "/eodata/Sentinel-1/SAR/IW_RAW__0S/2024/08/01/S1A_IW_RAW__0SDV_20240801T000001_20240801T000033_055012_06B3B6_2345.SAFE",
+  "fileSize":  "1668437350",
+  "resolution":  "0",
+  "flightDirection":  "FLIGHT_DIRECTION_ASCENDING",
+  "polarization":  "POLARIZATION_VV_VH",
+  "acquisitionMode":  "ACQUISITION_MODE_IW"
+}
 ```
 </CodeGroup>
 
-Since `find` returns only a single data point, the output dataset does not include a `time` dimension.
-
 <Tip>
-  You can also set the `skip_data` parameter when calling `find` to load only the metadata of the data point, same as for `load`.
+  You can also set the `skip_data` parameter when calling `find` to query only the required fields of the data point, same as for `load`.
 </Tip>
-
-### Possible errors
-
-- `NotFoundError`: raised if no data point with the given ID is found in the collection
-- `ValueError`: raised if the specified `datapoint_id` is not a valid UUID

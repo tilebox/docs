@@ -26,17 +26,48 @@ When you click a specific event time in the data point list view, a detailed vie
 
 After selecting a dataset, collection, and time range, you can export the current selection as a Python code snippet. This will copy a code snippet like the one below to your clipboard.
 
+<CodeGroup>
 ```python Python
 from tilebox.datasets import Client
 
 client = Client()
 datasets = client.datasets()
 sentinel2_msi = datasets.open_data.copernicus.sentinel2_msi
-data = sentinel2_msi.collection("S2A_S2MSI1C").load(
-    ("2024-07-12", "2024-07-26"),
+data = sentinel2_msi.collection("S2A_S2MSI1C").query(
+    temporal_extent=("2024-07-12", "2024-07-26"),
     show_progress=True,
 )
 ```
+```go Go
+ctx := context.Background()
+client := datasets.NewClient(
+    datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+)
+
+dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+if err != nil {
+    log.Fatalf("Failed to get dataset: %v", err)
+}
+
+collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI1C")
+if err != nil {
+    log.Fatalf("Failed to get collection: %v", err)
+}
+
+startDate := time.Date(2024, 7, 12, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2024, 7, 26, 0, 0, 0, 0, time.UTC) 
+timeInterval := query.NewTimeInterval(startDate, endDate)
+
+var datapoints []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID}, &datapoints,
+    datasets.WithTemporalExtent(timeInterval),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
 
 <Tip>
   Paste the snippet into a [notebook](/sdks/python/sample-notebooks) to interactively explore the

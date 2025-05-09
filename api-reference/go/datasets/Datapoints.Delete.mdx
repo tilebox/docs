@@ -9,7 +9,7 @@ func (datapointClient) Delete(
     ctx context.Context,
     collectionID uuid.UUID,
     datapoints any,
-) (*datasets.DeleteResponse, error)
+) (int64, error)
 ```
 
 Delete data points from a collection.
@@ -34,7 +34,7 @@ The number of data points that were deleted.
 var datapoints []*tileboxv1.Sentinel1Sar
 // assuming the slice is filled with datapoints
 
-deleteResponse, err := client.Datapoints.Delete(ctx,
+numDeleted, err := client.Datapoints.Delete(ctx,
     collectionID,
     datapoints,
 )

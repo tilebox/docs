@@ -7,19 +7,19 @@ icon: diagram-project
 ```go
 func (*JobClient) List(
     ctx context.Context,
-    interval interval.LoadInterval,
+    interval query.TemporalExtent,
 ) iter.Seq2[*workflows.Job, error]
 ```
 
 List all available jobs.
 
-The jobs are loaded in a lazy manner, and returned as a sequence of Jobs.
+The jobs are lazily loaded and returned as a sequence of Jobs.
 The jobs are returned sorted by creation time in reverse order.
-The output sequence can be transformed into a slice of Job using `Collect` function.
+The output sequence can be transformed into a slice of Job using [Collect](/api-reference/go/workflows/Collect) function.
 
 ## Parameters
 
-<ParamField path="interval" type="interval.LoadInterval">
+<ParamField path="interval" type="query.TemporalExtent">
   The interval for which to load jobs
 </ParamField>
 
@@ -29,7 +29,13 @@ A sequence of jobs.
 
 <RequestExample>
 ```go Go
-interval := interval.NewStandardTimeInterval(
+import (
+  "time"
+  workflows "github.com/tilebox/tilebox-go/workflows/v1"
+	"github.com/tilebox/tilebox-go/query"
+)
+
+interval := query.NewTimeInterval(
   time.Now().Add(-24 * time.Hour),
   time.Now(),
 )

@@ -51,7 +51,7 @@ Get familiar with some key terms when working with time series datasets.
 
 Prerequisites
 
-- You have [installed](/sdks/python/install) the `tilebox-datasets` package.
+- You have installed the [python](/sdks/python/install) `tilebox-datasets` package or [go](/sdks/go/install) library.
 - You have [created](/authentication) a Tilebox API key.
 
 After meeting these prerequisites, you can create a client instance to interact with Tilebox Datasets.
@@ -61,6 +61,15 @@ After meeting these prerequisites, you can create a client instance to interact 
 from tilebox.datasets import Client
 
 client = Client(token="YOUR_TILEBOX_API_KEY")
+```
+```go Go
+import (
+	"github.com/tilebox/tilebox-go/datasets/v1"
+)
+
+client := datasets.NewClient(
+	datasets.WithAPIKey("YOUR_TILEBOX_API_KEY"),
+)
 ```
 </CodeGroup>
 
@@ -72,6 +81,16 @@ from tilebox.datasets import Client
 
 # requires a TILEBOX_API_KEY environment variable
 client = Client()
+```
+```go Go
+import (
+	"github.com/tilebox/tilebox-go/datasets/v1"
+	"os"
+)
+
+client := datasets.NewClient(
+	datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+)
 ```
 </CodeGroup>
 
@@ -87,6 +106,32 @@ After creating a client instance, you can start exploring available datasets. A 
 ```python Python
 datasets = client.datasets()
 datasets. # trigger autocomplete here to view available datasets
+```
+```go Go
+package main
+
+import (
+	"context"
+	"github.com/tilebox/tilebox-go/datasets/v1"
+	"log"
+	"os"
+)
+
+func main() {
+	client := datasets.NewClient(
+		datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+	)
+
+	ctx := context.Background()
+	allDatasets, err := client.Datasets.List(ctx)
+	if err != nil {
+		log.Fatalf("Failed to list datasets: %v", err)
+	}
+
+	for _, dataset := range allDatasets {
+		log.Printf("Dataset: %s", dataset.Name)
+	}
+}
 ```
 </CodeGroup>
 
@@ -104,6 +149,26 @@ datasets. # trigger autocomplete here to view available datasets
 ```python Python
 client = Client(token="invalid-key") # runs without error
 datasets = client.datasets() # raises AuthenticationError
+```
+```go Go
+package main
+
+import (
+	"context"
+	"github.com/tilebox/tilebox-go/datasets/v1"
+	"log"
+)
+
+func main() {
+	// runs without error
+	client := datasets.NewClient(datasets.WithAPIKey("invalid-key"))
+
+	// returns an error
+	_, err := client.Datasets.List(context.Background())
+	if err != nil {
+		log.Fatalf("Failed to list datasets: %v", err)
+	}
+}
 ```
 </CodeGroup>
 

@@ -230,12 +230,17 @@
             "api-reference/go/datasets/List",
             "api-reference/go/datasets/Collections.Create",
             "api-reference/go/datasets/Collections.Get",
+            "api-reference/go/datasets/Collections.GetOrCreate",
             "api-reference/go/datasets/Collections.List",
-            "api-reference/go/datasets/Datapoints.Load",
-            "api-reference/go/datasets/Datapoints.LoadInto",
+            "api-reference/go/datasets/Datapoints.GetInto",
+            "api-reference/go/datasets/Datapoints.Query",
+            "api-reference/go/datasets/Datapoints.QueryInto",
             "api-reference/go/datasets/Datapoints.Ingest",
             "api-reference/go/datasets/Datapoints.Delete",
-            "api-reference/go/datasets/Datapoints.DeleteIDs"
+            "api-reference/go/datasets/Datapoints.DeleteIDs",
+            "api-reference/go/datasets/CollectAs",
+            "api-reference/go/datasets/Collect",
+            "api-reference/go/datasets/As"
           ]
         },
         {
@@ -259,7 +264,9 @@
             "api-reference/go/workflows/Jobs.Get",
             "api-reference/go/workflows/Jobs.Retry",
             "api-reference/go/workflows/Jobs.Cancel",
-            "api-reference/go/workflows/Jobs.List"
+            "api-reference/go/workflows/Jobs.List",
+            "api-reference/go/workflows/Collect"
+
           ]
         }
       ]

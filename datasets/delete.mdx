@@ -7,14 +7,6 @@ icon: trash-can
 
 import { CodeOutputHeader } from '/snippets/components.mdx';
 
-## Overview
-
-This section provides an overview of the API for deleting data from a collection.
-
-| Method | Description |
-| ------ | ----------- |
-| [`collection.delete`](/api-reference/python/tilebox.datasets/Collection.delete) | Delete data points from a collection.                |
-
 <Note>
   You need to have write permission on the collection to be able to delete datapoints.
 </Note>
@@ -40,6 +32,47 @@ n_deleted = collection.delete([
 ])
 
 print(f"Deleted {n_deleted} data points.")
+```
+```go Go
+package main
+
+import (
+	"context"
+	"log"
+	"log/slog"
+	"os"
+
+	"github.com/google/uuid"
+	"github.com/tilebox/tilebox-go/datasets/v1"
+)
+
+func main() {
+	ctx := context.Background()
+
+	client := datasets.NewClient(
+		datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+	)
+
+	dataset, err := client.Datasets.Get(ctx, "my_custom_dataset")
+	if err != nil {
+		log.Fatalf("Failed to get dataset: %v", err)
+	}
+
+	collection, err := client.Collections.Get(ctx, dataset.ID, "Sensor-1")
+	if err != nil {
+		log.Fatalf("Failed to create collection: %v", err)
+	}
+
+	datapointIDs := []uuid.UUID{
+		uuid.MustParse("0195c87a-49f6-5ffa-e3cb-92215d057ea6"),
+		uuid.MustParse("0195c87b-bd0e-3998-05cf-af6538f34957"),
+	}
+	numDeleted, err := client.Datapoints.DeleteIDs(ctx, collection.ID, datapointIDs)
+	if err != nil {
+		log.Fatalf("Failed to delete datapoints: %v", err)
+	}
+	slog.Info("Deleted data points", slog.Int64("deleted", numDeleted))
+}
 ```
 </CodeGroup>
 <CodeOutputHeader />
@@ -72,6 +105,28 @@ to_delete = collection.load(("2023-05-01", "2023-06-01"), skip_data=True)
 
 n_deleted = collection.delete(datapoints)
 print(f"Deleted {n_deleted} data points.")
+```
+```go Go
+collectionID := uuid.MustParse("c5145c99-1843-4816-9221-970f9ce3ac93")
+startDate := time.Date(2023, time.May, 1, 0, 0, 0, 0, time.UTC)
+endDate := time.Date(2023, time.June, 1, 0, 0, 0, 0, time.UTC)
+mai2023 := query.NewTimeInterval(startDate, endDate)
+
+var toDelete []*v1.Sentinel2Msi
+err := client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collectionID}, &toDelete,
+  datasets.WithTemporalExtent(mai2023),
+  datasets.WithSkipData(),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+numDeleted, err := client.Datapoints.Delete(ctx, collectionID, toDelete)
+if err != nil {
+  log.Fatalf("Failed to delete datapoints: %v", err)
+}
+slog.Info("Deleted data points", slog.Int64("deleted", numDeleted))
 ```
 </CodeGroup>
 <CodeOutputHeader />

@@ -6,39 +6,60 @@ icon: notebook
 
 To quickly become familiar with the Go client, you can explore some standalone examples.
 
-## Sample notebooks
+## Sample examples
 
 You can access the examples on [<Icon icon="github" /> GitHub](https://github.com/tilebox/tilebox-go/tree/main/examples).
 
-### Examples overview
+More example can be found throughout the docs.
+
+### Workflows examples
 
 <AccordionGroup>
   <Accordion title="Hello World">
     How to use Tilebox Workflows to submit and execute a simple task.
 
     [<Icon icon="arrow-up-right-from-square" /> Open in
-    Github](https://github.com/tilebox/tilebox-go/tree/main/examples/helloworld)
+    Github](https://github.com/tilebox/tilebox-go/tree/main/examples/workflows/helloworld)
 
   </Accordion>
-  <Accordion title="Sample Workflow">
-    How to submit a task and run a workflow using protobuf messages and with OpenTelemetry setup.
+  <Accordion title="Protobuf tasks">
+    How to submit a task and run a workflow using protobuf messages.
 
     [<Icon icon="arrow-up-right-from-square" /> Open in
-    Github](https://github.com/tilebox/tilebox-go/tree/main/examples/sampleworkflow)
+    Github](https://github.com/tilebox/tilebox-go/blob/main/examples/workflows/protobuf-task)
 
   </Accordion>
+  <Accordion title="Axiom Observability">
+    How to set up tracing and logging for workflows using [Axiom](https://axiom.co/) observability platform.
+
+    [<Icon icon="arrow-up-right-from-square" /> Open in
+    Github](https://github.com/tilebox/tilebox-go/tree/main/examples/workflows/axiom)
+
+  </Accordion>
+   <Accordion title="OpenTelemetry Observability">
+     How to set up tracing and logging for workflows using [OpenTelemetry](https://opentelemetry.io/).
+
+    [<Icon icon="arrow-up-right-from-square" /> Open in
+    Github](https://github.com/tilebox/tilebox-go/blob/main/examples/workflows/opentelemetry)
+
+  </Accordion>
+</AccordionGroup>
+
+### Datasets examples
+
+<AccordionGroup>
   <Accordion title="Load">
-    How to load datapoints from a Tilebox dataset.
+   How to query datapoints from a Tilebox dataset.
 
     [<Icon icon="arrow-up-right-from-square" /> Open in
-    Github](https://github.com/tilebox/tilebox-go/blob/main/examples/load/main.go)
+    Github](https://github.com/tilebox/tilebox-go/blob/main/examples/datasets/query/main.go)
 
   </Accordion>
-  <Accordion title="Ingest">
+  <Accordion title="Ingest and delete">
     How to create a collection, ingest datapoints, and then delete them.
 
     [<Icon icon="arrow-up-right-from-square" /> Open in
-    Github](https://github.com/tilebox/tilebox-go/blob/main/examples/ingest/main.go)
+    Github](https://github.com/tilebox/tilebox-go/blob/main/examples/datasets/ingest/main.go)
 
   </Accordion>
 </AccordionGroup>

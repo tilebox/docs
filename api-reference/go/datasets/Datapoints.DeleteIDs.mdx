@@ -9,7 +9,7 @@ func (datapointClient) DeleteIDs(
     ctx context.Context,
     collectionID uuid.UUID,
     datapointIDs []uuid.UUID,
-) (*datasets.DeleteResponse, error)
+) (int64, error)
 ```
 
 Delete data points from a collection.
@@ -29,7 +29,7 @@ The number of data points that were deleted.
 
 <RequestExample>
 ```go Go
-deleteResponse, err := client.Datapoints.DeleteIDs(ctx,
+numDeleted, err := client.Datapoints.DeleteIDs(ctx,
     collectionID,
     []uuid.UUID{
       uuid.MustParse("0195c87a-49f6-5ffa-e3cb-92215d057ea6"),

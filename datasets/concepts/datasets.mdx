@@ -4,21 +4,12 @@ description: Tilebox Datasets act as containers for data points. All data points
 icon: database
 ---
 
-## Overview
-
-This section provides a quick overview of the API for listing and accessing datasets.
-
-| Method                                                               | Description                                          |
-| -------------------------------------------------------------------- | ---------------------------------------------------- |
-| [`client.datasets`](/api-reference/python/tilebox.datasets/Client.datasets) |  List all available datasets.                        |
-| [`client.dataset`](/api-reference/python/tilebox.datasets/Client.dataset) | Access an individual dataset by its name.              |
-
 <Tip>
   You can create your own, Custom Datasets via the [Tilebox Console](/console).
 </Tip>
 
 ## Related Guides
-  
+
 <CardGroup cols={2}>
   <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
     Learn how to create a Timeseries dataset using the Tilebox Console.
@@ -65,7 +56,7 @@ You can always add new fields to a dataset, since all fields are always optional
 
 ## Field types
 
-When defining the data schema, you can specify the type of each field. The following field types are supported.
+When defining the data schema, you can specify each field's type. The following field types are supported.
 
 ### Primitives
 
@@ -117,6 +108,32 @@ client = Client()
 datasets = client.datasets()
 print(datasets)
 ```
+```go Go
+package main
+
+import (
+  "context"
+  "log"
+  "os"
+
+  "github.com/tilebox/tilebox-go/datasets/v1"
+)
+
+func main() {
+  ctx := context.Background()
+
+  client := datasets.NewClient(datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")))
+
+  allDatasets, err := client.Datasets.List(ctx)
+  if err != nil {
+    log.Fatalf("Failed to list datasets: %v", err)
+  }
+
+  for _, dataset := range allDatasets {
+    log.Println(dataset)
+  }
+}
+```
 </CodeGroup>
 
 ```plaintext Output
@@ -139,10 +156,10 @@ Once you have your dataset object, you can use it to [list the available collect
 
 ## Accessing a dataset
 
-Each dataset has an automatically generated *code name* that can be used to access it. The *code name* is the name of the group, followed by a dot, followed by the dataset name.
-For example, the *code name* for the Sentinel-2 MSI dataset, which is part of the `open_data.copernicus` group, the code name is `open_data.copernicus.sentinel2_msi`.
+Each dataset has an automatically generated *slug* that can be used to access it. The *slug* is the name of the group, followed by a dot, followed by the dataset *code name*.
+For example, the *slug* for the Sentinel-2 MSI dataset, which is part of the `open_data.copernicus` group, is `open_data.copernicus.sentinel2_msi`.
 
-To access a dataset, use the `dataset` method of your client instance and pass the *code name* of the dataset as an argument.
+To access a dataset, use the `dataset` method of your client instance and pass the *slug* of the dataset as an argument.
 
 <CodeGroup>
 ```python Python
@@ -151,7 +168,9 @@ from tilebox.datasets import Client
 client = Client()
 s2_msi_dataset = client.dataset("open_data.copernicus.sentinel2_msi")
 ```
+```go Go
+s2MsiDataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+```
 </CodeGroup>
 
 Once you have your dataset object, you can use it to [access available collections](/datasets/concepts/collections) for the dataset.
-
