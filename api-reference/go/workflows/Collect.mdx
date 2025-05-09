@@ -1,0 +1,31 @@
+---
+title: Collect
+sidebarTitle: Collect
+icon: diagram-project
+---
+
+```go
+func Collect[K any](seq iter.Seq2[K, error]) ([]K, error)
+```
+
+Convert any sequence into a slice.
+
+It return an error if any of the elements in the sequence has a non-nil error.
+
+## Parameters
+
+<ParamField path="seq" type="iter.Seq2[[]K, error]">
+  The sequence of bytes to convert
+</ParamField>
+
+## Returns
+
+A slice of `K` or an error if any.
+
+<RequestExample>
+```go Go
+jobs, err := workflows.Collect(
+  client.Jobs.List(ctx, interval),
+)
+```
+</RequestExample>

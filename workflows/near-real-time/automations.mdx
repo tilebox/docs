@@ -31,6 +31,10 @@ To create a trigger, define a special task that serves as a prototype. In respon
 Each automation has a [task identifier](/workflows/concepts/tasks#task-identifiers), a [version](/workflows/concepts/tasks#semantic-versioning), and [input parameters](/workflows/concepts/tasks#input-parameters), just like regular tasks.
 Automations also automatically provide a special `trigger` attribute that contains information about the event that initiated the task's execution.
 
+<Note>
+    Go doesn't support registering automations yet, please use python or the console instead.
+</Note>
+
 ## Automation Client
 
 The Tilebox Workflows client includes a sub-client for managing automations. You can create this sub-client by calling the `automations` method on the main client instance.

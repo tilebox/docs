@@ -1,0 +1,29 @@
+---
+title: TaskRunner.RegisterTasks
+icon: gear-code
+---
+
+```go
+func (*TaskRunner) RegisterTasks(tasks ...workflows.ExecutableTask) error
+```
+
+Register tasks that can be executed by this task runner.
+
+## Parameters
+
+<ParamField path="tasks" type="[]ExecutableTask">
+  A list of task classes that this runner can execute
+</ParamField>
+
+## Returns
+
+An error if the tasks could not be registered.
+
+<RequestExample>
+```go Go
+err := runner.RegisterTasks(
+    &MyTask{},
+    &MyOtherTask{},
+)
+```
+</RequestExample>

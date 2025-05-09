@@ -50,13 +50,58 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+```go Go
+package main
+
+import (
+	"context"
+	"log/slog"
+	"os"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+	// your own workflow:
+	"github.com/my_org/myworkflow"
+)
+
+func main() {
+	// 1. connect to the Tilebox Workflows API
+	client := workflows.NewClient(
+		workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+	)
+
+	// 2. select a cluster to join
+	runner, err := client.NewTaskRunner("dev-cluster")
+	if err != nil {
+		slog.Error("failed to create task runner", slog.Any("error", err))
+		return
+	}
+
+	// 3. register tasks
+	err = runner.RegisterTasks(
+		&myworkflow.MyTask{},
+		&myworkflow.OtherTask{},
+	)
+	if err != nil {
+		slog.Error("failed to register task", slog.Any("error", err))
+		return
+	}
+
+	// 4. listen for new tasks to execute
+	runner.Run(context.Background())
+}
+```
 </CodeGroup>
 
-To start the task runner locally, run it as a Python script:
+To start the task runner locally, run it as a script:
 
-```bash
+<CodeGroup>
+```bash Python
 > python task_runner.py
 ```
+```bash Go
+> go run .
+```
+</CodeGroup>
 
 ## Task Selection
 
@@ -146,12 +191,56 @@ Here's an example of a distributed workflow:
         def execute(self, context: ExecutionContext) -> None:
             pass
     ```
+```go Go
+package distributed
+
+import (
+	"context"
+	"fmt"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+	"github.com/tilebox/tilebox-go/workflows/v1/subtask"
+)
+
+type DistributedWorkflow struct{}
+
+func (t *DistributedWorkflow) Execute(ctx context.Context) error {
+	downloadTask, err := workflows.SubmitSubtask(ctx, &DownloadData{})
+	if err != nil {
+		return fmt.Errorf("failed to submit download subtask: %w", err)
+	}
+
+	_, err = workflows.SubmitSubtask(ctx, &ProcessData{}, subtask.WithDependencies(downloadTask))
+	if err != nil {
+		return fmt.Errorf("failed to submit process subtask: %w", err)
+	}
+	return nil
+}
+
+// DownloadData Download a dataset and store it in a shared internal bucket.
+// Requires a good network connection for high download bandwidth.
+type DownloadData struct{}
+
+func (t *DownloadData) Execute(ctx context.Context) error {
+	return nil
+}
+
+// ProcessData Perform compute-intensive processing of a dataset.
+// The dataset must be available in an internal bucket.
+// Requires access to a GPU for optimal performance.
+type ProcessData struct{}
+
+func (t *ProcessData) Execute(ctx context.Context) error {
+	return nil
+}
+```
 </CodeGroup>
 
 To achieve distributed execution for this workflow, no single task runner capable of executing all three of the tasks is set up. Instead, two task runners, each capable of executing one of the tasks are set up: one in a high-speed network environment and the other with GPU access. When the distributed workflow runs, the first task runner picks up the `DownloadData` task, while the second picks up the `ProcessData` task. The `DistributedWorkflow` does not require specific hardware, so it can be registered with both runners and executed by either one.
 
-<CodeGroup title="Distributed Runners">
-```python download_task_runner.py
+<Tabs>
+  <Tab title="download_task_runner.py">
+  <CodeGroup title="Distributed Runners">
+```python Python
 from tilebox.workflows import Client
 
 client = Client()
@@ -161,7 +250,44 @@ high_network_speed_runner = client.runner(
 )
 high_network_speed_runner.run_forever()
 ```
-```python gpu_task_runner.py
+```go Go
+package main
+
+import (
+	"context"
+	"log/slog"
+	"os"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+func main() {
+	client := workflows.NewClient(workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")))
+
+	highNetworkSpeedRunner, err := client.NewTaskRunner("dev-cluster")
+	if err != nil {
+		slog.Error("failed to create task runner", slog.Any("error", err))
+		return
+	}
+
+	err = highNetworkSpeedRunner.RegisterTasks(
+		&DownloadData{},
+		&DistributedWorkflow{},
+	)
+	if err != nil {
+		slog.Error("failed to register tasks", slog.Any("error", err))
+		return
+	}
+
+	highNetworkSpeedRunner.RunForever(context.Background())
+}
+```
+  </CodeGroup>
+  </Tab>
+
+  <Tab title="gpu_task_runner.py">
+  <CodeGroup title="Distributed Runners">
+```python Python
 from tilebox.workflows import Client
 
 client = Client()
@@ -171,7 +297,41 @@ gpu_runner = client.runner(
 )
 gpu_runner.run_forever()
 ```
-</CodeGroup>
+```go Go
+package main
+
+import (
+	"context"
+	"log/slog"
+	"os"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+func main() {
+	client := workflows.NewClient(workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")))
+
+	gpuRunner, err := client.NewTaskRunner("dev-cluster")
+	if err != nil {
+		slog.Error("failed to create task runner", slog.Any("error", err))
+		return
+	}
+
+	err = gpuRunner.RegisterTasks(
+		&ProcessData{},
+		&DistributedWorkflow{},
+	)
+	if err != nil {
+		slog.Error("failed to register tasks", slog.Any("error", err))
+		return
+	}
+
+	gpuRunner.RunForever(context.Background())
+}
+```
+  </CodeGroup>
+  </Tab>
+</Tabs>
 
 Now, both `download_task_runner.py` and `gpu_task_runner.py` are started, in parallel, on different machines with the required hardware for each. When `DistributedWorkflow` is submitted, it executes on one of the two runners, and it's submitted sub-tasks are handled by the appropriate runner.
 

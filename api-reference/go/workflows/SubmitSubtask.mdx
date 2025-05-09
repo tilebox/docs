@@ -1,0 +1,68 @@
+---
+title: workflows.SubmitSubtask
+sidebarTitle: SubmitSubtask
+icon: code
+---
+
+```go
+workflows.SubmitSubtask(
+	ctx context.Context,
+	task workflows.Task,
+	options ...subtask.SubmitOption,
+) (subtask.FutureTask, error)
+```
+
+Submit a subtask to the task runner.
+
+This function is intended to be used in tasks.
+
+## Parameters
+
+<ParamField path="task" type="Task">
+  A subtask to submit
+</ParamField>
+<ParamField path="options" type="[]subtask.SubmitOption">
+  Options for the subtask
+</ParamField>
+
+## Options
+
+<ParamField path="WithDependencies(dependencies ...FutureTask)">
+  Set dependencies for the task
+</ParamField>
+<ParamField path="WithClusterSlug(clusterSlug string)" default="cluster of the task runner">
+  Set the cluster slug of the cluster where the task will be executed.
+</ParamField>
+<ParamField path="WithMaxRetries(maxRetries int64)" default="0">
+  Set the maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case it fails
+</ParamField>
+
+## Returns
+
+A future task that can be used to set dependencies between tasks.
+
+<RequestExample>
+```go Go
+
+type MySubTask struct {
+	Sensor string
+	Value  float64
+}
+
+type Task struct{}
+
+func (t *Task) Execute(ctx context.Context) error {
+	err := workflows.SubmitSubtask(ctx, 
+		&MySubTask{
+			Sensor: "A",
+			Value:  42,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to submit subtasks: %w", err)
+	}
+
+	return nil
+}
+```
+</RequestExample>

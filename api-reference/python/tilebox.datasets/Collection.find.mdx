@@ -26,6 +26,8 @@ Find a specific datapoint in a collection by its id.
 
 An [`xarray.Dataset`](/sdks/python/xarray) containing the requested data point.
 
+Since it returns only a single data point, the output xarray dataset does not include a `time` dimension.
+
 ## Errors
 
 <ParamField path="NotFoundError" type="No such datapoint: <id>">

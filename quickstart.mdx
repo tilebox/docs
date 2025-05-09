@@ -124,4 +124,224 @@ If you prefer to work locally, follow these steps to get started.
 
   </Steps>
 </Tab>
+<Tab title="Go">
+## Start with Examples
+
+Explore the provided [Examples](/sdks/go/examples) to begin your journey with Tilebox. These examples offer a step-by-step guide to using the API and showcase many features supported by Tilebox Go clients. You can also use these examples as a foundation for your own projects.
+
+## Start on Your Device
+
+If you prefer to work locally, follow these steps to get started.
+
+  <Steps>
+    <Step title="Install Packages">
+      Add the Tilebox library in your project.
+
+      ```bash Shell
+      go get github.com/tilebox/tilebox-go
+      ```
+
+      Install [tilebox-generate](https://github.com/tilebox/tilebox-generate) command-line tool on your machine.
+      It's used to generate Go structs for Tilebox datasets.
+
+      ```bash Shell
+      go install github.com/tilebox/tilebox-generate@latest
+      ```
+    </Step>
+    <Step title="Create an API Key">
+      Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Account -> API Keys](https://console.tilebox.com/account/api-keys), and clicking the "Create API Key" button.
+
+      <Frame>
+        <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
+        <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+      </Frame>
+
+      <Tip>Copy the API key and keep it somewhere safe. You will need it to authenticate your requests.</Tip>
+    </Step>
+    <Step title="Create a Cluster">
+      Create a cluster by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Workflows -> Clusters](https://console.tilebox.com/workflows/clusters), and clicking the "Create cluster" button.
+
+      <Frame>
+        <img src="/assets/console/cluster-light.png" alt="Tilebox Console" className="dark:hidden"  />
+        <img src="/assets/console/cluster-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+      </Frame>
+
+      <Tip>Copy the cluster slug, you will need it to run your workflows.</Tip>
+    </Step>
+    <Step title="Query Data">
+      Run [tilebox-generate](https://github.com/tilebox/tilebox-generate) in the root directory of your Go project.
+      It generates the dataset type for Sentinel-2 MSI dataset. It will generate a `./protogen/tilebox/v1/sentinel2_msi.pb.go` file.
+
+      ```bash Shell
+      tilebox-generate --dataset open_data.copernicus.sentinel2_msi --tilebox-api-key YOUR_TILEBOX_API_KEY
+      ```
+    </Step>
+    <Step title="Query Data">
+      Use the datasets client to query data from a dataset.
+
+      ```go Go
+	package main
+
+	import (
+		"context"
+		"log"
+		"log/slog"
+		"os"
+		"time"
+
+		"github.com/google/uuid"
+		"github.com/paulmach/orb"
+		"github.com/paulmach/orb/encoding/wkt"
+		"github.com/tilebox/tilebox-go/datasets/v1"
+		"github.com/tilebox/tilebox-go/query"
+	)
+
+	func main() {
+		ctx := context.Background()
+		client := datasets.NewClient(
+			datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+		)
+
+		// select a dataset
+		dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+		if err != nil {
+			log.Fatalf("Failed to get dataset: %v", err)
+		}
+
+		// select a collection
+		collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI1C")
+		if err != nil {
+			log.Fatalf("Failed to get collection: %v", err)
+		}
+
+		// load data from a collection in a given time range and spatial extent
+		colorado := orb.Polygon{
+			{{-109.05, 37.09}, {-102.06, 37.09}, {-102.06, 41.59}, {-109.05, 41.59}, {-109.05, 37.09}},
+		}
+		startDate := time.Date(2025, time.March, 1, 0, 0, 0, 0, time.UTC)
+		endDate := time.Date(2025, time.April, 1, 0, 0, 0, 0, time.UTC)
+		march2025 := query.NewTimeInterval(startDate, endDate)
+
+	// You have to use tilebox-generate to generate the dataset type
+		var datapointsOverColorado []*v1.Sentinel2Msi
+		err = client.Datapoints.QueryInto(ctx,
+			[]uuid.UUID{collection.ID}, &datapointsOverColorado,
+			datasets.WithTemporalExtent(march2025),
+			datasets.WithSpatialExtent(colorado),
+		)
+		if err != nil {
+			log.Fatalf("Failed to query datapoints: %v", err)
+		}
+
+		slog.Info("Found datapoints over Colorado in March 2025", slog.Int("count", len(datapointsOverColorado)))
+		slog.Info("First datapoint over Colorado",
+			slog.String("id", datapointsOverColorado[0].GetId().AsUUID().String()),
+			slog.Time("event time", datapointsOverColorado[0].GetTime().AsTime()),
+			slog.Time("ingestion time", datapointsOverColorado[0].GetIngestionTime().AsTime()),
+			slog.String("geometry", wkt.MarshalString(datapointsOverColorado[0].GetGeometry().AsGeometry())),
+			slog.String("granule name", datapointsOverColorado[0].GetGranuleName()),
+			slog.String("processing level", datapointsOverColorado[0].GetProcessingLevel().String()),
+			slog.String("product type", datapointsOverColorado[0].GetProductType()),
+			// and so on...
+		)
+	}
+      ```
+    </Step>
+    <Step title="Run a Workflow">
+      Use the workflows client to create a task and submit it as a job.
+
+      ```go Go
+	package main
+
+	import (
+		"context"
+		"log/slog"
+		"os"
+
+		"github.com/tilebox/tilebox-go/workflows/v1"
+	)
+
+	type HelloTask struct {
+		Greeting string
+		Name     string
+	}
+
+	func (t *HelloTask) Execute(ctx context.Context) error {
+		slog.InfoContext(ctx, "Hello from the main task!", slog.String("Greeting", t.Greeting), slog.String("Name", t.Name))
+
+		err := workflows.SubmitSubtasks(ctx, &HelloSubtask{Name: t.Name})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	type HelloSubtask struct {
+		Name string
+	}
+
+	func (t *HelloSubtask) Execute(context.Context) error {
+		slog.Info("Hello from the subtask!", slog.String("Name", t.Name))
+		return nil
+	}
+
+	func main() {
+		ctx := context.Background()
+
+		// Replace with your actual cluster and token
+		clusterSlug := "YOUR_COMPUTE_CLUSTER"
+		client := workflows.NewClient(
+			workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+		)
+
+		job, err := client.Jobs.Submit(ctx, "hello-world", clusterSlug, 0,
+			&HelloTask{
+				Greeting: "Greetings",
+				Name: "Tilebox",
+			},
+		)
+		if err != nil {
+			slog.ErrorContext(ctx, "Failed to submit job", slog.Any("error", err))
+			return
+		}
+
+		slog.InfoContext(ctx, "Job submitted", slog.String("job_id", job.ID.String()))
+
+		runner, err := client.NewTaskRunner(
+			workflows.WithCluster(clusterSlug),
+		)
+		if err != nil {
+			slog.Error("failed to create task runner", slog.Any("error", err))
+			return
+		}
+
+		err = runner.RegisterTasks(
+			&HelloTask{},
+			&HelloSubtask{},
+		)
+		if err != nil {
+			slog.Error("failed to register task", slog.Any("error", err))
+			return
+		}
+
+		runner.Run(context.Background())
+	}
+      ```
+    </Step>
+    <Step title="Explore Further">
+      Review the following guides to learn more about the modules that make up Tilebox:
+
+      <CardGroup cols={2}>
+        <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
+          Learn how to create a Timeseries dataset using the Tilebox Console.
+        </Card>
+        <Card title="Ingesting data" icon="up-from-bracket" href="/guides/datasets/ingest" horizontal>
+          Learn how to ingest an existing CSV dataset into a Timeseries dataset collection.
+        </Card>
+      </CardGroup>
+    </Step>
+
+  </Steps>
+</Tab>
 </Tabs>

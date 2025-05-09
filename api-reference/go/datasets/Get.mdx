@@ -1,0 +1,38 @@
+---
+title: Client.Datasets.Get
+sidebarTitle: Get
+icon: laptop-code
+---
+
+```go
+func (datasetClient) Get(
+    ctx context.Context,
+    slug string,
+) (*datasets.Dataset, error)
+```
+
+Get a dataset by its slug.
+
+## Parameters
+
+<ParamField path="slug" type="string">
+  The slug of the dataset
+</ParamField>
+
+## Returns
+
+A dataset object.
+
+<RequestExample>
+```go Go
+s1_sar, err := client.Datasets.Get(ctx,
+    "open_data.copernicus.sentinel1_sar"
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="No such dataset">
+  The specified dataset does not exist.
+</ParamField>

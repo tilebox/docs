@@ -1,0 +1,37 @@
+---
+title: Client.Collections.GetOrCreate
+sidebarTitle: Collections.GetOrCreate
+icon: layer-group
+---
+
+```go
+func (collectionClient) GetOrCreate(
+    ctx context.Context,
+    datasetID uuid.UUID,
+    name string,
+) (*datasets.Collection, error)
+```
+
+Get or create a collection by its name. If the collection does not exist, it will be created.
+
+## Parameters
+
+<ParamField path="datasetID" type="uuid.UUID">
+  The id of the dataset
+</ParamField>
+<ParamField path="name" type="string">
+  The name of the collection
+</ParamField>
+
+## Returns
+
+A collection object.
+
+<RequestExample>
+```go Go
+collection, err := client.Collections.GetOrCreate(ctx,
+    datasetID,
+    "My-collection",
+)
+```
+</RequestExample>

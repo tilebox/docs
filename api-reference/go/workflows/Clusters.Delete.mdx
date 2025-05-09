@@ -1,0 +1,35 @@
+---
+title: Client.Clusters.Delete
+sidebarTitle: Clusters.Delete
+icon: circle-nodes
+---
+
+```go
+func (*ClusterClient) Delete(ctx context.Context, slug string) error
+```
+
+Delete a cluster by its slug.
+
+## Parameters
+
+<ParamField path="slug" type="string">
+  The slug of the cluster to delete
+</ParamField>
+
+## Returns
+
+An error if the cluster could not be deleted.
+
+<RequestExample>
+```go Go
+err := client.Clusters.Delete(ctx,
+    "my-cluster-tZD9Ca1qsqt3V"
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="cluster not found">
+  The specified cluster does not exist.
+</ParamField>
