@@ -366,11 +366,66 @@ First datapoint time: 2017-01-01 02:45:25.679 +0000 UTC
 
 ## Filtering by area of interest
 
-[Spatio-temporal](/datasets/types/spatiotemporal) also come with spatial filtering capabilities. When querying, you can no longer specify a time interval, but additionally also specify a bounding box or a polygon as an area of interest to filter by.
+[Spatio-temporal](/datasets/types/spatiotemporal) also come with spatial filtering capabilities. When querying, you can specify a time interval, and additionally also specify a bounding box or a polygon as an area of interest to filter by.
 
-<Note>
-  Spatio-temporal datasets - including spatial filtering capabilities - are currently in development and not available yet. Stay tuned for updates.
-</Note>
+Here is how to query Sentinel-2 `S2A_S2MSI2A` data over Colorado for April 2025.
+
+<CodeGroup>
+```python Python
+from shapely import MultiPolygon
+from tilebox.datasets import Client
+
+area = MultiPolygon(
+    [
+        (((-109.10, 40.98), (-102.01, 40.95), (-102.06, 36.82), (-109.06, 36.96), (-109.10, 40.98)),),
+    ]
+)
+
+client = Client()
+datasets = client.datasets()
+sentinel2_msi = datasets.open_data.copernicus.sentinel2_msi
+data = sentinel2_msi.collection("S2A_S2MSI2A").query(
+    temporal_extent=("2025-04-01", "2025-05-02"),
+    spatial_extent=area,
+    show_progress=True,
+)
+```
+```go Go
+ctx := context.Background()
+client := datasets.NewClient(
+    datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
+)
+
+dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+if err != nil {
+    log.Fatalf("Failed to get dataset: %v", err)
+}
+
+collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
+if err != nil {
+    log.Fatalf("Failed to get collection: %v", err)
+}
+
+startDate := time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 5, 2, 0, 0, 0, 0, time.UTC) 
+timeInterval := query.NewTimeInterval(startDate, endDate)
+area := orb.MultiPolygon{
+    {
+        {{-109.10, 40.98}, {-102.01, 40.95}, {-102.06, 36.82}, {-109.06, 36.96}, {-109.10, 40.98}},
+    },
+}
+
+var datapoints []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID}, &datapoints,
+    datasets.WithTemporalExtent(timeInterval),
+    datasets.WithSpatialExtent(area),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
 
 ## Fetching only metadata
 
