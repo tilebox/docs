@@ -1,0 +1,26 @@
+---
+title: ClustersClient.find
+icon: circle-nodes
+---
+
+```python
+def ClustersClient.find(cluster_or_slug: Cluster | str): Cluster
+```
+
+Get a cluster by its slug.
+
+## Parameters
+
+<ParamField path="cluster_or_slug" type="Cluster | str">
+  The cluster or cluster slug to get.
+</ParamField>
+
+## Returns
+
+A cluster object.
+
+<RequestExample>
+```python Python
+cluster = cluster_client.find("my-cluster-CvufcSxcC9SKfe")
+```
+</RequestExample>

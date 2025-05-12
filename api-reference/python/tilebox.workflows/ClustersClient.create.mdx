@@ -1,0 +1,26 @@
+---
+title: ClustersClient.create
+icon: circle-nodes
+---
+
+```python
+def ClustersClient.create(name: str): Cluster
+```
+
+Create a cluster.
+
+## Parameters
+
+<ParamField path="name" type="string">
+  A display name for the cluster
+</ParamField>
+
+## Returns
+
+The created cluster object.
+
+<RequestExample>
+```python Python
+cluster = cluster_client.create("My cluster")
+```
+</RequestExample>
