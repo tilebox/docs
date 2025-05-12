@@ -173,7 +173,7 @@ If you prefer to work locally, follow these steps to get started.
       It generates the dataset type for Sentinel-2 MSI dataset. It will generate a `./protogen/tilebox/v1/sentinel2_msi.pb.go` file.
 
       ```bash Shell
-      tilebox-generate --dataset open_data.copernicus.sentinel2_msi --tilebox-api-key YOUR_TILEBOX_API_KEY
+      tilebox-generate --dataset open_data.copernicus.sentinel2_msi --tilebox-api-key $TILEBOX_API_KEY
       ```
     </Step>
     <Step title="Query Data">
@@ -186,7 +186,6 @@ If you prefer to work locally, follow these steps to get started.
 		"context"
 		"log"
 		"log/slog"
-		"os"
 		"time"
 
 		"github.com/google/uuid"
@@ -198,9 +197,7 @@ If you prefer to work locally, follow these steps to get started.
 
 	func main() {
 		ctx := context.Background()
-		client := datasets.NewClient(
-			datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
-		)
+		client := datasets.NewClient()
 
 		// select a dataset
 		dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
@@ -256,7 +253,6 @@ If you prefer to work locally, follow these steps to get started.
 	import (
 		"context"
 		"log/slog"
-		"os"
 
 		"github.com/tilebox/tilebox-go/workflows/v1"
 	)
@@ -291,14 +287,14 @@ If you prefer to work locally, follow these steps to get started.
 
 		// Replace with your actual cluster and token
 		clusterSlug := "YOUR_COMPUTE_CLUSTER"
-		client := workflows.NewClient(
-			workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
-		)
+		client := workflows.NewClient()
 
-		job, err := client.Jobs.Submit(ctx, "hello-world", clusterSlug, 0,
-			&HelloTask{
-				Greeting: "Greetings",
-				Name: "Tilebox",
+		job, err := client.Jobs.Submit(ctx, "hello-world", clusterSlug, 
+		[]workflows.Task{
+				&HelloTask{
+					Greeting: "Greetings",
+					Name: "Tilebox",
+				},
 			},
 		)
 		if err != nil {

@@ -185,7 +185,6 @@ package main
 
 import (
 	"context"
-	"os"
 
 	"github.com/tilebox/tilebox-go/workflows/v1"
     "github.com/tilebox/tilebox-go/workflows/v1/subtask"
@@ -220,9 +219,7 @@ type DummyTask struct{}
 
 func main() {
     ctx := context.Background()
-	client := workflows.NewClient(
-		workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
-	)
+	client := workflows.NewClient()
 
 	// submit a job to the "testing" cluster
 	_, _ = client.Jobs.Submit(

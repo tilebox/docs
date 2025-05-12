@@ -40,7 +40,6 @@ import (
 	"context"
 	"log"
 	"log/slog"
-	"os"
 
 	"github.com/google/uuid"
 	"github.com/tilebox/tilebox-go/datasets/v1"
@@ -49,9 +48,7 @@ import (
 func main() {
 	ctx := context.Background()
 
-	client := datasets.NewClient(
-		datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
-	)
+	client := datasets.NewClient()
 
 	dataset, err := client.Datasets.Get(ctx, "my_custom_dataset")
 	if err != nil {
@@ -83,7 +80,7 @@ Deleted 2 data points.
 </CodeGroup>
 
 <Tip>
-  `delete` not only takes a list of datapoint IDs as string, but supports a wide range of other useful input types as well.
+  In python, `delete` not only takes a list of datapoint IDs as string, but supports a wide range of other useful input types as well.
   See the [delete](/api-reference/python/tilebox.datasets/Collection.delete) API documentation for more details.
 </Tip>
 
@@ -135,3 +132,7 @@ slog.Info("Deleted data points", slog.Int64("deleted", numDeleted))
 Deleted 104 data points.
 ```
 </CodeGroup>
+
+## Automatic batching
+
+Tilebox automatically batches the delete requests for you, so you don't have to worry about the maximum request size.

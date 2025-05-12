@@ -37,12 +37,12 @@ The list of datapoint ids that were ingested, including the IDs of existing data
 
 <RequestExample>
 ```go Go
-datapoints := []*tileboxv1.Modis{
-  tileboxv1.Modis_builder{
+datapoints := []*v1.Modis{
+  v1.Modis_builder{
     Time:        timestamppb.New(time.Now()),
     GranuleName: proto.String("Granule 1"),
   }.Build(),
-  tileboxv1.Modis_builder{
+  v1.Modis_builder{
     Time:        timestamppb.New(time.Now().Add(-5 * time.Hour)),
     GranuleName: proto.String("Past Granule 2"),
   }.Build(),

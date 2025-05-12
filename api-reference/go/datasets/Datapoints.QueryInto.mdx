@@ -15,6 +15,8 @@ func (datapointClient) QueryInto(
 
 Query a range of data points in this collection in a specified interval.
 
+QueryInto is a convenience function for [Query](/api-reference/go/datasets/Datapoints.Query), when no manual pagination or custom iteration is required.
+
 ## Parameters
 
 <ParamField path="collectionID" type="uuid.UUID">
@@ -58,7 +60,7 @@ startDate := time.Date(2014, 10, 4, 0, 0, 0, 0, time.UTC)
 endDate := time.Date(2021, 2, 24, 0, 0, 0, 0, time.UTC) 
 queryInterval := query.NewTimeInterval(startDate, endDate)
 
-var datapoints []*tileboxv1.Sentinel1Sar
+var datapoints []*v1.Sentinel1Sar
 err := client.Datapoints.QueryInto(ctx,
     collectionID,
     &datapoints,

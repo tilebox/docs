@@ -62,7 +62,6 @@ package main
 import (
 	"context"
 	"log/slog"
-	"os"
 
 	"github.com/tilebox/tilebox-go/examples/workflows/axiom"
 	"github.com/tilebox/tilebox-go/observability"
@@ -77,12 +76,9 @@ var service = &observability.Service{Name: "task-runner", Version: "dev"}
 func main() {
 	ctx := context.Background()
 
-	tileboxAPIKey := os.Getenv("TILEBOX_API_KEY")
-	axiomAPIKey := os.Getenv("AXIOM_API_KEY")
-	axiomTracesDataset := os.Getenv("AXIOM_TRACES_DATASET")
-
 	// Setup an OpenTelemetry trace span processor, exporting traces and spans to Axiom
-	tileboxTracerProvider, shutdown, err := tracer.NewAxiomProvider(ctx, service, axiomTracesDataset, axiomAPIKey)
+	// It uses AXIOM_API_KEY and AXIOM_TRACES_DATASET from the environment
+	tileboxTracerProvider, shutdown, err := tracer.NewAxiomProvider(ctx, service)
 	defer shutdown(ctx)
 	if err != nil {
 		slog.Error("failed to set up axiom tracer provider", slog.Any("error", err))
@@ -90,7 +86,7 @@ func main() {
 	}
 	otel.SetTracerProvider(tileboxTracerProvider) // set the tilebox tracer provider as the global OTEL tracer provider
 
-	client := workflows.NewClient(workflows.WithAPIKey(tileboxAPIKey))
+	client := workflows.NewClient()
 
 	cluster, err := client.Clusters.Get(ctx, "dev-cluster")
 	if err != nil {
@@ -156,7 +152,6 @@ package main
 import (
 	"context"
 	"log/slog"
-	"os"
 
 	"github.com/tilebox/tilebox-go/examples/workflows/opentelemetry"
 	"github.com/tilebox/tilebox-go/observability"
@@ -171,7 +166,6 @@ var service = &observability.Service{Name: "task-runner", Version: "dev"}
 func main() {
 	ctx := context.Background()
 
-	tileboxAPIKey := os.Getenv("TILEBOX_API_KEY")
 	endpoint := "http://localhost:4318"
 	headers := map[string]string{
 		"Authorization": "Bearer <ENDPOINT_AUTH>",
@@ -189,7 +183,7 @@ func main() {
 	}
 	otel.SetTracerProvider(tileboxTracerProvider) // set the tilebox tracer provider as the global OTEL tracer provider
 
-	client := workflows.NewClient(workflows.WithAPIKey(tileboxAPIKey))
+	client := workflows.NewClient()
 
 	cluster, err := client.Clusters.Get(ctx, "dev-cluster")
 	if err != nil {

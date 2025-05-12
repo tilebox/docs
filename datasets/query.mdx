@@ -22,15 +22,13 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/tilebox/tilebox-go/datasets/v1"
 )
 
 func main() {
 	ctx := context.Background()
-
-	client := datasets.NewClient(datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")))
+	client := datasets.NewClient()
 
 	dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel1_sar")
 	if err != nil {
@@ -392,9 +390,7 @@ data = sentinel2_msi.collection("S2A_S2MSI2A").query(
 ```
 ```go Go
 ctx := context.Background()
-client := datasets.NewClient(
-    datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
-)
+client := datasets.NewClient()
 
 dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
 if err != nil {
@@ -598,3 +594,8 @@ Data variables: (12/30)
 <Tip>
   You can also set the `skip_data` parameter when calling `find` to query only the required fields of the data point, same as for `load`.
 </Tip>
+
+## Automatic pagination
+
+Querying large time intervals can return a large number of data points.
+Tilebox automatically handles pagination for you by sending paginated requests to the server.

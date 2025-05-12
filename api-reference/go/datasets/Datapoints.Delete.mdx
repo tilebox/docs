@@ -31,7 +31,7 @@ The number of data points that were deleted.
 
 <RequestExample>
 ```go Go
-var datapoints []*tileboxv1.Sentinel1Sar
+var datapoints []*v1.Sentinel1Sar
 // assuming the slice is filled with datapoints
 
 numDeleted, err := client.Datapoints.Delete(ctx,

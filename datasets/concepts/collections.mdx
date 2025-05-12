@@ -24,15 +24,13 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/tilebox/tilebox-go/datasets/v1"
 )
 
 func main() {
 	ctx := context.Background()
-
-	client := datasets.NewClient(datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")))
+	client := datasets.NewClient()
 
 	dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.landsat8_oli_tirs")
 	if err != nil {

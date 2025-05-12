@@ -7,7 +7,6 @@ icon: chart-bar
 Tilebox uses [Protocol Buffers](https://protobuf.dev/), with a custom generation tool, combined with standard Go data structures.
 
 [Protocol Buffers](https://protobuf.dev/) (often referred to as `protobuf`) is a schema definition language with an efficient binary format and native language support for lots of languages, including Go.
-is the industry's most battle-tested schema definition language and it generates native Go bindings.
 Protocol buffers are open source since 2008 and are maintained by Google.
 
 ## tilebox-generate
@@ -47,7 +46,7 @@ Protobuf hides the fields and provides getters and setters to access them.
 
 ### Initializing a message
 
-Here is how to initialize a `tileboxv1.Sentinel1Sar` message.
+Here is how to initialize a `v1.Sentinel1Sar` message.
 
 ```go Go
 import (
@@ -55,7 +54,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-datapoint := tileboxv1.Sentinel1Sar_builder{
+datapoint := v1.Sentinel1Sar_builder{
 	Time:        timestamppb.New(time.Now()),
 	GranuleName: proto.String("S1A_EW_GRDH_1SSH_20141004T020507_20141004T020611_002673_002FAF_8645_COG.SAFE"),
 	ProductType: proto.String("EW_GRDH_1S-COG"),
@@ -120,7 +119,7 @@ datasetsv1.NewGeometry(orb.Point{1, 2})
 
 ### `CheckValid` method
 
-`CheckValid` returns an error if the UUID is invalid.
+`CheckValid` returns an error if the field is invalid.
 
 ```go Go
 err := datapoint.GetTime().CheckValid()
@@ -143,10 +142,10 @@ if datapoint.GetTime().IsValid() {
 
 `AsXXX` methods convert the field to a more user friendly type.
 
-- `AsUUID` will convert a `UUID` field to a [uuid.UUID](https://pkg.go.dev/github.com/google/uuid#UUID) type
-- `AsTime` will convert a `Timestamp` field to a [time.Time](https://pkg.go.dev/time#Time) type
-- `AsDuration` will convert a `Duration` field to a [time.Duration](https://pkg.go.dev/time#Duration) type
-- `AsGeometry` will convert a `Geometry` field to an [orb.Geometry](https://github.com/paulmach/orb?tab=readme-ov-file#shared-geometry-interface) interface
+- `AsUUID` will convert a `datasetsv1.UUID` field to a [uuid.UUID](https://pkg.go.dev/github.com/google/uuid#UUID) type
+- `AsTime` will convert a `timestamppb.Timestamp` field to a [time.Time](https://pkg.go.dev/time#Time) type
+- `AsDuration` will convert a `durationpb.Duration` field to a [time.Duration](https://pkg.go.dev/time#Duration) type
+- `AsGeometry` will convert a `datasetsv1.Geometry` field to an [orb.Geometry](https://github.com/paulmach/orb?tab=readme-ov-file#shared-geometry-interface) interface
 
 ```go Go
 datapoint.GetId().AsUUID() // uuid.UUID
@@ -167,7 +166,7 @@ As an example, here is how to extract the `copernicus_id` fields from the datapo
 
 ```go Go
 // assuming datapoints has been filled using `client.Datapoints.QueryInto` method
-var datapoints []*tileboxv1.Sentinel1Sar
+var datapoints []*v1.Sentinel1Sar
 
 copernicusIDs := make([]uuid.UUID, len(datapoints))
 for i, dp := range datapoints {
@@ -180,7 +179,7 @@ Here is an example of filtering out datapoints that have been published before J
 ```go Go
 jan2000 := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 // slice of length of 0, but preallocate a capacity of len(datapoints)
-s1cDatapoints := make([]*tileboxv1.Sentinel1Sar, 0, len(datapoints))
+s1cDatapoints := make([]*v1.Sentinel1Sar, 0, len(datapoints))
 
 for _, dp := range datapoints {
   if dp.GetPublished().AsTime().Before(jan2000) {
@@ -190,13 +189,9 @@ for _, dp := range datapoints {
     continue
   }
 
-  s1cDatapoints = append(s1cDatapoints, dp)
+  s1cDatapoints = append(s1cDatapoints, proto.CloneOf(dp)) // Copy the underlying data
 }
 ```
-
-<Tip>
-  `append` doesn't copy the underlying data, it only appends the pointer to the slice. To copy the data, use [proto.CloneOf](https://pkg.go.dev/google.golang.org/protobuf/proto#CloneOf).
-</Tip>
 
 ## Converting to JSON
 
@@ -222,7 +217,7 @@ It can also be converted back to a `proto.Message`.
 
 ```go Go
 // Convert JSON bytes to proto.Message
-unmarshalledDatapoint := &tileboxv1.Sentinel1Sar{}
+unmarshalledDatapoint := &v1.Sentinel1Sar{}
 err = protojson.Unmarshal(jsonDatapoint, unmarshalledDatapoint)
 if err != nil {
   log.Fatalf("Failed to unmarshal datapoint: %v", err)

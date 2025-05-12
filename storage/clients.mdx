@@ -4,9 +4,14 @@ description: Learn about the different storage clients available in Tilebox to a
 icon: hard-drive
 ---
 
-Tilebox does not host the actual open data satellite products but instead relies on publicly accessible storage providers for data access. Instead Tilebox ingests available metadata as [datasets](/datasets/concepts/datasets) to enable high performance querying and structured access of the data as [xarray.Dataset](/sdks/python/xarray).
+Tilebox does not host the actual open data satellite products but instead relies on publicly accessible storage providers for data access.
+Tilebox ingests available metadata as [datasets](/datasets/concepts/datasets) to enable high performance querying and structured access of the data as [xarray.Dataset](/sdks/python/xarray).
 
 Below is a list of the storage providers currently supported by Tilebox.
+
+<Note>
+  This feature is only available in the Python SDK.
+</Note>
 
 ## Copernicus Data Space
 
@@ -25,7 +30,7 @@ from tilebox.datasets import Client
 from tilebox.storage import CopernicusStorageClient
 
 # Creating clients
-client = Client(token="YOUR_TILEBOX_API_KEY")
+client = Client()
 datasets = client.datasets()
 storage_client = CopernicusStorageClient(
     access_key="YOUR_ACCESS_KEY",
@@ -118,7 +123,7 @@ from tilebox.datasets import Client
 from tilebox.storage import ASFStorageClient
 
 # Creating clients
-client = Client(token="YOUR_TILEBOX_API_KEY")
+client = Client()
 datasets = client.datasets()
 storage_client = ASFStorageClient(
     user="YOUR_ASF_USER",
@@ -191,7 +196,7 @@ from tilebox.datasets import Client
 from tilebox.storage import UmbraStorageClient
 
 # Creating clients
-client = Client(token="YOUR_TILEBOX_API_KEY")
+client = Client()
 datasets = client.datasets()
 storage_client = UmbraStorageClient(cache_directory=Path("./data"))
 

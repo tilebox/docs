@@ -46,7 +46,7 @@ An error if data point could not be queried.
 
 <RequestExample>
 ```go Go
-var datapoint tileboxv1.Sentinel1Sar
+var datapoint v1.Sentinel1Sar
 err = client.Datapoints.GetInto(ctx,
   []uuid.UUID{collection.ID}, datapointID, &datapoint,
 )

@@ -303,11 +303,13 @@ jobs.display(job)
 ```
 ```go Go
 ctx := context.Background()
-client := workflows.NewClient(workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")))
+client := workflows.NewClient()
 
-job, err := client.Jobs.Submit(ctx, "download-dog-images", "dev-cluster", 0,
-  &helloworld.DownloadRandomDogImages{
-    NumImages: 5,
+job, err := client.Jobs.Submit(ctx, "download-dog-images", "dev-cluster",
+  []workflows.Task{
+	&helloworld.DownloadRandomDogImages{
+		NumImages: 5,
+	},
   },
 )
 if err != nil {

@@ -34,7 +34,7 @@ startDate := time.Date(2014, 10, 4, 0, 0, 0, 0, time.UTC)
 endDate := time.Date(2021, 2, 24, 0, 0, 0, 0, time.UTC) 
 queryInterval := query.NewTimeInterval(startDate, endDate)
 
-datapoints, err := datasets.Collect(datasets.As[*tileboxv1.Sentinel1Sar](
+datapoints, err := datasets.Collect(datasets.As[*v1.Sentinel1Sar](
     client.Datapoints.Query(ctx, collectionID, datasets.WithTemporalExtent(queryInterval)),
 ))
 ```

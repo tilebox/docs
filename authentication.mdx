@@ -26,21 +26,15 @@ workflows_client = WorkflowsClient(token="YOUR_TILEBOX_API_KEY")
 ```
 ```go Go
 import (
-	"os"
-
 	"github.com/tilebox/tilebox-go/datasets/v1"
 	"github.com/tilebox/tilebox-go/workflows/v1"
 )
 
-datasetsClient := datasets.NewClient(
-	datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
-)
-workflowsClient := workflows.NewClient(
-	workflows.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
-)
+datasetsClient := datasets.NewClient(datasets.WithAPIKey("YOUR_TILEBOX_API_KEY"))
+workflowsClient := workflows.NewClient(workflows.WithAPIKey("YOUR_TILEBOX_API_KEY"))
 ```
 </CodeGroup>
 
 <Tip>
-In Python, if you set your API key as an environment variable named `TILEBOX_API_KEY`, you can skip the token parameter when creating a client.
+If you set your API key as an environment variable named `TILEBOX_API_KEY`, you can skip the token parameter when creating a client.
 </Tip>

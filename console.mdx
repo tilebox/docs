@@ -40,9 +40,7 @@ data = sentinel2_msi.collection("S2A_S2MSI1C").query(
 ```
 ```go Go
 ctx := context.Background()
-client := datasets.NewClient(
-    datasets.WithAPIKey(os.Getenv("TILEBOX_API_KEY")),
-)
+client := datasets.NewClient()
 
 dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
 if err != nil {
