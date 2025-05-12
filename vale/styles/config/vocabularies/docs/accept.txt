@@ -1,5 +1,9 @@
 # (?i) makes the regex case-insensitive, see https://vale.sh/docs/topics/vocab/#case-sensitivity
 
+Assistance
+Custom Dataset
+Custom Datasets
+tilebox-generate
 Tilebox
 (?i)Xarray
 NumPy
@@ -10,6 +14,8 @@ Datalore
 Colab
 Tropomi
 georeferenced
+Geospatial
+Geopandas
 Fortran
 Zarr
 datetime
@@ -17,7 +23,8 @@ accessor
 Pipenv
 Opendata
 APIs
-datapoint
+(?i)datapoint
+(?i)datapoints
 dataclass
 subtask
 subtasks
@@ -37,7 +44,7 @@ subtasks
 subtask
 parallelizable
 deserializing
-idempotency
+(?i)idempotency
 SDKs
 SDK
 coroutines
@@ -47,3 +54,12 @@ coroutines
 (?i)pushbroom
 rollout
 (?i)automations
+(?i)protobuf
+UUIDs
+(?i)getters
+(?i)ingest
+(?i)Timeseries
+point in time
+bool
+boolean
+(?i)modis

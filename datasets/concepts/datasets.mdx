@@ -4,21 +4,12 @@ description: Tilebox Datasets act as containers for data points. All data points
 icon: database
 ---
 
-## Overview
-
-This section provides a quick overview of the API for listing and accessing datasets.
-
-| Method                                                               | Description                                          |
-| -------------------------------------------------------------------- | ---------------------------------------------------- |
-| [`client.datasets`](/api-reference/tilebox.datasets/Client.datasets) |  List all available datasets.                        |
-| [`client.dataset`](/api-reference/tilebox.datasets/Client.dataset) | Access an individual dataset by its name.              |
-
 <Tip>
-  You can create your own, custom datasets via the [Tilebox Console](/console).
+  You can create your own, Custom Datasets via the [Tilebox Console](/console).
 </Tip>
 
 ## Related Guides
-  
+
 <CardGroup cols={2}>
   <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
     Learn how to create a Timeseries dataset using the Tilebox Console.
@@ -31,7 +22,7 @@ This section provides a quick overview of the API for listing and accessing data
 ## Dataset types
 
 Each dataset is of a specific type. Each dataset type comes with a set of required fields for each data point.
-The dataset type also determines the query capabilities for a dataset, e.g. whether a dataset supports time-based queries
+The dataset type also determines the query capabilities for a dataset, for example, whether a dataset supports time-based queries
 or additionally also spatially filtered queries.
 
 To find out which fields are required for each dataset type check out the documentation for the available dataset types
@@ -56,17 +47,16 @@ The required fields of the dataset type, as well as the custom fields specific t
 **dataset schema**.
 
 Once a **dataset schema** is defined, existing fields cannot be removed or edited as soon as data has been ingested into it.
-However, you can always add new fields to a dataset, since all fields are always optional.
+You can always add new fields to a dataset, since all fields are always optional.
 
 <Tip>
     The only exception to this rule are empty datasets. If you empty all collections in a dataset, you can freely
     edit the data schema, since no conflicts with existing data points can occur.
 </Tip>
 
-
 ## Field types
 
-When defining the data schema, you can specify the type of each field. The following field types are supported.
+When defining the data schema, you can specify each field's type. The following field types are supported.
 
 ### Primitives
 
@@ -118,6 +108,31 @@ client = Client()
 datasets = client.datasets()
 print(datasets)
 ```
+```go Go
+package main
+
+import (
+  "context"
+  "log"
+
+  "github.com/tilebox/tilebox-go/datasets/v1"
+)
+
+func main() {
+  ctx := context.Background()
+
+  client := datasets.NewClient()
+
+  allDatasets, err := client.Datasets.List(ctx)
+  if err != nil {
+    log.Fatalf("Failed to list datasets: %v", err)
+  }
+
+  for _, dataset := range allDatasets {
+    log.Println(dataset)
+  }
+}
+```
 </CodeGroup>
 
 ```plaintext Output
@@ -135,15 +150,15 @@ open_data:
 Once you have your dataset object, you can use it to [list the available collections](/datasets/concepts/collections) for the dataset.
 
 <Tip>
-  If you're using an IDE or an interactive environment with auto-complete, you can use it on your client instance to discover the datasets available to you. Type `client.` and trigger auto-complete after the dot to do so.
+  In python, if you're using an IDE or an interactive environment with auto-complete, you can use it on your client instance to discover the datasets available to you. Type `client.` and trigger auto-complete after the dot to do so.
 </Tip>
 
 ## Accessing a dataset
 
-Each dataset has an automatically generated *code name* that can be used to access it. The *code name* is the name of the group, followed by a dot, followed by the dataset name.
-For example, the *code name* for the Sentinel-2 MSI dataset above, which is part of the `open_data.copernicus` group, the code name is `open_data.copernicus.sentinel2_msi`.
+Each dataset has an automatically generated *slug* that can be used to access it. The *slug* is the name of the group, followed by a dot, followed by the dataset *code name*.
+For example, the *slug* for the Sentinel-2 MSI dataset, which is part of the `open_data.copernicus` group, is `open_data.copernicus.sentinel2_msi`.
 
-To access a dataset, use the `dataset` method of your client instance and pass the *code name* of the dataset as an argument.
+To access a dataset, use the `dataset` method of your client instance and pass the *slug* of the dataset as an argument.
 
 <CodeGroup>
 ```python Python
@@ -152,7 +167,9 @@ from tilebox.datasets import Client
 client = Client()
 s2_msi_dataset = client.dataset("open_data.copernicus.sentinel2_msi")
 ```
+```go Go
+s2MsiDataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+```
 </CodeGroup>
 
 Once you have your dataset object, you can use it to [access available collections](/datasets/concepts/collections) for the dataset.
-

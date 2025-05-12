@@ -1,0 +1,38 @@
+---
+title: Client.Clusters.Get
+sidebarTitle: Clusters.Get
+icon: circle-nodes
+---
+
+```go
+func (*ClusterClient) Get(
+    ctx context.Context,
+    slug string,
+) (*workflows.Cluster, error)
+```
+
+Get a cluster by its slug.
+
+## Parameters
+
+<ParamField path="slug" type="string">
+  The slug of the cluster
+</ParamField>
+
+## Returns
+
+A cluster object.
+
+<RequestExample>
+```go Go
+cluster, err := client.Clusters.Get(ctx,
+    "my-cluster-tZD9Ca1qsqt3V"
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="cluster not found">
+  The specified cluster does not exist.
+</ParamField>

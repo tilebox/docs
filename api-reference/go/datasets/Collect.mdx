@@ -1,0 +1,41 @@
+---
+title: Collect
+sidebarTitle: Collect
+icon: layer-group
+---
+
+```go
+func Collect[K any](seq iter.Seq2[K, error]) ([]K, error)
+```
+
+Convert any sequence into a slice.
+
+It return an error if any of the elements in the sequence has a non-nil error.
+
+## Parameters
+
+<ParamField path="seq" type="iter.Seq2[[]K, error]">
+  The sequence of bytes to convert
+</ParamField>
+
+## Returns
+
+A slice of `K` or an error if any.
+
+<RequestExample>
+```go Go
+import (
+  "time"
+  datasets "github.com/tilebox/tilebox-go/datasets/v1"
+	"github.com/tilebox/tilebox-go/query"
+)
+
+startDate := time.Date(2014, 10, 4, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2021, 2, 24, 0, 0, 0, 0, time.UTC) 
+queryInterval := query.NewTimeInterval(startDate, endDate)
+
+datapoints, err := datasets.Collect(datasets.As[*v1.Sentinel1Sar](
+    client.Datapoints.Query(ctx, collectionID, datasets.WithTemporalExtent(queryInterval)),
+))
+```
+</RequestExample>

@@ -24,6 +24,15 @@ from tilebox.workflows import Client as WorkflowsClient
 datasets_client = DatasetsClient(token="YOUR_TILEBOX_API_KEY")
 workflows_client = WorkflowsClient(token="YOUR_TILEBOX_API_KEY")
 ```
+```go Go
+import (
+	"github.com/tilebox/tilebox-go/datasets/v1"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+datasetsClient := datasets.NewClient(datasets.WithAPIKey("YOUR_TILEBOX_API_KEY"))
+workflowsClient := workflows.NewClient(workflows.WithAPIKey("YOUR_TILEBOX_API_KEY"))
+```
 </CodeGroup>
 
 <Tip>

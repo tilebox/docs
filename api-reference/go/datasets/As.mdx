@@ -1,0 +1,41 @@
+---
+title: As
+sidebarTitle: As
+icon: layer-group
+---
+
+```go
+func As[T proto.Message](seq iter.Seq2[[]byte, error]) iter.Seq2[T, error]
+```
+
+Convert a sequence of bytes into a sequence of `proto.Message`.
+
+Useful to convert the output of [`Datapoints.Query`](/api-reference/go/datasets/Datapoints.Query) into a sequence of `proto.Message`.
+
+## Parameters
+
+<ParamField path="seq" type="iter.Seq2[[]byte, error]">
+  The sequence of bytes to convert
+</ParamField>
+
+## Returns
+
+A sequence of `proto.Message` or an error if any.
+
+<RequestExample>
+```go Go
+import (
+  "time"
+  datasets "github.com/tilebox/tilebox-go/datasets/v1"
+	"github.com/tilebox/tilebox-go/query"
+)
+
+startDate := time.Date(2014, 10, 4, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2021, 2, 24, 0, 0, 0, 0, time.UTC) 
+queryInterval := query.NewTimeInterval(startDate, endDate)
+
+seq := datasets.As[*v1.Sentinel1Sar](
+    client.Datapoints.Query(ctx, collectionID, datasets.WithTemporalExtent(queryInterval)),
+)
+```
+</RequestExample>

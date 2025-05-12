@@ -1,0 +1,74 @@
+---
+title: workflows.SubmitSubtasks
+sidebarTitle: SubmitSubtasks
+icon: code
+---
+
+```go
+workflows.SubmitSubtasks(
+	ctx context.Context,
+	tasks []workflows.Task,
+	options ...subtask.SubmitOption,
+) ([]subtask.FutureTask, error)
+```
+
+Submit multiple subtasks to the task runner. Same as [SubmitSubtask](/api-reference/go/workflows/SubmitSubtask), but accepts a list of tasks.
+
+This function is intended to be used in tasks.
+
+## Parameters
+
+<ParamField path="tasks" type="[]Task">
+  A list of tasks to submit
+</ParamField>
+<ParamField path="options" type="[]subtask.SubmitOption">
+  Options for the subtasks
+</ParamField>
+
+## Options
+
+<ParamField path="WithDependencies(dependencies ...FutureTask)">
+  Set dependencies for the tasks
+</ParamField>
+<ParamField path="WithClusterSlug(clusterSlug string)" default="cluster of the task runner">
+  Set the cluster slug of the cluster where the tasks will be executed.
+</ParamField>
+<ParamField path="WithMaxRetries(maxRetries int64)" default="0">
+  Set the maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtasks in case it fails
+</ParamField>
+
+## Returns
+
+A list of future tasks that can be used to set dependencies between tasks.
+
+<RequestExample>
+```go Go
+
+type MySubTask struct {
+	Sensor string
+	Value  float64
+}
+
+type Task struct{}
+
+func (t *Task) Execute(ctx context.Context) error {
+	err := workflows.SubmitSubtasks(ctx, 
+		[]workflows.Task{
+			&MySubTask{
+				Sensor: "A",
+				Value:  42,
+			},
+			&MySubTask{
+				Sensor: "B",
+				Value:  42,
+			}
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to submit subtasks: %w", err)
+	}
+
+	return nil
+}
+```
+</RequestExample>

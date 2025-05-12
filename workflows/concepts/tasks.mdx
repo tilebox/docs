@@ -18,7 +18,15 @@ from tilebox.workflows import Task, ExecutionContext
 
 class MyFirstTask(Task):
     def execute(self, context: ExecutionContext):
-        print(f"Hello World!")
+        print("Hello World!")
+```
+```go Go
+type MyFirstTask struct{}
+
+func (t *MyFirstTask) Execute(ctx context.Context) error {
+	slog.Info("Hello World!")
+	return nil
+}
 ```
 </CodeGroup>
 
@@ -32,7 +40,7 @@ This example demonstrates a simple task that prints "Hello World!" to the consol
     The `execute` method is the entry point for executing the task. This is where the task's logic is defined. It's invoked by a [task runner](/workflows/concepts/task-runners) when the task runs and performs the task's operation.
   </Accordion>
   <Accordion title="context: ExecutionContext">
-    The `context` argument is an `ExecutionContext` instance that provides access to an [API for submitting new tasks](/api-reference/tilebox.workflows/ExecutionContext.submit_subtask) as part of the same job and features like [shared caching](/api-reference/tilebox.workflows/ExecutionContext.job_cache).
+    The `context` argument is an `ExecutionContext` instance that provides access to an [API for submitting new tasks](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask) as part of the same job and features like [shared caching](/api-reference/python/tilebox.workflows/ExecutionContext.job_cache).
   </Accordion>
 </AccordionGroup>
 
@@ -46,14 +54,18 @@ This example demonstrates a simple task that prints "Hello World!" to the consol
 Tasks often require input parameters to operate. These inputs can range from simple values to complex data structures. By inheriting from the `Task` class, the task is treated as a Python `dataclass`, allowing input parameters to be defined as class attributes.
 
 <Info>
-  Tasks must be **serializable to JSON** because they may be distributed across a cluster of [task runners](/workflows/concepts/task-runners).
+  Tasks must be **serializable to JSON or to protobuf** because they may be distributed across a cluster of [task runners](/workflows/concepts/task-runners).
+</Info>
+
+<Info>
+  In Go, task parameters must be exported fields of the task struct (starting with an uppercase letter), otherwise they will not be serialized to JSON.
 </Info>
 
 Supported types for input parameters include:
 
 - Basic types such as `str`, `int`, `float`, `bool`
 - Lists and dictionaries of basic types
-- Nested data classes that are also JSON-serializable
+- Nested data classes that are also JSON-serializable or protobuf-serializable
 
 <CodeGroup>
     ```python Python
@@ -66,6 +78,24 @@ Supported types for input parameters include:
             print(self.message * self.number)
 
     task = ParametrizableTask("Hello", 3, {"key": "value"})
+    ```
+    ```go Go
+    type ParametrizableTask struct {
+      Message string
+      Number  int
+      Data    map[string]string
+    }
+
+    func (t *ParametrizableTask) Execute(context.Context) error {
+      slog.Info(strings.Repeat(t.Message, t.Number))
+      return nil
+    }
+
+    task := &ParametrizableTask{
+      message: "Hello",
+      number:  3,
+      data:    map[string]string{"key": "value"},
+    }
     ```
 </CodeGroup>
 
@@ -91,6 +121,36 @@ class ChildTask(Task):
 # after submitting this task, a task runner may pick it up and execute it
 # which will result in 5 ChildTasks being submitted and executed as well
 task = ParentTask(5)
+```
+```go Go
+type ParentTask struct {
+	NumSubtasks int
+}
+
+func (t *ParentTask) Execute(ctx context.Context) error {
+	for i := range t.NumSubtasks {
+		_, err := workflows.SubmitSubtask(ctx, &ChildTask{Index: i})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type ChildTask struct {
+	Index int
+}
+
+func (t *ChildTask) Execute(context.Context) error {
+	slog.Info("Executing ChildTask", slog.Int("index", t.Index))
+	
+	return nil
+}
+
+// after submitting this task, a task runner may pick it up and execute it 
+// which will result in 5 ChildTasks being submitted and executed as well
+task := &ParentTask{numSubtasks: 5}
 ```
 </CodeGroup>
 
@@ -127,6 +187,87 @@ class DownloadImage(Task):
         with file.open("wb") as file:
             file.write(response.content)
 ```
+```go Go
+package dogs
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+type DogImage struct {
+	ID     string `json:"id"`
+	URL    string `json:"url"`
+	Width  *int   `json:"width"`
+	Height *int   `json:"height"`
+}
+
+type DownloadRandomDogImages struct {
+	NumImages int
+}
+
+func (t *DownloadRandomDogImages) Execute(ctx context.Context) error {
+	url := fmt.Sprintf("https://api.thedogapi.com/v1/images/search?limit=%d", t.NumImages)
+	response, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to download images: %w", err)
+	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	var dogImages []DogImage
+	err = json.Unmarshal(body, &dogImages)
+	if err != nil {
+		return err
+	}
+
+	for _, dogImage := range dogImages {
+		_, err := workflows.SubmitSubtask(ctx, &DownloadImage{URL: dogImage.URL})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type DownloadImage struct {
+	URL string
+}
+
+func (t *DownloadImage) Execute(context.Context) error {
+	response, err := http.Get(t.URL)
+	if err != nil {
+		return fmt.Errorf("failed to download image: %w", err)
+	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	err = os.MkdirAll("dogs", 0o755)
+	if err != nil {
+		return fmt.Errorf("failed to create dogs directory: %w", err)
+	}
+
+	elements := strings.Split(t.URL, "/")
+	file := fmt.Sprintf("dogs/%s", elements[len(elements)-1])
+
+	return os.WriteFile(file, body, 0o600)
+}
+```
 </CodeGroup>
 
 This example consists of the following tasks:
@@ -159,6 +300,24 @@ job = jobs.submit(
 # now our deployed task runners will pick up the task and execute it
 
 jobs.display(job)
+```
+```go Go
+ctx := context.Background()
+client := workflows.NewClient()
+
+job, err := client.Jobs.Submit(ctx, "download-dog-images", "dev-cluster",
+  []workflows.Task{
+	&helloworld.DownloadRandomDogImages{
+		NumImages: 5,
+	},
+  },
+)
+if err != nil {
+  slog.Error("Failed to submit job", slog.Any("error", err))
+  return
+}
+
+// now our deployed task runners will pick up the task and execute it
 ```
 </CodeGroup>
 
@@ -203,6 +362,22 @@ For example, the `RecursiveTask` below is a valid task that submits smaller inst
             if self.num >= 2:
                 context.submit_subtask(RecursiveTask(self.num // 2))
     ```
+    ```go Go
+    type RecursiveTask struct {
+      Num int
+    }
+
+    func (t *RecursiveTask) Execute(ctx context.Context) error {
+      slog.Info("Executing RecursiveTask", slog.Int("num", t.Num))
+      if t.Num >= 2 {
+        _, err := workflows.SubmitSubtask(ctx, &RecursiveTask{Num: t.Num / 2})
+        if err != nil {
+          return err
+        }
+      }
+      return nil
+    }
+    ```
 </CodeGroup>
 
 ### Recursive subtask example
@@ -214,22 +389,68 @@ To improve this, recursive subtask submission decomposes a `DownloadRandomDogIma
 An implementation of this recursive submission may look like this:
 
 <CodeGroup title="Task Composition">
-    ```python Python
-    class DownloadRandomDogImages(Task):
-        num_images: int
+```python Python
+class DownloadRandomDogImages(Task):
+    num_images: int
 
-        def execute(self, context: ExecutionContext) -> None:
-            if self.num_images > 4:
-                half = self.num_images // 2
-                remaining = self.num_images - half  # account for odd numbers
-                context.submit_subtask(DownloadRandomDogImages(half))
-                context.submit_subtask(DownloadRandomDogImages(remaining))
-            else:
-                url = f"https://api.thedogapi.com/v1/images/search?limit={self.num_images}"
-                response = httpx.get(url)
-                for dog_image in response.json()[:self.num_images]:
-                    context.submit_subtask(DownloadImage(dog_image["url"]))
-    ```
+    def execute(self, context: ExecutionContext) -> None:
+        if self.num_images > 4:
+            half = self.num_images // 2
+            remaining = self.num_images - half  # account for odd numbers
+            context.submit_subtask(DownloadRandomDogImages(half))
+            context.submit_subtask(DownloadRandomDogImages(remaining))
+        else:
+            url = f"https://api.thedogapi.com/v1/images/search?limit={self.num_images}"
+            response = httpx.get(url)
+            for dog_image in response.json()[:self.num_images]:
+                context.submit_subtask(DownloadImage(dog_image["url"]))
+```
+```go Go
+type DownloadRandomDogImages struct {
+	NumImages int
+}
+
+func (t *DownloadRandomDogImages) Execute(ctx context.Context) error {
+	if t.NumImages > 4 {
+		half := t.NumImages / 2
+		remaining := t.NumImages - half // account for odd numbers
+		_, err := workflows.SubmitSubtask(ctx, &DownloadRandomDogImages{NumImages: half})
+		if err != nil {
+			return err
+		}
+		_, err = workflows.SubmitSubtask(ctx, &DownloadRandomDogImages{NumImages: remaining})
+		if err != nil {
+			return err
+		}
+	} else {
+		url := fmt.Sprintf("https://api.thedogapi.com/v1/images/search?limit=%d", t.NumImages)
+		response, err := http.Get(url)
+		if err != nil {
+			return fmt.Errorf("failed to download images: %w", err)
+		}
+
+		defer response.Body.Close()
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response: %w", err)
+		}
+
+		var dogImages []DogImage
+		err = json.Unmarshal(body, &dogImages)
+		if err != nil {
+			return err
+		}
+
+		for _, dogImage := range dogImages {
+			_, err := workflows.SubmitSubtask(ctx, &DownloadImage{URL: dogImage.URL})
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+```
 </CodeGroup>
 
 With this implementation, downloading a large number of images (for example, 9) results in the following tasks being executed:
@@ -274,11 +495,44 @@ class FlakyTask(Task):
         if random.random() < 0.1:
             raise Exception("FlakyTask failed randomly")
 ```
+```go Go
+package flaky
+
+import (
+	"context"
+	"errors"
+	"log/slog"
+	"math/rand/v2"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+	"github.com/tilebox/tilebox-go/workflows/v1/subtask"
+)
+
+type RootTask struct{}
+
+func (t *RootTask) Execute(ctx context.Context) error {
+	_, err := workflows.SubmitSubtask(ctx, &FlakyTask{},
+		subtask.WithMaxRetries(5),
+	)
+	return err
+}
+
+type FlakyTask struct{}
+
+func (t *FlakyTask) Execute(context.Context) error {
+	slog.Info("Executing FlakyTask")
+
+	if rand.Float64() < 0.1 {
+		return errors.New("FlakyTask failed randomly")
+	}
+	return nil
+}
+```
 </CodeGroup>
 
 ## Dependencies
 
-Tasks often rely on other tasks. For example, a task that processes data might depend on a task that fetches that data. **Tasks can express their dependencies on other tasks** by using the `depends_on` argument of the [submit_subtask](/api-reference/tilebox.workflows/ExecutionContext.submit_subtask) method. This means that a dependent task will only execute after the task it relies on has successfully completed.
+Tasks often rely on other tasks. For example, a task that processes data might depend on a task that fetches that data. **Tasks can express their dependencies on other tasks** by using the `depends_on` argument of the [`submit_subtask`](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask) method. This means that a dependent task will only execute after the task it relies on has successfully completed.
 
 <Note>
   The `depends_on` argument accepts a list of tasks, enabling a task to depend on multiple other tasks.
@@ -307,6 +561,48 @@ class PrintTask(Task):
 
     def execute(self, context: ExecutionContext) -> None:
         print(self.message)
+```
+```go Go
+type RootTask struct{}
+
+func (t *RootTask) Execute(ctx context.Context) error {
+	firstTask, err := workflows.SubmitSubtask(
+		ctx,
+		&PrintTask{Message: "Executing first"},
+	)
+	if err != nil {
+		return err
+	}
+
+	secondTask, err := workflows.SubmitSubtask(
+		ctx,
+		&PrintTask{Message: "Executing second"},
+		subtask.WithDependencies(firstTask),
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = workflows.SubmitSubtask(
+		ctx,
+		&PrintTask{Message: "Executing last"},
+		subtask.WithDependencies(secondTask),
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type PrintTask struct {
+	Message string
+}
+
+func (t *PrintTask) Execute(context.Context) error {
+	slog.Info("PrintTask", slog.String("message", t.Message))
+	return nil
+}
 ```
 </CodeGroup>
 
@@ -366,6 +662,155 @@ A practical example is a workflow that fetches news articles from an API and pro
         "dev-cluster"
     )
     ```
+```go Go
+package news
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log/slog"
+	"net/http"
+	"os"
+	"time"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+	"github.com/tilebox/tilebox-go/workflows/v1/subtask"
+)
+
+const newsAPIKey = "YOUR_API_KEY"
+
+type NewsWorkflow struct {
+	Category    string
+	MaxArticles int
+}
+
+func (t *NewsWorkflow) Execute(ctx context.Context) error {
+	fetchTask, err := workflows.SubmitSubtask(ctx, &FetchNews{
+		Category:    t.Category,
+		MaxArticles: t.MaxArticles,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = workflows.SubmitSubtask(ctx, &PrintHeadlines{}, subtask.WithDependencies(fetchTask))
+	if err != nil {
+		return err
+	}
+
+	_, err = workflows.SubmitSubtask(ctx, &MostFrequentAuthors{}, subtask.WithDependencies(fetchTask))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type News struct {
+	Status       string `json:"status"`
+	TotalResults int    `json:"totalResults"`
+	Articles     []struct {
+		Source struct {
+			ID   *string `json:"id"`
+			Name string  `json:"name"`
+		} `json:"source"`
+		Author      *string   `json:"author"`
+		Title       string    `json:"title"`
+		Description *string   `json:"description"`
+		URL         string    `json:"url"`
+		URLToImage  *string   `json:"urlToImage"`
+		PublishedAt time.Time `json:"publishedAt"`
+		Content     *string   `json:"content"`
+	} `json:"articles"`
+}
+
+type FetchNews struct {
+	Category    string
+	MaxArticles int
+}
+
+func (t *FetchNews) Execute(context.Context) error {
+	url := fmt.Sprintf("https://newsapi.org/v2/top-headlines?category=%s&pageSize=%d&country=us&apiKey=%s", t.Category, t.MaxArticles, newsAPIKey)
+	response, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to download news: %w", err)
+	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	// check out our documentation page on caches to learn
+	// about a better way of passing data between tasks
+	return os.WriteFile("news.json", body, 0o600)
+}
+
+type PrintHeadlines struct{}
+
+func (t *PrintHeadlines) Execute(context.Context) error {
+	newsBytes, err := os.ReadFile("news.json")
+	if err != nil {
+		return fmt.Errorf("failed to read news: %w", err)
+	}
+
+	var news News
+	err = json.Unmarshal(newsBytes, &news)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal news: %w", err)
+	}
+
+	for _, article := range news.Articles {
+		slog.Info("Article", slog.Time("published_at", article.PublishedAt), slog.String("title", article.Title))
+	}
+
+	return nil
+}
+
+type MostFrequentAuthors struct{}
+
+func (t *MostFrequentAuthors) Execute(context.Context) error {
+	newsBytes, err := os.ReadFile("news.json")
+	if err != nil {
+		return fmt.Errorf("failed to read news: %w", err)
+	}
+
+	var news News
+	err = json.Unmarshal(newsBytes, &news)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal news: %w", err)
+	}
+
+	authors := make(map[string]int)
+	for _, article := range news.Articles {
+		if article.Author == nil {
+			continue
+		}
+		authors[*article.Author]++
+	}
+
+	for author, count := range authors {
+		slog.Info("Author", slog.String("author", author), slog.Int("count", count))
+	}
+
+	return nil
+}
+
+// in main now submit a job, and then visualize it
+/*
+job, err := client.Jobs.Submit(ctx, "process-news", "dev-cluster",
+	[]workflows.Task{
+		&NewsWorkflow{
+			Category:    "science",
+			MaxArticles: 5,
+		},
+	},
+)
+*/
+```
 </CodeGroup>
 
 ```plaintext Output
@@ -414,27 +859,48 @@ If unspecified, the identifier of a task defaults to the class name. For instanc
 To address this, Tilebox Workflows offers a way to explicitly specify the identifier of a task. This is done by overriding the `identifier` method of the `Task` class. This method should return a unique string identifying the task. This decouples the task's identifier from its class name, allowing you to change the identifier without renaming the class. It also allows tasks with the same class name to have different identifiers. The `identifier` method can also specify a version number for the task—see the section on [semantic versioning](#semantic-versioning) below for more details.
 
 <CodeGroup title="Overriding the Task Identifier">
-    ```python Python
-    class MyTask(Task):
-        def execute(self, context: ExecutionContext) -> None:
-            pass
+```python Python
+class MyTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        pass
 
-    # MyTask has the identifier "MyTask" and the default version of "v0.0"
+# MyTask has the identifier "MyTask" and the default version of "v0.0"
 
-    class MyTask2(Task):
-        @staticmethod
-        def identifier() -> tuple[str, str]:
-            return "tilebox.com/example_workflow/MyTask", "v1.0"
+class MyTask2(Task):
+    @staticmethod
+    def identifier() -> tuple[str, str]:
+        return "tilebox.com/example_workflow/MyTask", "v1.0"
 
-        def execute(self, context: ExecutionContext) -> None:
-            pass
+    def execute(self, context: ExecutionContext) -> None:
+        pass
 
-    # MyTask2 has the identifier "tilebox.com/example_workflow/MyTask" and the version "v1.0"
-    ```
+# MyTask2 has the identifier "tilebox.com/example_workflow/MyTask" and the version "v1.0"
+```
+```go Go
+type MyTask struct{}
+
+func (t *MyTask) Execute(context.Context) error {
+	return nil
+}
+
+// MyTask has the identifier "MyTask" and the default version of "v0.0"
+
+type MyTask2 struct{}
+
+func (t *MyTask2) Identifier() workflows.TaskIdentifier {
+	return workflows.NewTaskIdentifier("tilebox.com/example_workflow/MyTask", "v1.0")
+}
+
+func (t *MyTask2) Execute(context.Context) error {
+	return nil
+}
+
+// MyTask2 has the identifier "tilebox.com/example_workflow/MyTask" and the version "v1.0"
+```
 </CodeGroup>
 
 <Note>
-  The `identifier` method must be defined as either a `classmethod` or a `staticmethod`, meaning it can be called without instantiating the class.
+  In python, the `identifier` method must be defined as either a `classmethod` or a `staticmethod`, meaning it can be called without instantiating the class.
 </Note>
 
 ## Semantic Versioning
@@ -448,15 +914,26 @@ You assign a version number by overriding the `identifier` method of the task cl
 For example, this task has the identifier `"tilebox.com/example_workflow/MyTask"` and the version `"v1.3"`:
 
 <CodeGroup title="Overriding the Task Identifier">
-    ```python Python
-    class MyTask(Task):
-        @staticmethod
-        def identifier() -> tuple[str, str]:
-            return "tilebox.com/example_workflow/MyTask", "v1.3"
+```python Python
+class MyTask(Task):
+    @staticmethod
+    def identifier() -> tuple[str, str]:
+        return "tilebox.com/example_workflow/MyTask", "v1.3"
 
-        def execute(self, context: ExecutionContext) -> None:
-            pass
-    ```
+    def execute(self, context: ExecutionContext) -> None:
+        pass
+```
+```go Go
+type MyTask struct{}
+
+func (t *MyTask) Identifier() workflows.TaskIdentifier {
+	return workflows.NewTaskIdentifier("tilebox.com/example_workflow/MyTask", "v1.3")
+}
+
+func (t *MyTask) Execute(context.Context) error {
+	return nil
+}
+```
 </CodeGroup>
 
 When a task is submitted as part of a job, the version from which it's submitted is recorded and may differ from the version on the task runner executing the task.

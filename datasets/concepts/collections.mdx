@@ -4,21 +4,11 @@ description: Learn about dataset collections
 icon: layer-group
 ---
 
-Collections group data points within a dataset. They help represent logical groupings of data points that are commonly queried together. For example, if your dataset includes data from a specific instrument on different satellites, you can group the data points from each satellite into a collection.
+Collections group data points within a dataset. They help represent logical groupings of data points that are commonly queried together.
+For example, if your dataset includes data from a specific instrument on different satellites, you can group the data points from each satellite into a collection.
 
-## Overview
-
-This section provides a quick overview of the API for listing and accessing collections. Below are some usage examples for different scenarios.
-
-| Method                                                               | Description                                          |
-| -------------------------------------------------------------------- | ---------------------------------------------------- |
-| [`dataset.collections`](/api-reference/tilebox.datasets/Dataset.collections) |  List all available collections for a dataset.                 |
-| [`dataset.create_collection`](/api-reference/tilebox.datasets/Dataset.create_collection) | Create a collection in a dataset.   |
-| [`dataset.get_or_create_collection`](/api-reference/tilebox.datasets/Dataset.get_or_create_collection) | Get a collection, create it if it doesn't exist. |
-| [`dataset.collection`](/api-reference/tilebox.datasets/Dataset.collection) | Access an individual collection by its name.     |
-| [`collection.info`](/api-reference/tilebox.datasets/Collection.info) | Request information about a collection.          |
-
-Refer to the examples below for common use cases when working with collections. These examples assume that you have already [created a client](/datasets/introduction#creating-a-datasets-client) and [listed the available datasets](/api-reference/tilebox.datasets/Client.datasets).
+Refer to the examples below for common use cases when working with collections.
+These examples assume that you have already created a client and selected a dataset as shown below.
 
 <CodeGroup>
 ```python Python
@@ -26,6 +16,27 @@ from tilebox.datasets import Client
 
 client = Client()
 datasets = client.datasets()
+dataset = datasets.open_data.copernicus.landsat8_oli_tirs
+```
+```go Go
+package main
+
+import (
+	"context"
+	"log"
+
+	"github.com/tilebox/tilebox-go/datasets/v1"
+)
+
+func main() {
+	ctx := context.Background()
+	client := datasets.NewClient()
+
+	dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.landsat8_oli_tirs")
+	if err != nil {
+		log.Fatalf("Failed to get dataset: %v", err)
+	}
+}
 ```
 </CodeGroup>
 
@@ -35,9 +46,16 @@ To list the collections for a dataset, use the `collections` method on the datas
 
 <CodeGroup>
 ```python Python
-dataset = datasets.open_data.copernicus.landsat8_oli_tirs
 collections = dataset.collections()
 print(collections)
+```
+```go Go
+collections, err := client.Collections.List(ctx, dataset.ID)
+if err != nil {
+  log.Fatalf("Failed to list collections: %v", err)
+}
+
+log.Println(collections)
 ```
 </CodeGroup>
 
@@ -48,29 +66,35 @@ print(collections)
  'L2SP': Collection L2SP: [2015-01-01T07:53:35.391 UTC, 2024-08-12T12:52:03.243 UTC] (191110 data points)}
 ```
 
-[dataset.collections](/api-reference/tilebox.datasets/Dataset.collections) returns a dictionary mapping collection names to their corresponding collection objects. Each collection has a unique name within its dataset.
+[dataset.collections](/api-reference/python/tilebox.datasets/Dataset.collections) returns a dictionary mapping collection names to their corresponding collection objects. Each collection has a unique name within its dataset.
 
 ## Creating collections
 
-To create a collection in a dataset, use [dataset.create_collection()](/api-reference/tilebox.datasets/Dataset.create_collection). This method returns the created collection object.
+To create a collection in a dataset, use [dataset.create_collection()](/api-reference/python/tilebox.datasets/Dataset.create_collection). This method returns the created collection object.
 
 <CodeGroup>
 ```python Python
 collection = dataset.create_collection("My-collection")
 ```
+```go Go
+collection, err := client.Collections.Create(ctx, dataset.ID, "My-collection")
+```
 </CodeGroup>
 
-Alternatively, you can use [dataset.get_or_create_collection()](/api-reference/tilebox.datasets/Dataset.get_or_create_collection) to get a collection by its name. If the collection does not exist, it will be created.
+You can use [dataset.get_or_create_collection()](/api-reference/python/tilebox.datasets/Dataset.get_or_create_collection) to get a collection by its name. If the collection does not exist, it will be created.
 
 <CodeGroup>
 ```python Python
 collection = dataset.get_or_create_collection("My-collection")
 ```
+```go Go
+collection, err := client.Collections.GetOrCreate(ctx, dataset.ID, "My-collection")
+```
 </CodeGroup>
 
 ## Accessing individual collections
 
-Once you have listed the collections for a dataset using [dataset.collections()](/api-reference/tilebox.datasets/Dataset.collections), you can access a specific collection by retrieving it from the resulting dictionary with its name. Use [collection.info()](/api-reference/tilebox.datasets/Collection.info) to get details (name, availability, and count) about it.
+Once you have listed the collections for a dataset using [dataset.collections()](/api-reference/python/tilebox.datasets/Dataset.collections), you can access a specific collection by retrieving it from the resulting dictionary with its name. Use [collection.info()](/api-reference/python/tilebox.datasets/Collection.info) in Python or `String()` in Go to get details (name, availability, and count) about it.
 
 <CodeGroup>  
 ```python Python
@@ -79,19 +103,45 @@ terrain_correction = collections["L1GT"]
 collection_info = terrain_correction.info()
 print(collection_info)
 ```
+```go Go
+dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.landsat8_oli_tirs")
+if err != nil {
+  log.Fatalf("Failed to get dataset: %v", err)
+}
+
+collection, err := client.Collections.Get(ctx, dataset.ID, "L1GT")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
+log.Println(collection.String())
+```
 </CodeGroup>
 
 ```plaintext Output
 L1GT: [2013-03-25T12:08:43.699 UTC, 2024-08-19T12:57:32.456 UTC] (154288 data points)
 ```
 
-You can also access a specific collection directly using the [dataset.collection](/api-reference/tilebox.datasets/Dataset.collection) method on the dataset object. This method allows you to get the collection without having to list all collections first.
+You can also access a specific collection directly using the [dataset.collection](/api-reference/python/tilebox.datasets/Dataset.collection) method on the dataset object. This method allows you to get the collection without having to list all collections first.
 
 <CodeGroup>
 ```python Python
 terrain_correction = dataset.collection("L1GT")
 collection_info = terrain_correction.info()
 print(collection_info)
+```
+```go Go
+dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.landsat8_oli_tirs")
+if err != nil {
+  log.Fatalf("Failed to get dataset: %v", err)
+}
+
+collection, err := client.Collections.Get(ctx, dataset.ID, "L1GT")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
+log.Println(collection.String())
 ```
 </CodeGroup>
 
@@ -108,6 +158,12 @@ If you attempt to access a collection with a non-existent name, a `NotFoundError
 <CodeGroup>
 ```python Python
 dataset.collection("Sat-X").info() # raises NotFoundError: 'No such collection Sat-X'
+```
+```go Go
+collection, err := client.Collections.Get(ctx, dataset.ID, "Sat-X")
+if err != nil {
+  log.Fatal(err) // prints 'failed to get collections: not_found: no such collection'
+}
 ```
 </CodeGroup>
 

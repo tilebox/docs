@@ -1,0 +1,54 @@
+---
+title: Client.Datapoints.GetInto
+sidebarTitle: Datapoints.GetInto
+icon: layer-group
+---
+
+```go
+func (datapointClient) GetInto(
+  ctx context.Context,
+  collectionIDs []uuid.UUID,
+  datapointID uuid.UUID,
+  datapoint proto.Message,
+  options ...QueryOption,
+) error
+```
+
+Get a data point by its id from one of the specified collections.
+
+The data point is stored in the `datapoint` parameter.
+
+## Parameters
+
+<ParamField path="collectionIDs" type="[]uuid.UUID">
+  The ids of the collections to query
+</ParamField>
+<ParamField path="datapointID" type="uuid.UUID">
+  The id of the datapoint to query
+</ParamField>
+<ParamField path="datapoint" type="proto.Message">
+  The datapoint to query into
+</ParamField>
+<ParamField path="options" type="[]QueryOption">
+  Options for querying data points.
+</ParamField>
+
+## Options
+
+<ParamField path="WithSkipData()" default="false">
+  Skip the data when querying datapoint.
+  If set, only the required and auto-generated fields will be returned.
+</ParamField>
+
+## Returns
+
+An error if data point could not be queried.
+
+<RequestExample>
+```go Go
+var datapoint v1.Sentinel1Sar
+err = client.Datapoints.GetInto(ctx,
+  []uuid.UUID{collection.ID}, datapointID, &datapoint,
+)
+```
+</RequestExample>

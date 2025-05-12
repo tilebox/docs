@@ -1,0 +1,40 @@
+---
+title: Client.Datapoints.DeleteIDs
+sidebarTitle: Datapoints.DeleteIDs
+icon: layer-group
+---
+
+```go
+func (datapointClient) DeleteIDs(
+    ctx context.Context,
+    collectionID uuid.UUID,
+    datapointIDs []uuid.UUID,
+) (int64, error)
+```
+
+Delete data points from a collection.
+
+## Parameters
+
+<ParamField path="collectionID" type="uuid.UUID">
+  The id of the collection
+</ParamField>
+<ParamField path="datapointIDs" type="[]uuid.UUID">
+  The ids of the data points to delete from the collection
+</ParamField>
+
+## Returns
+
+The number of data points that were deleted.
+
+<RequestExample>
+```go Go
+numDeleted, err := client.Datapoints.DeleteIDs(ctx,
+    collectionID,
+    []uuid.UUID{
+      uuid.MustParse("0195c87a-49f6-5ffa-e3cb-92215d057ea6"),
+      uuid.MustParse("0195c87b-bd0e-3998-05cf-af6538f34957"),
+    },
+)
+```
+</RequestExample>

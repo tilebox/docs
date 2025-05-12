@@ -167,9 +167,10 @@
     },
     {
       "group": "Go",
-      "icon": "golang",
       "pages": [
-        "sdks/go/introduction"
+        "sdks/go/install",
+        "sdks/go/examples",
+        "sdks/go/protobuf"
       ]
     },
     {
@@ -180,38 +181,94 @@
       ]
     },
     {
-      "group": "tilebox.datasets",
+      "group": "Python",
       "pages": [
-        "api-reference/tilebox.datasets/Client",
-        "api-reference/tilebox.datasets/Client.datasets",
-        "api-reference/tilebox.datasets/Client.dataset",
-        "api-reference/tilebox.datasets/Dataset.collections",
-        "api-reference/tilebox.datasets/Dataset.collection",
-        "api-reference/tilebox.datasets/Dataset.create_collection",
-        "api-reference/tilebox.datasets/Dataset.get_or_create_collection",
-        "api-reference/tilebox.datasets/Collection.delete",
-        "api-reference/tilebox.datasets/Collection.find",
-        "api-reference/tilebox.datasets/Collection.info",
-        "api-reference/tilebox.datasets/Collection.ingest",
-        "api-reference/tilebox.datasets/Collection.load"
+        {
+          "group": "tilebox.datasets",
+          "pages": [
+            "api-reference/python/tilebox.datasets/Client",
+            "api-reference/python/tilebox.datasets/Client.datasets",
+            "api-reference/python/tilebox.datasets/Client.dataset",
+            "api-reference/python/tilebox.datasets/Dataset.collections",
+            "api-reference/python/tilebox.datasets/Dataset.collection",
+            "api-reference/python/tilebox.datasets/Dataset.create_collection",
+            "api-reference/python/tilebox.datasets/Dataset.get_or_create_collection",
+            "api-reference/python/tilebox.datasets/Collection.delete",
+            "api-reference/python/tilebox.datasets/Collection.find",
+            "api-reference/python/tilebox.datasets/Collection.info",
+            "api-reference/python/tilebox.datasets/Collection.ingest",
+            "api-reference/python/tilebox.datasets/Collection.load"
+          ]
+        },
+        {
+          "group": "tilebox.workflows",
+          "pages": [
+            "api-reference/python/tilebox.workflows/Client",
+            "api-reference/python/tilebox.workflows/Task",
+            "api-reference/python/tilebox.workflows/Client.runner",
+            "api-reference/python/tilebox.workflows/TaskRunner.run_all",
+            "api-reference/python/tilebox.workflows/TaskRunner.run_forever",
+            "api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask",
+            "api-reference/python/tilebox.workflows/ExecutionContext.job_cache",
+            "api-reference/python/tilebox.workflows/JobCache.group",
+            "api-reference/python/tilebox.workflows/JobCache.__iter__",
+            "api-reference/python/tilebox.workflows/JobClient.submit",
+            "api-reference/python/tilebox.workflows/JobClient.retry",
+            "api-reference/python/tilebox.workflows/JobClient.cancel",
+            "api-reference/python/tilebox.workflows/JobClient.visualize"
+          ]
+        }
       ]
     },
     {
-      "group": "tilebox.workflows",
+      "group": "Go",
       "pages": [
-        "api-reference/tilebox.workflows/Client",
-        "api-reference/tilebox.workflows/Task",
-        "api-reference/tilebox.workflows/Client.runner",
-        "api-reference/tilebox.workflows/TaskRunner.run_all",
-        "api-reference/tilebox.workflows/TaskRunner.run_forever",
-        "api-reference/tilebox.workflows/ExecutionContext.submit_subtask",
-        "api-reference/tilebox.workflows/ExecutionContext.job_cache",
-        "api-reference/tilebox.workflows/JobCache.group",
-        "api-reference/tilebox.workflows/JobCache.__iter__",
-        "api-reference/tilebox.workflows/JobClient.submit",
-        "api-reference/tilebox.workflows/JobClient.retry",
-        "api-reference/tilebox.workflows/JobClient.cancel",
-        "api-reference/tilebox.workflows/JobClient.visualize"
+        {
+          "group": "datasets",
+          "pages": [
+            "api-reference/go/datasets/Get",
+            "api-reference/go/datasets/List",
+            "api-reference/go/datasets/Collections.Create",
+            "api-reference/go/datasets/Collections.Get",
+            "api-reference/go/datasets/Collections.GetOrCreate",
+            "api-reference/go/datasets/Collections.List",
+            "api-reference/go/datasets/Datapoints.GetInto",
+            "api-reference/go/datasets/Datapoints.Query",
+            "api-reference/go/datasets/Datapoints.QueryInto",
+            "api-reference/go/datasets/Datapoints.Ingest",
+            "api-reference/go/datasets/Datapoints.Delete",
+            "api-reference/go/datasets/Datapoints.DeleteIDs",
+            "api-reference/go/datasets/CollectAs",
+            "api-reference/go/datasets/Collect",
+            "api-reference/go/datasets/As"
+          ]
+        },
+        {
+          "group": "workflows",
+          "pages": [
+            "api-reference/go/workflows/Task",
+            "api-reference/go/workflows/GetCurrentCluster",
+            "api-reference/go/workflows/SubmitSubtask",
+            "api-reference/go/workflows/SubmitSubtasks",
+            "api-reference/go/workflows/WithTaskSpan",
+            "api-reference/go/workflows/WithTaskSpanResult",
+            "api-reference/go/workflows/NewTaskRunner",
+            "api-reference/go/workflows/TaskRunner.GetRegisteredTask",
+            "api-reference/go/workflows/TaskRunner.RegisterTasks",
+            "api-reference/go/workflows/TaskRunner.Run",
+            "api-reference/go/workflows/Clusters.Create",
+            "api-reference/go/workflows/Clusters.Get",
+            "api-reference/go/workflows/Clusters.Delete",
+            "api-reference/go/workflows/Clusters.List",
+            "api-reference/go/workflows/Jobs.Submit",
+            "api-reference/go/workflows/Jobs.Get",
+            "api-reference/go/workflows/Jobs.Retry",
+            "api-reference/go/workflows/Jobs.Cancel",
+            "api-reference/go/workflows/Jobs.List",
+            "api-reference/go/workflows/Collect"
+
+          ]
+        }
       ]
     }
   ],

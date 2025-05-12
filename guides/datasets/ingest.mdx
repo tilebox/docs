@@ -13,8 +13,8 @@ import { CodeOutputHeader } from '/snippets/components.mdx';
 </CardGroup>
 
 This page guides you through the process of ingesting data into a Tilebox dataset. Starting from an existing
-dataset available as file in the [GeoParquet](https://geoparquet.org/) format, we'll walk you through the process of
-ingestion that data into Tilebox as a [Timeseries](/datasets/types/timeseries) dataset.
+dataset available as file in the [GeoParquet](https://geoparquet.org/) format, you'll go through the process of
+ingesting that data into Tilebox as a [Timeseries](/datasets/types/timeseries) dataset.
 
 ## Related documentation
 
@@ -35,7 +35,7 @@ from here: [modis_MCD12Q1.geoparquet](https://storage.googleapis.com/tbx-web-ass
 ## Installing the necessary packages
 
 This example uses a couple of python packages for reading parquet files and for visualizing the dataset. Install the 
-required packages using your preferred package manager. For new projects, we recommend using [uv](https://docs.astral.sh/uv/).
+required packages using your preferred package manager. For new projects, Tilebox recommend using [uv](https://docs.astral.sh/uv/).
 
 <CodeGroup>
 ```bash uv
@@ -93,8 +93,8 @@ modis_data.head(1000).explore(width=800, height=600)
 
 ## Create a Tilebox dataset
 
-Now we'll create a [Timeseries](/datasets/types/timeseries) dataset with the same schema as the given MODIS dataset.
-To do so, we'll use the [Tilebox Console](/console), navigate to `My Datasets` and click `Create Dataset`. We then select
+Now you'll create a [Timeseries](/datasets/types/timeseries) dataset with the same schema as the given MODIS dataset.
+To do so, you'll use the [Tilebox Console](/console), navigate to `My Datasets` and click `Create Dataset`. Then select
 `Timeseries Dataset` as the dataset type.
 
 <Tip>
@@ -102,12 +102,12 @@ To do so, we'll use the [Tilebox Console](/console), navigate to `My Datasets` a
     Step by step guide.
 </Tip>
 
-Now, to match the given MODIS dataset, we'll specify the following fields:
+Now, to match the given MODIS dataset, you'll specify the following fields:
 
 | Field | Type | Note |
 | --- | --- | --- |
 | granule_name | string | MODIS granule name |
-| geometry | Geometry | Tile boundary coords of the granule |
+| geometry | Geometry | Tile boundary coordinates of the granule |
 | end_time | Timestamp | Measurement end time |
 | horizontal_tile_number | int64 | Horizontal modis tile number (0-35) |
 | vertical_tile_number | int64 | Vertical modis tile number (0-17) |
@@ -128,7 +128,7 @@ In the console, this will look like the following:
 
 ## Access the dataset from Python
 
-Our newly created dataset is now available. Let's access it from Python. For this, we'll need to know the dataset slug,
+Your newly created dataset is now available. You can access it from Python. For this, you'll need to know the dataset slug,
 which was assigned automatically based on the specified `code_name`. To find out the slug, navigate to the dataset overview
 in the console.
 
@@ -137,7 +137,7 @@ in the console.
   <img src="/assets/guides/ingest/dataset-slug-dark.png" alt="Explore the MODIS dataset" className="hidden dark:block" />
 </Frame>
 
-We can now instantiate the dataset client and access the dataset.
+You can now instantiate the dataset client and access the dataset.
 
 <CodeGroup>
 ```python Python
@@ -150,7 +150,7 @@ dataset = client.dataset("tilebox.modis")  # replace with your dataset slug
 
 ## Create a collection
 
-Next, we'll create a collection to insert our data into.
+Next, you'll create a collection to insert your data into.
 
 <CodeGroup>
 ```python Python
@@ -160,7 +160,7 @@ collection = dataset.get_or_create_collection("MCD12Q1")
 
 ## Ingest the data
 
-Now, we'll finally ingest the MODIS data into the collection. 
+Now, you'll finally ingest the MODIS data into the collection.
 
 <CodeGroup>
 ```python Python
@@ -177,7 +177,7 @@ Successfully ingested 7245 datapoints!
 
 ## Query the newly ingested data
 
-We can now query the newly ingested data. Let's query a subset of the data for a specific time range.
+You can now query the newly ingested data. You can query a subset of the data for a specific time range.
 
 <Tip>
     Since the data is now stored directly in the Tilebox dataset, you can query and access it from anywhere.
@@ -217,7 +217,6 @@ Data variables: (12/14)
     For more information on accessing and querying data, check out [querying data](/datasets/query).
 </Tip>
 
-
 ## View the data in the console
 
 You can also view your data in the Console, by navigate to the dataset, selecting the collection and then clicking
@@ -230,7 +229,7 @@ on one of the data points.
 
 ## Next steps
 
-Congrats! You've successfully ingested data into Tilebox. You can now explore the data in the console and use it for
+Congrats. You've successfully ingested data into Tilebox. You can now explore the data in the console and use it for
 further processing and analysis.
 
 <CardGroup cols={2}>

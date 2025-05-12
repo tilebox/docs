@@ -1,0 +1,38 @@
+---
+title: Client.Collections.List
+sidebarTitle: Collections.List
+icon: layer-group
+---
+
+```go
+func (collectionClient) List(
+    ctx context.Context,
+    datasetID uuid.UUID,
+) ([]*datasets.Collection, error)
+```
+
+List the available collections in a dataset.
+
+## Parameters
+
+<ParamField path="datasetID" type="uuid.UUID">
+  The id of the dataset
+</ParamField>
+
+## Returns
+
+A list of collection objects.
+
+<RequestExample>
+```go Go
+collections, err := client.Collections.List(ctx,
+    datasetID,
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="No such dataset">
+  The specified dataset does not exist.
+</ParamField>

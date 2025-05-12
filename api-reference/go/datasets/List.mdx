@@ -1,0 +1,21 @@
+---
+title: Client.Datasets.List
+sidebarTitle: List
+icon: laptop-code
+---
+
+```go
+func (datasetClient) List(ctx context.Context) ([]*datasets.Dataset, error)
+```
+
+Fetch all available datasets.
+
+## Returns
+
+A list of all available datasets.
+
+<RequestExample>
+```go Go
+datasets, err := client.Datasets.List(ctx)
+```
+</RequestExample>

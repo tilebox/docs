@@ -1,0 +1,70 @@
+---
+title: Client.Datapoints.QueryInto
+sidebarTitle: Datapoints.QueryInto
+icon: layer-group
+---
+
+```go
+func (datapointClient) QueryInto(
+    ctx context.Context,
+    collectionID uuid.UUID,
+    datapoints any,
+    options ...datasets.QueryOption,
+) error
+```
+
+Query a range of data points in this collection in a specified interval.
+
+QueryInto is a convenience function for [Query](/api-reference/go/datasets/Datapoints.Query), when no manual pagination or custom iteration is required.
+
+## Parameters
+
+<ParamField path="collectionID" type="uuid.UUID">
+  The id of the collection
+</ParamField>
+<ParamField path="datapoints" type="[]proto.Message">
+  The datapoints to query into
+</ParamField>
+<ParamField path="options" type="[]datasets.QueryOption">
+  Options for querying data points
+</ParamField>
+
+## Options
+
+<ParamField path="WithTemporalExtent(temporalExtent query.TemporalExtent)">
+  Specify the time interval for which data should be queried.
+  Right now, a temporal extent is required for every query.
+</ParamField>
+<ParamField path="WithSpatialExtent(spatialExtent orb.Geometry)">
+  Specify the geographical extent in which to query data.
+  Optional, if not specified the query will return all results found globally.
+</ParamField>
+<ParamField path="WithSkipData()" default="false">
+  Skip the data when querying datapoints.
+  If set, only the required and auto-generated fields will be returned.
+</ParamField>
+
+## Returns
+
+An error if data points could not be queried.
+
+<RequestExample>
+```go Go
+import (
+  "time"
+  datasets "github.com/tilebox/tilebox-go/datasets/v1"
+	"github.com/tilebox/tilebox-go/query"
+)
+
+startDate := time.Date(2014, 10, 4, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2021, 2, 24, 0, 0, 0, 0, time.UTC) 
+queryInterval := query.NewTimeInterval(startDate, endDate)
+
+var datapoints []*v1.Sentinel1Sar
+err := client.Datapoints.QueryInto(ctx,
+    collectionID,
+    &datapoints,
+    datasets.WithTemporalExtent(queryInterval),
+)
+```
+</RequestExample>
