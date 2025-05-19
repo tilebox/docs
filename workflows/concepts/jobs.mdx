@@ -125,6 +125,33 @@ job, err := client.Jobs.Get(ctx, uuid.MustParse("018dd029-58ca-74e5-8b58-b4f99d6
     `find` is also a useful tool for fetching a jobs state after a while, to check if it's still running or has already completed.
 </Tip>
 
+## States
+
+A job can be in one of the following states:
+
+- `QUEUED`: the job is queued and waiting for execution
+- `STARTED`: at least one task of the job has been started
+- `COMPLETED`: all tasks of the job have been completed
+
+<CodeGroup>
+```python Python
+from tilebox.workflows.data import JobState
+
+job = job_client.find("018dd029-58ca-74e5-8b58-b4f99d610f9a")
+
+print("Job is queued:", job.state == JobState.QUEUED)
+```
+```go Go
+job, err := client.Jobs.Get(ctx, uuid.MustParse("018dd029-58ca-74e5-8b58-b4f99d610f9a"))
+
+fmt.Println("Job is queued:", job.State == workflows.JobQueued)
+```
+</CodeGroup>
+
+```plaintext Output
+Job is queued: True
+```
+
 ## Visualization
 
 Visualizing the execution of a job can be helpful. The Tilebox workflow orchestrator tracks all tasks in a job, including [sub-tasks](/workflows/concepts/tasks#task-composition-and-subtasks) and [dependencies](/workflows/concepts/tasks#dependencies). This enables the visualization of the execution of a job as a graph diagram.
