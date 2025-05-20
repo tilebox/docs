@@ -49,6 +49,10 @@
     {
       "name": "API Reference",
       "url": "api-reference"
+    },
+    {
+      "name": "Changelog",
+      "url": "changelog"
     }
   ],
   "primaryTab": {
@@ -270,9 +274,14 @@
             "api-reference/go/workflows/Jobs.Cancel",
             "api-reference/go/workflows/Jobs.List",
             "api-reference/go/workflows/Collect"
-
           ]
         }
+      ]
+    },
+    {
+      "group": "Changelog",
+      "pages": [
+        "changelog"
       ]
     }
   ],

@@ -1,11 +1,76 @@
 ---
 title: Product Updates
-description: New updates and improvements
+description: New features, updates and improvements
 icon: rss
 ---
+
+<Update label="May 2025">
+    ## Go Client
+
+    <Frame>
+    ![Tilebox Go Client](/assets/changelog/2025-05-tilebox-banner-go.svg)
+    </Frame>
+
+    Excited to announce the release of the Tilebox Go client!
+
+    **Features**
+    - Datasets client
+    - Statically typed dataset types
+    - CLI to generate dataset types
+    - Workflows client
+    - Go task runners
+
+    To get started, check out the [Go SDK documentation](/sdks/go/install).
+</Update>
+
+<Update label="April 2025">
+    ## Spatio-Temporal datasets
+
+    <Frame>
+    ![Spatio-Temporal Datasets](/assets/changelog/2025-04-spatio-temporal.png)
+    </Frame>
+
+    Spatio-temporal datasets are officially out, fully supported in all languages and available as a category to create in custom datasets!
+
+    The core problems that spatio-temporal datasets solve are
+
+    - finding relevant data quickly (e.g. all Sentinel 2 granules along the US coastline, last year),
+    - storing auxiliary geographically coded data (e.g. weather station data, ground truth data),
+    - cataloging higher level data and results
+
+    [Here's a short video](https://share.descript.com/view/khO3QJslhgU) on performance and core capabilities.
+
+    We're excited about this as cataloging has until now been an unsexy but hard problem, and it's great to finally have a solution out there
+
+    **More information**
+
+    - [Spatio Temporal datasets documentation](https://docs.tilebox.com/datasets/types/spatiotemporal)
+    - All open data now supports spatio-temporal queries
+    - [Create your own spatio-temporal datasets](/guides/datasets/create)
+    - [Ingesting spatio-temporal data](/datasets/ingest)
+
+</Update>
 
 <Update label="March 2025">
     ## Custom Datasets
 
-    Coming soon!
+    <Frame>
+    ![Custom datasets](/assets/changelog/2025-03-custom-datasets.png)
+    </Frame>
+
+    Create your own custom datasets!
+
+    - statically typed
+    - with clients in Python and Go
+
+    Use it to organize anything from telemetry, raw payload metadata, auxiliary sensor data, configuration data, or
+    internal data catalogs.
+
+    **Quickstart**
+    1. Specify the data type in the Console
+    2. Create a collection
+    3. Use client.ingest() to ingest a `xarray.Dataset` or `pandas.DataFrame`
+    4. Query away!
+
+    For detailed instructions, check out the [Creating a dataset](/guides/datasets/create) how-to guide.
 </Update>
