@@ -20,7 +20,7 @@ Ingest data points into a collection.
 <ParamField path="collectionID" type="uuid.UUID">
   The id of the collection
 </ParamField>
-<ParamField path="datapoints" type="[]proto.Message">
+<ParamField path="datapoints" type="*[]proto.Message">
   The datapoints to ingest
 </ParamField>
 <ParamField path="allowExisting" type="bool">
@@ -50,7 +50,7 @@ datapoints := []*v1.Modis{
 
 ingestResponse, err := client.Datapoints.Ingest(ctx,
     collectionID,
-    datapoints
+    &datapoints
     false,
 )
 ```

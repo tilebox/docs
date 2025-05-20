@@ -7,20 +7,20 @@ icon: layer-group
 ```go
 func (datapointClient) Query(
     ctx context.Context,
-    collectionID uuid.UUID,
+    collectionIDs []uuid.UUID,
     options ...datasets.QueryOption,
 ) iter.Seq2[[]byte, error]
 ```
 
-Query a range of data points in this collection in a specified interval.
+Query a range of data points in the specified collections in a specified interval.
 
 The datapoints are lazily queried and returned as a sequence of bytes.
 The output sequence can be transformed into a typed `proto.Message` using [CollectAs](/api-reference/go/datasets/CollectAs) or [As](/api-reference/go/datasets/As) functions.
 
 ## Parameters
 
-<ParamField path="collectionID" type="uuid.UUID">
-  The id of the collection
+<ParamField path="collectionIDs" type="[]uuid.UUID">
+  The ids of the collections to query
 </ParamField>
 <ParamField path="options" type="[]datasets.QueryOption">
   Options for querying data points
@@ -58,7 +58,7 @@ endDate := time.Date(2021, 2, 24, 0, 0, 0, 0, time.UTC)
 queryInterval := query.NewTimeInterval(startDate, endDate)
 
 datapoints, err := datasets.CollectAs[*v1.Sentinel1Sar](
-    client.Datapoints.Query(ctx, collectionID, datasets.WithTemporalExtent(queryInterval)),
+    client.Datapoints.Query(ctx, []uuid.UUID{collection.ID}, datasets.WithTemporalExtent(queryInterval)),
 )
 ```
 </RequestExample>

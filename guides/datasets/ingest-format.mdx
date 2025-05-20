@@ -1,0 +1,78 @@
+---
+title: Ingesting from common file formats
+description: Learn how to ingest data from common file formats into Tilebox
+icon: file-binary
+---
+
+Through the usage of `xarray` and `pandas` you can also easily ingest existing datasets available in file
+formats, such as CSV, [Parquet](https://parquet.apache.org/), [Feather](https://arrow.apache.org/docs/python/feather.html) and more.
+
+## CSV
+
+Comma-separated values (CSV) is a common file format for tabular data. It's widely used in data science. Tilebox
+supports CSV ingestion using the `pandas.read_csv` function.
+
+Assuming you have a CSV file named `data.csv` with the following content. If you want to follow along, you can
+download the file [here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.csv).
+
+```csv ingestion_data.csv
+time,value,sensor,precise_time,sensor_history,some_unwanted_column
+2025-03-28T11:44:23Z,45.16,A,2025-03-28T11:44:23.345761444Z,"[-12.15, 13.45, -8.2, 16.5, 45.16]","Unsupported"
+2025-03-28T11:45:19Z,273.15,B,2025-03-28T11:45:19.128742312Z,"[300.16, 280.12, 273.15]","Unsupported"
+```
+
+This data already conforms to the schema of the `MyCustomDataset` dataset, except for `some_unwanted_column` which
+you want to drop before you ingest it. Here is how this could look like:
+
+<CodeGroup>
+```python Python
+import pandas as pd
+
+data = pd.read_csv("ingestion_data.csv")
+data = data.drop(columns=["some_unwanted_column"])
+
+collection = dataset.get_or_create_collection("CSVMeasurements")
+collection.ingest(data)
+```
+</CodeGroup>
+
+## Parquet
+
+[Apache Parquet](https://parquet.apache.org/) is an open source, column-oriented data file format designed for efficient data storage and retrieval.
+Tilebox supports Parquet ingestion using the `pandas.read_parquet` function.
+
+The parquet file used in this example [is available here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.parquet).
+
+<CodeGroup>
+```python Python
+import pandas as pd
+
+data = pd.read_parquet("ingestion_data.parquet")
+
+# our data already conforms to the schema of the MyCustomDataset
+# dataset, so lets ingest it
+collection = dataset.get_or_create_collection("ParquetMeasurements")
+collection.ingest(data)
+```
+</CodeGroup>
+
+## Feather
+
+[Feather](https://arrow.apache.org/docs/python/feather.html) is a file format originating from the Apache Arrow project,
+designed for storing tabular data in a fast and memory-efficient way. It's supported by many programming languages,
+including Python. Tilebox supports Feather ingestion using the `pandas.read_feather` function.
+
+The feather file used in this example [is available here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.feather).
+
+<CodeGroup>
+```python Python
+import pandas as pd
+
+data = pd.read_feather("ingestion_data.feather")
+
+# our data already conforms to the schema of the MyCustomDataset
+# dataset, so lets ingest it
+collection = dataset.get_or_create_collection("FeatherMeasurements")
+collection.ingest(data)
+```
+</CodeGroup>

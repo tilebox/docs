@@ -5,8 +5,6 @@ description: Learn how to ingest data into a Tilebox dataset.
 icon: up-from-bracket
 ---
 
-import { CodeOutputHeader } from '/snippets/components.mdx';
-
 <Note>
   You need to have write permission on the collection to be able to ingest data.
 </Note>
@@ -51,13 +49,42 @@ client = Client()
 dataset = client.dataset("my_org.my_custom_dataset")
 collection = dataset.get_or_create_collection("Measurements")
 ```
+```go Go
+package main
+
+import (
+	"context"
+	"log"
+
+	"github.com/tilebox/tilebox-go/datasets/v1"
+)
+
+func main() {
+	ctx := context.Background()
+	client := datasets.NewClient()
+
+	dataset, err := client.Datasets.Get(ctx, "my_org.my_custom_dataset")
+	if err != nil {
+		log.Fatalf("Failed to get dataset: %v", err)
+	}
+
+	collection, err := client.Collections.GetOrCreate(ctx, dataset.ID, "Measurements")
+	if err != nil {
+		log.Fatalf("Failed to get collection: %v", err)
+	}
+}
+```
 </CodeGroup>
 
 ## Preparing data for ingestion
 
+Ingestion can be done either in Python or Go.
+
+### Python
+
 [`collection.ingest`](/api-reference/python/tilebox.datasets/Collection.ingest) supports a wide range of input types. Below is an example of using either a `pandas.DataFrame` or an `xarray.Dataset` as input.
 
-### pandas.DataFrame
+#### pandas.DataFrame
 
 A [pandas.DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) is a representation of two-dimensional, potentially heterogeneous tabular data. It's a powerful tool for working with structured data, and Tilebox supports it as input for `ingest`.
 
@@ -86,9 +113,9 @@ data = pd.DataFrame({
 print(data)
 ```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
                    time   value sensor                    precise_time                      sensor_history
 0  2025-03-28T11:44:23Z   45.16      A  2025-03-28T11:44:23.345761444Z  [-12.15, 13.45, -8.2, 16.5, 45.16]
 1  2025-03-28T11:45:19Z  273.15      B  2025-03-28T11:45:19.128742312Z            [300.16, 280.12, 273.15]
@@ -107,9 +134,9 @@ collection.ingest(data)
 print(collection.info())
 ```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
 Measurements: [2025-03-28T11:44:23.000 UTC, 2025-03-28T11:45:19.000 UTC] (2 data points)
 ```
 </CodeGroup>
@@ -118,7 +145,7 @@ Measurements: [2025-03-28T11:44:23.000 UTC, 2025-03-28T11:45:19.000 UTC] (2 data
   You can now also head on over to the [Tilebox Console](/console) and view the newly ingested data points there.
 </Tip>
 
-### xarray.Dataset
+#### xarray.Dataset
 
 [`xarray.Dataset`](/sdks/python/xarray) is the default format in which Tilebox Datasets returns data when
 [querying data](/datasets/query) from a collection.
@@ -149,9 +176,9 @@ data = xr.Dataset({
 print(data)
 ```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
 <xarray.Dataset> Size: 504B
 Dimensions:         (time: 2, n_sensor_history: 5)
 Coordinates:
@@ -184,17 +211,47 @@ collection.ingest(data)
 print(collection.info())
 ```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
 OtherMeasurements: [2025-03-28T11:46:13.000 UTC, 2025-03-28T11:46:54.000 UTC] (2 data points)
 ```
 </CodeGroup>
 
+### Go
+
+[`Client.Datapoints.Ingest`](/api-reference/go/datasets/Datapoints.Ingest) supports ingestion of data points in the form of a slice of protobuf messages.
+
+#### Protobuf
+
+Protobuf is Google's language-neutral, platform-neutral, extensible mechanism for serializing structured data.
+
+More details on protobuf can be found in the [protobuf section](/sdks/go/protobuf).
+
+In the example below, `v1.Modis` type has been generated using [tilebox-generate](https://github.com/tilebox/tilebox-generate) as described in the [protobuf section](/sdks/go/protobuf).
+
+```go Go
+datapoints := []*v1.Modis{
+  v1.Modis_builder{
+    Time:        timestamppb.New(time.Now()),
+    GranuleName: proto.String("Granule 1"),
+  }.Build(),
+  v1.Modis_builder{
+    Time:        timestamppb.New(time.Now().Add(-5 * time.Hour)),
+    GranuleName: proto.String("Past Granule 2"),
+  }.Build(),
+}
+
+ingestResponse, err := client.Datapoints.Ingest(ctx,
+    collectionID,
+    &datapoints
+    false,
+)
+```
+
 ## Copying or moving data
 
-Since [collection.load](/datasets/query) returns a `xarray.Dataset`, and `ingest` takes such a dataset as input you
-can easily copy or move data from one collection to another.
+Since `ingest` takes `query`'s output as input, you can easily copy or move data from one collection to another.
 
 <Tip>
   Copying data like this also works across datasets in case the dataset schemas are compatible.
@@ -211,10 +268,51 @@ dest_collection.ingest(data_to_copy)  # copy the data to the other collection
 # To verify it now contains 4 datapoints (2 we ingested already, and 2 we copied just now)
 print(dest_collection.info())
 ```
+```go Go
+dataset, err := client.Datasets.Get(ctx, "my_org.my_custom_dataset")
+if err != nil {
+  log.Fatalf("Failed to get dataset: %v", err)
+}
+
+srcCollection, err := client.Collections.GetOrCreate(ctx, dataset.ID, "Measurements")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
+startDate := time.Date(2025, time.March, 28, 0, 0, 0, 0, time.UTC)
+endDate := time.Date(2025, time.March, 29, 0, 0, 0, 0, time.UTC)
+
+var dataToCopy []*v1.MyCustomDataset
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{srcCollection.ID}, &dataToCopy,
+  datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+destCollection, err := client.Collections.GetOrCreate(ctx, dataset.ID, "OtherMeasurements")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
+// copy the data to the other collection
+_, err = client.Datapoints.Ingest(ctx, destCollection.ID, &dataToCopy, false)
+if err != nil {
+  log.Fatalf("Failed to ingest datapoints: %v", err)
+}
+
+// To verify it now contains 4 datapoints (2 we ingested already, and 2 we copied just now)
+updatedDestCollection, err := client.Collections.Get(ctx, dataset.ID, "OtherMeasurements")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+slog.Info("Updated collection", slog.String("collection", updatedDestCollection.String()))
+```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
 OtherMeasurements: [2025-03-28T11:44:23.000 UTC, 2025-03-28T11:46:54.000 UTC] (4 data points)
 ```
 </CodeGroup>
@@ -259,10 +357,36 @@ collection.ingest(data, allow_existing=False)
 # will be skipped
 collection.ingest(data, allow_existing=True)  # no-op
 ```
+```go Go
+datapoints := []*v1.MyCustomDataset{
+  v1.MyCustomDataset_builder{
+    Time:          timestamppb.New(time.Date(2025, time.March, 28, 11, 45, 19, 0, time.UTC)),
+    Value:         proto.Float64(45.16),
+    Sensor:        proto.String("A"),
+    PreciseTime:   timestamppb.New(time.Date(2025, time.March, 28, 11, 44, 23, 345761444, time.UTC)),
+    SensorHistory: []float64{-12.15, 13.45, -8.2, 16.5, 45.16},
+  }.Build(),
+}
+
+// we already ingested the same data point previously
+_, err = client.Datapoints.Ingest(ctx, collection.ID, &datapoints, false)
+if err != nil {
+  log.Fatalf("Failed to ingest datapoints: %v", err)
+}
+
+// we can still ingest it, by setting allowExisting to true
+// but the total number of datapoints will still be the same
+// as before in that case, since it already exists and therefore
+// will be skipped
+_, err = client.Datapoints.Ingest(ctx, collection.ID, &datapoints, true) // no-op
+if err != nil {
+  log.Fatalf("Failed to ingest datapoints: %v", err)
+}
+```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
 ArgumentError: found existing datapoints with same id, refusing to ingest with "allow_existing=false"
 ```
 </CodeGroup>
@@ -272,72 +396,4 @@ ArgumentError: found existing datapoints with same id, refusing to ingest with "
 Through the usage of `xarray` and `pandas` you can also easily ingest existing datasets available in file
 formats, such as CSV, [Parquet](https://parquet.apache.org/), [Feather](https://arrow.apache.org/docs/python/feather.html) and more.
 
-### CSV
-
-Comma-separated values (CSV) is a common file format for tabular data. It's widely used in data science. Tilebox
-supports CSV ingestion using the `pandas.read_csv` function.
-
-Assuming you have a CSV file named `data.csv` with the following content. If you want to follow along, you can
-download the file [here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.csv).
-
-```csv ingestion_data.csv
-time,value,sensor,precise_time,sensor_history,some_unwanted_column
-2025-03-28T11:44:23Z,45.16,A,2025-03-28T11:44:23.345761444Z,"[-12.15, 13.45, -8.2, 16.5, 45.16]","Unsupported"
-2025-03-28T11:45:19Z,273.15,B,2025-03-28T11:45:19.128742312Z,"[300.16, 280.12, 273.15]","Unsupported"
-```
-
-This data already conforms to the schema of the `MyCustomDataset` dataset, except for `some_unwanted_column` which
-you want to drop before you ingest it. Here is how this could look like:
-
-<CodeGroup>
-```python Python
-import pandas as pd
-
-data = pd.read_csv("ingestion_data.csv")
-data = data.drop(columns=["some_unwanted_column"])
-
-collection = dataset.get_or_create_collection("CSVMeasurements")
-collection.ingest(data)
-```
-</CodeGroup>
-
-### Parquet
-
-[Apache Parquet](https://parquet.apache.org/) is an open source, column-oriented data file format designed for efficient data storage and retrieval.
-Tilebox supports Parquet ingestion using the `pandas.read_parquet` function.
-
-The parquet file used in this example [is available here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.parquet).
-
-<CodeGroup>
-```python Python
-import pandas as pd
-
-data = pd.read_parquet("ingestion_data.parquet")
-
-# our data already conforms to the schema of the MyCustomDataset
-# dataset, so lets ingest it
-collection = dataset.get_or_create_collection("ParquetMeasurements")
-collection.ingest(data)
-```
-</CodeGroup>
-
-### Feather
-
-[Feather](https://arrow.apache.org/docs/python/feather.html) is a file format originating from the Apache Arrow project,
-designed for storing tabular data in a fast and memory-efficient way. It's supported by many programming languages,
-including Python. Tilebox supports Feather ingestion using the `pandas.read_feather` function.
-
-The feather file used in this example [is available here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.feather).
-
-<CodeGroup>
-```python Python
-import pandas as pd
-
-data = pd.read_feather("ingestion_data.feather")
-
-# our data already conforms to the schema of the MyCustomDataset
-# dataset, so lets ingest it
-collection = dataset.get_or_create_collection("FeatherMeasurements")
-collection.ingest(data)
-```
-</CodeGroup>
+Check out the [Ingestion from common file formats](/guides/datasets/ingest-format) guide for examples of how to achieve this.

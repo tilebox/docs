@@ -181,7 +181,8 @@
       "group": "Datasets",
       "pages": [
         "guides/datasets/create",
-        "guides/datasets/ingest"
+        "guides/datasets/ingest",
+        "guides/datasets/ingest-format"
       ]
     },
     {

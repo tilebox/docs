@@ -1,10 +1,8 @@
 ---
 title: Ingesting data
 description: Learn how to ingest an existing dataset into Tilebox
-icon: folder-arrow-up
+icon: up-from-bracket
 ---
-
-import { CodeOutputHeader } from '/snippets/components.mdx';
 
 <CardGroup cols={1}>
     <Card title="Open as Notebook" icon="book" href="https://colab.research.google.com/drive/1QS-srlWPMJg4csc0ycn36yCX9U6mvIpW" horizontal>
@@ -64,9 +62,9 @@ modis_data = gpd.read_parquet("modis_MCD12Q1.geoparquet")
 modis_data.head(5)
 ```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
              time                  end_time                                   granule_name                                           geometry  horizontal_tile_number  vertical_tile_number   tile_id  file_size    checksum checksum_type day_night_flag browse_granule_id                     published_at
 0 2001-01-01 00:00:00+00:00 2001-12-31 23:59:59+00:00  MCD12Q1.A2001001.h00v08.061.2022146024956.hdf  POLYGON ((-180 10, -180 0, -170 0, -172.62252 ...                       0                     8  51000008     275957   941243048         CKSUM            Day              None 2022-06-23 10:54:43.824000+00:00
 1 2001-01-01 00:00:00+00:00 2001-12-31 23:59:59+00:00  MCD12Q1.A2001001.h00v09.061.2022146024922.hdf  POLYGON ((-180 0, -180 -10, -172.62252 -10, -1...                       0                     9  51000009     285389  3014510714         CKSUM            Day              None 2022-06-23 10:54:44.697000+00:00
@@ -168,9 +166,9 @@ datapoint_ids = collection.ingest(modis_data)
 print(f"Successfully ingested {len(datapoint_ids)} datapoints!")
 ```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
 Successfully ingested 7245 datapoints!
 ```
 </CodeGroup>
@@ -189,9 +187,9 @@ data = collection.load(("2015-01-01", "2020-01-01"))
 data
 ```
 </CodeGroup>
-<CodeOutputHeader />
+
 <CodeGroup>
-```plaintext Python
+```plaintext Output
 <xarray.Dataset> Size: 403kB
 Dimensions:                 (time: 1575)
 Coordinates:

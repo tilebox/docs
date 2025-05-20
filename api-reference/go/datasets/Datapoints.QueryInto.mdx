@@ -7,22 +7,22 @@ icon: layer-group
 ```go
 func (datapointClient) QueryInto(
     ctx context.Context,
-    collectionID uuid.UUID,
+    collectionIDs []uuid.UUID,
     datapoints any,
     options ...datasets.QueryOption,
 ) error
 ```
 
-Query a range of data points in this collection in a specified interval.
+Query a range of data points in the specified collections in a specified interval.
 
 QueryInto is a convenience function for [Query](/api-reference/go/datasets/Datapoints.Query), when no manual pagination or custom iteration is required.
 
 ## Parameters
 
-<ParamField path="collectionID" type="uuid.UUID">
-  The id of the collection
+<ParamField path="collectionIDs" type="[]uuid.UUID">
+  The ids of the collections to query
 </ParamField>
-<ParamField path="datapoints" type="[]proto.Message">
+<ParamField path="datapoints" type="*[]proto.Message">
   The datapoints to query into
 </ParamField>
 <ParamField path="options" type="[]datasets.QueryOption">
@@ -62,7 +62,7 @@ queryInterval := query.NewTimeInterval(startDate, endDate)
 
 var datapoints []*v1.Sentinel1Sar
 err := client.Datapoints.QueryInto(ctx,
-    collectionID,
+    []uuid.UUID{collection.ID},
     &datapoints,
     datasets.WithTemporalExtent(queryInterval),
 )
