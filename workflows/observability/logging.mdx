@@ -67,7 +67,7 @@ func main() {
 
 	// Setup OpenTelemetry logging and slog
 	// It uses AXIOM_API_KEY and AXIOM_LOGS_DATASET from the environment
-	axiomHandler, shutdownLogger, err := logger.NewAxiomHandler(ctx, service,
+	axiomHandler, shutdownLogger, err := logger.NewAxiomHandlerFromEnv(ctx, service,
 		logger.WithLevel(slog.LevelInfo), // export logs at info level and above as OTEL logs
 	)
 	defer shutdownLogger(ctx)
