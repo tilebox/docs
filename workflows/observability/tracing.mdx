@@ -78,7 +78,7 @@ func main() {
 
 	// Setup an OpenTelemetry trace span processor, exporting traces and spans to Axiom
 	// It uses AXIOM_API_KEY and AXIOM_TRACES_DATASET from the environment
-	tileboxTracerProvider, shutdown, err := tracer.NewAxiomProvider(ctx, service)
+	tileboxTracerProvider, shutdown, err := tracer.NewAxiomProviderFromEnv(ctx, service)
 	defer shutdown(ctx)
 	if err != nil {
 		slog.Error("failed to set up axiom tracer provider", slog.Any("error", err))
