@@ -1,0 +1,32 @@
+---
+title: JobClient.all
+icon: diagram-project
+---
+
+```python
+def JobClient.all(temporal_extent: TimeIntervalLike) -> list[Job]
+```
+
+List all available jobs.
+
+## Parameters
+
+<ParamField path="temporal_extent" type="TimeIntervalLike">
+  The interval for which to load jobs.
+  It can be specified in the following ways:
+      - TimeInterval: interval -> Use the time interval as its given
+      - DatetimeScalar: [time, time] -> Construct a TimeInterval with start and end time set to the given
+          value and the end time inclusive
+      - tuple of two DatetimeScalar: [start, end) -> Construct a TimeInterval with the given start and
+          end time
+</ParamField>
+
+## Returns
+
+A list of jobs.
+
+<RequestExample>
+```python Python
+jobs = job_client.all(("2025-01-01", "2025-02-01"))
+```
+</RequestExample>
