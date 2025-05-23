@@ -4,7 +4,7 @@ icon: diagram-project
 ---
 
 ```python
-def JobClient.retry(job_or_id: Job | str)
+def JobClient.retry(job_or_id: Job | str) -> int
 ```
 
 Retry a job. All failed tasks will become queued again, and queued tasks will be picked up by task runners again.
@@ -15,8 +15,12 @@ Retry a job. All failed tasks will become queued again, and queued tasks will be
   The job or job id to retry.
 </ParamField>
 
+## Returns
+
+The number of tasks that were rescheduled.
+
 <RequestExample>
 ```python Python
-job_client.retry(job)
+nb_rescheduled = job_client.retry(job)
 ```
 </RequestExample>

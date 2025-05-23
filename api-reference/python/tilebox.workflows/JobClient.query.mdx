@@ -1,0 +1,42 @@
+---
+title: JobClient.query
+icon: diagram-project
+---
+
+```python
+def JobClient.query(
+    temporal_extent: TimeIntervalLike | IDIntervalLike,
+    automation_id: UUID | None = None,
+) -> list[Job]
+```
+
+Query jobs in the specified interval.
+
+## Parameters
+
+<ParamField path="temporal_extent" type="TimeIntervalLike | IDIntervalLike" required>
+  The temporal extent to filter jobs by. If an `IDInterval` is given, jobs are filtered by their job id instead of their creation time.
+    It can be specified in the following ways:
+    - TimeInterval: interval -> Use the time interval as its given
+    - DatetimeScalar: [time, time] -> Construct a TimeInterval with start and end time set to the given
+        value and the end time inclusive
+    - tuple of two DatetimeScalar: [start, end) -> Construct a TimeInterval with the given start and
+        end time
+    - `IDInterval`: interval -> Use the ID interval as its given
+    - tuple of two UUIDs: [start, end) -> Construct an `IDInterval` with the given start and end id
+    - tuple of two strings: [start, end) -> Construct an `IDInterval` with the given start and end id
+        parsed from the strings
+</ParamField>
+<ParamField path="automation_id" type="UUID | None">
+  The automation id to filter jobs by. If not provided, jobs from all automations are returned.
+</ParamField>
+
+## Returns
+
+A list of jobs.
+
+<RequestExample>
+```python Python
+jobs = job_client.query(("2025-01-01", "2025-02-01"))
+```
+</RequestExample>

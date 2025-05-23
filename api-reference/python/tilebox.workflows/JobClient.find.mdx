@@ -1,0 +1,26 @@
+---
+title: JobClient.find
+icon: diagram-project
+---
+
+```python
+def JobClient.find(job_or_id: Job | str) -> Job
+```
+
+Get a job by its id. Can also be an existing job object, in which case this method acts as a refresh operation to fetch the latest job details.
+
+## Parameters
+
+<ParamField path="job_or_id" type="Job | str">
+  The job or job id to get.
+</ParamField>
+
+## Returns
+
+A job object.
+
+<RequestExample>
+```python Python
+job = job_client.find("0195c87a-49f6-5ffa-e3cb-92215d057ea6")
+```
+</RequestExample>

@@ -222,9 +222,11 @@
             "api-reference/python/tilebox.workflows/JobCache.group",
             "api-reference/python/tilebox.workflows/JobCache.__iter__",
             "api-reference/python/tilebox.workflows/JobClient.submit",
+            "api-reference/python/tilebox.workflows/JobClient.find",
             "api-reference/python/tilebox.workflows/JobClient.retry",
             "api-reference/python/tilebox.workflows/JobClient.cancel",
-            "api-reference/python/tilebox.workflows/JobClient.visualize"
+            "api-reference/python/tilebox.workflows/JobClient.visualize",
+            "api-reference/python/tilebox.workflows/JobClient.query"
           ]
         }
       ]
@@ -273,7 +275,7 @@
             "api-reference/go/workflows/Jobs.Get",
             "api-reference/go/workflows/Jobs.Retry",
             "api-reference/go/workflows/Jobs.Cancel",
-            "api-reference/go/workflows/Jobs.List",
+            "api-reference/go/workflows/Jobs.Query",
             "api-reference/go/workflows/Collect"
           ]
         }

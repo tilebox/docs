@@ -1,0 +1,61 @@
+---
+title: Client.Jobs.Query
+sidebarTitle: Jobs.Query
+icon: diagram-project
+---
+
+```go
+func (*JobClient) Query(
+    ctx context.Context,
+    options ...job.QueryOption,
+) iter.Seq2[*workflows.Job, error]
+```
+
+Query jobs in the specified interval.
+
+The jobs are lazily loaded and returned as a sequence of Jobs.
+The jobs are returned sorted by creation time in reverse order.
+The output sequence can be transformed into a slice of Job using [Collect](/api-reference/go/workflows/Collect) function.
+
+## Parameters
+
+<ParamField path="options" type="[]job.QueryOption">
+  Options for querying jobs
+</ParamField>
+
+## Options
+
+<ParamField path="WithTemporalExtent(temporalExtent query.TemporalExtent)" required>
+  Specify the time interval for which data should be queried.
+  Right now, a temporal extent is required for every query.
+</ParamField>
+<ParamField path="WithAutomationID(automationID uuid.UUID)">
+  Specify the automation id for which data should be queried.
+  Only jobs that were created by the specified automation will be returned.
+</ParamField>
+
+## Returns
+
+A sequence of jobs.
+
+<RequestExample>
+```go Go
+import (
+  "time"
+  workflows "github.com/tilebox/tilebox-go/workflows/v1"
+  "github.com/tilebox/tilebox-go/workflows/v1/job"
+	"github.com/tilebox/tilebox-go/query"
+)
+
+interval := query.NewTimeInterval(
+  time.Now().Add(-24 * time.Hour),
+  time.Now(),
+)
+
+jobs, err := workflows.Collect(
+  client.Jobs.Query(ctx, 
+    job.WithTemporalExtent(interval),
+  ),
+)
+```
+</RequestExample>
