@@ -30,7 +30,9 @@ func (t *MyFirstTask) Execute(ctx context.Context) error {
 ```
 </CodeGroup>
 
-This example demonstrates a simple task that prints "Hello World!" to the console. The key components of this task are:
+This example demonstrates a simple task that prints "Hello World!" to the console.
+
+For python, the key components of this task are:
 
 <AccordionGroup>
   <Accordion title="class MyFirstTask(Task)">
@@ -41,6 +43,17 @@ This example demonstrates a simple task that prints "Hello World!" to the consol
   </Accordion>
   <Accordion title="context: ExecutionContext">
     The `context` argument is an `ExecutionContext` instance that provides access to an [API for submitting new tasks](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask) as part of the same job and features like [shared caching](/api-reference/python/tilebox.workflows/ExecutionContext.job_cache).
+  </Accordion>
+</AccordionGroup>
+
+For Go, the key components are:
+
+<AccordionGroup>
+  <Accordion title="type MyFirstTask struct{}">
+    `MyFirstTask` is a struct that implements the `Task` interface. It represents the task to be executed.
+  </Accordion>
+  <Accordion title="func (t *MyFirstTask) Execute(ctx context.Context) error">
+    The `Execute` method is the entry point for executing the task. This is where the task's logic is defined. It's invoked by a [task runner](/workflows/concepts/task-runners) when the task runs and performs the task's operation.
   </Accordion>
 </AccordionGroup>
 
