@@ -86,6 +86,42 @@ myJob, err := client.Jobs.Submit(ctx, "my-job", cluster,
 
 In this example, if `MyFlakyTask` fails, it will be retried up to five times before being marked as failed.
 
+## Querying jobs
+
+You can query jobs in a given time range using the `query` method on the job client.
+
+<CodeGroup>
+```python Python
+jobs = job_client.query(("2025-01-01", "2025-02-01"))
+print(jobs)
+```
+```go Go
+import (
+  "time"
+  workflows "github.com/tilebox/tilebox-go/workflows/v1"
+  "github.com/tilebox/tilebox-go/workflows/v1/job"
+  "github.com/tilebox/tilebox-go/query"
+)
+
+interval := query.NewTimeInterval(
+  time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+  time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC),
+)
+
+jobs, err := workflows.Collect(client.Jobs.Query(ctx, 
+    job.WithTemporalExtent(interval),
+  ))
+if err != nil {
+    slog.Error("Failed to query jobs", slog.Any("error", err))
+    return
+}
+
+for _, job := range jobs {
+    fmt.Println(job)
+}
+```
+</CodeGroup>
+
 ## Retrieving a specific job
 
 When you submit a job, it's assigned a unique identifier that can be used to retrieve it later.
@@ -522,7 +558,7 @@ job_client.retry(job)
 job_client.display(job)
 ```
 ```go Go
-err = client.Jobs.Retry(ctx, job.ID)
+_, err := client.Jobs.Retry(ctx, job.ID)
 ```
 </CodeGroup>
 
