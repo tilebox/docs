@@ -186,6 +186,12 @@
       ]
     },
     {
+      "group": "Workflows",
+      "pages": [
+        "guides/workflows/multi-language"
+      ]
+    },
+    {
       "group": "Python",
       "pages": [
         {
