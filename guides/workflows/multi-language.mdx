@@ -1,0 +1,199 @@
+---
+title: Multi-language Workflows
+description: Learn how to create workflows that use tasks written in different languages
+icon: diagram-project
+---
+
+<CardGroup cols={1}>
+    <Card title="Open in GitHub" icon="github" href="https://github.com/tilebox/examples/tree/main/workflows-multilang" horizontal>
+        The code for this guide is available on GitHub.
+    </Card>
+</CardGroup>
+
+## Why multi-language workflows?
+
+You might need to use multiple languages in a single workflow for many reasons, such as:
+
+- You want to use a language that is better suited for a specific task (for example Python for data processing, Go for a backend API)
+- You want to use a library that is only available in a specific language (for example xarray in Python)
+- You started prototyping in Python, but need to start migrating the compute-intensive parts of your workflow to a different language for performance reasons
+
+## Example workflow
+
+This guide will tackle the first use case: you have a backend in Go and want to offload some of the processing to Python.
+
+## Defining tasks in Python and Go
+
+```python Python
+class TaskingWorkflow(Task):
+    # The input parameters must match the ones defined in the Go task
+    city: str
+    time: datetime
+    image_resolution: str
+
+    def execute(self, context: ExecutionContext) -> None:
+        # Here you can implement your task logic, submit subtasks, etc.
+        print(f"Tasking workflow executed for {self.city} at {self.time} with resolution {self.image_resolution}")
+
+    @staticmethod
+    def identifier() -> tuple[str, str]:
+        # The identifier must match the one defined in the Go task
+        return "tilebox.com/tasking_workflow", "v1.0"
+```
+
+```go Go
+type TaskingWorkflow struct {
+	City            string    `json:"city"` // json tags must match the Python task definition
+	Time            time.Time `json:"time"`
+	ImageResolution string    `json:"image_resolution"`
+}
+
+// No need to define the Execute method since we're only submitting the task
+
+// Identifier must match with the task identifier in the Python runner
+func (t *TaskingWorkflow) Identifier() workflows.TaskIdentifier {
+	return workflows.NewTaskIdentifier("tilebox.com/tasking_workflow", "v1.0")
+}
+```
+
+A couple important points to note:
+
+<AccordionGroup>
+  <Accordion title="Input parameters">
+    The dataclass parameters in Python must match the struct fields in Go, including the types and the names (through the JSON tags in Go).
+    
+    Due to Go and Python having different naming conventions, it's recommended to use JSON tags in the Go struct to match the Python dataclass field names to respect the language-specific conventions.
+    
+    Go fields must start with an uppercase letter to be serialized to JSON.
+
+    <Note>
+    The need for JSON tags in the preceding Go code is currently necessary but might be removed in the future.
+    </Note>
+  </Accordion>
+  <Accordion title="Execute method">
+    The execute method is defined in the Python task but not in the Go task since Go will only be used to submit the task, not executing it.
+  </Accordion>
+  <Accordion title="Identifier">
+    It's necessary to define the `identifier` method in both the Python and Go tasks and to make sure they match.
+    The `identifier` method has two values, the first being an arbitrary unique task identifier and the second being the version in the `v{major}.{minor}` format.
+  </Accordion>
+</AccordionGroup>
+
+## Creating a Go server that submits jobs
+
+Write a simple HTTP server in Go with a `/submit` endpoint that accepts requests to submit a `TaskingWorkflow` job.
+
+<Note>
+    Both Go and Python code are using `test-cluster-tZD9Ca2qsqt4V` as the cluster slug. You should replace it with your own cluster slug, which you can create in the [Tilebox Console](https://console.tilebox.com/workflows/clusters).
+</Note>
+
+```go Go
+func main() {
+	ctx := context.Background()
+	client := workflows.NewClient()
+
+	cluster, err := client.Clusters.Get(ctx, "test-cluster-tZD9Ca2qsqt4V")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	http.HandleFunc("/submit", submitHandler(client, cluster))
+
+	log.Println("Server starting on http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+// Submit a job based on some query parameters
+func submitHandler(client *workflows.Client, cluster *workflows.Cluster) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		city := r.URL.Query().Get("city")
+		timeArg := r.URL.Query().Get("time")
+		resolution := r.URL.Query().Get("resolution")
+
+		if city == "" {
+			http.Error(w, "city is required", http.StatusBadRequest)
+			return
+		}
+
+		taskingTime, err := time.Parse(time.RFC3339, timeArg)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		job, err := client.Jobs.Submit(r.Context(), fmt.Sprintf("tasking/%s", city), cluster,
+			[]workflows.Task{
+				&TaskingWorkflow{
+					City:            city,
+					Time:            taskingTime,
+					ImageResolution: resolution,
+				},
+			},
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		_, _ = io.WriteString(w, fmt.Sprintf("Job submitted: %s\n", job.ID))
+	}
+}
+```
+
+## Creating a Python runner
+
+Write a Python script that starts a task runner and registers the `TaskingWorkflow` task.
+
+```python Python
+from tilebox.workflows import Client
+
+def main():
+    client = Client()
+    runner = client.runner(
+        "test-cluster-tZD9Ca2qsqt4V",
+        tasks=[
+            TaskingWorkflow,
+        ],
+    )
+    runner.run_forever()
+
+if __name__ == "__main__":
+    main()
+```
+
+## Running the workflow
+
+Start the Go server.
+
+```bash Shell
+go run .
+```
+
+In another terminal, start the Python runner.
+
+```bash Shell
+uv run runner.py
+```
+
+Submit a job to the Go server.
+
+```bash Shell
+curl http://localhost:8080/submit?city=Zurich&time=2025-05-29T08:06:42Z&resolution=30m
+```
+
+Check the Python runner output, it should print the following line:
+
+```plaintext Output
+Tasking workflow executed for Zurich at 2025-05-29T08:06:42Z with resolution 30m
+```
+
+## Next Steps
+
+<CardGroup cols={1}>
+    <Card title="Open in GitHub" icon="github" href="https://github.com/tilebox/examples/tree/main/workflows-multilang" horizontal>
+        The code for this guide is available on GitHub.
+    </Card>
+</CardGroup>
+
+As a learning exercise, you can try to change the [News API Workflow](/workflows/concepts/tasks#dependencies-example) to replace the `FetchNews` task with a Go task and keep all the other tasks in Python.
+You will learn how to use a Go task in the middle of a workflow implemented in Python.
