@@ -206,7 +206,7 @@ The following code shows an example of how cache groups can be used.
 from tilebox.workflows import Task, ExecutionContext
 import random
 
-class CacheGroupDemoWorkflow(Task):
+class CacheGroupDemo(Task):
     n: int
 
     def execute(self, context: ExecutionContext):
@@ -254,18 +254,18 @@ class PrintSum(Task):
 ```
 </CodeGroup>
 
-Submitting a job of the `CacheGroupDemoWorkflow` and running it with a task runner can be done as follows:
+Submitting a job of the `CacheGroupDemo` and running it with a task runner can be done as follows:
 
 <CodeGroup>
     ```python Python
     # submit a job to test our workflow
     job_client = client.jobs()
-    job_client.submit("cache-groups", CacheGroupDemoWorkflow(5), cluster="dev-cluster")
+    job_client.submit("cache-groups", CacheGroupDemo(5), cluster="dev-cluster")
 
     # start a runner to execute it
     runner = client.runner(
         "dev-cluster",
-        tasks=[CacheGroupDemoWorkflow, ProduceRandomNumbers, ProduceRandomNumber, PrintSum],
+        tasks=[CacheGroupDemo, ProduceRandomNumbers, ProduceRandomNumber, PrintSum],
         cache=LocalFileSystemCache("/path/to/cache/directory"),
     )
     runner.run_forever()
