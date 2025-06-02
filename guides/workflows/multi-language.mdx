@@ -10,6 +10,12 @@ icon: diagram-project
     </Card>
 </CardGroup>
 
+## Tilebox languages and SDKs
+
+Tilebox supports multiple languages and SDKs for running workflows.
+All Tilebox SDKs and workflows are designed to be interoperable, which means it's possible to have a workflow where individual tasks are executed in different languages.
+Check out [Languages & SDKs](/sdks/introduction) to learn more about currently available programming SDKs.
+
 ## Why multi-language workflows?
 
 You might need to use multiple languages in a single workflow for many reasons, such as:
@@ -18,41 +24,42 @@ You might need to use multiple languages in a single workflow for many reasons, 
 - You want to use a library that is only available in a specific language (for example xarray in Python)
 - You started prototyping in Python, but need to start migrating the compute-intensive parts of your workflow to a different language for performance reasons
 
-## Example workflow
+## Multi-language workflow example
 
-This guide will tackle the first use case: you have a backend in Go and want to offload some of the processing to Python.
+This guide will tackle the first use case: you have a tasking server in Go and want to offload some of the processing to Python.
 
 ## Defining tasks in Python and Go
 
 ```python Python
-class TaskingWorkflow(Task):
+class ScheduleImageCapture(Task):
     # The input parameters must match the ones defined in the Go task
-    city: str
-    time: datetime
-    image_resolution: str
+    location: tuple[float, float]  # lat_lon
+    resolution_m: int
+    spectral_bands: list[float]  # spectral bands in nm
 
     def execute(self, context: ExecutionContext) -> None:
         # Here you can implement your task logic, submit subtasks, etc.
-        print(f"Tasking workflow executed for {self.city} at {self.time} with resolution {self.image_resolution}")
+        print(f"Image captured for {self.location} with {self.resolution_m}m resolution and bands {self.spectral_bands}")
 
     @staticmethod
     def identifier() -> tuple[str, str]:
         # The identifier must match the one defined in the Go task
-        return "tilebox.com/tasking_workflow", "v1.0"
+        return "tilebox.com/schedule_image_capture", "v1.0"
 ```
 
 ```go Go
-type TaskingWorkflow struct {
-	City            string    `json:"city"` // json tags must match the Python task definition
-	Time            time.Time `json:"time"`
-	ImageResolution string    `json:"image_resolution"`
+type ScheduleImageCapture struct {
+    // json tags must match the Python task definition
+    Location      [2]float64 `json:"location"` // lat_lon
+    ResolutionM   int        `json:"resolution_m"`
+    SpectralBands []float64  `json:"spectral_bands"` // spectral bands in nm
 }
 
 // No need to define the Execute method since we're only submitting the task
 
 // Identifier must match with the task identifier in the Python runner
-func (t *TaskingWorkflow) Identifier() workflows.TaskIdentifier {
-	return workflows.NewTaskIdentifier("tilebox.com/tasking_workflow", "v1.0")
+func (t *ScheduleImageCapture) Identifier() workflows.TaskIdentifier {
+    return workflows.NewTaskIdentifier("tilebox.com/schedule_image_capture", "v1.0")
 }
 ```
 
@@ -81,7 +88,7 @@ A couple important points to note:
 
 ## Creating a Go server that submits jobs
 
-Write a simple HTTP server in Go with a `/submit` endpoint that accepts requests to submit a `TaskingWorkflow` job.
+Write a simple HTTP tasking server in Go with a `/submit` endpoint that accepts requests to submit a `ScheduleImageCapture` job.
 
 <Note>
     Both Go and Python code are using `test-cluster-tZD9Ca2qsqt4V` as the cluster slug. You should replace it with your own cluster slug, which you can create in the [Tilebox Console](https://console.tilebox.com/workflows/clusters).
@@ -89,60 +96,81 @@ Write a simple HTTP server in Go with a `/submit` endpoint that accepts requests
 
 ```go Go
 func main() {
-	ctx := context.Background()
-	client := workflows.NewClient()
+    ctx := context.Background()
+    client := workflows.NewClient()
 
-	cluster, err := client.Clusters.Get(ctx, "test-cluster-tZD9Ca2qsqt4V")
-	if err != nil {
-		log.Fatal(err)
-	}
+    cluster, err := client.Clusters.Get(ctx, "test-cluster-tZD9Ca2qsqt4V")
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	http.HandleFunc("/submit", submitHandler(client, cluster))
+    http.HandleFunc("/submit", submitHandler(client, cluster))
 
-	log.Println("Server starting on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Println("Server starting on http://localhost:8080")
+    log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 // Submit a job based on some query parameters
 func submitHandler(client *workflows.Client, cluster *workflows.Cluster) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		city := r.URL.Query().Get("city")
-		timeArg := r.URL.Query().Get("time")
-		resolution := r.URL.Query().Get("resolution")
+    return func(w http.ResponseWriter, r *http.Request) {
+        latArg := r.URL.Query().Get("lat")
+        lonArg := r.URL.Query().Get("lon")
+        resolutionArg := r.URL.Query().Get("resolution")
+        bandsArg := r.URL.Query().Get("bands[]")
 
-		if city == "" {
-			http.Error(w, "city is required", http.StatusBadRequest)
-			return
-		}
+        latFloat, err := strconv.ParseFloat(latArg, 64)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
+        lonFloat, err := strconv.ParseFloat(lonArg, 64)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
 
-		taskingTime, err := time.Parse(time.RFC3339, timeArg)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+        resolutionM, err := strconv.Atoi(resolutionArg)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
 
-		job, err := client.Jobs.Submit(r.Context(), fmt.Sprintf("tasking/%s", city), cluster,
-			[]workflows.Task{
-				&TaskingWorkflow{
-					City:            city,
-					Time:            taskingTime,
-					ImageResolution: resolution,
-				},
-			},
-		)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+        var spectralBands []float64
+        for _, bandArg := range strings.Split(bandsArg, ",") {
+            band, err := strconv.ParseFloat(bandArg, 64)
+            if err != nil {
+                http.Error(w, err.Error(), http.StatusBadRequest)
+                return
+            }
+            spectralBands = append(spectralBands, band)
+        }
 
-		_, _ = io.WriteString(w, fmt.Sprintf("Job submitted: %s\n", job.ID))
-	}
+        job, err := client.Jobs.Submit(r.Context(), "Schedule Image capture", cluster,
+            []workflows.Task{
+                &ScheduleImageCapture{
+                    Location:      [2]float64{latFloat, lonFloat},
+                    ResolutionM:   resolutionM,
+                    SpectralBands: spectralBands,
+                },
+            },
+        )
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
+        _, _ = io.WriteString(w, fmt.Sprintf("Job submitted: %s\n", job.ID))
+    }
 }
 ```
 
+<Note>
+    In the same way that you can submit jobs across languages you can also submit subtasks across languages.
+</Note>
+
 ## Creating a Python runner
 
-Write a Python script that starts a task runner and registers the `TaskingWorkflow` task.
+Write a Python script that starts a task runner and registers the `ScheduleImageCapture` task.
 
 ```python Python
 from tilebox.workflows import Client
@@ -152,7 +180,7 @@ def main():
     runner = client.runner(
         "test-cluster-tZD9Ca2qsqt4V",
         tasks=[
-            TaskingWorkflow,
+            ScheduleImageCapture,
         ],
     )
     runner.run_forever()
@@ -161,7 +189,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## Running the workflow
+## Testing it
 
 Start the Go server.
 
@@ -178,13 +206,13 @@ uv run runner.py
 Submit a job to the Go server.
 
 ```bash Shell
-curl http://localhost:8080/submit?city=Zurich&time=2025-05-29T08:06:42Z&resolution=30m
+curl http://localhost:8080/submit?lat=40.75&lon=-73.98&resolution=30&bands[]=489.0,560.6,666.5
 ```
 
 Check the Python runner output, it should print the following line:
 
 ```plaintext Output
-Tasking workflow executed for Zurich at 2025-05-29T08:06:42Z with resolution 30m
+Image captured for [40.75, -73.98] with 30m resolution and bands [489, 560.6, 666.5]
 ```
 
 ## Next Steps
@@ -196,4 +224,4 @@ Tasking workflow executed for Zurich at 2025-05-29T08:06:42Z with resolution 30m
 </CardGroup>
 
 As a learning exercise, you can try to change the [News API Workflow](/workflows/concepts/tasks#dependencies-example) to replace the `FetchNews` task with a Go task and keep all the other tasks in Python.
-You will learn how to use a Go task in the middle of a workflow implemented in Python.
+You'll learn how to submit a subtask in another language than what the current task is executed in.

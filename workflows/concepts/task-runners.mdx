@@ -163,7 +163,7 @@ Here's an example of a distributed workflow:
     ```python Python
     from tilebox.workflows import Task, ExecutionContext
 
-    class DistributedWorkflow(Task):
+    class Distributed(Task):
         def execute(self, context: ExecutionContext) -> None:
             download_task = context.submit_subtask(DownloadData())
             process_task = context.submit_subtask(
@@ -198,9 +198,9 @@ import (
 	"github.com/tilebox/tilebox-go/workflows/v1/subtask"
 )
 
-type DistributedWorkflow struct{}
+type Distributed struct{}
 
-func (t *DistributedWorkflow) Execute(ctx context.Context) error {
+func (t *Distributed) Execute(ctx context.Context) error {
 	downloadTask, err := workflows.SubmitSubtask(ctx, &DownloadData{})
 	if err != nil {
 		return fmt.Errorf("failed to submit download subtask: %w", err)
@@ -232,7 +232,7 @@ func (t *ProcessData) Execute(ctx context.Context) error {
 ```
 </CodeGroup>
 
-To achieve distributed execution for this workflow, no single task runner capable of executing all three of the tasks is set up. Instead, two task runners, each capable of executing one of the tasks are set up: one in a high-speed network environment and the other with GPU access. When the distributed workflow runs, the first task runner picks up the `DownloadData` task, while the second picks up the `ProcessData` task. The `DistributedWorkflow` does not require specific hardware, so it can be registered with both runners and executed by either one.
+To achieve distributed execution for this workflow, no single task runner capable of executing all three of the tasks is set up. Instead, two task runners, each capable of executing one of the tasks are set up: one in a high-speed network environment and the other with GPU access. When the distributed workflow runs, the first task runner picks up the `DownloadData` task, while the second picks up the `ProcessData` task. The `Distributed` task does not require specific hardware, so it can be registered with both runners and executed by either one.
 
 <Tabs>
   <Tab title="download_task_runner.py">
@@ -243,7 +243,7 @@ from tilebox.workflows import Client
 client = Client()
 high_network_speed_runner = client.runner(
     "dev-cluster",
-    tasks=[DownloadData, DistributedWorkflow]
+    tasks=[DownloadData, Distributed]
 )
 high_network_speed_runner.run_forever()
 ```
@@ -268,7 +268,7 @@ func main() {
 
 	err = highNetworkSpeedRunner.RegisterTasks(
 		&DownloadData{},
-		&DistributedWorkflow{},
+		&Distributed{},
 	)
 	if err != nil {
 		slog.Error("failed to register tasks", slog.Any("error", err))
@@ -289,7 +289,7 @@ from tilebox.workflows import Client
 client = Client()
 gpu_runner = client.runner(
     "dev-cluster",
-    tasks=[ProcessData, DistributedWorkflow]
+    tasks=[ProcessData, Distributed]
 )
 gpu_runner.run_forever()
 ```
@@ -314,7 +314,7 @@ func main() {
 
 	err = gpuRunner.RegisterTasks(
 		&ProcessData{},
-		&DistributedWorkflow{},
+		&Distributed{},
 	)
 	if err != nil {
 		slog.Error("failed to register tasks", slog.Any("error", err))
@@ -328,7 +328,7 @@ func main() {
   </Tab>
 </Tabs>
 
-Now, both `download_task_runner.py` and `gpu_task_runner.py` are started, in parallel, on different machines with the required hardware for each. When `DistributedWorkflow` is submitted, it executes on one of the two runners, and it's submitted sub-tasks are handled by the appropriate runner.
+Now, both `download_task_runner.py` and `gpu_task_runner.py` are started, in parallel, on different machines with the required hardware for each. When `Distributed` is submitted, it executes on one of the two runners, and it's submitted sub-tasks are handled by the appropriate runner.
 
 In this case, since `ProcessData` depends on `DownloadData`, the GPU task runner remains idle until the download completion, then picks up the processing task.
 

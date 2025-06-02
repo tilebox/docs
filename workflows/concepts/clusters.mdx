@@ -4,7 +4,9 @@ icon: circle-nodes
 ---
 
 <Accordion title="What is a Cluster?">
-  Clusters are a logical grouping for [task runners](/workflows/concepts/task-runners). Using clusters, you can scope certain tasks to a specific group of task runners. Tasks, which are always submitted to a specific cluster, are only executed on task runners assigned to the same cluster.
+  Clusters are a logical grouping for [task runners](/workflows/concepts/task-runners).
+  Using clusters, you can scope certain tasks to a specific group of task runners.
+  Tasks, which are always submitted to a specific cluster, are only executed on task runners assigned to the same cluster.
 </Accordion>
 
 ## Use Cases
@@ -70,7 +72,8 @@ Cluster(slug='testing-CvufcSxcC9SKfe', display_name='testing')
 
 ### Cluster Slug
 
-Each cluster has a unique identifier, combining the cluster's name and an automatically generated identifier. Use this slug to reference the cluster for other operations, like submitting a job or subtasks.
+Each cluster has a unique identifier, combining the cluster's name and an automatically generated identifier.
+Use this slug to reference the cluster for other operations, like submitting a job or subtasks.
 
 ### Listing Clusters
 
@@ -148,13 +151,16 @@ To delete a cluster, use the `delete` method and pass the cluster's slug:
 
 ## Jobs Across Different Clusters
 
-When [submitting a job](/workflows/concepts/jobs), you need to specify which cluster the job's root task should be executed on. This allows you to direct the job to a specific set of task runners. By default, all sub-tasks within a job are also submitted to the same cluster, but this can be overridden to submit sub-tasks to different clusters if needed. See the example below for a job that spans across multiple clusters.
+When [submitting a job](/workflows/concepts/jobs), you need to specify which cluster the job's root task should be executed on.
+This allows you to direct the job to a specific set of task runners.
+By default, all sub-tasks within a job are also submitted to the same cluster, but this can be overridden to submit sub-tasks to different clusters if needed.
+See the example below for a job that spans across multiple clusters.
 
 <CodeGroup title="Multi-Cluster Workflow Example">
 ```python Python
 from tilebox.workflows import Task, ExecutionContext, Client
 
-class MultiClusterWorkflow(Task):
+class MultiCluster(Task):
     def execute(self, context: ExecutionContext) -> None:
         # this submits a task to the same cluster as the one currently executing this task
         same_cluster = context.submit_subtask(DummyTask())
@@ -176,7 +182,7 @@ client = Client()
 job_client = client.jobs()
 job = job_client.submit(
     "my-job",
-    MultiClusterWorkflow(),
+    MultiCluster(),
     cluster="testing-CvufcSxcC9SKfe",
 )
 ```
@@ -190,9 +196,9 @@ import (
     "github.com/tilebox/tilebox-go/workflows/v1/subtask"
 )
 
-type MultiClusterWorkflow struct{}
+type MultiCluster struct{}
 
-func (t *MultiClusterWorkflow) Execute(ctx context.Context) error {
+func (t *MultiCluster) Execute(ctx context.Context) error {
 	// this submits a task to the same cluster as the one currently executing this task
 	sameCluster, err := workflows.SubmitSubtask(ctx, &DummyTask{})
 	if err != nil {
@@ -227,11 +233,13 @@ func main() {
 		"my-job",
 		"testing-CvufcSxcC9SKfe",
 		[]workflows.Task{
-			&MultiClusterWorkflow{},
+			&MultiCluster{},
 		},
 	)
 }
 ```
 </CodeGroup>
 
-This workflow requires at least two task runners to complete. One must be in the "testing" cluster, and the other must be in the "other-cluster" cluster. If no task runners are available in the "other-cluster," the task submitted to that cluster will remain queued until a task runner is available. It won't execute on a task runner in the "testing" cluster, even if the task runner has the `DummyTask` registered.
+This workflow requires at least two task runners to complete. One must be in the "testing" cluster, and the other must be in the "other-cluster" cluster.
+If no task runners are available in the "other-cluster," the task submitted to that cluster will remain queued until a task runner is available.
+It won't execute on a task runner in the "testing" cluster, even if the task runner has the `DummyTask` registered.
