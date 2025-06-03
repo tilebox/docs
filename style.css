@@ -1,0 +1,4 @@
+/* As deviation from the mint theme: we want to remove the rounded corners */
+* {
+  border-radius: 0 !important;
+}

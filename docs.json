@@ -1,0 +1,320 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Tilebox Docs",
+  "colors": {
+    "primary": "#f43f5e",
+    "light": "#FAFAFA",
+    "dark": "#09090b"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "console",
+              "ai-assistance",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Datasets",
+            "pages": [
+              "datasets/introduction",
+              {
+                "group": "Concepts",
+                "icon": "circle-nodes",
+                "pages": [
+                  "datasets/concepts/datasets",
+                  "datasets/concepts/collections"
+                ]
+              },
+              {
+                "group": "Dataset Types",
+                "icon": "puzzle",
+                "pages": [
+                  "datasets/types/timeseries",
+                  "datasets/types/spatiotemporal"
+                ]
+              },
+              "datasets/query",
+              "datasets/ingest",
+              "datasets/delete",
+              "datasets/open-data"
+            ]
+          },
+          {
+            "group": "Storage",
+            "pages": [
+              "storage/clients"
+            ]
+          },
+          {
+            "group": "Workflows",
+            "pages": [
+              "workflows/introduction",
+              {
+                "group": "Concepts",
+                "icon": "circle-nodes",
+                "pages": [
+                  "workflows/concepts/tasks",
+                  "workflows/concepts/jobs",
+                  "workflows/concepts/task-runners",
+                  "workflows/concepts/clusters"
+                ]
+              },
+              "workflows/caches",
+              {
+                "group": "Observability",
+                "icon": "eye",
+                "pages": [
+                  "workflows/observability/open-telemetry",
+                  "workflows/observability/tracing",
+                  "workflows/observability/logging"
+                ]
+              },
+              {
+                "group": "Near-Real Time",
+                "icon": "bolt",
+                "pages": [
+                  "workflows/near-real-time/automations",
+                  "workflows/near-real-time/cron",
+                  "workflows/near-real-time/storage-events"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "User Guides",
+        "groups": [
+          {
+            "group": "Datasets",
+            "pages": [
+              "guides/datasets/create",
+              "guides/datasets/ingest",
+              "guides/datasets/ingest-format"
+            ]
+          },
+          {
+            "group": "Workflows",
+            "pages": [
+              "guides/workflows/multi-language"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Languages & SDKs",
+        "groups": [
+          {
+            "group": "Tilebox SDKs",
+            "pages": [
+              "sdks/introduction"
+            ]
+          },
+          {
+            "group": "Python",
+            "pages": [
+              "sdks/python/install",
+              "sdks/python/sample-notebooks",
+              "sdks/python/xarray",
+              "sdks/python/async",
+              "sdks/python/geometries"
+            ]
+          },
+          {
+            "group": "Go",
+            "pages": [
+              "sdks/go/install",
+              "sdks/go/examples",
+              "sdks/go/protobuf"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Python",
+            "pages": [
+              {
+                "group": "tilebox.datasets",
+                "pages": [
+                  "api-reference/python/tilebox.datasets/Client",
+                  "api-reference/python/tilebox.datasets/Client.datasets",
+                  "api-reference/python/tilebox.datasets/Client.dataset",
+                  "api-reference/python/tilebox.datasets/Dataset.collections",
+                  "api-reference/python/tilebox.datasets/Dataset.collection",
+                  "api-reference/python/tilebox.datasets/Dataset.create_collection",
+                  "api-reference/python/tilebox.datasets/Dataset.get_or_create_collection",
+                  "api-reference/python/tilebox.datasets/Collection.delete",
+                  "api-reference/python/tilebox.datasets/Collection.find",
+                  "api-reference/python/tilebox.datasets/Collection.info",
+                  "api-reference/python/tilebox.datasets/Collection.ingest",
+                  "api-reference/python/tilebox.datasets/Collection.load"
+                ]
+              },
+              {
+                "group": "tilebox.workflows",
+                "pages": [
+                  "api-reference/python/tilebox.workflows/Client",
+                  "api-reference/python/tilebox.workflows/Task",
+                  "api-reference/python/tilebox.workflows/Client.runner",
+                  "api-reference/python/tilebox.workflows/TaskRunner.run_all",
+                  "api-reference/python/tilebox.workflows/TaskRunner.run_forever",
+                  "api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask",
+                  "api-reference/python/tilebox.workflows/ExecutionContext.job_cache",
+                  "api-reference/python/tilebox.workflows/ClusterClient.create",
+                  "api-reference/python/tilebox.workflows/ClusterClient.find",
+                  "api-reference/python/tilebox.workflows/ClusterClient.delete",
+                  "api-reference/python/tilebox.workflows/ClusterClient.all",
+                  "api-reference/python/tilebox.workflows/JobCache.group",
+                  "api-reference/python/tilebox.workflows/JobCache.__iter__",
+                  "api-reference/python/tilebox.workflows/JobClient.submit",
+                  "api-reference/python/tilebox.workflows/JobClient.find",
+                  "api-reference/python/tilebox.workflows/JobClient.retry",
+                  "api-reference/python/tilebox.workflows/JobClient.cancel",
+                  "api-reference/python/tilebox.workflows/JobClient.visualize",
+                  "api-reference/python/tilebox.workflows/JobClient.query"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Go",
+            "pages": [
+              {
+                "group": "datasets",
+                "pages": [
+                  "api-reference/go/datasets/Get",
+                  "api-reference/go/datasets/List",
+                  "api-reference/go/datasets/Collections.Create",
+                  "api-reference/go/datasets/Collections.Get",
+                  "api-reference/go/datasets/Collections.GetOrCreate",
+                  "api-reference/go/datasets/Collections.List",
+                  "api-reference/go/datasets/Datapoints.GetInto",
+                  "api-reference/go/datasets/Datapoints.Query",
+                  "api-reference/go/datasets/Datapoints.QueryInto",
+                  "api-reference/go/datasets/Datapoints.Ingest",
+                  "api-reference/go/datasets/Datapoints.Delete",
+                  "api-reference/go/datasets/Datapoints.DeleteIDs",
+                  "api-reference/go/datasets/CollectAs",
+                  "api-reference/go/datasets/Collect",
+                  "api-reference/go/datasets/As"
+                ]
+              },
+              {
+                "group": "workflows",
+                "pages": [
+                  "api-reference/go/workflows/Task",
+                  "api-reference/go/workflows/GetCurrentCluster",
+                  "api-reference/go/workflows/SubmitSubtask",
+                  "api-reference/go/workflows/SubmitSubtasks",
+                  "api-reference/go/workflows/WithTaskSpan",
+                  "api-reference/go/workflows/WithTaskSpanResult",
+                  "api-reference/go/workflows/NewTaskRunner",
+                  "api-reference/go/workflows/TaskRunner.GetRegisteredTask",
+                  "api-reference/go/workflows/TaskRunner.RegisterTasks",
+                  "api-reference/go/workflows/TaskRunner.Run",
+                  "api-reference/go/workflows/Clusters.Create",
+                  "api-reference/go/workflows/Clusters.Get",
+                  "api-reference/go/workflows/Clusters.Delete",
+                  "api-reference/go/workflows/Clusters.List",
+                  "api-reference/go/workflows/Jobs.Submit",
+                  "api-reference/go/workflows/Jobs.Get",
+                  "api-reference/go/workflows/Jobs.Retry",
+                  "api-reference/go/workflows/Jobs.Cancel",
+                  "api-reference/go/workflows/Jobs.Query",
+                  "api-reference/go/workflows/Collect"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Console",
+          "href": "https://console.tilebox.com",
+          "icon": "terminal"
+        },
+        {
+          "anchor": "Book a Demo",
+          "href": "https://book.vimcal.com/p/lauracosta/tilebox-demo",
+          "icon": "calendar"
+        },
+        {
+          "anchor": "Discord",
+          "href": "https://tilebox.com/discord",
+          "icon": "discord"
+        }
+      ]
+    }
+  },
+  "styling": {
+    "eyebrows": "section",
+    "codeblocks": "system"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view"
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Website",
+        "href": "https://tilebox.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Console",
+      "href": "https://console.tilebox.com"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/tileboxio",
+      "github": "https://github.com/tilebox",
+      "linkedin": "https://www.linkedin.com/company/tilebox-io"
+    }
+  },
+  "fonts": {
+    "heading": {
+      "family": "Poppins"
+    }
+  },
+  "errors": {
+    "404": {
+      "redirect": false
+    }
+  }
+}
