@@ -40,7 +40,7 @@ The Tilebox workflow SDKs include support for exporting OpenTelemetry logs. To e
         # the task runner will export logs from 
         # the executed tasks to the specified dataset
         client = Client()
-        runner = client.runner("dev-cluster", tasks=[MyTask])
+        runner = client.runner(tasks=[MyTask])
         runner.run_forever()
     
     if __name__ == "__main__":
@@ -83,13 +83,7 @@ func main() {
 
 	client := workflows.NewClient()
 
-	cluster, err := client.Clusters.Get(ctx, "dev-cluster")
-	if err != nil {
-		slog.Error("failed to get cluster", slog.Any("error", err))
-		return
-	}
-
-	taskRunner, err := client.NewTaskRunner(cluster)
+	taskRunner, err := client.NewTaskRunner(ctx)
 	if err != nil {
 		slog.Error("failed to create task runner", slog.Any("error", err))
 		return
@@ -134,7 +128,7 @@ func main() {
         # the task runner will export logs from 
         # the executed tasks to the specified endpoint
         client = Client()
-        runner = client.runner("dev-cluster", tasks=[MyTask])
+        runner = client.runner(tasks=[MyTask])
         runner.run_forever()
     
     if __name__ == "__main__":
@@ -183,13 +177,7 @@ func main() {
 
 	client := workflows.NewClient()
 
-	cluster, err := client.Clusters.Get(ctx, "dev-cluster")
-	if err != nil {
-		slog.Error("failed to get cluster", slog.Any("error", err))
-		return
-	}
-
-	taskRunner, err := client.NewTaskRunner(cluster)
+	taskRunner, err := client.NewTaskRunner(ctx)
 	if err != nil {
 		slog.Error("failed to create task runner", slog.Any("error", err))
 		return
@@ -227,7 +215,7 @@ func main() {
             # the task runner will print log messages from
             # the executed tasks to the console
             client = Client()
-            runner = client.runner("dev-cluster", tasks=[MyTask])
+            runner = client.runner(tasks=[MyTask])
             runner.run_forever()
         
         if __name__ == "__main__":
@@ -253,13 +241,7 @@ func main() {
 
 	client := workflows.NewClient()
 
-	cluster, err := client.Clusters.Get(ctx, "dev-cluster")
-	if err != nil {
-		slog.Error("failed to get cluster", slog.Any("error", err))
-		return
-	}
-
-	taskRunner, err := client.NewTaskRunner(cluster)
+	taskRunner, err := client.NewTaskRunner(ctx)
 	if err != nil {
 		slog.Error("failed to create task runner", slog.Any("error", err))
 		return
@@ -341,6 +323,6 @@ client.configure_logger(get_logger(level=logging.INFO))
 
 # now the task runner inherits this logger and uses
 # it to emit its own internal log messages as well
-runner = client.runner("dev-cluster", tasks=[MyTask])
+runner = client.runner(tasks=[MyTask])
 runner.run_forever()
 ```

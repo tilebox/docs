@@ -49,16 +49,6 @@ If you prefer to work locally, follow these steps to get started.
 
       <Tip>Copy the API key and keep it somewhere safe. You will need it to authenticate your requests.</Tip>
     </Step>
-    <Step title="Create a Cluster">
-      Create a cluster by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Workflows -> Clusters](https://console.tilebox.com/workflows/clusters), and clicking the "Create cluster" button.
-
-      <Frame>
-        <img src="/assets/console/cluster-light.png" alt="Tilebox Console" className="dark:hidden"  />
-        <img src="/assets/console/cluster-dark.png" alt="Tilebox Console" className="hidden dark:block" />
-      </Frame>
-
-      <Tip>Copy the cluster slug, you will need it to run your workflows.</Tip>
-    </Step>
     <Step title="Query Data">
       Use the datasets client to query data from a dataset.
 
@@ -82,8 +72,7 @@ If you prefer to work locally, follow these steps to get started.
       ```python Python
       from tilebox.workflows import Client, Task
 
-      # Replace with your actual cluster and token
-      cluster = "YOUR_COMPUTE_CLUSTER"
+      # Replace with your actual token
       client = Client(token="YOUR_TILEBOX_API_KEY")
 
       class HelloWorldTask(Task):
@@ -102,10 +91,10 @@ If you prefer to work locally, follow these steps to get started.
 
       # Initiate the job
       jobs = client.jobs()
-      jobs.submit("parameterized-hello-world", HelloWorldTask(greeting="Greetings", name="Universe"), cluster)
+      jobs.submit("parameterized-hello-world", HelloWorldTask(greeting="Greetings", name="Universe"))
 
       # Run the tasks
-      runner = client.runner(cluster, tasks=[HelloWorldTask, HelloSubtask])
+      runner = client.runner(tasks=[HelloWorldTask, HelloSubtask])
       runner.run_all()
       ```
     </Step>
@@ -157,16 +146,6 @@ If you prefer to work locally, follow these steps to get started.
       </Frame>
 
       <Tip>Copy the API key and keep it somewhere safe. You will need it to authenticate your requests.</Tip>
-    </Step>
-    <Step title="Create a Cluster">
-      Create a cluster by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Workflows -> Clusters](https://console.tilebox.com/workflows/clusters), and clicking the "Create cluster" button.
-
-      <Frame>
-        <img src="/assets/console/cluster-light.png" alt="Tilebox Console" className="dark:hidden"  />
-        <img src="/assets/console/cluster-dark.png" alt="Tilebox Console" className="hidden dark:block" />
-      </Frame>
-
-      <Tip>Copy the cluster slug, you will need it to run your workflows.</Tip>
     </Step>
     <Step title="Query Data">
       Run [tilebox-generate](https://github.com/tilebox/tilebox-generate) in the root directory of your Go project.
@@ -285,11 +264,10 @@ If you prefer to work locally, follow these steps to get started.
 	func main() {
 		ctx := context.Background()
 
-		// Replace with your actual cluster and token
-		clusterSlug := "YOUR_COMPUTE_CLUSTER"
+		// Replace with your actual token
 		client := workflows.NewClient()
 
-		job, err := client.Jobs.Submit(ctx, "hello-world", clusterSlug, 
+		job, err := client.Jobs.Submit(ctx, "hello-world", 
 		[]workflows.Task{
 				&HelloTask{
 					Greeting: "Greetings",
@@ -304,9 +282,7 @@ If you prefer to work locally, follow these steps to get started.
 
 		slog.InfoContext(ctx, "Job submitted", slog.String("job_id", job.ID.String()))
 
-		runner, err := client.NewTaskRunner(
-			workflows.WithCluster(clusterSlug),
-		)
+		runner, err := client.NewTaskRunner(ctx)
 		if err != nil {
 			slog.Error("failed to create task runner", slog.Any("error", err))
 			return
@@ -321,7 +297,7 @@ If you prefer to work locally, follow these steps to get started.
 			return
 		}
 
-		runner.Run(context.Background())
+		runner.Run(ctx)
 	}
       ```
     </Step>

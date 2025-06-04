@@ -6,7 +6,7 @@ icon: gear-code
 
 ```go
 func (*Client) NewTaskRunner(
-  cluster *workflows.Cluster,
+  ctx context.Context,
   options ...runner.Option,
 ) (*workflows.TaskRunner, error)
 ```
@@ -15,15 +15,15 @@ Initialize a task runner.
 
 ## Parameters
 
-<ParamField path="cluster" type="*Cluster">
-  The [cluster](/workflows/concepts/clusters#managing-clusters) to connect to
-</ParamField>
 <ParamField path="options" type="[]runner.Option">
   Options for initializing the task runner
 </ParamField>
 
 ## Options
 
+<ParamField path="WithClusterSlug(clusterSlug string)" default="">
+  The [cluster](/workflows/concepts/clusters#managing-clusters) to connect to. If not provided, the default cluster is used.
+</ParamField>
 <ParamField path="WithRunnerLogger(logger *slog.Logger)" default="slog.Default()">
   Set the logger to use for the task runner
 </ParamField>
@@ -37,6 +37,6 @@ The created task runner object.
 
 <RequestExample>
 ```go Go
-runner, err := client.NewTaskRunner()
+runner, err := client.NewTaskRunner(ctx)
 ```
 </RequestExample>

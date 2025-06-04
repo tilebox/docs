@@ -25,6 +25,12 @@ If multiple task runners have the same set of registered tasks, you can assign t
 You can add task runners to a cluster by specifying the [cluster's slug](#cluster-slug) when [registering a task runner](/workflows/concepts/task-runners).
 Each task runner must always be assigned to a cluster.
 
+## Default Cluster
+
+Each team has a default cluster that is automatically created for them.
+This cluster is used when no cluster is specified when [registering a task runner](/workflows/concepts/task-runners) or [submitting a job](/workflows/concepts/jobs).
+This is useful when you are just getting started and don't need to create any custom clusters yet.
+
 ## Managing Clusters
 
 Before registering a task runner or submitting a job, you must create a cluster. You can also list, fetch, and delete clusters as needed. The following sections explain how to do this.
@@ -231,10 +237,10 @@ func main() {
 	_, _ = client.Jobs.Submit(
 		ctx,
 		"my-job",
-		"testing-CvufcSxcC9SKfe",
 		[]workflows.Task{
 			&MultiCluster{},
 		},
+        job.WithClusterSlug("testing-CvufcSxcC9SKfe"),
 	)
 }
 ```

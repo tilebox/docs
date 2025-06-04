@@ -307,7 +307,6 @@ jobs = client.jobs()
 job = jobs.submit(
     "download-dog-images",
     DownloadRandomDogImages(5),
-    "dev-cluster",
 )
 
 # now our deployed task runners will pick up the task and execute it
@@ -318,7 +317,7 @@ jobs.display(job)
 ctx := context.Background()
 client := workflows.NewClient()
 
-job, err := client.Jobs.Submit(ctx, "download-dog-images", "dev-cluster",
+job, err := client.Jobs.Submit(ctx, "download-dog-images",
   []workflows.Task{
 	&helloworld.DownloadRandomDogImages{
 		NumImages: 5,
@@ -672,7 +671,6 @@ A practical example is a workflow that fetches news articles from an API and pro
     # now submit a job, and then visualize it
     job = job_client.submit("process-news",
         NewsWorkflow(category="science", max_articles=5),
-        "dev-cluster"
     )
     ```
 ```go Go
@@ -814,7 +812,7 @@ func (t *MostFrequentAuthors) Execute(context.Context) error {
 
 // in main now submit a job, and then visualize it
 /*
-job, err := client.Jobs.Submit(ctx, "process-news", "dev-cluster",
+job, err := client.Jobs.Submit(ctx, "process-news",
 	[]workflows.Task{
 		&NewsWorkflow{
 			Category:    "science",

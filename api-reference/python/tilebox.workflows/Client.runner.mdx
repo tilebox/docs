@@ -5,7 +5,7 @@ icon: laptop-code
 
 ```python
 def Client.runner(
-  cluster: ClusterSlugLike,
+  cluster: ClusterSlugLike | None = None,
   tasks: list[type[Task]],
   cache: JobCache | None = None
 ) -> TaskRunner
@@ -15,8 +15,9 @@ Initialize a task runner.
 
 ## Parameters
 
-<ParamField path="cluster" type="str">
+<ParamField path="cluster" type="str | None">
   The [cluster slug](/workflows/concepts/clusters#managing-clusters) for the cluster associated with this task runner.
+  If not provided, the default cluster is used.
 </ParamField>
 
 <ParamField path="tasks" type="list[type[Task]]">
@@ -34,8 +35,7 @@ from tilebox.workflows.cache import LocalFileSystemCache
 
 client = Client()
 runner = client.runner(
-    "my-cluster-EdsdUozYprBJDL",
-    [MyFirstTask, MySubtask],
+    tasks=[MyFirstTask, MySubtask],
     # optional:
     cache=LocalFileSystemCache("cache_directory"),
 )
