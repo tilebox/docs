@@ -7,7 +7,7 @@ icon: diagram-project
 def JobClient.submit(
   job_name: str,
   root_task_or_tasks: Task | Iterable[Task],
-  cluster: str | Cluster | Iterable[str | Cluster],
+  cluster: str | Cluster | Iterable[str | Cluster] | None = None,
   max_retries: int = 0
 ) -> Job
 ```
@@ -24,8 +24,9 @@ Submit a job.
   The root task for the job. This task is executed first and can submit subtasks to manage the entire workflow. A job can have optionally consist of multiple root tasks.
 </ParamField>
 
-<ParamField path="cluster" type="str">
+<ParamField path="cluster" type="str | Cluster | Iterable[str | Cluster] | None">
   The [cluster slug](/workflows/concepts/clusters#managing-clusters) for the cluster to run the root task on. In case of multiple root tasks, a list of cluster slugs can be provided.
+  If not provided, the default cluster is used.
 </ParamField>
 
 <ParamField path="max_retries" type="int">
@@ -43,8 +44,6 @@ job = job_client.submit(
       value=42,
       data={"key": "value"}
     ),
-    "my-cluster-EdsdUozYprBJDL",
-    max_retries=0,
 )
 ```
 </RequestExample>

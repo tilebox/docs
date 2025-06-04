@@ -30,24 +30,17 @@ jobClient := client.Jobs
 ```
 </CodeGroup>
 
-After obtaining a job client, submit a job using the [submit](/api-reference/python/tilebox.workflows/JobClient.submit) method. You need to provide a name for the job, an instance of the root [task](/workflows/concepts/tasks), and a [cluster](/workflows/concepts/clusters) to execute the root task on.
+After obtaining a job client, submit a job using the [submit](/api-reference/python/tilebox.workflows/JobClient.submit) method. You need to provide a name for the job, an instance of the root [task](/workflows/concepts/tasks), and an optional [cluster](/workflows/concepts/clusters) to execute the root task on.
 
 <CodeGroup>
 ```python Python
 # import your own workflow
 from my_workflow import MyTask
 
-cluster = "dev-cluster"
-job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
+job = job_client.submit('my-job', MyTask("some", "parameters"))
 ```
 ```go Go
-cluster, err := client.Clusters.Get(ctx, "dev-cluster")
-if err != nil {
-    slog.Error("failed to get cluster", slog.Any("error", err))
-    return
-}
-
-job, err := client.Jobs.Submit(ctx, "my-job", cluster,
+job, err := client.Jobs.Submit(ctx, "my-job",
     []workflows.Task{
         &MyTask{
             Some: "parameters",
@@ -71,11 +64,10 @@ Once a job is submitted, it's immediately scheduled for execution. The root task
 ```python Python
 from my_workflow import MyFlakyTask
 
-cluster = "dev-cluster"
-job = job_client.submit('my-job', MyFlakyTask(), cluster, max_retries=5)
+job = job_client.submit('my-job', MyFlakyTask(), max_retries=5)
 ```
 ```go Go
-myJob, err := client.Jobs.Submit(ctx, "my-job", cluster,
+myJob, err := client.Jobs.Submit(ctx, "my-job",
     []workflows.Task{
         &MyFlakyTask{},
     },
@@ -85,6 +77,29 @@ myJob, err := client.Jobs.Submit(ctx, "my-job", cluster,
 </CodeGroup>
 
 In this example, if `MyFlakyTask` fails, it will be retried up to five times before being marked as failed.
+
+## Submitting to a specific cluster
+
+Jobs default to running on the [default cluster](/workflows/concepts/clusters#default-cluster).
+You can specify another cluster to run the root task on using the `cluster` argument of the `submit` method.
+
+<CodeGroup>
+```python Python
+from my_workflow import MyFlakyTask
+
+job = job_client.submit('my-job', MyFlakyTask(), cluster="dev-cluster")
+```
+```go Go
+myJob, err := client.Jobs.Submit(ctx, "my-job",
+    []workflows.Task{
+        &MyFlakyTask{},
+    },
+    job.WithClusterSlug("dev-cluster"),
+)
+```
+</CodeGroup>
+
+Only runners listening on the specified cluster can pick up the task.
 
 ## Querying jobs
 
@@ -130,14 +145,14 @@ You can use the `find` method on the job client to get a job by its ID.
 
 <CodeGroup title="Retrieving a Job by ID">
 ```python Python
-job = job_client.submit('my-job', MyTask("some", "parameters"), cluster)
+job = job_client.submit('my-job', MyTask("some", "parameters"))
 print(job.id)  # 018dd029-58ca-74e5-8b58-b4f99d610f9a
 
 # Later, in another process or machine, retrieve job info
 job = job_client.find("018dd029-58ca-74e5-8b58-b4f99d610f9a")
 ```
 ```go Go
-myJob, err := client.Jobs.Submit(ctx, "my-job", cluster,
+myJob, err := client.Jobs.Submit(ctx, "my-job",
     []workflows.Task{
         &helloworld.HelloTask{
             Some: "parameters",
@@ -264,7 +279,7 @@ class SubTask(Task):
     def execute(self, context: ExecutionContext):
         context.current_task.display = f"Leaf Nr. {self.index}"
 
-job = job_client.submit('custom-display-names', RootTask(3), "dev-cluster")
+job = job_client.submit('custom-display-names', RootTask(3))
 job_client.display(job)
 ```
 ```go Go
@@ -300,7 +315,7 @@ func (t *SubTask) Execute(ctx context.Context) error {
 }
 
 // in main
-job, err := client.Jobs.Submit(ctx, "custom-display-names", cluster,
+job, err := client.Jobs.Submit(ctx, "custom-display-names",
 	[]workflows.Task{&RootTask{
 		NumSubtasks: 3,
 	}},
@@ -321,12 +336,12 @@ Use the `cancel` method on the job client to cancel a job.
 
 <CodeGroup>
 ```python Python
-job = job_client.submit('my-job', MyTask(), "dev-cluster")
+job = job_client.submit('my-job', MyTask())
 # After a short while, the job gets canceled
 job_client.cancel(job)
 ```
 ```go Go
-job, err := client.Jobs.Submit(ctx, "my-job", cluster,
+job, err := client.Jobs.Submit(ctx, "my-job",
     []workflows.Task{&MyTask{}},
 )
 if err != nil {
@@ -456,12 +471,12 @@ job = job_client.submit('movies-stats', MoviesStats([
     "Shrek 2",
     "Tilebox - The Movie",
     "The Avengers",
-]), "dev-cluster")
+]))
 
 job_client.display(job)
 ```
 ```go Go
-job, err := client.Jobs.Submit(ctx, "movies-stats", cluster,
+job, err := client.Jobs.Submit(ctx, "movies-stats",
     []workflows.Task{&MoviesStats{
         Titles: []string{
             "The Matrix",

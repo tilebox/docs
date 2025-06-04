@@ -25,7 +25,6 @@ You can configure a cache while creating a task runner by passing a cache instan
 
     client = Client()
     runner = client.runner(
-        "dev-cluster",
         tasks=[...],
         cache=InMemoryCache(),
     )
@@ -63,7 +62,6 @@ bucket = storage_client.bucket("cache-bucket")
 
 client = Client()
 runner = client.runner(
-    "dev-cluster",
     tasks=[...],
     cache=GoogleStorageCache(bucket, prefix="jobs"),
 )
@@ -87,7 +85,6 @@ from tilebox.workflows.cache import AmazonS3Cache
 
 client = Client()
 runner = client.runner(
-    "dev-cluster",
     tasks=[...],
     cache=AmazonS3Cache("my-bucket-name", prefix="jobs")
 )
@@ -109,7 +106,6 @@ from tilebox.workflows.cache import LocalFileSystemCache
 
 client = Client()
 runner = client.runner(
-    "dev-cluster",
     tasks=[...],
     cache=LocalFileSystemCache("/path/to/cache/directory"),
 )
@@ -131,7 +127,6 @@ from tilebox.workflows.cache import InMemoryCache
 
 client = Client()
 runner = client.runner(
-    "dev-cluster",
     tasks=[...],
     cache=InMemoryCache(),
 )
@@ -179,11 +174,10 @@ To test the workflow, you can start a local task runner using the `InMemoryCache
     ```python Python
     # submit a job to test our workflow
     job_client = client.jobs()
-    job_client.submit("testing-cache-access", ProducerTask(), cluster="dev-cluster")
+    job_client.submit("testing-cache-access", ProducerTask())
 
     # start a runner to execute it
     runner = client.runner(
-        "dev-cluster",
         tasks=[ProducerTask, ConsumerTask],
         cache=LocalFileSystemCache("/path/to/cache/directory"),
     )
@@ -260,11 +254,10 @@ Submitting a job of the `CacheGroupDemo` and running it with a task runner can b
     ```python Python
     # submit a job to test our workflow
     job_client = client.jobs()
-    job_client.submit("cache-groups", CacheGroupDemo(5), cluster="dev-cluster")
+    job_client.submit("cache-groups", CacheGroupDemo(5))
 
     # start a runner to execute it
     runner = client.runner(
-        "dev-cluster",
         tasks=[CacheGroupDemo, ProduceRandomNumbers, ProduceRandomNumber, PrintSum],
         cache=LocalFileSystemCache("/path/to/cache/directory"),
     )
