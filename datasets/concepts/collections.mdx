@@ -149,6 +149,21 @@ log.Println(collection.String())
 L1GT: [2013-03-25T12:08:43.699 UTC, 2024-08-19T12:57:32.456 UTC] (154288 data points)
 ```
 
+## Deleting collections
+
+Collections can be deleted from a dataset using the `delete_collection` method.
+
+To delete a collection, you need to have write permission on the dataset.
+
+<CodeGroup>
+```python Python
+dataset.delete_collection("My-collection")
+```
+```go Go
+err := client.Collections.Delete(ctx, dataset.ID, "My-collection")
+```
+</CodeGroup>
+
 ## Errors you may encounter
 
 ### NotFoundError
