@@ -1,0 +1,46 @@
+---
+title: Client.Collections.Delete
+sidebarTitle: Collections.Delete
+icon: layer-group
+---
+
+```go
+func (collectionClient) Delete(
+    ctx context.Context,
+    datasetID uuid.UUID,
+    name string,
+) error
+```
+
+Delete a collection by its name.
+
+## Parameters
+
+<ParamField path="datasetID" type="uuid.UUID">
+  The id of the dataset
+</ParamField>
+<ParamField path="name" type="string">
+  The name of the collection
+</ParamField>
+
+## Returns
+
+An error if the collection could not be deleted.
+
+<RequestExample>
+```go Go
+err := client.Collections.Delete(ctx,
+    datasetID,
+    "My-collection",
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="No such dataset">
+  The specified dataset does not exist.
+</ParamField>
+<ParamField path="not_found" type="No such collection">
+  The specified collection does not exist.
+</ParamField>
