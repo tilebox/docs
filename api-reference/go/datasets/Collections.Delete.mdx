@@ -8,19 +8,19 @@ icon: layer-group
 func (collectionClient) Delete(
     ctx context.Context,
     datasetID uuid.UUID,
-    name string,
+    collectionID uuid.UUID,
 ) error
 ```
 
-Delete a collection by its name.
+Delete a collection by its id.
 
 ## Parameters
 
 <ParamField path="datasetID" type="uuid.UUID">
   The id of the dataset
 </ParamField>
-<ParamField path="name" type="string">
-  The name of the collection
+<ParamField path="collectionID" type="uuid.UUID">
+  The id of the collection
 </ParamField>
 
 ## Returns
@@ -31,7 +31,7 @@ An error if the collection could not be deleted.
 ```go Go
 err := client.Collections.Delete(ctx,
     datasetID,
-    "My-collection",
+    collectionID,
 )
 ```
 </RequestExample>

@@ -155,12 +155,16 @@ Collections can be deleted from a dataset using the `delete_collection` method.
 
 To delete a collection, you need to have write permission on the dataset.
 
+<Warning>
+  Deleting a collection will delete all data points in the collection.
+</Warning>
+
 <CodeGroup>
 ```python Python
-dataset.delete_collection("My-collection")
+dataset.delete_collection(collection)
 ```
 ```go Go
-err := client.Collections.Delete(ctx, dataset.ID, "My-collection")
+err := client.Collections.Delete(ctx, dataset.ID, collection.ID)
 ```
 </CodeGroup>
 
