@@ -4,15 +4,15 @@ icon: database
 ---
 
 ```python
-def Dataset.delete_collection(name: str) -> None
+def Dataset.delete_collection(collection: str | UUID | CollectionClient) -> None
 ```
 
 Delete a collection in the dataset.
 
 ## Parameters
 
-<ParamField path="name" type="string">
-  The name of the collection
+<ParamField path="collection" type="str | UUID | CollectionClient">
+  The collection to delete. Can be specified by name, id, or as a collection object.
 </ParamField>
 
 <RequestExample>
