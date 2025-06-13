@@ -15,14 +15,14 @@ By defining trigger conditions, you can automatically submit jobs based on exter
 
 Tilebox Workflows currently supports the following trigger conditions:
 
-<CardGroup cols={1}>
+<Columns cols={1}>
     <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal>
         Trigger jobs based on a Cron schedule.
     </Card>
     <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/near-real-time/storage-events" horizontal>
         Trigger jobs after objects are created or modified in a storage location such as a cloud bucket.
     </Card>
-</CardGroup>
+</Columns>
 
 <Info>
     Dataset Event Triggers, which will trigger jobs when new data points are ingested into a Tilebox dataset, are on the roadmap. Stay tuned for updates.
@@ -78,10 +78,10 @@ print(automations)
 
 To register an automation, use the `create_*_automation` methods specific to each trigger type provided by the automation client. Refer to the documentation for each trigger type for more details.
 
-<CardGroup>
+<Columns>
     <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal />
     <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/near-real-time/storage-events" horizontal />
-</CardGroup>
+</Columns>
 
 ## Overview in the Tilebox Console
 
