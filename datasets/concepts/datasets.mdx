@@ -173,3 +173,15 @@ s2MsiDataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_ms
 </CodeGroup>
 
 Once you have your dataset object, you can use it to [access available collections](/datasets/concepts/collections) for the dataset.
+
+## Deleting a dataset
+
+Datasets can be deleted through the [Tilebox Console](/console) by clicking the `Delete` button in the dataset page.
+
+Empty datasets will be deleted right away. A dataset is considered empty if none of its collections contain any data points.
+
+A non-empty dataset can also be deleted, but is a destructive operation.
+Every data point in every collection of the dataset will be deleted.
+
+As a safety measure, Tilebox soft-deletes the dataset for 7 days before permanently deleting it.
+Please [get in touch](mailto:support@tilebox.com) if you deleted a dataset by accident and want to restore it.
