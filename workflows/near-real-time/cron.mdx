@@ -40,9 +40,8 @@ client = Client()
 automations = client.automations()
 cron_automation = automations.create_cron_automation(
     "my-cron-automation",  # name of the cron automation
-    "dev-cluster",  # cluster slug to submit jobs to
     MyCronTask(message="World"),  # the task (and its input parameters) to run repeatedly
-    cron_triggers=[
+    cron_schedules=[
         "12 * * * *",  # run every hour at minute 12
         "45 18 * * *",  # run every day at 18:45
         "30 13 * * 3",  # run every Wednesday at 13:30
@@ -64,8 +63,8 @@ Once an [eligible task runner](/workflows/concepts/task-runners#task-selection) 
 from tilebox.workflows import Client
 
 client = Client()
-runner = client.runner("dev-cluster", tasks=[MyCronTask])
-runner.run_forever()
+runner = client.runner(tasks=[MyCronTask])
+runner.run_all()
 ```
 
 If this task runner runs continuously, its output may resemble the following:
@@ -128,16 +127,15 @@ job_client = client.jobs()
 task = MyCronTask(message="Hello")
 
 # submitting it directly won't work: raises ValueError:
-# CronTask cannot be submitted without being triggered. Use task.once().
-job_client.submit("manual-cron-job", task, cluster="dev-cluster")
+# job_client.submit("manual-cron-job", task)
 
-# specify a trigger time to submit the task as a regular task
-triggered_task = task.once()  # same as task.once(datetime.now())
-job_client.submit("manual-cron-job", triggered_task, cluster="dev-cluster")
+# instead trigger a cron task with the current time as the trigger time
+job_client.submit("manual-cron-job", task.once())
 
-# simulate a trigger at a specific time
-triggered_task = task.once(datetime(2030, 12, 12, 15, 15, tzinfo=timezone.utc))
-# the task will be scheduled to run immediately, even with a future trigger time
-# but the self.trigger.time will be 2023-12-12T15:15:00Z for the task instance
-job_client.submit("manual-cron-job", triggered_task, cluster="dev-cluster")
+# or specify a trigger time in the past or future
+# irrespective of the trigger time, the task will always be scheduled to run immediately
+job_client.submit(
+    "manual-cron-job", 
+    task.once(datetime(2030, 12, 12, 15, 15, tzinfo=timezone.utc))
+)
 ```
