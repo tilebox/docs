@@ -120,7 +120,6 @@ client = Client()
 automations = client.automations()
 storage_event_automation = automations.create_storage_event_automation(
     "log-object-creations",  # name of the storage event automation
-    "dev-cluster",  # cluster slug to submit jobs to
     LogObjectCreation(head_bytes=20),  # the task (and its input parameters) to run repeatedly
     triggers=[
         # you can specify a glob pattern:
@@ -155,7 +154,7 @@ Once an [eligible task runner](/workflows/concepts/task-runners#task-selection) 
 from tilebox.workflows import Client
 
 client = Client()
-runner = client.runner("dev-cluster", tasks=[LogObjectCreation])
+runner = client.runner(tasks=[LogObjectCreation])
 runner.run_forever()
 ```
 
@@ -212,19 +211,12 @@ job_client = client.jobs()
 task = LogObjectCreation(head_bytes=20)
 
 # submitting it directly won't work; raises ValueError:
-# StorageEventTask cannot be submitted without being triggered. Use task.once().
-job_client.submit(
-    "manual-storage-event-job",
-    task,
-    cluster="dev-cluster"
-)
+# job_client.submit("manual-storage-event-job", task)
 
-# instead, specify a trigger,
-# so that we can submit the task as a regular task
-triggered_task = task.once(gcs_bucket, "my-object.txt")
+# instead, we specify a trigger condition, and submit a job manually
 job_client.submit(
     "manual-storage-event-job",
-    triggered_task,
-    cluster="dev-cluster"
+    # simulate an event that occurred in the gcs bucket for the object "my-object.txt"
+    task.once(gcs_bucket, "my-object.txt"),
 )
 ```
