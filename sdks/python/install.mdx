@@ -69,7 +69,7 @@ client = Client()
 datasets = client.datasets()
 
 collection = datasets.open_data.copernicus.landsat8_oli_tirs.collection("L1T")
-data = collection.load(("2015-01-01", "2020-01-01"), show_progress=True)
+data = collection.query(temporal_extent=("2015-01-01", "2020-01-01"), show_progress=True)
 data
 ```
 

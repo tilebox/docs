@@ -44,7 +44,7 @@ info = collection.info()
 print(f"Data for My-collection is available for {info.availability}")
 
 # Loading data
-data = collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
+data = collection.query(temporal_extent=("2022-05-01", "2022-06-01"), show_progress=True)
 
 # Finding a specific datapoint
 datapoint_uuid = "01910b3c-8552-7671-3345-b902cc0813f3"
@@ -65,7 +65,7 @@ info = await collection.info()
 print(f"Data for My-collection is available for {info.availability}")
 
 # Loading data
-data = await collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
+data = await collection.query(temporal_extent=("2022-05-01", "2022-06-01"), show_progress=True)
 
 # Finding a specific datapoint
 datapoint_uuid = "01910b3c-8552-7671-3345-b902cc0813f3"
@@ -98,7 +98,7 @@ collections = datasets.open_data.copernicus.landsat8_oli_tirs.collections()
 
 def stats_for_2020(collection: TimeseriesCollection) -> None:
     """Fetch data for 2020 and print the number of data points that were loaded."""
-    data = collection.load(("2020-01-01", "2021-01-01"), show_progress=True)
+    data = collection.query(temporal_extent=("2020-01-01", "2021-01-01"), show_progress=True)
     n = data.sizes['time'] if 'time' in data else 0
     return (collection.name, n)
 
@@ -125,7 +125,7 @@ collections = await datasets.open_data.copernicus.landsat8_oli_tirs.collections(
 
 async def stats_for_2020(collection: TimeseriesCollection) -> None:
     """Fetch data for 2020 and print the number of data points that were loaded."""
-    data = await collection.load(("2020-01-01", "2021-01-01"), show_progress=True)
+    data = await collection.query(temporal_extent=("2020-01-01", "2021-01-01"), show_progress=True)
     n = data.sizes['time'] if 'time' in data else 0
     return (collection.name, n)
 
@@ -190,7 +190,7 @@ class FetchData(Task):
 async def load_data(interval: TimeIntervalLike):
     datasets = await DatasetsClient().datasets()
     collections = await datasets.open_data.copernicus.landsat8_oli_tirs.collections()
-    return await collections["L1T"].load(interval)
+    return await collections["L1T"].query(temporal_extent=interval)
 
 async def load_first_three_months() -> tuple[xr.Dataset, xr.Dataset, xr.Dataset]:
     jan = load_data(("2020-01-01", "2020-02-01"))

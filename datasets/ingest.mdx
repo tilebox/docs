@@ -84,7 +84,7 @@ Ingestion can be done either in Python or Go.
 
 [`collection.ingest`](/api-reference/python/tilebox.datasets/Collection.ingest) supports a wide range of input types. Below is an example of using either a `pandas.DataFrame` or an `xarray.Dataset` as input.
 
-#### pandas.DataFrame
+#### pandas DataFrame
 
 A [pandas.DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) is a representation of two-dimensional, potentially heterogeneous tabular data. It's a powerful tool for working with structured data, and Tilebox supports it as input for `ingest`.
 
@@ -145,7 +145,7 @@ Measurements: [2025-03-28T11:44:23.000 UTC, 2025-03-28T11:45:19.000 UTC] (2 data
   You can now also head on over to the [Tilebox Console](/console) and view the newly ingested data points there.
 </Tip>
 
-#### xarray.Dataset
+#### xarray Dataset
 
 [`xarray.Dataset`](/sdks/python/xarray) is the default format in which Tilebox Datasets returns data when
 [querying data](/datasets/query) from a collection.
@@ -260,7 +260,7 @@ Since `ingest` takes `query`'s output as input, you can easily copy or move data
 <CodeGroup>
 ```python Python
 src_collection = dataset.collection("Measurements")
-data_to_copy = src_collection.load(("2025-03-28", "2025-03-29"))
+data_to_copy = src_collection.query(temporal_extent=("2025-03-28", "2025-03-29"))
 
 dest_collection = dataset.collection("OtherMeasurements")
 dest_collection.ingest(data_to_copy)  # copy the data to the other collection

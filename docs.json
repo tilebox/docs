@@ -161,7 +161,7 @@
                   "api-reference/python/tilebox.datasets/Collection.find",
                   "api-reference/python/tilebox.datasets/Collection.info",
                   "api-reference/python/tilebox.datasets/Collection.ingest",
-                  "api-reference/python/tilebox.datasets/Collection.load"
+                  "api-reference/python/tilebox.datasets/Collection.query"
                 ]
               },
               {

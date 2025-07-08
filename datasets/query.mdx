@@ -43,18 +43,18 @@ func main() {
 ```
 </CodeGroup>
 
-To load data points from a dataset collection, use the [load](/api-reference/python/tilebox.datasets/Collection.load) method. It requires a `time_or_interval` parameter to specify the time or time interval for loading.
+To query data points from a dataset collection, use the [query](/api-reference/python/tilebox.datasets/Collection.query) method. It requires a `temporal_extent` parameter to specify the time or time interval for querying.
 
 ## Filtering by time
 
 ### Time interval
 
-To load data for a specific time interval, use a `tuple` in the form `(start, end)` as the `time_or_interval` parameter. Both `start` and `end` must be [TimeScalars](#time-scalars), which can be `datetime` objects or strings in ISO 8601 format.
+To query data for a specific time interval, use a `tuple` in the form `(start, end)` as the `temporal_extent` parameter. Both `start` and `end` must be [TimeScalars](#time-scalars), which can be `datetime` objects or strings in ISO 8601 format.
 
 <CodeGroup>
 ```python Python
 interval = ("2017-01-01", "2023-01-01")
-data = collection.load(interval, show_progress=True)
+data = collection.query(temporal_extent=interval, show_progress=True)
 ```
 ```go Go
 startDate := time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -112,7 +112,7 @@ import xarray as xr
 data = []
 for year in [2017, 2018, 2019, 2020, 2021, 2022]:
     interval = (f"{year}-01-01", f"{year + 1}-01-01")
-    data.append(collection.load(interval, show_progress=True))
+    data.append(collection.query(temporal_extent=interval, show_progress=True))
 
 # Concatenate the data into a single dataset, which is equivalent
 # to the result of the single request in the code example above.
@@ -170,7 +170,7 @@ print(f"They are equivalent: {interval1 == interval2}")
 print(interval2.to_half_open())
 
 # Query data for a time interval
-data = collection.load(interval1, show_progress=True)
+data = collection.query(temporal_extent=interval1, show_progress=True)
 ```
 ```go Go
 interval1 := query.TimeInterval{
@@ -217,11 +217,11 @@ You can load all datapoints linked to a specific timestamp by specifying a `Time
     A collection may contain multiple datapoints for one millisecond, so multiple data points could still be returned. If you want to fetch only a single data point, [query the collection by id](#loading-a-data-point-by-id) instead.
 </Tip>
 
-Here's how to load a data point at a specific millisecond from a [collection](/datasets/concepts/collections).
+Here's how to query a data point at a specific millisecond from a [collection](/datasets/concepts/collections).
 
 <CodeGroup>
     ```python Python
-    data = collection.load("2024-08-01 00:00:01.362")
+    data = collection.query(temporal_extent="2024-08-01 00:00:01.362")
     print(data)
     ```
     ```go Go
@@ -265,18 +265,18 @@ First datapoint time: 2024-08-01 00:00:01.362 +0000 UTC
   Tilebox uses millisecond precision for timestamps. To load all data points for a specific second, it's a [time interval](/datasets/query#time-interval) request. Refer to the examples below for details.
 </Note>
 
-The output of the `load` method is an `xarray.Dataset` object. To learn more about Xarray, visit the dedicated [Xarray page](/sdks/python/xarray).
+The output of the `query` method is an `xarray.Dataset` object. To learn more about Xarray, visit the dedicated [Xarray page](/sdks/python/xarray).
 
 ### Time iterables (Python only)
 
-You can specify a time interval by using an iterable of `TimeScalar`s as the `time_or_interval` parameter. This is especially useful when you want to use the output of a previous `load` call as input for another load. Here's how that works.
+You can specify a time interval by using an iterable of `TimeScalar`s as the `temporal_extent` parameter. This is especially useful when you want to use the output of a previous `query` call as input for another query. Here's how that works.
 
 <CodeGroup>
     ```python Python
     interval = ("2017-01-01", "2023-01-01")
-    meta_data = collection.load(interval, skip_data=True)
+    meta_data = collection.query(temporal_extent=interval, skip_data=True)
 
-    first_50_data_points = collection.load(meta_data.time[:50], skip_data=False)
+    first_50_data_points = collection.query(temporal_extent=meta_data.time[:50], skip_data=False)
     print(first_50_data_points)
     ```
 </CodeGroup>
@@ -315,7 +315,7 @@ tokyo_time = pytz.timezone('Asia/Tokyo').localize(
     datetime(2017, 1, 1, 11, 45, 25, 679000)
 )
 print(tokyo_time)
-data = collection.load(tokyo_time)
+data = collection.query(temporal_extent=tokyo_time)
 print(data)
 ```
 ```go Go
@@ -431,7 +431,7 @@ If this flag is set, the response will only include the required fields for the 
 
 <CodeGroup>
     ```python Python
-    data = collection.load("2024-08-01 00:00:01.362", skip_data=True)
+    data = collection.query(temporal_extent="2024-08-01 00:00:01.362", skip_data=True)
     print(data)
     ```
 ```go Go
@@ -473,12 +473,12 @@ First datapoint time: 2024-08-01 00:00:01.362 +0000 UTC
 
 ## Empty response
 
-The `load` method always returns an `xarray.Dataset` object, even if there are no data points for the specified query. In such cases, the returned dataset will be empty, but no error will be raised.
+The `query` method always returns an `xarray.Dataset` object, even if there are no data points for the specified query. In such cases, the returned dataset will be empty, but no error will be raised.
 
 <CodeGroup>
     ```python Python
     time_with_no_data_points = "1997-02-06 10:21:00"
-    data = collection.load(time_with_no_data_points)
+    data = collection.query(temporal_extent=time_with_no_data_points)
     print(data)
     ```
 ```go Go

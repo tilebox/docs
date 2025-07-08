@@ -44,7 +44,7 @@ collections = s2_dataset.collections()
 collection = collections["S2A_S2MSI2A"]
 
 # Loading metadata
-s2_data = collection.load(("2024-08-01", "2024-08-02"), show_progress=True)
+s2_data = collection.query(temporal_extent=("2024-08-01", "2024-08-02"), show_progress=True)
 
 # Selecting a data point to download
 selected = s2_data.isel(time=0)  # index 0 selected
@@ -79,7 +79,7 @@ For example, a Sentinel-2 L2A product includes many files such as metadata, diff
 
 ```python Python {4, 15}
 collection = datasets.open_data.copernicus.sentinel2_msi.collections()["S2A_S2MSI2A"]
-s2_data = collection.load(("2024-08-01", "2024-08-02"), show_progress=True)
+s2_data = collection.query(temporal_extent=("2024-08-01", "2024-08-02"), show_progress=True)
 selected = s2_data.isel(time=0)  # download the first granule in the given time range
 
 objects = storage_client.list_objects(selected)
@@ -137,7 +137,7 @@ collections = ers_dataset.collections()
 collection = collections["ERS-2"]
 
 # Loading metadata
-ers_data = collection.load(("2009-01-01", "2009-01-02"), show_progress=True)
+ers_data = collection.query(temporal_extent=("2009-01-01", "2009-01-02"), show_progress=True)
 
 # Selecting a data point to download
 selected = ers_data.isel(time=0)  # index 0 selected
@@ -206,7 +206,7 @@ collections = umbra_dataset.collections()
 collection = collections["SAR"]
 
 # Loading metadata
-umbra_data = collection.load(("2024-01-05", "2024-01-06"), show_progress=True)
+umbra_data = collection.query(temporal_extent=("2024-01-05", "2024-01-06"), show_progress=True)
 
 # Selecting a data point to download
 selected = umbra_data.isel(time=0)  # index 0 selected
@@ -239,7 +239,7 @@ The below example shows how to download only the metadata file for a given data 
 
 ```python Python {4, 15}
 collection = datasets.open_data.umbra.sar.collections()["SAR"]
-umbra_data = collection.load(("2024-01-05", "2024-01-06"), show_progress=True)
+umbra_data = collection.query(temporal_extent=("2024-01-05", "2024-01-06"), show_progress=True)
 # Selecting a data point to download
 selected = umbra_data.isel(time=0)  # index 0 selected
 

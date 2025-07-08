@@ -106,6 +106,7 @@ To do so, you'll use the [Tilebox Console](/console), navigate to `My Datasets` 
 
 Now, to match the given MODIS dataset, you'll specify the following fields:
 
+{/* vale Vale.Spelling = NO */}
 | Field | Type | Note |
 | --- | --- | --- |
 | granule_name | string | MODIS granule name |
@@ -120,6 +121,7 @@ Now, to match the given MODIS dataset, you'll specify the following fields:
 | day_night_flag | int64 | Day / Night / Both |
 | browse_granule_id | string | Optional granule ID for browsing |
 | published_at | Timestamp | The time the product was published |
+{/* vale Vale.Spelling = YES */}
 
 In the console, this will look like the following:
 
@@ -187,7 +189,7 @@ You can now query the newly ingested data. You can query a subset of the data fo
 
 <CodeGroup>
 ```python Python
-data = collection.load(("2015-01-01", "2020-01-01"))
+data = collection.query(temporal_extent=("2015-01-01", "2020-01-01"))
 data
 ```
 </CodeGroup>
