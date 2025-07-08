@@ -19,7 +19,7 @@ Find a specific datapoint in a collection by its id.
 </ParamField>
 
 <ParamField path="skip_data" type="bool">
-    Whether to skip loading the data for the datapoint. If `True`, only the metadata for the datapoint is loaded.
+    If `True`, the response contains only the ID and the timestamp for the datapoint. Defaults to `False`.
 </ParamField>
 
 ## Returns
@@ -38,7 +38,17 @@ Since it returns only a single data point, the output xarray dataset does not in
 ```python Python
 data = collection.find(
     "0186d6b6-66cc-fcfd-91df-bbbff72499c3",
-    skip_data = False,
 )
+
+
+# check if a datapoint exists
+try:
+    collection.find(
+        "0186d6b6-66cc-fcfd-91df-bbbff72499c3",
+        skip_data=True,
+    )
+    exists = True
+except NotFoundError:
+    exists = False
 ```
 </RequestExample>

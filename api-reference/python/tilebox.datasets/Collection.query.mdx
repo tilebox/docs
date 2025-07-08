@@ -32,7 +32,7 @@ If no data exists for the requested time or interval, an empty `xarray.Dataset` 
 </ParamField>
 
 <ParamField path="skip_data" type="bool">
-  If `True`, the response contains only the [required fields for the dataset type](/datasets/types/timeseries) without the actual dataset-specific fields. Defaults to `False`.
+  If `True`, the response contains only the ID and the timestamp for each datapoint. Defaults to `False`.
 </ParamField>
 
 <ParamField path="show_progress" type="bool">
@@ -54,7 +54,13 @@ data = collection.query(temporal_extent=time)
 
 # querying a time interval
 interval = ("2023-05-01", "2023-08-01")
-data = collection.query(temporal_extent=interval, show_progress=True)
+data = collection.query(temporal_extent=interval)
+
+# displaying a progress bar while querying
+data = collection.query(
+  temporal_extent=interval,
+  show_progress=True,
+)
 
 # querying a time interval with TimeInterval
 interval = TimeInterval(
@@ -63,11 +69,13 @@ interval = TimeInterval(
     start_exclusive=False,
     end_inclusive=False,
 )
-data = collection.query(temporal_extent=interval, show_progress=True)
+data = collection.query(temporal_extent=interval)
 
 # querying with an iterable
-meta_data = collection.query(temporal_extent=..., skip_data=True)
-first_50 = collection.query(temporal_extent=meta_data.time[:50], skip_data=False)
+datapoints = collection.query(
+  temporal_extent=interval,
+  skip_data=True,  # only fetch datapoint IDs and time
+)
+first_50 = collection.query(temporal_extent=datapoints.time[:50])
 ```
 </RequestExample>
-

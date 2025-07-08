@@ -274,9 +274,9 @@ You can specify a time interval by using an iterable of `TimeScalar`s as the `te
 <CodeGroup>
     ```python Python
     interval = ("2017-01-01", "2023-01-01")
-    meta_data = collection.query(temporal_extent=interval, skip_data=True)
+    found_datapoints = collection.query(temporal_extent=interval, skip_data=True)
 
-    first_50_data_points = collection.query(temporal_extent=meta_data.time[:50], skip_data=False)
+    first_50_data_points = collection.query(temporal_extent=found_datapoints.time[:50])
     print(first_50_data_points)
     ```
 </CodeGroup>
@@ -423,19 +423,23 @@ if err != nil {
 ```
 </CodeGroup>
 
-## Fetching only metadata
+## Skipping data fields
 
-Sometimes, it may be useful to load only dataset metadata fields without the actual data fields. This can be done by setting the `skip_data` parameter to `True`.
-For example, when only checking if a datapoint exists, you may want to use `skip_data=True` to avoid loading the data fields.
-If this flag is set, the response will only include the required fields for the given dataset type, but no custom data fields.
+Sometimes, only the ID or timestamp associated with a datapoint is required. In this case, loading the full data fields for each datapoint is not necessary and can be avoided by
+setting the `skip_data` parameter to `True`.
+
+For example, when only checking how many datapoints exist in a given time interval, you can use `skip_data=True` to avoid loading the data fields.
 
 <CodeGroup>
     ```python Python
-    data = collection.query(temporal_extent="2024-08-01 00:00:01.362", skip_data=True)
-    print(data)
+    interval = ("2023-01-01", "2023-02-01")
+    data = collection.query(temporal_extent=interval, skip_data=True)
+    print(f"Found {data.sizes['time']} data points.")
     ```
 ```go Go
-temporalExtent := query.NewPointInTime(time.Date(2024, time.August, 1, 0, 0, 1, 362000000, time.UTC))
+startDate := time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)
+endDate := time.Date(2023, time.February, 1, 0, 0, 0, 0, time.UTC)
+interval := query.NewTimeInterval(startDate, endDate)
 
 var datapoints []*v1.Sentinel1Sar
 err = client.Datapoints.QueryInto(ctx,
@@ -592,10 +596,15 @@ Data variables: (12/30)
 </CodeGroup>
 
 <Tip>
-  You can also set the `skip_data` parameter when calling `find` to query only the required fields of the data point, same as for `load`.
+  You can also set the `skip_data` parameter when calling `find` to query only the required fields of the data point, same as for `query`.
 </Tip>
 
 ## Automatic pagination
 
 Querying large time intervals can return a large number of data points.
 Tilebox automatically handles pagination for you by sending paginated requests to the server.
+
+<Tip>
+When using the python SDK in an interactive notebook environment, you can additionally also display a
+progress bar to keep track of the progress of the query by setting the `show_progress` parameter to `True`.
+</Tip>
