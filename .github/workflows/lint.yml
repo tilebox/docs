@@ -19,6 +19,7 @@ jobs:
         with:
           fail_on_error: true
           version: 3.2.0
+          reporter: github-check
   docs-quality:
     name: Check docs standards
     runs-on: ubuntu-latest
