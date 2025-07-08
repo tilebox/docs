@@ -95,7 +95,7 @@ since you only need the datapoint IDs. See [fetching only metadata](/datasets/qu
 
 <CodeGroup>
 ```python Python
-to_delete = collection.load(("2023-05-01", "2023-06-01"), skip_data=True)
+to_delete = collection.query(temporal_extent=("2023-05-01", "2023-06-01"), skip_data=True)
 
 n_deleted = collection.delete(datapoints)
 print(f"Deleted {n_deleted} data points.")

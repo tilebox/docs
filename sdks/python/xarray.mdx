@@ -45,7 +45,7 @@ from tilebox.datasets import Client
 client = Client()
 datasets = client.datasets()
 collection = datasets.open_data.copernicus.landsat8_oli_tirs.collection("L1GT")
-satellite_data = collection.load(("2022-05-01", "2022-06-01"), show_progress=True)
+satellite_data = collection.query(temporal_extent=("2022-05-01", "2022-06-01"), show_progress=True)
 print(satellite_data)
 ```
 

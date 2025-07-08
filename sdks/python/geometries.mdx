@@ -15,7 +15,7 @@ client = Client()
 datasets = client.datasets()
 
 ers_collection = datasets.open_data.asf.ers_sar.collection("ERS-2")
-ers_data = ers_collection.load(("2008-02-10T21:00", "2008-02-10T22:00"))
+ers_data = ers_collection.query(temporal_extent=("2008-02-10T21:00", "2008-02-10T22:00"))
 ```
 
 ## Shapely

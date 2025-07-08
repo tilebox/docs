@@ -108,18 +108,18 @@ Now, to match the given MODIS dataset, you'll specify the following fields:
 
 | Field | Type | Note |
 | --- | --- | --- |
-| granule_name | string | MODIS granule name |
-| geometry | Geometry | Tile boundary coordinates of the granule |
-| end_time | Timestamp | Measurement end time |
-| horizontal_tile_number | int64 | Horizontal modis tile number (0-35) |
-| vertical_tile_number | int64 | Vertical modis tile number (0-17) |
-| tile_id | int64 | Modis Tile ID |
-| file_size | uint64 | File size of the product in bytes |
-| checksum | string | Hash checksum of the file |
-| checksum_type | string | Checksum algorithm (MD5 / CKSUM) |
-| day_night_flag | int64 | Day / Night / Both |
-| browse_granule_id | string | Optional granule ID for browsing |
-| published_at | Timestamp | The time the product was published |
+| `granule_name` | string | MODIS granule name |
+| `geometry` | Geometry | Tile boundary coordinates of the granule |
+| `end_time` | Timestamp | Measurement end time |
+| `horizontal_tile_number` | int64 | Horizontal modis tile number (0-35) |
+| `vertical_tile_number` | int64 | Vertical modis tile number (0-17) |
+| `tile_id` | int64 | Modis Tile ID |
+| `file_size` | uint64 | File size of the product in bytes |
+| `checksum` | string | Hash checksum of the file |
+| `checksum_type` | string | Checksum algorithm (MD5 / CKSUM) |
+| `day_night_flag` | int64 | Day / Night / Both |
+| `browse_granule_id` | string | Optional granule ID for browsing |
+| `published_at` | Timestamp | The time the product was published |
 
 In the console, this will look like the following:
 
@@ -187,7 +187,7 @@ You can now query the newly ingested data. You can query a subset of the data fo
 
 <CodeGroup>
 ```python Python
-data = collection.load(("2015-01-01", "2020-01-01"))
+data = collection.query(temporal_extent=("2015-01-01", "2020-01-01"))
 data
 ```
 </CodeGroup>
