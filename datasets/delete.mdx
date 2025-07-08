@@ -89,15 +89,15 @@ Deleted 2 data points.
 
 ## Deleting a time interval
 
-One common way to delete data is to first load it from a collection and then forward it to the `delete` method. For
-this use case it often is a good idea to query the datapoints with `skip_data=True` to avoid loading the data fields,
-since you only need the datapoint IDs. See [fetching only metadata](/datasets/query#fetching-only-metadata) for more details.
+One common way to delete all datapoints in a time interval is to first query it from a collection and then deleting those
+found datapoints. For this use case it often is a good idea to query the datapoints with `skip_data=True` to avoid actually
+loading the data fields, since only the datapoint IDs are required. See [skipping data fields](/datasets/query#skipping-data-fields) for more details.
 
 <CodeGroup>
 ```python Python
 to_delete = collection.query(temporal_extent=("2023-05-01", "2023-06-01"), skip_data=True)
 
-n_deleted = collection.delete(datapoints)
+n_deleted = collection.delete(to_delete)
 print(f"Deleted {n_deleted} data points.")
 ```
 ```go Go
