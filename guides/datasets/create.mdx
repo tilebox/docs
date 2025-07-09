@@ -1,6 +1,6 @@
 ---
 title: Creating a dataset
-description: Learn how to create a dataset
+description: Learn how to create a dataset with your own, custom schema
 icon: database
 ---
 
@@ -47,8 +47,9 @@ This page guides you through the process of creating a dataset in Tilebox using 
     Specify the fields for your dataset.
 
     Each field has these properties:
-    - `Name` is the name of the field (it should be `snake_case`).
-    - `Type` and `Array` let you specify the field data type and whether it's an array. See below for an explanation of the available data.
+    - `Name` is the name of the field (by convention it is recommended to be in `snake_case`).
+    - `Type` is the data type of the field.
+    - `Array` can be set to indicate that the field contains multiple values of the specified type.
     - `Description` is an optional brief description of the field. You can use it to provide more context and details about the data.
     - `Example value` is an optional example for this field. It can be useful for documentation purposes.
 
@@ -96,5 +97,5 @@ Once you are done editing the documentation, click the `Save` button to save you
 
 You can always add new fields to a dataset.
 
-If you want to remove or edit existing fields, you'll first need to empty all collections in the dataset.
-Then, you can edit the dataset schema in the console.
+If you want to remove or edit existing fields, you'll first need to empty all collections in the dataset, to ensure that
+no existing data points relying on those fields exist. Then, you can freely edit the dataset schema in the console.

@@ -64,3 +64,5 @@ bool
 boolean
 (?i)modis
 reprojected
+(?i)geospatial
+
