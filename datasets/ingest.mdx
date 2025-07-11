@@ -148,7 +148,7 @@ Measurements: [2025-03-28T11:44:23.000 UTC, 2025-03-28T11:45:19.000 UTC] (2 data
 #### xarray Dataset
 
 [`xarray.Dataset`](/sdks/python/xarray) is the default format in which Tilebox Datasets returns data when
-[querying data](/datasets/query) from a collection.
+[querying data](/datasets/query/querying-data) from a collection.
 Tilebox also supports it as input for ingestion. The example below shows how to construct an `xarray.Dataset`
 from scratch, that matches the schema of the `MyCustomDataset` dataset and can then be ingested into it.
 To learn more about `xarray.Dataset`, visit Tilebox dedicated [Xarray documentation page](/sdks/python/xarray).
@@ -397,3 +397,9 @@ Through the usage of `xarray` and `pandas` you can also easily ingest existing d
 formats, such as CSV, [Parquet](https://parquet.apache.org/), [Feather](https://arrow.apache.org/docs/python/feather.html) and more.
 
 Check out the [Ingestion from common file formats](/guides/datasets/ingest-format) guide for examples of how to achieve this.
+
+## Geometries
+
+Ingesting Geometries can traditionally be a bit tricky, especially when working with geometries that cross the antimeridian or cover a pole.
+Tilebox is designed to take away most of the friction involved in this, but it's still recommended to follow the [best practices for handling geometries](/datasets/geometries).
+

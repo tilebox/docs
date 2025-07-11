@@ -1,0 +1,301 @@
+---
+title: Filtering by a location
+sidebarTitle: Filter by location
+description: Learn how to filter your query results by an area of interest specified as certain geographical extent.
+icon: globe-pointer
+---
+
+<Tip>
+    Check out the [best practices for handling geometries](/datasets/geometries) to learn more about the different aspects to consider when working with geometries, including antimeridian crossings and pole coverings.
+</Tip>
+
+When querying, you can specify arbitrary geometries as an area of interest to filter by. Tilebox currently supports
+`Polygon` and `MultiPolygon` geometries as query filters.
+
+## Filtering by an area of interest
+
+To filter by an area of interest, use either a `Polygon` or `MultiPolygon` geometry as the spatial extent parameter.
+
+Here is how to query Sentinel-2 `S2A_S2MSI2A` data over Colorado for a certain day in April 2025.
+
+<CodeGroup>
+```python Python
+from shapely import Polygon
+from tilebox.datasets import Client
+
+area = Polygon(  # area roughly covering the state of Colorado
+    ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
+)
+
+client = Client()
+sentinel2_msi = client.dataset("open_data.copernicus.sentinel2_msi")
+collection = sentinel2_msi.collection("S2A_S2MSI2A")
+data = collection.query(
+    temporal_extent=("2025-04-02", "2025-04-03"),
+    spatial_extent=area,
+)
+```
+```go Go
+startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+area := orb.Polygon{  // area roughly covering the state of Colorado
+    {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
+}
+
+ctx := context.Background()
+client := datasets.NewClient()
+
+dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+if err != nil {
+    log.Fatalf("Failed to get dataset: %v", err)
+}
+
+collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
+if err != nil {
+    log.Fatalf("Failed to get collection: %v", err)
+}
+
+var datapoints []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID},
+    &datapoints,
+    datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+    datasets.WithSpatialExtent(area),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
+
+## Intersection mode
+
+By default, the query will return all datapoints that intersect with the specified geometry.
+For certain use cases you might want to change this behavior and only return datapoints that are fully contained within the specified geometry.
+Tilebox supports this behavior by specifying a mode for the spatial filter.
+
+<Columns cols={2}>
+    <Frame caption="mode: intersects">
+        <img src="/assets/datasets/queries/intersection-mode-intersects-light.png" alt="Query results with intersects mode" className="dark:hidden" />
+        <img src="/assets/datasets/queries/intersection-mode-intersects-dark.png" alt="Query results with intersects mode" className="hidden dark:block" />
+    </Frame>
+    <Frame caption="mode: contains">
+        <img src="/assets/datasets/queries/intersection-mode-contains-light.png" alt="Query results with contains mode" className="dark:hidden" />
+        <img src="/assets/datasets/queries/intersection-mode-contains-dark.png" alt="Query results with contains mode" className="hidden dark:block" />
+    </Frame>
+</Columns>
+
+### Intersects
+
+The `intersects` mode is the default behavior of spatial queries. It matches all datapoints with geometries that intersect with the query geometry.
+
+<CodeGroup>
+```python Python
+area = Polygon(  # area roughly covering the state of Colorado
+    ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
+)
+
+data = collection.query(
+    temporal_extent=("2025-04-02", "2025-04-03"),
+    # intersects is the default, so can also be omitted entirely
+    spatial_extent={"geometry": area, "mode": "intersects"},
+)
+print(f"There are {data.sizes['time']} Sentinel-2A granules intersecting the area of Colorado on April 2nd, 2025")
+```
+```go Go
+startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+area := orb.Polygon{  // area roughly covering the state of Colorado
+    {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
+}
+
+var datapoints []*examplesv1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID},
+    &datapoints,
+    datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+    datasets.WithSpatialExtentFilter(&query.SpatialFilter{
+        Geometry: area,
+        // intersects is the default, so can also be omitted entirely
+        Mode:     datasetsv1.SpatialFilterMode_SPATIAL_FILTER_MODE_INTERSECTS,
+    }),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
+
+```plaintext Output
+There are 27 Sentinel-2A granules intersecting the area of Colorado on April 2nd, 2025
+```
+
+### Contains
+
+<CodeGroup>
+```python Python
+area = Polygon(  # area roughly covering the state of Colorado
+    ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
+)
+
+data = collection.query(
+    temporal_extent=("2025-04-01", "2025-05-02"),
+    spatial_extent={"geometry": area, "mode": "contains"},
+)
+print(f"There are {data.sizes['time']} Sentinel-2A granules fully contained within the area of Colorado on April 2nd, 2025")
+```
+```go Go
+startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+area := orb.Polygon{  // area roughly covering the state of Colorado
+    {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
+}
+
+var datapoints []*examplesv1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID},
+    &datapoints,
+    datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+    datasets.WithSpatialExtentFilter(&query.SpatialFilter{
+        Geometry: area,
+        Mode:     datasetsv1.SpatialFilterMode_SPATIAL_FILTER_MODE_CONTAINS,
+    }),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
+
+```plaintext Output
+There are 16 Sentinel-2A granules fully contained within the area of Colorado on April 2nd, 2025
+```
+
+## Antimeridian Crossings
+
+In many applications, geometries that cross the antimeridian cause issues. Since such geometries are common in satellite
+data, Tilebox does take extra care to handle them out of the box correctly, by building the necessary internal spatial
+index structures in a way that correctly handles antimeridian crossings and pole coverings.
+
+To get accurate results also at query time, it's recommend to use the `spherical` [coordinate reference system](#coordinate-reference-system) 
+for querying (which is the default), as it correctly handles the non-linearity introduced by the antimeridian in `cartesian` space.
+
+<Tip>
+    Even if you stick to the `spherical` coordinate reference system when querying, it's still recommended to follow the 
+    [best practices for handling geometries](/datasets/geometries). In doing so,
+    you can ensure that no geometry related issues will arise even when interfacing with other libraries and tools that may not properly
+    support non-linearities in geometries.
+</Tip>
+
+## Coordinate reference system
+
+Geometry intersection and containment checks can either be performed in a [3D Spherical coordinate system](https://en.wikipedia.org/wiki/Spherical_coordinate_system)
+or in a standard 2D cartesian `lat/lon` coordinate system.
+
+<Columns cols={2}>
+    <Frame caption="Spherical coordinate reference system">
+        <img src="/assets/datasets/queries/crs-spherical-light.png" alt="Spherical coordinate reference system" className="dark:hidden"/>
+        <img src="/assets/datasets/queries/crs-spherical-dark.png" alt="Spherical coordinate reference system" className="hidden dark:block"/>
+    </Frame>
+    <Frame caption="Cartesian coordinate reference system">
+        <img src="/assets/datasets/queries/crs-cartesian-light.png" alt="Cartesian coordinate reference system" className="dark:hidden" />
+        <img src="/assets/datasets/queries/crs-cartesian-dark.png" alt="Cartesian coordinate reference system" className="hidden dark:block" />
+    </Frame>
+</Columns>
+
+### Spherical
+
+The `spherical` coordinate reference system is the default and recommended one to use. It correctly handles antimeridian crossings
+and is the most robust option, no matter how the datapoint geometries are cut along the antimeridian.
+
+<Tip>
+    Irregardless of the coordinate reference system is used, it is always recommended to follow the best practices
+    for handling antimeridian crossings as described in the [Antimeridian Crossings section](#antimeridian-crossings) below.
+</Tip>
+
+When querying with the `spherical` coordinate reference system, Tilebox automatically converts all geometries to
+their `x, y, z` coordinates on the unit sphere and performs the intersection and containment checks in 3D.
+
+<CodeGroup>
+```python Python
+area = Polygon(  # area roughly covering the state of Colorado
+    ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
+)
+
+data = collection.query(
+    temporal_extent=("2025-04-01", "2025-05-02"),
+    # spherical is the default, so can also be omitted entirely
+    spatial_extent={"geometry": area, "coordinate_system": "spherical"},
+)
+```
+```go Go
+startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+area := orb.Polygon{  // area roughly covering the state of Colorado
+    {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
+}
+
+var datapoints []*examplesv1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID},
+    &datapoints,
+    datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+    datasets.WithSpatialExtentFilter(&query.SpatialFilter{
+        Geometry: area,
+        // spherical is the default, so can also be omitted entirely
+        CoordinateSystem: datasetsv1.SpatialCoordinateSystem_SPATIAL_COORDINATE_SYSTEM_SPHERICAL,
+    }),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
+
+### Cartesian
+
+Tilebox can also be configured to use a standard 2D cartesian `lat/lon` coordinate system for geometry intersection and containment checks
+as well.
+This can be done by specifying the `cartesian` coordinate reference system when querying.
+
+<CodeGroup>
+```python Python
+area = Polygon(  # area roughly covering the state of Colorado
+    ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
+)
+
+data = collection.query(
+    temporal_extent=("2025-04-01", "2025-05-02"),
+    spatial_extent={"geometry": area, "coordinate_system": "cartesian"},
+)
+```
+```go Go
+startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+area := orb.Polygon{  // area roughly covering the state of Colorado
+    {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
+}
+
+var datapoints []*examplesv1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID},
+    &datapoints,
+    datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+    datasets.WithSpatialExtentFilter(&query.SpatialFilter{
+        Geometry: area,
+        CoordinateSystem: datasetsv1.SpatialCoordinateSystem_SPATIAL_COORDINATE_SYSTEM_CARTESIAN,
+    }),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
+
+<Note>
+    When using the `cartesian` coordinate system, antimeridian crossings may cause issues if datapoint geometries
+    or the query geometry do not properly respect the antimeridian cut. Check out the 
+    [Antimeridian Crossings](#antimeridian-crossings) section below for best practices to ensure correct results irregardless
+    of the coordinate reference system used.
+</Note>
+

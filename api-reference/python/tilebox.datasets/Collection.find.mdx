@@ -42,6 +42,8 @@ data = collection.find(
 
 
 # check if a datapoint exists
+from tilebox.datasets.sync.dataset import NotFoundError
+
 try:
     collection.find(
         "0186d6b6-66cc-fcfd-91df-bbbff72499c3",

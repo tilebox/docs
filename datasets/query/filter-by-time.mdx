@@ -1,0 +1,326 @@
+---
+title: Querying by temporal extent
+sidebarTitle: Filter by time
+description: Learn how to run queries for datapoints within a given temporal extent.
+icon: timeline
+---
+
+Both [Timeseries](/datasets/types/timeseries) and [Spatio-temporal](/datasets/types/spatiotemporal) datasets support efficient time-based queries.
+
+To query data from a collection, use the [query](/api-reference/python/tilebox.datasets/Collection.query) method. It requires a temporal extent parameter to specify the time or time interval for querying. The behavior of the `query` method depends on the exact temporal extent parameter you provide.
+
+## Time interval queries
+
+To query data for a specific time interval, use a `tuple` in the form `(start, end)` as the `temporal_extent` parameter. Both `start` and `end` must be [TimeScalars](#time-scalar-queries), which can be `datetime` objects or strings in ISO 8601 format.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+sentinel2_msi = client.dataset("open_data.copernicus.sentinel2_msi")
+collection = sentinel2_msi.collection("S2A_S2MSI2A")
+
+interval = ("2025-05-01", "2025-06-01")
+data = collection.query(temporal_extent=interval, show_progress=True)
+```
+```go Go
+startDate := time.Date(2025, time.May, 1, 0, 0, 0, 0, time.UTC)
+endDate := time.Date(2025, time.June, 1, 0, 0, 0, 0, time.UTC)
+interval := query.NewTimeInterval(startDate, endDate)
+
+ctx := context.Background()
+client := datasets.NewClient()
+
+dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+if err != nil {
+  log.Fatalf("Failed to get dataset: %v", err)
+}
+
+collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
+var datapoints []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID},
+  &datapoints,
+  datasets.WithTemporalExtent(interval),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+log.Printf("Queried %d datapoints", len(datapoints))
+```
+</CodeGroup>
+
+Output
+
+<CodeGroup>
+```plaintext Python
+<xarray.Dataset> Size: 39MB
+Dimensions:                (time: 87121)
+Coordinates:
+  * time                   (time) datetime64[ns] 697kB 2025-05-01T00:00:51.02...
+Data variables: (12/23)
+    id                     (time) <U36 13MB '01968925-6350-1044-ad4d-317659b8...
+    ingestion_time         (time) datetime64[ns] 697kB 2025-05-01T04:03:42.65...
+    geometry               (time) object 697kB POLYGON ((167.130052 54.937758...
+    granule_name           (time) object 697kB 'S2A_MSIL2A_20250501T000051_N0...
+    processing_level       (time) uint8 87kB 5 5 5 5 5 5 5 5 ... 5 5 5 5 5 5 5 5
+    product_type           (time) object 697kB 'S2MSI2A' 'S2MSI2A' ... 'S2MSI2A'
+    ...                     ...
+    thumbnail              (time) object 697kB 'https://catalogue.dataspace.c...
+    cloud_cover            (time) float64 697kB 18.19 70.69 ... 0.005713 0.00293
+    resolution             (time) int64 697kB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0
+    flight_direction       (time) uint8 87kB 2 2 2 2 2 2 2 2 ... 2 2 2 2 2 2 2 2
+    acquisition_mode       (time) uint8 87kB 20 20 20 20 20 ... 20 20 20 20 20
+    mission_take_id        (time) object 697kB 'GS2A_20250501T000051_051479_N...
+```
+```plaintext Go
+Queried 87121 datapoints
+```
+</CodeGroup>
+
+<Note>
+  The `show_progress` parameter is optional and can be used to display a [tqdm](https://tqdm.github.io/) progress bar while loading data.
+</Note>
+
+A time interval specified as a tuple is interpreted as a half-closed interval. This means the start time is inclusive, and the end time is exclusive.
+For instance, using an end time of `2025-06-01` includes data points up to `2025-05-31 23:59:59.999`, but excludes those from `2025-06-01 00:00:00.000`.
+This behavior mimics the Python `range` function and is useful for chaining time intervals.
+
+<CodeGroup>
+```python Python
+import xarray as xr
+
+data = []
+for month in [4, 5, 6]:
+    interval = (f"2025-{month}-01", f"2025-{month+1}-01")
+    data.append(collection.query(temporal_extent=interval, show_progress=True))
+
+# Concatenate the data into a single dataset, which is equivalent
+# to the result of the single request in the code example above.
+data = xr.concat(data, dim="time")
+```
+```go Go
+var datapoints []*v1.Sentinel2Msi
+
+for month := 4; month <= 6; month++ {
+  startDate := time.Date(2025, month, 1, 0, 0, 0, 0, time.UTC)
+  endDate := time.Date(2025, month + 1, 1, 0, 0, 0, 0, time.UTC)
+
+  var partialDatapoints []*v1.Sentinel2Msi
+  err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID},
+    &partialDatapoints,
+    datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+  )
+  if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+  }
+
+  // Concatenate the data into a single dataset, which is equivalent
+  // to the result of the single request in the code example above.
+  datapoints = append(datapoints, partialDatapoints...)
+}
+```
+</CodeGroup>
+
+Above example demonstrates how to split a large time interval into smaller chunks while loading data in separate requests. Typically, this is not necessary as the datasets client auto-paginates large intervals.
+
+### Endpoint inclusivity
+
+For greater control over inclusivity of start and end times, you can explicitly specify a `TimeInterval`. This way you can specify both the `start` and `end` times, as well as their inclusivity. Here's an example of creating equivalent `TimeInterval` objects in two different ways.
+
+<CodeGroup>
+```python Python
+from datetime import datetime
+from tilebox.datasets.data import TimeInterval
+
+interval1 = TimeInterval(
+    datetime(2021, 1, 1), datetime(2023, 1, 1),
+    end_inclusive=False
+)
+interval2 = TimeInterval(
+    # python datetime granularity is in milliseconds
+    datetime(2021, 1, 1), datetime(2022, 12, 31, 23, 59, 59, 999999),
+    end_inclusive=True
+)
+
+print("Inclusivity is indicated by interval notation: ( and [")
+print(interval1)
+print(interval2)
+print(f"They are equivalent: {interval1 == interval2}")
+print(interval2.to_half_open())
+
+# Query data for a time interval
+data = collection.query(temporal_extent=interval1, show_progress=True)
+```
+```go Go
+interval1 := query.TimeInterval{
+  Start:        time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC),
+  End:          time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC),
+  EndInclusive: false,
+}
+
+interval2 := query.TimeInterval{
+  Start:        time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC),
+  // the granularity of time.Time in Go is nanoseconds
+  End:          time.Date(2022, time.December, 31, 23, 59, 59, 999999999, time.UTC),
+  EndInclusive: true,
+}
+
+log.Println("Inclusivity is indicated by interval notation: ( and [")
+log.Println(interval1.String())
+log.Println(interval2.String())
+log.Println("They are equivalent:", interval1.Equal(&interval2))
+log.Println(interval2.ToHalfOpen().String())
+
+// Query data for a time interval
+var datapoints []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID},
+  &datapoints,
+  datasets.WithTemporalExtent(interval1),
+)
+```
+</CodeGroup>
+
+```plaintext Output
+Inclusivity is indicated by interval notation: ( and [
+[2021-01-01T00:00:00.000 UTC, 2023-01-01T00:00:00.000 UTC)
+[2021-01-01T00:00:00.000 UTC, 2022-12-31T23:59:59.999 UTC]
+They are equivalent: True
+[2021-01-01T00:00:00.000 UTC, 2023-01-01T00:00:00.000 UTC)
+```
+
+## Time scalar queries
+
+You can query all datapoints linked to a specific timestamp by specifying a `TimeScalar` as the time query argument. A `TimeScalar` can be a `datetime` object or a string in ISO 8601 format.
+
+<Tip>
+  Tilebox uses millisecond precision for time indexing datapoints. Thus, querying a specific time scalar, is equivalent to a time interval query of length 1 millisecond.
+</Tip>
+
+Here's how to query a data point at a specific millisecond from a [collection](/datasets/concepts/collections).
+
+<CodeGroup>
+```python Python
+data = collection.query(temporal_extent="2025-06-15T02:31:41.024")
+print(data)
+```
+```go Go
+temporalExtent := query.NewPointInTime(time.Date(2025, time.June, 15, 2, 31, 41, 024000000, time.UTC))
+
+var datapoints []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID}, &datapoints,
+  datasets.WithTemporalExtent(temporalExtent),
+)
+
+log.Printf("Queried %d datapoints", len(datapoints))
+log.Printf("First datapoint time: %s", datapoints[0].GetTime().AsTime())
+```
+</CodeGroup>
+
+Output
+
+<CodeGroup>
+```plaintext Python
+<xarray.Dataset> Size: 158kB
+Dimensions:                (time: 357)
+Coordinates:
+  * time                   (time) datetime64[ns] 3kB 2025-06-15T02:31:41.0240...
+Data variables: (12/23)
+    id                     (time) <U36 51kB '0197716d-a6e0-0801-2381-b9fb8d84...
+    ingestion_time         (time) datetime64[ns] 3kB 2025-06-15T09:33:12.6870...
+    geometry               (time) object 3kB POLYGON ((117.655813 3.346576, 1...
+    granule_name           (time) object 3kB 'S2A_MSIL2A_20250615T023141_N051...
+    processing_level       (time) uint8 357B 5 5 5 5 5 5 5 5 ... 5 5 5 5 5 5 5 5
+    product_type           (time) object 3kB 'S2MSI2A' 'S2MSI2A' ... 'S2MSI2A'
+    ...                     ...
+    thumbnail              (time) object 3kB 'https://catalogue.dataspace.cop...
+    cloud_cover            (time) float64 3kB 99.87 93.26 99.24 ... 100.0 100.0
+    resolution             (time) int64 3kB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    flight_direction       (time) uint8 357B 2 2 2 2 2 2 2 2 ... 2 2 2 2 2 2 2 2
+    acquisition_mode       (time) uint8 357B 20 20 20 20 20 ... 20 20 20 20 20
+    mission_take_id        (time) object 3kB 'GS2A_20250615T023141_052124_N05...
+```
+```plaintext Go
+Queried 357 datapoints
+First datapoint time: 2025-06-15T02:31:41.024 +0000 UTC
+```
+</CodeGroup>
+
+<Tip>
+    A collection may contain multiple datapoints for the same millisecond, so multiple data points may be returned. If you want to fetch only a single data point, [query the collection by id](#loading-a-data-point-by-id) instead.
+</Tip>
+
+
+## Timezone handling
+
+All `TimeScalars` specified as a string are treated as UTC if they do not include a timezone suffix. If you want to query data for a specific time or time range
+in another timezone, it's recommended to a type that includes timezone information. Tilebox will automatically convert such objects to `UTC` in order to send the right query requests.
+All outputs will always contain UTC timestamps, which will need to be converted again to a different timezone if required.
+
+<CodeGroup>
+```python Python
+from datetime import datetime
+import pytz
+
+# Tokyo has a UTC+9 hours offset, so this is the same as
+# 2017-01-01 02:45:25.679 UTC
+tokyo_time = pytz.timezone('Asia/Tokyo').localize(
+    datetime(2021, 1, 1, 11, 45, 25, 679000)
+)
+print(tokyo_time)
+data = collection.query(temporal_extent=tokyo_time)
+print(data)
+```
+```go Go
+// Tokyo has a UTC+9 hours offset, so this is the same as
+// 2017-01-01 02:45:25.679 UTC
+location, _ := time.LoadLocation("Asia/Tokyo")
+tokyoTime := query.NewPointInTime(time.Date(2021, 1, 1, 11, 45, 25, 679000000, location))
+log.Println(tokyoTime)
+
+var datapoints []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID}, &datapoints,
+  datasets.WithTemporalExtent(tokyoTime),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+log.Printf("Queried %d datapoints", len(datapoints))
+// time is in UTC since API always returns UTC timestamps
+log.Printf("First datapoint time: %s", datapoints[0].GetTime().AsTime())
+```
+</CodeGroup>
+
+Output
+
+<CodeGroup>
+```plaintext Python
+2021-01-01 11:45:25.679000+09:00
+<xarray.Dataset> Size: 725B
+Dimensions:                (time: 1, latlon: 2)
+Coordinates:
+    ingestion_time         (time) datetime64[ns] 8B 2024-06-21T11:03:33.852435
+    id                     (time) <U36 144B '015957ea-d82f-e454-34ab-a87603ee...
+  * time                   (time) datetime64[ns] 8B 2017-01-01T02:45:25.679000
+  * latlon                 (latlon) <U9 72B 'latitude' 'longitude'
+Data variables:
+    ...
+```
+```plaintext Go
+[2021-01-01 11:45:25.679 +0900 JST, 2021-01-01 11:45:25.679 +0900 JST]
+Queried 1 datapoints
+First datapoint time: 2021-01-01 02:45:25.679 +0000 UTC
+```
+</CodeGroup>
+

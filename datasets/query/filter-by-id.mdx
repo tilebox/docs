@@ -1,0 +1,134 @@
+---
+title: Querying individual datapoints by ID
+sidebarTitle: Filter by ID
+description: Learn how to run query for a specific datapoint by its unique ID.
+icon: fingerprint
+---
+
+If you already know the ID of the data point you want to query, you can query it directly, using
+[Collection.find](/api-reference/python/tilebox.datasets/Collection.find) in Python or [Datapoints.GetInto](/api-reference/go/datasets/Datapoints.GetInto) in Go.
+
+<Tip>
+  Check out [selecting a collection](/datasets/query/querying-data#selecting-a-collection) to learn how to get a collection object
+  to query from.
+</Tip>
+
+<CodeGroup>
+```python Python
+datapoint_id = "0197a491-1520-102f-48f4-f087d6ef8603"
+datapoint = collection.find(datapoint_id)
+print(datapoint)
+```
+```go Go
+datapointID := uuid.MustParse("0197a491-1520-102f-48f4-f087d6ef8603")
+
+var datapoint v1.Sentinel2Msi
+err = client.Datapoints.GetInto(ctx,
+  []uuid.UUID{collection.ID}, datapointID, &datapoint,
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoint: %v", err)
+}
+
+fmt.Println(protojson.Format(&datapoint))
+```
+</CodeGroup>
+
+Output
+
+<CodeGroup>
+```plaintext Python
+<xarray.Dataset> Size: 443B
+Dimensions:                ()
+Coordinates:
+    time                   datetime64[ns] 8B 2025-06-25T00:51:01.024000
+Data variables: (12/23)
+    id                     <U36 144B '0197a491-1520-102f-48f4-f087d6ef8603'
+    ingestion_time         datetime64[ns] 8B 2025-06-25T05:33:11.104000
+    geometry               object 8B POLYGON ((156.090908 48.709728, 155.7188...
+    granule_name           object 8B 'S2A_MSIL2A_20250625T005101_N0511_R045_T...
+    processing_level       uint8 1B 5
+    product_type           object 8B 'S2MSI2A'
+    ...                     ...
+    thumbnail              object 8B 'https://catalogue.dataspace.copernicus....
+    cloud_cover            float64 8B 87.38
+    resolution             int64 8B 0
+    flight_direction       uint8 1B 2
+    acquisition_mode       uint8 1B 20
+    mission_take_id        object 8B 'GS2A_20250625T005101_052266_N05.11'
+```
+```plaintext Go
+{
+  "time": "2025-06-25T00:51:01.024Z",
+  "id": {
+    "uuid": "AZekkRUgEC9I9PCH1u+GAw=="
+  },
+  "ingestionTime": "2025-06-25T05:33:11.104Z",
+  "geometry": {
+    "wkb": "AQMAACDmEAAAAQAAAAoAAAA83uS36IJjQBqH+l3YWkhA+ptQiAB3Y0CmYmNeR1xIQGfROxVwdWNA58OzBBnlR0DAB69d2nZjQIQqNXug8UdABhN/FPV4Y0AwLH++LQRIQCxEh8ARe2NAhEpcx7gWSEC+UMB2MH1jQCZuFcRAKUhAxVkRNVF/Y0Cs4LchxjtIQE6AYflzgWNABAMIH0pOSEA83uS36IJjQBqH+l3YWkhA"
+  },
+  "granuleName": "S2A_MSIL2A_20250625T005101_N0511_R045_T56UQU_20250625T033500.SAFE",
+  "processingLevel": "PROCESSING_LEVEL_L2A",
+  "productType": "S2MSI2A",
+  "copernicusId": {
+    "uuid": "+gUdtyZrQnapFVrQjnUKUw=="
+  },
+  "platform": "S2A",
+  "orbitNumber": "52266",
+  "relativeOrbitNumber": "45",
+  "processingBaseline": 5.11,
+  "stopTime": "2025-06-25T00:51:01.024Z",
+  "centroid": {
+    "wkb": "AQEAACDmEAAAmRmrzXB6Y0ATN84DLTRIQA=="
+  },
+  "published": "2025-06-25T04:29:22.500212Z",
+  "updated": "2025-06-25T04:29:22.500212Z",
+  "location": "/eodata/Sentinel-2/MSI/L2A/2025/06/25/S2A_MSIL2A_20250625T005101_N0511_R045_T56UQU_20250625T033500.SAFE",
+  "fileSize": "118828098",
+  "thumbnail": "https://catalogue.dataspace.copernicus.eu/get-object?path=/Sentinel-2/MSI/L2A/2025/06/25/S2A_MSIL2A_20250625T005101_N0511_R045_T56UQU_20250625T033500.SAFE/S2A_MSIL2A_20250625T005101_N0511_R045_T56UQU_20250625T033500-ql.jpg",
+  "cloudCover": 87.384349,
+  "resolution": "0",
+  "flightDirection": "FLIGHT_DIRECTION_DESCENDING",
+  "acquisitionMode": "ACQUISITION_MODE_NOBS",
+  "missionTakeId": "GS2A_20250625T005101_052266_N05.11"
+}
+```
+</CodeGroup>
+
+<Tip>
+  You can also set the `skip_data` parameter when calling `find` to query only the required fields of the data point, same as for `query`.
+</Tip>
+
+## Checking if a datapoint exists
+
+`find` returns an error if the specified datapoint does not exist. You can use this to check if a datapoint exists or not.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets.sync.dataset import NotFoundError
+
+datapoint_id = "0197a47f-a830-1160-6df5-61ac723dae17"  # doesn't exist
+
+try:
+    collection.find(datapoint_id)
+    exists = True
+except NotFoundError:
+    exists = False
+```
+```go Go
+datapointID := uuid.MustParse("0197a47f-a830-1160-6df5-61ac723dae17")
+
+exists := True
+var datapoint v1.Sentinel2Msi
+err = client.Datapoints.GetInto(ctx,
+  []uuid.UUID{collection.ID}, datapointID, &datapoint,
+)
+if err != nil {
+  if connect.CodeOf(err) == connect.CodeNotFound {
+      exists = false
+  } else {
+    log.Fatalf("Failed to query datapoint: %v", err)
+  }
+}
+```
+</CodeGroup>

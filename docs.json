@@ -43,9 +43,19 @@
                   "datasets/types/spatiotemporal"
                 ]
               },
-              "datasets/query",
+              {
+                "group": "Query",
+                "icon": "server",
+                "pages": [
+                  "datasets/query/querying-data",
+                  "datasets/query/filter-by-time",
+                  "datasets/query/filter-by-location",
+                  "datasets/query/filter-by-id"
+                ]
+              },
               "datasets/ingest",
               "datasets/delete",
+              "datasets/geometries",
               "datasets/open-data"
             ]
           },
@@ -126,8 +136,7 @@
               "sdks/python/install",
               "sdks/python/sample-notebooks",
               "sdks/python/xarray",
-              "sdks/python/async",
-              "sdks/python/geometries"
+              "sdks/python/async"
             ]
           },
           {

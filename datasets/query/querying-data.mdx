@@ -1,0 +1,239 @@
+---
+title: Querying data
+sidebarTitle: Querying data
+description: Learn how to query and load data from Tilebox dataset collections.
+icon: magnifying-glass
+---
+
+Tilebox offers a powerful and flexible querying API to access and filter data from your datasets. When querying, you can
+[filter by time](/datasets/query/filter-by-time) and for [Spatio-temporal datasets](/datasets/types/spatiotemporal) optionally also [filter by a location in the form of a geometry](/datasets/query/filter-by-location).
+
+## Selecting a collection
+
+Querying is always done on a [collection](/datasets/concepts/collections) level, so to get started first select a collection to query.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+sentinel2_msi = client.dataset("open_data.copernicus.sentinel2_msi")
+collection = sentinel2_msi.collection("S2A_S2MSI2A")
+```
+```go Go
+package main
+
+import (
+	"context"
+	"log"
+
+	"github.com/tilebox/tilebox-go/datasets/v1"
+)
+
+func main() {
+	ctx := context.Background()
+	client := datasets.NewClient()
+
+	dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+	if err != nil {
+		log.Fatalf("Failed to get dataset: %v", err)
+	}
+
+	collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
+	if err != nil {
+		log.Fatalf("Failed to get collection: %v", err)
+	}
+}
+```
+</CodeGroup>
+
+<Note>
+  Querying multiple dataset collections at once is a feature already on our roadmap. If you need this functionality, please [get in touch](mailto:support@tilebox.com) so we can let you know as soon as it is available.
+</Note>
+
+## Running a query
+
+To query data points from a dataset collection, use the `query` method which is available for both [python](/api-reference/python/tilebox.datasets/Collection.query) and [go](/api-reference/go/datasets/Datapoints.Query).
+
+Below is a simple example of querying all Sentinel-2 `S2A_S2MSI2A` data for April 2025 over the state of Colorado.
+
+<CodeGroup>
+```python Python
+from shapely import Polygon
+from tilebox.datasets import Client
+
+area = Polygon(  # area roughly covering the state of Colorado
+    ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
+)
+
+collection = sentinel2_msi.collection("S2A_S2MSI2A")
+data = collection.query(
+    temporal_extent=("2025-04-01", "2025-05-01"),
+    spatial_extent=area,
+    show_progress=True,
+)
+```
+```go Go
+startDate := time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 5, 2, 0, 0, 0, 0, time.UTC) 
+timeInterval := query.NewTimeInterval(startDate, endDate)
+area := orb.Polygon{  // area roughly covering the state of Colorado
+    {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
+}
+
+collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
+if err != nil {
+    log.Fatalf("Failed to get collection: %v", err)
+}
+
+var datapoints []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    []uuid.UUID{collection.ID},
+    &datapoints,
+    datasets.WithTemporalExtent(timeInterval),
+    datasets.WithSpatialExtent(area),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
+
+To learn more about how to specify filters to narrow down the query results, check out the following sections about filtering by
+time, by geometry or by datapoint ID.
+
+<Columns cols={2}>
+  <Card
+    title="Filter by time"
+    icon="timeline"
+    href="/datasets/query/filter-by-time"
+    horizontal
+  >
+    Learn how to run queries for datapoints within a given temporal extent.
+  </Card>
+  <Card
+    title="Filter by geometry"
+    icon="globe-pointer"
+    href="/datasets/query/filter-by-location"
+    horizontal
+  >
+    Learn how to filter your query results by a certain geographical extent.
+  </Card>
+  <Card
+    title="Filter by Datapoint ID"
+    icon="fingerprint"
+    href="/datasets/query/filter-by-id"
+    horizontal
+  >
+    Find individual datapoints by their unique ID.
+  </Card>
+</Columns>
+
+## Automatic pagination
+
+Querying large datasets can result in a large number of data points. For those cases Tilebox
+automatically handles pagination for you by sending paginated requests to the server.
+
+<Tip>
+When using the python SDK in an interactive notebook environment, you can additionally also display a
+progress bar to keep track of the progress of the query by setting the `show_progress` parameter to `True`.
+</Tip>
+
+
+## Skipping data fields
+
+Sometimes, only the ID or timestamp associated with a datapoint is required. In those cases, you can speed up
+querying by skipping downloading of all dataset fields except of the `time`, the `id` and the `ingestion_time` by setting the `skip_data` parameter to `True`.
+
+For example, when checking how many datapoints exist in a given time interval, you can use `skip_data=True` to avoid loading the data fields.
+
+<CodeGroup>
+```python Python
+interval = ("2023-01-01", "2023-02-01")
+data = collection.query(temporal_extent=interval, skip_data=True)
+print(f"Found {data.sizes['time']} data points.")
+```
+```go Go
+startDate := time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)
+endDate := time.Date(2023, time.February, 1, 0, 0, 0, 0, time.UTC)
+interval := query.NewTimeInterval(startDate, endDate)
+
+var datapoints []*v1.Sentinel1Sar
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID},
+  &datapoints,
+  datasets.WithTemporalExtent(temporalExtent),
+  datasets.WithSkipData(),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+log.Printf("Queried %d datapoints", len(datapoints))
+log.Printf("First datapoint time: %s", datapoints[0].GetTime().AsTime())
+```
+</CodeGroup>
+
+Output
+
+<CodeGroup>
+```plaintext Python
+<xarray.Dataset> Size: 160B
+Dimensions:         (time: 1)
+Coordinates:
+    ingestion_time  (time) datetime64[ns] 8B 2024-08-01T08:53:08.450499
+    id              (time) <U36 144B '01910b3c-8552-7671-3345-b902cc0813f3'
+  * time            (time) datetime64[ns] 8B 2024-08-01T00:00:01.362000
+Data variables:
+    *empty*
+```
+```plaintext Go
+Queried 1 datapoints
+First datapoint time: 2024-08-01 00:00:01.362 +0000 UTC
+```
+</CodeGroup>
+
+## Empty response
+
+Query will not raise an error if no data points are found for the specified query, instead an empty result is returned.
+
+In python, this is an empty `xarray.Dataset` object. In Go, an empty slice of datapoints. To check for an empty response, you can coerce the result to a boolean
+or check the length of the slice.
+
+<CodeGroup>
+```python Python
+timestamp_with_no_data_points = "1997-02-06 10:21:00:000"
+data = collection.query(temporal_extent=timestamp_with_no_data_points)
+if not data:
+    print("No data points found")
+```
+```go Go
+timeWithNoDatapoints := query.NewPointInTime(time.Date(1997, time.February, 6, 10, 21, 0, 0, time.UTC))
+
+var datapoints []*v1.Sentinel1Sar
+err = client.Datapoints.QueryInto(ctx,
+  []uuid.UUID{collection.ID},
+  &datapoints,
+  datasets.WithTemporalExtent(timeWithNoDatapoints),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+if len(datapoints) == 0 {
+  log.Println("No data points found")
+}
+```
+</CodeGroup>
+
+Output 
+
+<CodeGroup>
+```plaintext Python
+No data points found
+```
+```plaintext Go
+No data points found
+```
+</CodeGroup>
+
