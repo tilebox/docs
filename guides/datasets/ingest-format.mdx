@@ -4,10 +4,18 @@ description: Learn how to ingest data from common file formats into Tilebox
 icon: file-binary
 ---
 
-Through the usage of `xarray` and `pandas` you can also easily ingest existing datasets available in file
-formats, such as CSV, [Parquet](https://parquet.apache.org/), [Feather](https://arrow.apache.org/docs/python/feather.html) and more.
+For ingesting data from common file formats, it's recommend to use the [Tilebox Python SDK](/sdks/python/install), since
+it provides out-of-the-box support for reading many common formats through third party libraries for loading data as either
+`pandas.DataFrame` or `xarray.Dataset`, which can then be directly ingested into Tilebox.
 
-## CSV
+
+## Reading and previewing the data
+
+To ingest data from a file, you first need to read it into a `pandas.DataFrame` or an `xarray.Dataset`.
+How that can be achieved depends on the file format. The following sections show examples for a couple of common
+file formats.
+
+### CSV
 
 Comma-separated values (CSV) is a common file format for tabular data. It's widely used in data science. Tilebox
 supports CSV ingestion using the `pandas.read_csv` function.
@@ -21,22 +29,15 @@ time,value,sensor,precise_time,sensor_history,some_unwanted_column
 2025-03-28T11:45:19Z,273.15,B,2025-03-28T11:45:19.128742312Z,"[300.16, 280.12, 273.15]","Unsupported"
 ```
 
-This data already conforms to the schema of the `MyCustomDataset` dataset, except for `some_unwanted_column` which
-you want to drop before you ingest it. Here is how this could look like:
-
 <CodeGroup>
 ```python Python
 import pandas as pd
 
 data = pd.read_csv("ingestion_data.csv")
-data = data.drop(columns=["some_unwanted_column"])
-
-collection = dataset.get_or_create_collection("CSVMeasurements")
-collection.ingest(data)
 ```
 </CodeGroup>
 
-## Parquet
+### Parquet
 
 [Apache Parquet](https://parquet.apache.org/) is an open source, column-oriented data file format designed for efficient data storage and retrieval.
 Tilebox supports Parquet ingestion using the `pandas.read_parquet` function.
@@ -48,19 +49,32 @@ The parquet file used in this example [is available here](https://storage.google
 import pandas as pd
 
 data = pd.read_parquet("ingestion_data.parquet")
-
-# our data already conforms to the schema of the MyCustomDataset
-# dataset, so lets ingest it
-collection = dataset.get_or_create_collection("ParquetMeasurements")
-collection.ingest(data)
 ```
 </CodeGroup>
 
-## Feather
+### GeoParquet
+
+[GeoParquet](https://geoparquet.org/) is an extension of the Parquet file format, adding geospatial
+features support to Parquet. Tilebox supports GeoParquet ingestion using the `geopandas.read_parquet` function.
+
+The GeoParquet file used in this example [is available here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/modis_MCD12Q1.geoparquet).
+
+<CodeGroup>
+```python Python
+import geopandas as gpd
+
+data = gpd.read_parquet("modis_MCD12Q1.geoparquet")
+```
+</CodeGroup>
+
+<Tip>
+    For a step-by-step guide of ingesting a GeoParquet file, check out our [Ingesting data](/guides/datasets/ingest) guide.
+</Tip>
+
+### Feather
 
 [Feather](https://arrow.apache.org/docs/python/feather.html) is a file format originating from the Apache Arrow project,
-designed for storing tabular data in a fast and memory-efficient way. It's supported by many programming languages,
-including Python. Tilebox supports Feather ingestion using the `pandas.read_feather` function.
+designed for storing tabular data in a fast and memory-efficient way. Tilebox supports Feather ingestion using the `pandas.read_feather` function.
 
 The feather file used in this example [is available here](https://storage.googleapis.com/tbx-web-assets-2bad228/docs/data-samples/ingestion_data.feather).
 
@@ -69,14 +83,56 @@ The feather file used in this example [is available here](https://storage.google
 import pandas as pd
 
 data = pd.read_feather("ingestion_data.feather")
+```
+</CodeGroup>
 
-# our data already conforms to the schema of the MyCustomDataset
-# dataset, so lets ingest it
-collection = dataset.get_or_create_collection("FeatherMeasurements")
+## Mapping columns to dataset fields
+
+Once data is read into a `pandas.DataFrame` or an `xarray.Dataset`, it can be ingested into Tilebox directly.
+The column names of the `pandas.DataFrame` or the variables and coordinates of the `xarray.Dataset` are mapped to the fields of the
+Tilebox dataset to ingest into.
+
+Depending on how closely the column names or variable/coordinate names match the field names in the Tilebox dataset,
+you might need to rename some columns/variables/coordinates before ingestion.
+
+### Renaming fields
+
+<CodeGroup>
+```python Pandas
+data = data.rename({"precise_time": "measurement_time"})
+```
+```python Xarray
+data = data.rename({"precise_time": "measurement_time"})
+```
+</CodeGroup>
+
+## Dropping fields
+
+In case you want to skip certain columns/variables/coordinates entirely, you can drop them before ingestion.
+
+<CodeGroup>
+```python Pandas
+data = data.drop(columns=["some_unwanted_column"])
+```
+```python Xarray
+data = data.drop_vars(["some_unwanted_variable"])
+```
+</CodeGroup>
+
+## Ingesting the data
+
+Once the data is in the correct format, you can ingest it into Tilebox.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+# my_custom_dataset has a schema that matches the data we want to ingest
+dataset = client.dataset("my_org.my_custom_dataset")
+
+collection = dataset.get_or_create_collection("Measurements")
 collection.ingest(data)
 ```
 </CodeGroup>
 
-## GeoParquet
-
-Please check out the [Ingesting data](/guides/datasets/ingest) guide for an example of ingesting a GeoParquet file.

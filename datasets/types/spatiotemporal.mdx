@@ -4,10 +4,6 @@ description: Spatio-temporal datasets link each data point to a specific point i
 icon: earth-europe
 ---
 
-<Note>
-  Spatio-temporal datasets are currently in development and not available yet. Stay tuned for updates
-</Note>
-
 Each spatio-temporal dataset comes with a set of required and auto-generated fields for each data point.
 
 ## Required fields
@@ -23,7 +19,7 @@ While the specific data fields between different time series datasets can vary, 
 </Tip>
 
 <ParamField path="geometry" type="Geometry">
-    A location on the earth's surface associated with each data point. Supported geometry types are `Polygon`, `MultiPolygon`, `Point` and `MultiPoint`.
+    A location on the earth's surface associated with each data point. Supported geometry types are `Point`, `Polygon` and `MultiPolygon`.
 </ParamField>
 
 ## Auto-generated fields
@@ -48,4 +44,9 @@ already outlined will be automatically added to the dataset schema.
 ## Spatio-temporal queries
 
 Spatio-temporal datasets support efficient time-based and spatially filtered queries. To query a specific location in a given time interval,
-specify a time range and a geometry when [querying data points](/datasets/query) from a collection.
+specify a time range and a geometry when [querying data points](/datasets/query/filter-by-location) from a collection.
+
+## Geometries
+
+Handling Geometries can traditionally be a bit tricky, especially when working with geometries that cross the antimeridian or cover a pole.
+Tilebox is designed to take away most of the friction involved in this, but it's still recommended to follow the [best practices for handling geometries](/datasets/geometries).

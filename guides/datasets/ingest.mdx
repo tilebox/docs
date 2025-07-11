@@ -41,16 +41,16 @@ required packages using your preferred package manager. For new projects, Tilebo
 
 <CodeGroup>
 ```bash uv
-uv add tilebox-datasets geopandas folium matplotlib mapclassify
+uv add tilebox-datasets geopandas lonboard
 ```
 ```bash pip
-pip install tilebox-datasets geopandas folium matplotlib mapclassify
+pip install tilebox-datasets geopandas lonboard
 ```
 ```bash poetry
-poetry add tilebox-datasets="*" geopandas="*" folium="*" matplotlib="*" mapclassify="*"
+poetry add tilebox-datasets="*" geopandas="*" lonboard="*"
 ```
 ```bash pipenv
-pipenv install tilebox-datasets geopandas folium matplotlib mapclassify
+pipenv install tilebox-datasets geopandas lonboard
 ```
 </CodeGroup>
 
@@ -84,7 +84,9 @@ Geopandas comes with a built in explorer to visually explore the dataset.
 
 <CodeGroup>
 ```python Python
-modis_data.head(1000).explore(width=800, height=600)
+from lonboard import viz
+
+viz(modis_data, map_kwargs={"show_tooltip": True})
 ```
 </CodeGroup>
 
@@ -95,9 +97,9 @@ modis_data.head(1000).explore(width=800, height=600)
 
 ## Create a Tilebox dataset
 
-Now you'll create a [Timeseries](/datasets/types/timeseries) dataset with the same schema as the given MODIS dataset.
+Now you'll create a [Spatio-temporal](/datasets/types/spatio-temporal) dataset with the same schema as the given MODIS dataset.
 To do so, you'll use the [Tilebox Console](/console), navigate to `My Datasets` and click `Create Dataset`. Then select
-`Timeseries Dataset` as the dataset type.
+`Spatio-temporal Dataset` as the dataset type.
 
 <Tip>
     For more information on creating a dataset, check out the [Creating a dataset](/guides/datasets/create) guide for a
@@ -109,7 +111,6 @@ Now, to match the given MODIS dataset, you'll specify the following fields:
 | Field | Type | Note |
 | --- | --- | --- |
 | `granule_name` | string | MODIS granule name |
-| `geometry` | Geometry | Tile boundary coordinates of the granule |
 | `end_time` | Timestamp | Measurement end time |
 | `horizontal_tile_number` | int64 | Horizontal modis tile number (0-35) |
 | `vertical_tile_number` | int64 | Vertical modis tile number (0-17) |
@@ -135,8 +136,8 @@ which was assigned automatically based on the specified `code_name`. To find out
 in the console.
 
 <Frame>
-  <img src="/assets/guides/ingest/dataset-slug-light.png" alt="Explore the MODIS dataset" className="dark:hidden" />
-  <img src="/assets/guides/ingest/dataset-slug-dark.png" alt="Explore the MODIS dataset" className="hidden dark:block" />
+  <img src="/assets/guides/ingest/dataset-slug-light.png" alt="Dataset slug display in the console" className="dark:hidden" />
+  <img src="/assets/guides/ingest/dataset-slug-dark.png" alt="Dataset slug display in the console" className="hidden dark:block" />
 </Frame>
 
 You can now instantiate the dataset client and access the dataset.
@@ -187,36 +188,45 @@ You can now query the newly ingested data. You can query a subset of the data fo
 
 <CodeGroup>
 ```python Python
-data = collection.query(temporal_extent=("2015-01-01", "2020-01-01"))
+from shapely import Polygon
+
+area = Polygon(  # area roughly covering the US
+    ((-124.45, 49.19), (-120.88, 29.31), (-66.87, 24.77), (-65.34, 47.84), (-124.45, 49.19)),
+)
+
+data = collection.query(
+    temporal_extent=("2015-01-01", "2020-01-01"),
+    spatial_extent=area
+)
 data
 ```
 </CodeGroup>
 
 <CodeGroup>
 ```plaintext Output
-<xarray.Dataset> Size: 403kB
-Dimensions:                 (time: 1575)
+<xarray.Dataset> Size: 28kB
+Dimensions:                 (time: 110)
 Coordinates:
-  * time                    (time) datetime64[ns] 13kB 2015-01-01 ... 2019-01-01
+  * time                    (time) datetime64[ns] 880B 2015-01-01 ... 2019-01-01
 Data variables: (12/14)
-    id                      (time) <U36 227kB '014aa2ca-b000-0155-ab96-2239bf...
-    ingestion_time          (time) datetime64[ns] 13kB 2025-03-25T13:46:19.39...
-    granule_name            (time) object 13kB 'MCD12Q1.A2015001.h12v02.061.2...
-    geometry                (time) object 13kB POLYGON ((-175.4282639365679 6...
-    end_time                (time) datetime64[ns] 13kB 2015-12-31T23:59:59 .....
-    horizontal_tile_number  (time) int64 13kB 12 17 13 30 21 ... 32 21 13 31 30
+    id                      (time) <U36 16kB '014aa2ca-b000-100a-dd34-fae14c5...
+    ingestion_time          (time) datetime64[ns] 880B 2025-07-09T09:21:34.70...
+    geometry                (time) object 880B POLYGON ((-160 60, -124.457906...
+    granule_name            (time) object 880B 'MCD12Q1.A2015001.h10v03.061.2...
+    end_time                (time) datetime64[ns] 880B 2015-12-31T23:59:59 .....
+    horizontal_tile_number  (time) int64 880B 10 13 12 11 11 10 ... 8 8 10 7 15
     ...                      ...
-    file_size               (time) uint64 13kB 16411708 146059 ... 2843975
-    checksum                (time) object 13kB '2554844679' ... '3579360945'
-    checksum_type           (time) object 13kB 'CKSUM' 'CKSUM' ... 'CKSUM'
-    day_night_flag          (time) object 13kB 'Day' 'Day' 'Day' ... 'Day' 'Day'
-    browse_granule_id       (time) object 13kB 'UR:10:DsShESDTUR:UR:15:DsShSc...
-    published_at            (time) datetime64[ns] 13kB 2022-06-14T18:33:34.36...
+    file_size               (time) uint64 880B 11719196 10878403 ... 263319
+    checksum                (time) object 880B '2878522088' ... '190901039'
+    checksum_type           (time) object 880B 'CKSUM' 'CKSUM' ... 'CKSUM'
+    day_night_flag          (time) object 880B 'Day' 'Day' 'Day' ... 'Day' 'Day'
+    browse_granule_id       (time) object 880B 'UR:10:DsShESDTUR:UR:15:DsShSc...
+    published_at            (time) datetime64[ns] 880B 2022-06-15T01:26:58.61...
 ```
 </CodeGroup>
 
 <Tip>
-    For more information on accessing and querying data, check out [querying data](/datasets/query).
+    For more information on accessing and querying data, check out [querying data](/datasets/query/querying-data).
 </Tip>
 
 ## View the data in the console
