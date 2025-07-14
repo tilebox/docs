@@ -209,8 +209,7 @@ The `spherical` coordinate reference system is the default and recommended one t
 and is the most robust option, no matter how the datapoint geometries are cut along the antimeridian.
 
 <Tip>
-    Irregardless of the coordinate reference system is used, it is always recommended to follow the best practices
-    for handling antimeridian crossings as described in the [Antimeridian Crossings section](#antimeridian-crossings) below.
+    To learn more about antimeridian crossings and how to handle them correctly, check out the [Antimeridian Crossings section](#antimeridian-crossings) above.
 </Tip>
 
 When querying with the `spherical` coordinate reference system, Tilebox automatically converts all geometries to
@@ -294,8 +293,7 @@ if err != nil {
 
 <Note>
     When using the `cartesian` coordinate system, antimeridian crossings may cause issues if datapoint geometries
-    or the query geometry do not properly respect the antimeridian cut. Check out the 
-    [Antimeridian Crossings](#antimeridian-crossings) section below for best practices to ensure correct results irregardless
-    of the coordinate reference system used.
+    or the query geometry do not properly respect the antimeridian cut. Check out the [best practices](/datasets/geometries#best-practices)
+    for handling geometries to learn more about how to avoid such issues.
 </Note>
 
