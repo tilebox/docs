@@ -1,7 +1,7 @@
 ---
 title: Filtering by a location
 sidebarTitle: Filter by location
-description: Learn how to filter your query results by an area of interest specified as certain geographical extent.
+description: Learn how to filter your query results using a specified geographical area of interest.
 icon: globe-pointer
 ---
 
@@ -9,14 +9,13 @@ icon: globe-pointer
     Check out the [best practices for handling geometries](/datasets/geometries) to learn more about the different aspects to consider when working with geometries, including antimeridian crossings and pole coverings.
 </Tip>
 
-When querying, you can specify arbitrary geometries as an area of interest to filter by. Tilebox currently supports
-`Polygon` and `MultiPolygon` geometries as query filters.
+When querying, you can specify arbitrary geometries as an area of interest. Tilebox currently supports `Polygon` and `MultiPolygon` geometries as query filters.
 
-## Filtering by an area of interest
+## Filtering by Area of Interest
 
-To filter by an area of interest, use either a `Polygon` or `MultiPolygon` geometry as the spatial extent parameter.
+To filter by an area of interest, use a `Polygon` or `MultiPolygon` geometry as the spatial extent parameter.
 
-Here is how to query Sentinel-2 `S2A_S2MSI2A` data over Colorado for a certain day in April 2025.
+Here is how to query Sentinel-2 `S2A_S2MSI2A` data over Colorado for a specific day in April 2025.
 
 <CodeGroup>
 ```python Python
@@ -70,9 +69,7 @@ if err != nil {
 
 ## Intersection mode
 
-By default, the query will return all datapoints that intersect with the specified geometry.
-For certain use cases you might want to change this behavior and only return datapoints that are fully contained within the specified geometry.
-Tilebox supports this behavior by specifying a mode for the spatial filter.
+By default, queries return all datapoints that intersect with the specified geometry. You can alter this behavior to return only datapoints fully contained within the geometry. Tilebox supports this by allowing you to specify a mode for the spatial filter.
 
 <Columns cols={2}>
     <Frame caption="mode: intersects">
@@ -87,7 +84,7 @@ Tilebox supports this behavior by specifying a mode for the spatial filter.
 
 ### Intersects
 
-The `intersects` mode is the default behavior of spatial queries. It matches all datapoints with geometries that intersect with the query geometry.
+The `intersects` mode is the default for spatial queries. It matches all datapoints whose geometries intersect with the query geometry.
 
 <CodeGroup>
 ```python Python
@@ -131,6 +128,8 @@ There are 27 Sentinel-2A granules intersecting the area of Colorado on April 2nd
 ```
 
 ### Contains
+
+The `contains` mode matches all datapoints whose geometries are fully contained within the query geometry.
 
 <CodeGroup>
 ```python Python
@@ -189,7 +188,7 @@ for querying (which is the default), as it correctly handles the non-linearity i
 
 ## Coordinate reference system
 
-Geometry intersection and containment checks can either be performed in a [3D Spherical coordinate system](https://en.wikipedia.org/wiki/Spherical_coordinate_system)
+Geometry intersection and containment checks can either be performed in a [3D spherical coordinate system](https://en.wikipedia.org/wiki/Spherical_coordinate_system)
 or in a standard 2D cartesian `lat/lon` coordinate system.
 
 <Columns cols={2}>
@@ -205,8 +204,8 @@ or in a standard 2D cartesian `lat/lon` coordinate system.
 
 ### Spherical
 
-The `spherical` coordinate reference system is the default and recommended one to use. It correctly handles antimeridian crossings
-and is the most robust option, no matter how the datapoint geometries are cut along the antimeridian.
+The `spherical` coordinate reference system is the default and recommended choice. It correctly handles antimeridian
+crossings and is the most robust option, regardless of how datapoint geometries are cut along the antimeridian.
 
 <Tip>
     To learn more about antimeridian crossings and how to handle them correctly, check out the [Antimeridian Crossings section](#antimeridian-crossings) above.
@@ -253,9 +252,8 @@ if err != nil {
 
 ### Cartesian
 
-Tilebox can also be configured to use a standard 2D cartesian `lat/lon` coordinate system for geometry intersection and containment checks
-as well.
-This can be done by specifying the `cartesian` coordinate reference system when querying.
+Tilebox can also be configured to use a standard 2D cartesian `lat/lon` coordinate system for geometry intersection and containment checks.
+This is done by specifying the `cartesian` coordinate reference system when querying.
 
 <CodeGroup>
 ```python Python
@@ -296,4 +294,3 @@ if err != nil {
     or the query geometry do not properly respect the antimeridian cut. Check out the [best practices](/datasets/geometries#best-practices)
     for handling geometries to learn more about how to avoid such issues.
 </Note>
-
