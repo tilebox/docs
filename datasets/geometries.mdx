@@ -5,35 +5,32 @@ description: Best practices for working with geometries in Tilebox.
 icon: draw-polygon
 ---
 
-Geometries are a common cause of friction in geospatial data processing. This is especially true when working with geometries that cross the antimeridian or cover a pole.
-Tilebox is designed to take away most of the friction involved in this, but it's still recommended to follow the best practices for handling geometries outlined below.
-
-In doing so, you can ensure that no geometry related issues will arise even when interfacing with other libraries and tools that may not properly
-support non-linearities in geometries.
+Geometries are a common cause of friction in geospatial data processing, especially when working with shapes that cross the antimeridian or cover a pole.
+Tilebox minimizes this friction, but adhering to the following best practices ensures optimal results. In doing so, you can ensure that no geometry related issues will
+arise even when interfacing with other libraries and tools that may not properly support non-linearities in geometries.
 
 ## Best Practices
 
 To ensure expected behavior when working with geometries, it's recommended to follow these best practices:
 
 1. Use [language specific geometry libraries](#geometry-libraries-and-common-formats) for creating, parsing and serializing geometries.
-2. Polygon exteriors should always be defined in counter-clockwise [winding order](#winding-order).
-3. Polygon holes (interior rings) should always be defined in clockwise [winding order](#winding-order).
-4. Longitude values should always be within the `[-180, 180]` range, and latitude values should always be within the `[-90, 90]` range.
-5. Geometries that cross the antimeridian should be [cut along the antimeridian](#antimeridian-cutting) into two parts—one for the eastern hemisphere and one for the western hemisphere.
-7. Geometries that cover a pole need to be [defined in a specific way](#pole-coverings) to ensure correct handling.
-8. When downloading geometries from external sources, such as from STAC Catalogues always make sure to verify that those assumptions are met to avoid unexpected behavior down the road.
+2. Define polygon exterior rings with a counter-clockwise [winding order](#winding-order).
+3. Define polygon holes (interior rings) with a clockwise [winding order](#winding-order).
+4. Ensure longitude values are within `[-180, 180]` and latitude values are within `[-90, 90]`.
+5. For geometries crossing the antimeridian, [cut them along the antimeridian](#antimeridian-cutting) into two parts: one for the eastern hemisphere and one for the western.
+6. Define geometries covering a pole in [a specific way](#pole-coverings) for correct handling.
+7. When downloading geometries from external sources (for example from STAC Catalogs), always verify these assumptions to prevent unexpected behavior before ingesting them into Tilebox.
 
 ## Geometry vs Geography
 
-Some systems expose two similar, but different data types related to geometries: `Geometry` and `Geography`. The main difference lies in how edge interpolation along the antimeridian is handled.
-`Geometry` represents a geometry in an arbitrary 2D cartesian coordinate system, and does not perform any edge interpolation, while `Geography` typically does wrap around the antimeridian by performing edge interpolation, such as converting cartesian coordinates to a 3D spherical coordinate system.
-For `Geography` types, the `x` coordinate is typically limited to the `[-180, 180]` range, and the `y` coordinate is limited to the `[-90, 90]` range, while for `Geometry` types no such limitations are imposed.
+Some systems distinguish between `Geometry` and `Geography` data types. The primary distinction lies in how edge interpolation is handled along the antimeridian. `Geometry` represents a shape in an arbitrary 2D Cartesian coordinate system and does not perform edge interpolation.
+In contrast, `Geography` typically wraps around the antimeridian by performing edge interpolation, such as converting Cartesian coordinates to a 3D spherical coordinate system. Typically, Geography types limit `x` coordinates to `[-180, 180]` and `y` coordinates to `[-90, 90]`, whereas `Geometry` types have no such limitations.
 
-Tilebox does not make such a distinction between `Geometry` and `Geography` types. Instead, it provides a [query option to specify a coordinate reference system](/datasets/query/filter-by-location#coordinate-reference-system) to control whether geometry intersections and containment checks are performed in a 3D spherical coordinate system (which correctly handles antimeridian crossings) or in a standard 2D cartesian `lat/lon` coordinate system.
+Tilebox does not differentiate between `Geometry` and `Geography` types. Instead, it offers a [query option to specify a coordinate reference system](/datasets/query/filter-by-location#coordinate-reference-system). This controls whether geometry intersections and containment checks are performed in a 3D spherical coordinate system (which correctly handles antimeridian crossings) or a standard 2D Cartesian lat/lon coordinate system.
 
 ## Terminology
 
-Get familiar with some key concepts related to geometries.
+Familiarize yourself with key geometry concepts.
 
 <Tip>
     A great resource to learn more about these concepts is this [blog post by Tom MacWright](https://macwright.com/2015/03/23/geojson-second-bite).
@@ -50,7 +47,7 @@ Every ring should be explicitly closed, meaning that the first and last point sh
 
 **Polygon**
 
-A `Polygon` is a collection of rings. The first ring is called the `exterior ring`, and represents the boundary of the polygon. Any other rings are called `interior rings`, and represent holes in the polygon.
+A `Polygon` is a collection of rings. The first ring, the `exterior ring` defines the polygon's boundary. Any other rings are called `interior rings`, representing holes within the polygon.
 
 **MultiPolygon**
 
@@ -58,7 +55,7 @@ A `MultiPolygon` is a collection of polygons.
 
 ## Geometry libraries and common formats
 
-Geometries can be expressed in many different ways, and many formats exist for representing geometries. To handle these, the [Tilebox Client SDKs](/sdks/introduction) delegate geometry handling to external, well-known geometry libraries.
+Geometries can be expressed in different formats. The [Tilebox Client SDKs](/sdks/introduction) delegate geometry handling to external, well-known libraries.
 
 | Client SDK | Geometry library used by Tilebox |
 | ---------- | -------------------------------- |
@@ -84,7 +81,7 @@ area := orb.Polygon{
 ```
 </CodeGroup>
 
-Through these libraries, Tilebox also supports some of the most common formats for representing geometries.
+These libraries also enable Tilebox to support common geometry formats.
 
 ### GeoJSON
 
@@ -112,7 +109,7 @@ Reading such a GeoJSON geometry can be achieved as follows.
 from shapely import from_geojson
 
 with open("colorado.geojson", "r") as f:
-    area = from_geojson(json.load(f))
+    area = from_geojson(f.read())
 ```
 ```go Go
 import (
@@ -189,13 +186,13 @@ func readWKB() (orb.Geometry, error) {
 
 <Tip>
     There is also an extended well known binary format (ewkb) that supports additional information such as specifying a spatial reference system (like EPSG:4326) in the encoded geometry.
-    Pythons `shapely` library supports that out of the box, and the `orb` library for Go supports it as well via the `github.com/paulmach/orb/encoding/ewkb` package.
+    Pythons `shapely` library supports this out of the box, and the `orb` library for Go supports it as well via the `github.com/paulmach/orb/encoding/ewkb` package.
 </Tip>
 
 
 ## Winding Order
 
-The winding order of a ring defines the orientation of the ring, and is either clockwise or counter-clockwise. The winding order of a ring is determined by the order of the points within the ring.
+A ring's winding order defines its orientation (clockwise or counter-clockwise), determined by the sequence of its points.
 
 Geometries in Tilebox follow the right hand rule defined by the [GeoJSON specification](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6):
 
@@ -203,9 +200,7 @@ Geometries in Tilebox follow the right hand rule defined by the [GeoJSON specifi
 > A linear ring MUST follow the right-hand rule with respect to the area it bounds, i.e., exterior rings are counterclockwise, and holes are clockwise.
 {/* vale on */}
 
-This means that the exterior ring of a polygon has a counter-clockwise winding order, while interior rings have a clockwise winding order.
-
-When this rule is not followed, querying may yield unexpected results, as can be seen in the example below.
+Thus, polygon exterior rings must have a counter-clockwise winding order, and interior rings must have a clockwise winding order. Failing to follow this rule can lead to unexpected query results, as shown below.
 
 Take the following `Polygon` consisting of the same exterior ring but in different winding orders.
 
@@ -234,17 +229,17 @@ This is how those two geometries would be interpreted on a sphere.
 </Columns>
 
 <Tip>
-Tilebox detects incorrect winding orders and automatically fixes them when ingesting data.
+Tilebox automatically detects and corrects incorrect winding orders during data ingestion.
 </Tip>
 
-Since such unexpected behavior can cause issues and be hard to debug, Tilebox does detect incorrect winding orders and automatically fixes them when ingesting data.
-This means that Geometries that really cover almost the whole globe except a small area **cannot** be ingested into Tilebox by simply specifying them as a `Polygon` with an exterior ring in clockwise winding order.
+Since such unexpected behavior can cause issues and be hard to debug, Tilebox detects incorrect winding orders and automatically fixes them during ingestion.
+This means that geometries covering nearly the entire globe except for a small holes **cannot** be ingested into Tilebox by simply specifying them as a `Polygon` with an exterior ring in clockwise winding order.
 
 Instead, such geometries should be defined as a `Polygon` consisting of two rings:
 - an exterior ring covering the whole globe in counter-clockwise winding order
 - an interior ring specifying the hole in clockwise winding order
 
-Such a definition, which Tilebox will interpret as intended, and also is valid according to the [GeoJSON specification](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6), is shown below.
+Such a definition, as shown below, ensures correct interpretation by Tilebox, and is also valid according to the [GeoJSON specification](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6).
 
 ```plaintext Polygon covering the whole globe with a hole over Europe
 POLYGON (
@@ -285,7 +280,7 @@ func isCounterClockwise() bool {
 
 ## Antimeridian Crossings
 
-Geometries that cross the antimeridian are a common occurrence in satellite data, but can cause issues when not handled correctly.
+Geometries that cross the antimeridian are a common in satellite data, but can cause issues when not handled correctly.
 
 Take the following `Polygon` that crosses the antimeridian.
 
@@ -300,15 +295,15 @@ Below are a couple of different ways to express such a geometry.
 POLYGON ((173 5, -175 3, -172 20, 177 23, 173 5))
 ```
 
-While this is a valid representation, it causes issues for a lot of libraries that do calculations or visualization in a cartesian coordinate system, since the line from `lon=173` to `lon=-175` will be interpreted as a line that is `348` degrees long, crossing the null meridian and almost all the way around the globe.
-Often times, visualizations of such geometries will look like in the image below.
+While valid, this representation can cause issues for many libraries performing calculations or visualizations in a Cartesian coordinate system. The line segment from `lon=173` to `lon=-175` is interpreted as a `348-degree` line crossing the null meridian, spanning nearly the entire globe.
+Visualizations of such geometries often appear as shown below.
 
 <Frame caption="Incorrect handling of a geometry crossing the antimeridian">
     <img src="/assets/datasets/geometries/buggy-antimeridian-light.png" alt="Polygon crossing the antimeridian" className="dark:hidden" />
     <img src="/assets/datasets/geometries/buggy-antimeridian-dark.png" alt="Polygon crossing the antimeridian" className="hidden dark:block" />
 </Frame>
 
-To avoid such issues, some tools working in cartesian coordinate space sometimes extend the possible longitude range beyond to usual bounds of `[-180, 180]`.
+To mitigate these issues, some Cartesian coordinate tools extend the longitude range beyond the usual `[-180, 180]` bounds.
 Expressing the geometry in such a way, may look like this.
 
 ```plaintext Extending the longitude range beyond 180
@@ -321,10 +316,8 @@ Or, the exact same area on the globe can also be expressed as a geometry by exte
 POLYGON ((-187 5, -175 3, -172 20, -183 23, -187 5))
 ```
 
-While most visualization tools will probably handle such geometries correctly, special care needs to be taken when
-working with such geometries when it comes to intersection and containment checks.
-
-The below code snippet illustrates this, by constructing a `Polygon` that covers the exact same area in the two different methods shown, and checking whether they intersect each other (which they should, since they represent the same area on the globe).
+While most visualization tools may handle such geometries correctly, special care is required for intersection and containment checks.
+The following code snippet demonstrates this by constructing a Polygon that covers the same area using both methods and checking for intersection (which should logically occur, as they represent the same geographic area).
 
 ```python Incorrect intersection check
 from shapely import from_wkt
@@ -363,18 +356,18 @@ By cutting geometries along the antimeridian:
 
 ## Pole Coverings
 
-Geometries that cover a pole can be especially tricky to handle correctly. No one algorithm that can handle all possible cases correctly, and different libraries and tools may handle them differently.
-A lot of times, injecting prior knowledge, such as the fact that a geometry is supposed to cover a pole, can help to resolve such issues. For an example of this, check out the relevant section in
-the [antimeridian documentation](https://www.gadom.ski/antimeridian/latest/failure-modes/#force-the-geometry-over-the-north-pole).
+Geometries covering a pole can be particularly challenging to handle correctly. No single algorithm addresses all cases, and different libraries and tools may interpret them differently.
+Often, providing prior knowledge, such as confirming that a geometry is intended to cover a pole, can resolve these issues.
+For an example of this, check out the relevant section in the [antimeridian documentation](https://www.gadom.ski/antimeridian/latest/failure-modes/#force-the-geometry-over-the-north-pole).
 
 Generally speaking though, there are two approaches that work well:
 
 ### Approach 1: Cutting out a hole
 
-Define a geometry with an exterior ring that covers the whole globe. Then cut out a hole by defining an interior ring of the area that is not covered by the geometry.
+Define a geometry with an exterior ring that covers the whole globe. Then, cut out a hole by defining an interior ring of the area that not covered by the geometry.
 
 <Tip>
-    This approach works especially well for geometries that cover both poles, since then the interior ring is guaranteed to not cover any of the poles.
+    This approach works especially well for geometries that cover both poles, since then the interior ring is guaranteed to not cover any poles.
 </Tip>
 
 <Columns cols={2}>
@@ -397,8 +390,8 @@ POLYGON (
 
 ### Approach 2: Splitting into multiple parts
 
-Another approach, that works well for circular caps covering a pole, involves cutting the geometry into multiple parts, but instead of splitting the geometry only at the antimeridian, also splitting it at the null meridian, the `90` and `-90` meridians.
-For a circular cap covering the north pole, this results in four triangular parts, which can be combined into a `MultiPolygon`. Visualization libraries as well as intersection and containment checks done in cartesian coordinate space will then typically handle such a geometry correctly.
+Another approach, effective for circular caps covering a pole, involves cutting the geometry into multiple parts. Instead of splitting the geometry only at the antimeridian, also split it at the null meridian, and the `90` and `-90` meridians.
+For a circular cap covering the north pole, this results in four triangular parts, which can be combined into a `MultiPolygon`. Visualization libraries and intersection/containment checks performed in cartesian coordinate space will typically handle such a geometry correctly.
 
 <Frame caption="A geometry covering the north pole">
     <img src="/assets/datasets/geometries/pole-covering-light.png" alt="Polygon covering a pole" className="dark:hidden" />
