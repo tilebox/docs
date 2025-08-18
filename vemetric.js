@@ -4,7 +4,8 @@ window.vmtrc = window.vmtrc || function () {
 };
 
 const script = document.createElement('script');
-script.src = 'https://cdn.vemetric.com/main.js';
+script.src = 'https://hub.tilebox.com/main.js';
 script.defer = true;
 script.setAttribute('data-token', 'rQI52fw6s6frnSOR');
+script.setAttribute('data-host', 'https://hub.tilebox.com');
 document.head.appendChild(script);
