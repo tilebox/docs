@@ -39,7 +39,7 @@ equivalent
 monitor
 SAR's
 ASF's
-quicklook
+(?i)quicklook
 subtasks
 subtask
 parallelizable
