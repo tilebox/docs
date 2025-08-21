@@ -23,7 +23,7 @@ To download data products from the Copernicus Data Space after querying them via
 
 The following code snippet demonstrates how to query and download Copernicus data using the Tilebox Python SDK.
 
-```python Python {4,9-13,27}
+```python Python highlight={4,8-12,25}
 from pathlib import Path
 
 from tilebox.datasets import Client
@@ -31,7 +31,6 @@ from tilebox.storage import CopernicusStorageClient
 
 # Creating clients
 client = Client()
-datasets = client.datasets()
 storage_client = CopernicusStorageClient(
     access_key="YOUR_ACCESS_KEY",
     secret_access_key="YOUR_SECRET_ACCESS_KEY",
@@ -39,9 +38,8 @@ storage_client = CopernicusStorageClient(
 )
 
 # Choosing the dataset and collection
-s2_dataset = datasets.open_data.copernicus.sentinel2_msi
-collections = s2_dataset.collections()
-collection = collections["S2A_S2MSI2A"]
+s2_dataset = client.dataset("open_data.copernicus.sentinel2_msi")
+collection = s2_dataset.collection("S2A_S2MSI2A")
 
 # Loading metadata
 s2_data = collection.query(temporal_extent=("2024-08-01", "2024-08-02"), show_progress=True)
@@ -77,8 +75,9 @@ For cases where only a subset of the available file objects for a product is nee
 
 For example, a Sentinel-2 L2A product includes many files such as metadata, different bands in multiple resolutions, masks, and quicklook images. The following example shows how to download only specific files from a Sentinel-2 L2A product.
 
-```python Python {4, 15}
-collection = datasets.open_data.copernicus.sentinel2_msi.collections()["S2A_S2MSI2A"]
+```python Python highlight={6, 17}
+s2_dataset = client.dataset("open_data.copernicus.sentinel2_msi")
+collection = s2_dataset.collection("S2A_S2MSI2A")
 s2_data = collection.query(temporal_extent=("2024-08-01", "2024-08-02"), show_progress=True)
 selected = s2_data.isel(time=0)  # download the first granule in the given time range
 
@@ -104,6 +103,148 @@ Downloading 3 objects.
  - GRANULE/L2A_T58WET_A047575_20240801T002608/IMG_DATA/R10m/T58WET_20240801T002611_B08_10m.jp2
 ```
 
+### Quicklook images
+
+Many Copernicus products include a quicklook image. The Tilebox storage client includes support for displaying these quicklook images directly when running in an interactive environment such as a Jupyter notebook.
+
+```python Python highlight={6}
+s2_dataset = client.dataset("open_data.copernicus.sentinel2_msi")
+collection = s2_dataset.collection("S2A_S2MSI2A")
+s2_data = collection.query(temporal_extent=("2024-08-01", "2024-08-02"), show_progress=True)
+selected = s2_data.isel(time=0)  # download the first granule in the given time range
+
+storage_client.quicklook(selected)
+```
+
+<Frame caption="S2A_MSIL2A_20240801T002611_N0511_R102_T58WFV_20240819T170544.SAFE © ESA 2024">
+  <img src="/assets/storage/s2_quicklook.jpg" alt="Quicklook image" />
+</Frame>
+
+## USGS Landsat
+
+The [United States Geological Survey (USGS)](https://www.usgs.gov/) provides a wide range of Earth observation data, including Landsat data, which are also available as open data through Tilebox.
+
+### Accessing Landsat data
+
+Landsat data is available in a S3 bucket. The following code snippet demonstrates how to query and download Landsat data using the Tilebox Python SDK.
+
+```python Python
+from pathlib import Path
+
+from tilebox.datasets import Client
+from tilebox.storage import USGSLandsatStorageClient
+
+# Creating clients
+client = Client()
+storage_client = USGSLandsatStorageClient()
+
+# Choosing the dataset and collection
+l9_dataset = client.dataset("open_data.usgs.landsat9_oli_tirs")
+collection = l9_dataset.collection("L2_SR")
+
+# Loading metadata
+l9_data = collection.query(temporal_extent=("2024-08-01", "2024-08-02"), show_progress=True)
+
+# Selecting a data point to download
+selected = l9_data.isel(time=0)  # index 0 selected
+
+# Downloading the data
+downloaded_data = storage_client.download(selected)
+
+print(f"Downloaded granule: {downloaded_data.name} to {downloaded_data}")
+print("Contents: ")
+for content in downloaded_data.iterdir():
+    print(f" - {content.relative_to(downloaded_data)}")
+```
+
+```plaintext Output
+Downloaded granule: LC09_L2SP_088241_20240801_20240802_02_T1 to /Users/lukasbindreiter/.cache/tilebox/collection02/level-2/standard/oli-tirs/2024/088/241/LC09_L2SP_088241_20240801_20240802_02_T1
+Contents: 
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_EMSD.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_QA_AEROSOL.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B7.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_QA.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B6.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B4.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B5.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B1.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B2.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B3.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_URAD.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ANG.txt
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_CDIST.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_thumb_large.jpeg
+ - LC09_L2SP_088241_20240801_20240802_02_T1_thumb_small.jpeg
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_B10.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_MTL.txt
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_TRAD.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_MTL.json
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_DRAD.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_ATRAN.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_QA_RADSAT.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_stac.json
+ - LC09_L2SP_088241_20240801_20240802_02_T1_MTL.xml
+ - LC09_L2SP_088241_20240801_20240802_02_T1_QA_PIXEL.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_EMIS.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_ST_stac.json
+
+```
+
+### Partial product downloads
+
+For cases where only a subset of the available file objects for a product is needed, you may restrict your download to just that subset. First, list available objects using `list_objects`, filter them, and then download using `download_objects`.
+
+For example, a Landsat 9 L2 SR product includes many files such as metadata, different bands in multiple resolutions, masks, and quicklook images. The following example shows how to download only specific files from a Landsat 9 L2 SR product.
+
+```python highlight={17}
+l9_dataset = client.dataset("open_data.usgs.landsat9_oli_tirs")
+collection = l9_dataset.collection("L2_SR")
+l9_data = collection.query(temporal_extent=("2024-08-01", "2024-08-02"), show_progress=True)
+selected = l9_data.isel(time=0)
+
+objects = storage_client.list_objects(selected)
+print(f"Granule {selected.granule_name.item()} consists of {len(objects)} individual objects.")
+
+rgb_bands = ["B4", "B3", "B2"]
+
+objects = [obj for obj in objects if any(obj.endswith(band + ".TIF") for band in rgb_bands)]
+print(f"Downloading {len(objects)} objects.")
+for obj in objects:
+    print(f" - {obj}")
+
+# Finally, download the selected data
+downloaded_data = storage_client.download_objects(selected, objects)
+```
+
+```plaintext Output
+Granule LC09_L2SP_088241_20240801_20240802_02_T1_SR consists of 27 individual objects.
+Downloading 3 objects.
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B2.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B3.TIF
+ - LC09_L2SP_088241_20240801_20240802_02_T1_SR_B4.TIF
+```
+
+### Quicklook images
+
+Many USGS products include a quicklook image. The Tilebox storage client includes support for displaying these quicklook images directly when running in an interactive environment such as a Jupyter notebook.
+
+```python Python highlight={10}
+# Loading metadata
+l9_dataset = client.dataset("open_data.usgs.landsat9_oli_tirs")
+collection = l9_dataset.collection("L2_SR")
+l9_data = collection.query(temporal_extent=("2024-08-01", "2024-08-02"), show_progress=True)
+
+# Selecting a data point to download
+selected = l9_data.isel(time=0)  # index 0 selected
+
+# Displaying a quicklook image
+storage_client.quicklook(selected)
+```
+
+<Frame caption="Image LC09_L2SP_088241_20240801_20240802_02_T1_thumb_small.jpeg © USGS">
+  <img src="/assets/storage/usgs_quicklook.jpg" alt="USGS Quicklook image" />
+</Frame>
+
 ## Alaska Satellite Facility (ASF)
 
 The [Alaska Satellite Facility (ASF)](https://asf.alaska.edu/) is a NASA-funded research center at the University of Alaska Fairbanks. Check out the [ASF Open Data datasets](/datasets/open-data#alaska-satellite-facility-asf) that are available in Tilebox.
@@ -116,7 +257,7 @@ You can create an ASF account in the [ASF Vertex Search Tool](https://search.asf
 
 The following code snippet demonstrates how to query and download ASF data using the Tilebox Python SDK.
 
-```python Python {4,9-13,27}
+```python Python highlight={4,9-13,27}
 from pathlib import Path
 
 from tilebox.datasets import Client
@@ -124,7 +265,6 @@ from tilebox.storage import ASFStorageClient
 
 # Creating clients
 client = Client()
-datasets = client.datasets()
 storage_client = ASFStorageClient(
     user="YOUR_ASF_USER",
     password="YOUR_ASF_PASSWORD",
@@ -132,9 +272,8 @@ storage_client = ASFStorageClient(
 )
 
 # Choosing the dataset and collection
-ers_dataset = datasets.open_data.asf.ers_sar
-collections = ers_dataset.collections()
-collection = collections["ERS-2"]
+ers_dataset = client.dataset("open_data.asf.ers_sar")
+collection = ers_dataset.collection("ERS-2")
 
 # Loading metadata
 ers_data = collection.query(temporal_extent=("2009-01-01", "2009-01-02"), show_progress=True)
@@ -161,6 +300,28 @@ Contents:
   - E2_71629_STD_L0_F183.000.nul
   - E2_71629_STD_L0_F183.000.ldr
 ```
+
+### Quicklook images
+
+Many ASF products include a quicklook image. The Tilebox storage client includes support for displaying these quicklook images directly when running in an interactive environment such as a Jupyter notebook.
+
+```python Python highlight={10}
+# Loading metadata
+ers_dataset = client.dataset("open_data.asf.ers_sar")
+collection = ers_dataset.collection("ERS-2")
+ers_data = collection.query(temporal_extent=("2009-01-01", "2009-01-02"), show_progress=True)
+
+# Selecting a data point to download
+selected = ers_data.isel(time=0)  # index 0 selected
+
+# Displaying a quicklook image
+storage_client.quicklook(selected)
+```
+
+<Frame caption="Image E2_71629_STD_F183.jpg © ASF 2009">
+  <img src="/assets/storage/asf_quicklook.jpg" alt="ASF ERS Quicklook image" />
+</Frame>
+
 
 ### Further Reading
 
@@ -189,7 +350,7 @@ No account is needed to access Umbra data. All data is under a Creative Commons 
 
 The following code snippet demonstrates how to query and download Umbra data using the Tilebox Python SDK.
 
-```python Python {4,9,23}
+```python Python highlight={4,9,23}
 from pathlib import Path
 
 from tilebox.datasets import Client
@@ -237,7 +398,7 @@ For cases where only a subset of the available file objects for a given Umbra da
 
 The below example shows how to download only the metadata file for a given data point.
 
-```python Python {4, 15}
+```python Python highlight={4, 15}
 collection = datasets.open_data.umbra.sar.collections()["SAR"]
 umbra_data = collection.query(temporal_extent=("2024-01-05", "2024-01-06"), show_progress=True)
 # Selecting a data point to download
