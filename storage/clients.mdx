@@ -128,6 +128,12 @@ The [United States Geological Survey (USGS)](https://www.usgs.gov/) provides a w
 
 Landsat data is available in a S3 bucket. The following code snippet demonstrates how to query and download Landsat data using the Tilebox Python SDK.
 
+<Info>
+  The USGS Landsat S3 bucket is a [requester-pays](https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html) bucket.
+  This means that you will need to have an AWS account to access the data, and then have your AWS credentials configured in your environment.
+  Check out the [boto3 documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for more information on how to configure your credentials.
+</Info>
+
 ```python Python
 from pathlib import Path
 
