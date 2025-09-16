@@ -5,7 +5,7 @@ icon: bars-progress
 tag: NEW
 ---
 
-Tilebox Workflows supports user-defined progress indicators during the execution of a job. This can be useful to provide visibility into the execution and the expected duration of a job, especially for longer running jobs.
+Tilebox supports user-defined progress indicators during the execution of a job. This can be useful to provide visibility into the execution and the expected duration of a job, especially for longer running jobs.
 
 <Frame>
     <img src="/assets/workflows/progress/progress-light.png" alt="Tilebox Workflows progress indicators" className="dark:hidden" />
@@ -113,7 +113,10 @@ from tilebox.workflows import Client
 
 job_client = Client().jobs()
 job = job_client.submit("download-images", DownloadImages(
-    ["https://picsum.photos/id/123/500/500", "https://picsum.photos/id/155/500/500"],
+    [
+        "https://picsum.photos/id/123/500/500",
+        "https://picsum.photos/id/155/500/500",
+    ],
 ))
 
 job = job_client.find(job.id)  # refresh the job object
