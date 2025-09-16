@@ -1,0 +1,142 @@
+---
+title: Progress
+description: Add progress indicators to provide visibility into the execution of a job
+icon: bars-progress
+tag: NEW
+---
+
+Tilebox supports user-defined progress indicators during the execution of a job. This can be useful to provide visibility into the execution and the expected duration of a job, especially for longer running jobs.
+
+<Frame>
+    <img src="/assets/workflows/progress/progress-light.png" alt="Tilebox Workflows progress indicators" className="dark:hidden" />
+    <img src="/assets/workflows/progress/progress-dark.png" alt="Tilebox Workflows progress indicators" className="hidden dark:block" />
+</Frame>
+
+
+## Tracking Progress
+
+Progress indicators in Tilebox use a `done` / `total` model. Tasks can increase a `total` value to specify the total work to be done, and the same or any other task can increase a `done` counter to track the amount of work that has already been completed.
+
+Progress tracking is always done at a task level. Each task can report its progress updates, as increases in `done` and `total` independently, and the job's total progress is the sum of all tasks' progress.
+
+<Info>
+    Progress tracking is currently only available in the Tilebox Python SDK. Go support is coming soon.
+</Info>
+
+<CodeGroup>
+```python Python
+from tilebox.workflows import Task, ExecutionContext
+
+class MyTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        # report that 10 units of work need to be done
+        context.progress().add(10)
+
+        for _ in range(10):
+            context.submit_subtask(MySubTask())
+
+class MySubTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        # report that one unit of work has been completed
+        context.progress().done(1)
+```
+</CodeGroup>
+
+## Multiple Progress Indicators
+
+A job can have multiple independent progress indicators. This is useful when a job consists of multiple steps, that each benefits from having its own progress indicator.
+To create a new progress indicator, call `context.progress(name)` with a unique `name` for the indicator.
+
+<CodeGroup>
+```python Python lines focus={14-15,35,51}
+from io import BytesIO
+
+import httpx  # pip install httpx
+from PIL import Image  # pip install pillow
+from tilebox.workflows import Task, ExecutionContext
+
+class DownloadImages(Task):
+    image_urls: list[str]
+
+    def execute(self, context: ExecutionContext) -> None:
+        # download and process images from a list of URLs
+        n = len(self.image_urls)
+
+        context.progress("download").add(n)
+        context.progress("process").add(n)
+
+        for i, url in enumerate(self.image_urls):
+            image_name = f"image_{i:04d}.png"
+            grayscale_name = f"image_gray_{i:04d}.png"
+            download = context.submit_subtask(DownloadImage(url, image_name))
+            process = context.submit_subtask(
+                ToGrayscale(image_name, grayscale_name),
+                depends_on=[download],
+            )
+
+class DownloadImage(Task):
+    url: str
+    image_name: str
+
+    def execute(self, context: ExecutionContext) -> None:
+        response = httpx.get(self.url, follow_redirects=True)
+        context.job_cache[self.image_name] = response.read()
+        
+        # report that one image has been downloaded
+        context.progress("download").done(1)
+
+
+class ToGrayscale(Task):
+    input_image: str
+    output_name: str
+
+    def execute(self, context: ExecutionContext) -> None:
+        image = Image.open(BytesIO(context.job_cache[self.input_image]))
+        image = image.convert("L")  # convert the image to grayscale
+
+        buffer = BytesIO()
+        image.save(buffer, format="png")
+        
+        context.job_cache[self.output_name] = buffer.getvalue()
+        
+        context.progress("process").done(1)
+```
+</CodeGroup>
+
+## Querying Progress
+
+At any time during a job's execution, you can query the current progress of a job using the `find` method on the job client. The returned job object contains a `progress` field that contains the current progress of the job.
+
+<CodeGroup>
+```python
+from tilebox.workflows import Client
+
+job_client = Client().jobs()
+job = job_client.submit("download-images", DownloadImages(
+    [
+        "https://picsum.photos/id/123/500/500",
+        "https://picsum.photos/id/155/500/500",
+    ],
+))
+
+job = job_client.find(job.id)  # refresh the job object
+print(job)
+```
+</CodeGroup>
+
+```plaintext Output
+Job(
+    id=UUID('019952b8-a5dc-f4c0-e428-724ccc587d83'),
+    name='download-images',
+    ...,
+    progress=[
+        ProgressIndicator(label='download', total=2, done=1),
+        ProgressIndicator(label='process', total=2, done=0),
+    ]
+)
+```
+
+## Progress idempotency
+
+Since tasks may fail and can subsequently be retried, it's possible that a task is executed more than once. This means that a task may report progress more than once.
+To avoid double-counting such progress updates, Tilebox only considers the progress reported by the last execution of a task.

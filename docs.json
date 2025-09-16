@@ -80,6 +80,7 @@
                 ]
               },
               "workflows/caches",
+              "workflows/progress",
               {
                 "group": "Observability",
                 "icon": "eye",
