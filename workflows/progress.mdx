@@ -136,6 +136,23 @@ Job(
 )
 ```
 
+### Progress Display in interactive environments
+
+When running in an interactive environment such as a Jupyter notebook and the cell output is a Tilebox job object, the
+job is automatically rendered, including its progress indicators.
+
+<CodeGroup>
+    ```python Python
+    job = job_client.find(job_id)
+    job  # trigger notebook cell output
+    ```
+</CodeGroup>
+
+<Frame>
+    <img src="/assets/workflows/progress/progress-cell-output-light.png" alt="Tilebox Workflows job object as Jupyter Cell output" className="dark:hidden" />
+    <img src="/assets/workflows/progress/progress-cell-output-dark.png" alt="Tilebox Workflows job object as Jupyter Cell output" className="hidden dark:block" />
+</Frame>
+
 ## Progress idempotency
 
 Since tasks may fail and can subsequently be retried, it's possible that a task is executed more than once. This means that a task may report progress more than once.
