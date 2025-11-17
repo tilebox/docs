@@ -1063,16 +1063,6 @@ Examples of compatible version numbers include:
 - A task runner with version `"v1.2"` of `MyTask` would not execute this task, as its minor version is lower than that of the submitted task.
 - A task runner with version `"v2.5"` of `MyTask` would not execute this task, as its major version differs from that of the submitted task.
 
-## States
-
-A task can be in one of the following states:
-
-- `QUEUED`: the task is queued and waiting to be run
-- `RUNNING`: the task is currently running on some task runner
-- `COMPUTED`: the task has been computed and the output is available. Once in this state, the task will never transition to any other state
-- `FAILED`: the task has failed
-- `CANCELLED`: the task has been cancelled due to user request
-
 ## Conclusion
 
 Tasks form the foundation of Tilebox Workflows. By understanding how to create and manage tasks, you can leverage Tilebox's capabilities to automate and optimize your workflows. Experiment with defining your own tasks, utilizing subtasks, managing dependencies, and employing semantic versioning to develop robust and efficient workflows.
