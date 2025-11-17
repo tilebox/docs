@@ -176,13 +176,47 @@ job, err := client.Jobs.Get(ctx, uuid.MustParse("018dd029-58ca-74e5-8b58-b4f99d6
     `find` is also a useful tool for fetching a jobs state after a while, to check if it's still running or has already completed.
 </Tip>
 
+In interactive environments such as Jupyter notebooks, the job object also provides a rich display of the job's state and progress, if it's used as the last expression in a cell.
+
+<Frame>
+    <img src="/assets/workflows/rich-job-display-light.png" alt="Job display in a Jupyter notebook" className="dark:hidden" />
+    <img src="/assets/workflows/rich-job-display-dark.png" alt="Job display in a Jupyter notebook" className="hidden dark:block" />
+</Frame>
+
 ## States
 
-A job can be in one of the following states:
+Every Job is always in exactly one of the following states:
 
-- `QUEUED`: the job is queued and waiting for execution
-- `STARTED`: at least one task of the job has been started
-- `COMPLETED`: all tasks of the job have been completed
+<div class="flex flex-row gap-12 items-center border-t py-2">
+    <div class="flex flex-row gap-2 h-full items-center align-middle text-sm" style={{ minWidth: "110px"}}><img src="/assets/workflows/job_states/submitted.svg" alt="Job submitted" class="m-0 dark:hidden"/><img src="/assets/workflows/job_states/submitted.dark.svg" alt="Job submitted" class="m-0 hidden dark:block"/> Submitted </div>
+    <div class="text-sm">The Job hasn't started yet, all it's tasks are queued and it wasn't canceled by the user.</div>
+</div>
+<div class="flex flex-row gap-12 items-center border-t py-2">
+    <div class="flex flex-row gap-2 h-full items-center align-middle text-sm" style={{ minWidth: "110px"}}><img src="/assets/workflows/job_states/running.svg" alt="Job submitted" class="m-0 dark:hidden"/><img src="/assets/workflows/job_states/running.dark.svg" alt="Job submitted" class="m-0 hidden dark:block"/> Running </div>
+    <div class="text-sm">At least one task of the job is currently running.</div>
+</div>
+<div class="flex flex-row gap-12 items-center border-t py-2">
+    <div class="flex flex-row gap-2 h-full items-center align-middle text-sm" style={{ minWidth: "110px"}}><img src="/assets/workflows/job_states/started.svg" alt="Job submitted" class="m-0 dark:hidden"/><img src="/assets/workflows/job_states/started.dark.svg" alt="Job submitted" class="m-0 hidden dark:block"/> Started </div>
+    <div class="text-sm">The job has started, some tasks are already `COMPUTED`, but others are still `QUEUED`, waiting for an [eligible task runner](/workflows/concepts/task-runners#task-selection) to pick them up. However no task is currently `RUNNING`.</div>
+</div>
+<div class="flex flex-row gap-12 items-center border-t py-2">
+    <div class="flex flex-row gap-2 h-full items-center align-middle text-sm" style={{ minWidth: "110px"}}><img src="/assets/workflows/job_states/completed.svg" alt="Job submitted" class="m-0 dark:hidden"/><img src="/assets/workflows/job_states/completed.dark.svg" alt="Job submitted" class="m-0 hidden dark:block"/> Completed </div>
+    <div class="text-sm">The job has successfully completed. Every task of the job succeeded and is `COMPUTED`.</div>
+</div>
+<div class="flex flex-row gap-12 items-center border-t py-2">
+    <div class="flex flex-row gap-2 h-full items-center align-middle text-sm" style={{ minWidth: "110px"}}><img src="/assets/workflows/job_states/failed.svg" alt="Job submitted" class="m-0 dark:hidden"/><img src="/assets/workflows/job_states/failed.dark.svg" alt="Job submitted" class="m-0 hidden dark:block"/> Failed </div>
+    <div class="text-sm">At least one task of the job has failed, causing the execution of the remaining tasks to be halted. You can [retry](#retries) the job to resume execution from the point of failure.</div>
+</div>
+<div class="flex flex-row gap-12 items-center border-t py-2">
+    <div class="flex flex-row gap-2 h-full items-center align-middle text-sm" style={{ minWidth: "110px"}}><img src="/assets/workflows/job_states/canceled.svg" alt="Job submitted" class="m-0 dark:hidden"/><img src="/assets/workflows/job_states/canceled.dark.svg" alt="Job submitted" class="m-0 hidden dark:block"/> Canceled </div>
+    <div class="text-sm">The job was canceled upon user request. You can [retry](#retries) the job to resume execution from the point of cancellation.</div>
+</div>
+
+<Tip>
+    The state of a job is determined by the states of all it's tasks. For a list of possible task states, see the [task state](/workflows/concepts/tasks#task-states) documentation.
+</Tip>
+
+You can programmatically check the state of a job by inspecting it's `state` field.
 
 <CodeGroup>
 ```python Python
@@ -190,17 +224,17 @@ from tilebox.workflows.data import JobState
 
 job = job_client.find("018dd029-58ca-74e5-8b58-b4f99d610f9a")
 
-print("Job is queued:", job.state == JobState.QUEUED)
+print("Job is running:", job.state == JobState.RUNNING)
 ```
 ```go Go
 job, err := client.Jobs.Get(ctx, uuid.MustParse("018dd029-58ca-74e5-8b58-b4f99d610f9a"))
 
-fmt.Println("Job is queued:", job.State == workflows.JobQueued)
+fmt.Println("Job is running:", job.State == workflows.JobRunning)
 ```
 </CodeGroup>
 
 ```plaintext Output
-Job is queued: True
+Job is running: True
 ```
 
 ## Visualization
@@ -223,21 +257,12 @@ job_client.display(job)
 ```
 </CodeGroup>
 
-The following diagram represents the job execution as a graph. Each task is shown as a node, with edges indicating sub-task relationships. The diagram also uses color coding to display the status of each task.
+The following diagram represents the job execution as a graph. Each task is shown as a node, with edges indicating sub-task relationships. The diagram also uses color coding to display the state of each task.
 
 <Frame>
     <img src="/assets/workflows/diagrams/svg/task-states.svg" alt="Color coding of task states" className="dark:hidden"/>
     <img src="/assets/workflows/diagrams/svg/task-states.dark.svg" alt="Color coding of task states" className="hidden dark:block" />
 </Frame>
-
-The color codes for task states are:
-
-| Task State | Color | Description |
-|------------|-------|-------------|
-| Queued     | <span className="dark:hidden">Salmon</span><span className="hidden dark:block">Yellow</span>  | The task is queued and waiting for execution. |
-| Running    | Blue | The task is currently being executed. |
-| Computed  | Green | The task has successfully been computed. If a task is computed, and all it's sub-tasks are also computed, the task is considered completed. |
-| Failed     | Red | The task has been executed but encountered an error. |
 
 Below is another visualization of a job currently being executed by multiple task runners.
 
@@ -246,9 +271,9 @@ Below is another visualization of a job currently being executed by multiple tas
     <img src="/assets/workflows/diagrams/svg/multiple-runners.dark.svg" alt="Job being executed by multiple runners" className="hidden dark:block" />
 </Frame>
 
-This visualization shows:
+From the diagram, the following can be inferred:
 
-- The root task, `MyTask`, has executed and spawned three sub-tasks.
+- The root task, `MyTask`, has been executed, is marked as `COMPUTED` and submitted three sub-tasks.
 - At least three task runners are available, as three tasks currently are executed simultaneously.
 - The `SubTask` that is still executing has not generated any sub-tasks yet, as sub-tasks are queued for execution only after the parent task finishes and becomes computed.
 - The queued `DependentTask` requires the `LeafTask` to complete before it can be executed.
