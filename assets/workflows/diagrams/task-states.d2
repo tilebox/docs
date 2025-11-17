@@ -7,7 +7,8 @@ vars: {
   }
 }
 
-style.fill: "#fcf9fa"
+style.fill: "#FCF9FA"
+style.stroke: "#170206"
 direction: down
 
 title: {
@@ -15,29 +16,61 @@ title: {
   near: top-center
   shape: text
   style.font-size: 30
-  style.font-color: "black"
+  style.font-color: "#170206"
 }
 my-task: {
-  label: "MyTask"
-  style.fill: HoneyDew
+  label: "ComputedRootTask"
+  style.fill: "#F0FFF0"
+  style.stroke: "#3F4B40"
+  style.font-color: "#000000"
 }
 queued-task: {
   label: "QueuedTask"
-  style.fill: LavenderBlush
+  style.fill: "#FFF0F5"
+  style.stroke: "#504448"
+  style.font-color: "#000000"
 }
-my-task -> queued-task
+my-task -> queued-task: {style.stroke: "#170206"}
 running-task: {
   label: "RunningTask"
-  style.fill: PaleTurquoise
+  style.fill: "#AFEEEE"
+  style.stroke: "#0e5253"
+  style.font-color: "#000000"
 }
-my-task -> running-task
+my-task -> running-task: {style.stroke: "#170206"}
 computed-task: {
   label: "ComputedTask"
-  style.fill: HoneyDew
+  style.fill: "#F0FFF0"
+  style.stroke: "#3F4B40"
+  style.font-color: "#000000"
 }
-my-task -> computed-task
+my-task -> computed-task: {style.stroke: "#170206"}
+computed-task-child: {
+  label: "RunningLeafTask"
+  style.fill: "#AFEEEE"
+  style.stroke: "#0e5253"
+  style.font-color: "#000000"
+}
+computed-task -> computed-task-child: {style.stroke: "#170206"}
+completed-task: {
+  label: "CompletedTask"
+  style.fill: "#F0FFF0"
+  style.stroke: "#3F4B40"
+  style.font-color: "#000000"
+}
+my-task -> completed-task: {style.stroke: "#170206"}
+completed-task-child: {
+  label: "CompletedLeafTask"
+  style.fill: "#F0FFF0"
+  style.stroke: "#3F4B40"
+  style.font-color: "#000000"
+}
+completed-task -> completed-task-child: {style.stroke: "#170206"}
+
 failed-task: {
   label: "FailedTask"
-  style.fill: Salmon
+  style.fill: "#FA8072"
+  style.stroke: "#4A1511"
+  style.font-color: "#000000"
 }
-my-task -> failed-task
+my-task -> failed-task: {style.stroke: "#170206"}

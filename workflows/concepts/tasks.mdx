@@ -354,17 +354,117 @@ In total, six tasks are executed: the `DownloadRandomDogImages` task and five `D
   Check out [job_client.display](/workflows/concepts/jobs#visualization) to learn how this visualization was automatically generated from the task executions.
 </Tip>
 
-Currently, a limit of `64` subtasks per task is in place to discourage creating workflows where individual parent tasks submit a large number of subtasks, which can lead to performance issues since those parent tasks are not parallelized. If you need to submit more than `64` subtasks, consider using [recursive subtask submission](#recursive-subtasks) instead.
+## Task States
+
+Every task goes through a set of states during its lifetime. When submitted, either as a job or as a subtask, it starts in the `QUEUED` state and transitions to `RUNNING` when a task runner picks it up. If the task executes successfully, it transitions to `COMPUTED`. If the task fails, it transitions to `FAILED`.
+As soon as all subtasks of a task are also `COMPUTED`, the task is considered `COMPLETED`, allowing dependent tasks to be executed.
+The table below summarizes the different task states and their meanings.
+
+| Task State | Description |
+|------------|-------------|
+| **Queued**     | The task is queued and waiting for execution. Any [eligible](/workflows/concepts/task-runners#task-selection) task runner can pick it up and execute it, as soon as it's parent task is `COMPUTED` and all it's dependencies are `COMPLETED`. |
+| **Running**    | The task is currently being executed by a task runner. |
+| **Computed**   | The task has successfully been computed, but still has outstanding subtasks. |
+| **Completed**  | The task has successfully been computed, and all it's subtasks are also computed, making it `COMPLETED`. This is the final state of a task. Only once a task has been `COMPLETED`, dependent tasks can be executed. |
+| **Failed**     | The task has been executed but encountered an error. |
+
+<Frame>
+  <img
+    src="/assets/workflows/diagrams/svg/task-states.svg"
+    alt="Task States"
+    className="dark:hidden"
+  />
+  <img
+    src="/assets/workflows/diagrams/svg/task-states.dark.svg"
+    alt="Task States"
+    className="hidden dark:block"
+  />
+</Frame>
+
+## Map-Reduce Pattern
+Often times the input to a task is a list, with elements that should then be **mapped** to individual subtasks, whose results are later aggregated in a **reduce** step. This pattern is commonly known as [MapReduce](https://en.wikipedia.org/wiki/MapReduce) and a common pattern in workflows. In Tilebox, the reduce step is typically defined as a separate task that depends on all the map tasks.
+
+For example, the workflow below applies this pattern to a list of numbers to calculate the sum of all squares of the numbers. The `Square` task takes a single number and squares it, and the `Sum` task reduces the list of squared numbers to a single sum.
+
+<CodeGroup title="Map-Reduce">
+```python Python
+class SumOfSquares(Task):
+    numbers: list[int]
+
+    def execute(self, context: ExecutionContext) -> None:
+		# 1. Map
+        square_tasks = context.submit_subtasks(
+            [Square(num) for num in self.numbers]
+        )
+        # 2. Reduce
+        sum_task = context.submit_subtask(Sum(), depends_on=square_tasks)
+
+
+class Square(Task):  # The map step
+    num: int
+
+    def execute(self, context: ExecutionContext) -> None:
+        result = self.num ** 2
+        # typically the output of a task is a large dataset,
+        # so we save individual results into a shared cache
+        context.job_cache.group("squares")[str(self.num)] = str(result).encode()
+        context.current_task.display = f"Square({self.num})"
+
+class Sum(Task):  # The reduce step
+    def execute(self, context: ExecutionContext) -> None:
+        result = 0
+        # access our cached results from the map step
+        squares = context.job_cache.group("squares")
+        for key in squares:
+            result += int(squares[key].decode())
+
+        print("Sum of squares is:", result)
+```
+</CodeGroup>
+
+Submitting a job of the `SumOfSquares` task and running it with a task runner can be done as follows:
+
+<CodeGroup>
+```python Python
+from tilebox.workflows import Client
+from tilebox.workflows.cache import InMemoryCache
+
+client = Client()
+jobs = client.jobs()
+job = jobs.submit(
+    "sum-of-squares",
+    SumOfSquares([12, 345, 453, 21, 45, 98]),
+)
+
+client.runner(tasks=[SumOfSquares, Square, Sum], cache=InMemoryCache()).run_all()
+
+jobs.display(job)
+```
+</CodeGroup>
+
+```plaintext Output
+Sum of squares is: 336448
+```
+
+<Frame>
+  <img
+    src="/assets/workflows/diagrams/svg/map-reduce-sum-squares.svg"
+    alt="Sum of squares workflow using the map-reduce pattern"
+    className="dark:hidden"
+  />
+  <img
+    src="/assets/workflows/diagrams/svg/map-reduce-sum-squares.dark.svg"
+    alt="Sum of squares workflow using the map-reduce pattern"
+    className="hidden dark:block"
+  />
+</Frame>
 
 ## Recursive subtasks
 
-Tasks can submit other tasks as subtasks, allowing for complex workflows. Sometimes the input to a task is a list, with elements that can be **mapped** to individual subtasks, whose outputs are then aggregated in a **reduce** step. This pattern is commonly known as **MapReduce**.
-
-Often times the initial map step—submitting the individual subtasks—might already be an expensive operation. Since this is executed within a single task, it's not parallelizable, which can bottleneck the entire workflow.
-
-Fortunately, Tilebox Workflows offers a solution through **recursive subtask submission**. A task can submit instances of itself as subtasks, enabling a recursive breakdown into smaller tasks.
-
+Tasks can not only submit other tasks as subtasks, but also instances of themselves. This allows for a recursive breakdown of a task into smaller chunks. Such recursive decomposition algorithms are referred to as [divide and conquer algorithms](https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm).
 For example, the `RecursiveTask` below is a valid task that submits smaller instances of itself as subtasks.
+
+<Warning>When implementing a recursive task, it's important to define a base case that stops the recursion. Otherwise, the task will keep submitting subtasks indefinitely, resulting in an infinite loop.</Warning>
 
 <CodeGroup title="Recursive Subtasks">
     ```python Python
@@ -373,6 +473,7 @@ For example, the `RecursiveTask` below is a valid task that submits smaller inst
 
         def execute(self, context: ExecutionContext) -> None:
             print(f"Executing RecursiveTask with num={self.num}")
+			# if num < 2, we reached the base case and stop recursion
             if self.num >= 2:
                 context.submit_subtask(RecursiveTask(self.num // 2))
     ```
@@ -383,6 +484,7 @@ For example, the `RecursiveTask` below is a valid task that submits smaller inst
 
     func (t *RecursiveTask) Execute(ctx context.Context) error {
       slog.Info("Executing RecursiveTask", slog.Int("num", t.Num))
+	  // if num < 2, we reached the base case and stop recursion
       if t.Num >= 2 {
         _, err := workflows.SubmitSubtask(ctx, &RecursiveTask{Num: t.Num / 2})
         if err != nil {

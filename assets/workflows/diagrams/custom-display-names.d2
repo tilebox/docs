@@ -7,7 +7,8 @@ vars: {
   }
 }
 
-style.fill: "#fcf9fa"
+style.fill: "#FCF9FA"
+style.stroke: "#170206"
 direction: down
 
 title: {
@@ -15,24 +16,32 @@ title: {
   near: top-center
   shape: text
   style.font-size: 30
-  style.font-color: "black"
+  style.font-color: "#170206"
 }
 root-task: {
   label: "Root(3)"
-  style.fill: HoneyDew
+  style.fill: "#F0FFF0"
+  style.stroke: "#3F4B40"
+  style.font-color: "#000000"
 }
 leaf0: {
   label: "Leaf Nr. 0"
-  style.fill: HoneyDew
+  style.fill: "#F0FFF0"
+  style.stroke: "#3F4B40"
+  style.font-color: "#000000"
 }
-root-task -> leaf0
+root-task -> leaf0: {style.stroke: "#170206"}
 leaf1: {
   label: "Leaf Nr. 1"
-  style.fill: HoneyDew
+  style.fill: "#F0FFF0"
+  style.stroke: "#3F4B40"
+  style.font-color: "#000000"
 }
-root-task -> leaf1
+root-task -> leaf1: {style.stroke: "#170206"}
 leaf2: {
   label: "Leaf Nr. 2"
-  style.fill: HoneyDew
+  style.fill: "#F0FFF0"
+  style.stroke: "#3F4B40"
+  style.font-color: "#000000"
 }
-root-task -> leaf2
+root-task -> leaf2: {style.stroke: "#170206"}
