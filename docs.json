@@ -112,6 +112,7 @@
           {
             "group": "Datasets",
             "pages": [
+              "guides/datasets/sentinel2-access",
               "guides/datasets/create",
               "guides/datasets/ingest",
               "guides/datasets/ingest-format"

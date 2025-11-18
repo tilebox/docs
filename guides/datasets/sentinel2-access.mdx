@@ -1,0 +1,117 @@
+---
+title: Access Sentinel-2 data
+description: Learn how to access Sentinel-2 data in Python in a few lines of code.
+icon: database
+---
+
+This guide assume you already [signed up](https://console.tilebox.com/sign-up) for a Tilebox account (free) and [created an API key](https://console.tilebox.com/account/api-keys).
+
+## Installing Tilebox
+
+Install the Tilebox python library.
+
+<Tip>
+  If you don't know which package manager to use, we recommend using [uv](https://docs.astral.sh/uv/).
+</Tip>
+
+<CodeGroup>
+```bash uv
+uv add tilebox
+```
+```bash pip
+pip install tilebox
+```
+```bash poetry
+poetry add tilebox="*"
+```
+```bash pipenv
+pipenv install tilebox
+```
+</CodeGroup>
+
+## Accessing Sentinel-2 metadata
+
+Query the Sentinel-2A satellite for level 2A data of October 2025 that cover the state of Colorado.
+
+<Note>
+  Replace `YOUR_TILEBOX_API_KEY` with your actual API key, or omit the `token` parameter entirely if the `TILEBOX_API_KEY` environment variable is set.
+</Note>
+
+<CodeGroup>
+```python Python
+from shapely import MultiPolygon
+from tilebox.datasets import Client
+
+area = MultiPolygon(
+    [
+        (((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),),
+    ]
+)
+
+client = Client(token="YOUR_TILEBOX_API_KEY")
+collection = client.dataset("open_data.copernicus.sentinel2_msi").collection("S2A_S2MSI2A")
+data = collection.query(
+    temporal_extent=("2025-10-01", "2025-11-01"),
+    spatial_extent=area,
+    show_progress=True,
+)
+print(data)
+```
+</CodeGroup>
+
+<CodeGroup>
+```plaintext Output
+<xarray.Dataset> Size: 75kB
+Dimensions:                (time: 169)
+Coordinates:
+  * time                   (time) datetime64[ns] 1kB 2025-10-02T18:07:51.0240...
+Data variables: (12/23)
+    id                     (time) <U36 24kB '0199a61b-e8f0-4028-5db1-6ac962c0...
+    ingestion_time         (time) datetime64[ns] 1kB 2025-10-02T23:33:21.4100...
+    geometry               (time) object 1kB POLYGON ((-108.635792 40.626649,...
+    granule_name           (time) object 1kB 'S2A_MSIL2A_20251002T180751_N051...
+    processing_level       (time) uint8 169B 5 5 5 5 5 5 5 5 ... 5 5 5 5 5 5 5 5
+    product_type           (time) object 1kB 'S2MSI2A' 'S2MSI2A' ... 'S2MSI2A'
+    ...                     ...
+    thumbnail              (time) object 1kB 'https://catalogue.dataspace.cop...
+    cloud_cover            (time) float64 1kB 0.06321 0.01205 ... 55.23 35.51
+    resolution             (time) int64 1kB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
+    flight_direction       (time) uint8 169B 2 2 2 2 2 2 2 2 ... 2 2 2 2 2 2 2 2
+    acquisition_mode       (time) uint8 169B 20 20 20 20 20 ... 20 20 20 20 20
+    mission_take_id        (time) object 1kB 'GS2A_20251002T180751_053692_N05...
+```
+</CodeGroup>
+
+The output shows that the query returned 169 data points metadata. The metadata is returned as an `xarray.Dataset`.
+
+Now you can check the metadata and decide which data points you want to download.
+
+## Downloading the data from Copernicus Data Space
+
+Tilebox stores and indexes metadata about datasets but doesn't store the data files.
+Sentinel-2 data is stored in the Copernicus Data Space Ecosystem (CDSE). If you never used the CDSE before, [create an account](https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/auth?client_id=cdse-public&response_type=code&scope=openid&redirect_uri=https%3A//dataspace.copernicus.eu/account/confirmed/1) and then generate [S3 credentials here](https://eodata-s3keysmanager.dataspace.copernicus.eu/panel/s3-credentials).
+
+<CodeGroup>
+```python Python
+from tilebox.storage import CopernicusStorageClient
+
+storage_client = CopernicusStorageClient(
+    access_key="YOUR_ACCESS_KEY",
+    secret_access_key="YOUR_SECRET_ACCESS_KEY",
+)
+
+for _, datapoint in data.groupby("time"):
+    downloaded_data = storage_client.download(datapoint)
+    print(f"Downloaded data to {downloaded_data}")
+```
+</CodeGroup>
+
+This code will download all 169 data points to a cache folder. Now you can work with the data, visualize it, and run your custom processor on it.
+
+## Next Steps
+
+<Columns cols={2}>
+  <Card title="Open Data" icon="star" href="https://console.tilebox.com/datasets/open-data" horizontal>
+     Check out available open data datasets on Tilebox
+  </Card>
+</Columns>
