@@ -6,13 +6,7 @@ icon: database
 
 This guide assume you already [signed up](https://console.tilebox.com/sign-up) for a Tilebox account (free) and [created an API key](https://console.tilebox.com/account/api-keys).
 
-## Installing Tilebox
-
-Install the Tilebox python library.
-
-<Tip>
-  If you don't know which package manager to use, we recommend using [uv](https://docs.astral.sh/uv/).
-</Tip>
+## Install Tilebox package
 
 <CodeGroup>
 ```bash uv
@@ -29,7 +23,7 @@ pipenv install tilebox
 ```
 </CodeGroup>
 
-## Accessing Sentinel-2 metadata
+## Access Sentinel-2 metadata
 
 Query the Sentinel-2A satellite for level 2A data of October 2025 that cover the state of Colorado.
 
@@ -86,7 +80,7 @@ The output shows that the query returned 169 data points metadata. The metadata 
 
 Now you can check the metadata and decide which data points you want to download.
 
-## Downloading the data from Copernicus Data Space
+## Download the data from Copernicus Data Space
 
 Tilebox stores and indexes metadata about datasets but doesn't store the data files.
 Sentinel-2 data is stored in the Copernicus Data Space Ecosystem (CDSE). If you never used the CDSE before, [create an account](https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/auth?client_id=cdse-public&response_type=code&scope=openid&redirect_uri=https%3A//dataspace.copernicus.eu/account/confirmed/1) and then generate [S3 credentials here](https://eodata-s3keysmanager.dataspace.copernicus.eu/panel/s3-credentials).
