@@ -22,13 +22,30 @@ The [Documentation Context](https://docs.tilebox.com/llms-full.txt) is updated w
 
 Tilebox Docs can be installed as an MCP tool, so an MCP client can ask for detailed context on specific topics.
 
-Run the following command to generate an MCP server for Tilebox Docs.
+### For Claude Desktop
+
+Run the following command to add Tilebox Docs to Claude:
 
 ```bash
-npx mint-mcp add tilebox
+claude mcp add --transport http "Tilebox Docs" https://docs.tilebox.com/mcp
 ```
 
-The command line tool will guide you along the installation process for Cursor, Windsurf, Claude Code, Augment Code or other MCP clients.
+### For other MCP clients
+
+1. Open command palette (Cmd+Shift+P / Ctrl+Shift+P)
+2. Search "Open MCP settings"
+3. Select "Add custom MCP"
+4. Add to mcp.json:
+
+```json
+{
+  "mcpServers": {
+    "tilebox-docs": {
+      "url": "https://docs.tilebox.com/mcp"
+    }
+  }
+}
+```
 
 <Tip>
 The MCP server always retrieves the most up to date version of the documentation.
