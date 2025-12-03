@@ -1,0 +1,82 @@
+---
+title: Client.create_dataset
+icon: laptop-code
+---
+
+```python
+def Client.create_dataset(
+    kind: DatasetKind,
+    code_name: str,
+    fields: list[FieldDict],
+    *,
+    name: str | None = None,
+    summary: str | None = None
+) -> Dataset
+```
+
+Create a dataset.
+
+## Parameters
+
+<ParamField path="kind" type="DatasetKind">
+  The kind of the dataset
+</ParamField>
+<ParamField path="code_name" type="str">
+  The code name of the dataset
+</ParamField>
+<ParamField path="fields" type="list[FieldDict]">
+  The fields of the dataset
+</ParamField>
+<ParamField path="name" type="str | None">
+  The name of the dataset
+</ParamField>
+<ParamField path="summary" type="str | None">
+  A short summary of the dataset
+</ParamField>
+
+## Field options
+
+<ParamField path="name" type="str" required>
+  Set the name of the field
+</ParamField>
+<ParamField path="type" type="type" required>
+  Set the type of the field
+</ParamField>
+<ParamField path="description" type="str">
+  Set the description of the field to provide more context and details about the data
+</ParamField>
+<ParamField path="example_value" type="str">
+  Set the example value of the field for documentation purposes
+</ParamField>
+
+## Returns
+
+The created dataset object.
+
+<RequestExample>
+```python Python
+from shapely import Geometry
+
+dataset = client.create_dataset(
+    DatasetKind.SPATIOTEMPORAL,
+    "my_catalog",
+    [
+        {
+            "name": "field1",
+            "type": str,
+        },
+        {
+            "name": "field2",
+            "type": list[int],
+        },
+        {
+            "name": "field3",
+            "type": Geometry,
+            "description": "Field 3",
+            "example_value": "Value 3",
+        },
+    ],
+    name="My personal catalog",
+)
+```
+</RequestExample>
