@@ -35,15 +35,57 @@ Create a dataset.
   The fields of the dataset
 </ParamField>
 
+## Dataset kinds
+
+<ParamField path="KindTemporal" type="datasets.DatasetKind">
+  A dataset that contains a timestamp field
+</ParamField>
+<ParamField path="KindSpatiotemporal" type="datasets.DatasetKind">
+  A dataset that contains a timestamp field and a geometry field
+</ParamField>
+
+## Field types
+
+<ParamField path="field.String(name string)" type="Field">
+  A string field
+</ParamField>
+<ParamField path="field.Bytes(name string)" type="Field">
+  A bytes field
+</ParamField>
+<ParamField path="field.Bool(name string)" type="Field">
+  A boolean field
+</ParamField>
+<ParamField path="field.Int64(name string)" type="Field">
+  A 64-bit signed integer field
+</ParamField>
+<ParamField path="field.Uint64(name string)" type="Field">
+  A 64-bit unsigned integer field
+</ParamField>
+<ParamField path="field.Float64(name string)" type="Field">
+  A 64-bit floating-point number field
+</ParamField>
+<ParamField path="field.Duration(name string)" type="Field">
+  A duration field
+</ParamField>
+<ParamField path="field.Timestamp(name string)" type="Field">
+  A timestamp field
+</ParamField>
+<ParamField path="field.UUID(name string)" type="Field">
+  A UUID field
+</ParamField>
+<ParamField path="field.Geometry(name string)" type="Field">
+  A geometry field
+</ParamField>
+
 ## Field options
 
 <ParamField path="Repeated()">
   Indicate that the field is an array
 </ParamField>
-<ParamField path="Description(string)">
+<ParamField path="Description(description string)">
   Set the description of the field to provide more context and details about the data
 </ParamField>
-<ParamField path="ExampleValue(string)">
+<ParamField path="ExampleValue(exampleValue string)">
   Set the example value of the field for documentation purposes
 </ParamField>
 
@@ -57,7 +99,7 @@ dataset, err := client.Datasets.Create(ctx,
     "My personal catalog",
     datasets.KindSpatiotemporal,
     "my_catalog",
-    "A summary of my catalog",
+    "A description of my catalog",
     []Field{
         field.String("field1"),
         field.Int64("field2").Repeated(),
