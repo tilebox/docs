@@ -166,6 +166,7 @@
                   "api-reference/python/tilebox.datasets/Client",
                   "api-reference/python/tilebox.datasets/Client.datasets",
                   "api-reference/python/tilebox.datasets/Client.dataset",
+                  "api-reference/python/tilebox.datasets/Client.create_dataset",
                   "api-reference/python/tilebox.datasets/Dataset.collections",
                   "api-reference/python/tilebox.datasets/Dataset.collection",
                   "api-reference/python/tilebox.datasets/Dataset.create_collection",
@@ -210,6 +211,7 @@
               {
                 "group": "datasets",
                 "pages": [
+                  "api-reference/go/datasets/Create",
                   "api-reference/go/datasets/Get",
                   "api-reference/go/datasets/List",
                   "api-reference/go/datasets/Collections.Create",

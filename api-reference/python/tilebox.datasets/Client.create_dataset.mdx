@@ -1,0 +1,126 @@
+---
+title: Client.create_dataset
+icon: laptop-code
+---
+
+```python
+def Client.create_dataset(
+    kind: DatasetKind,
+    code_name: str,
+    fields: list[FieldDict],
+    *,
+    name: str | None = None,
+    description: str | None = None
+) -> Dataset
+```
+
+Create a dataset.
+
+## Parameters
+
+<ParamField path="kind" type="DatasetKind">
+  The kind of the dataset
+</ParamField>
+<ParamField path="code_name" type="str">
+  The code name of the dataset
+</ParamField>
+<ParamField path="fields" type="list[FieldDict]">
+  The fields of the dataset
+</ParamField>
+<ParamField path="name" type="str | None">
+  The name of the dataset
+</ParamField>
+<ParamField path="description" type="str | None">
+  A short description of the dataset
+</ParamField>
+
+## Dataset kinds
+
+<ParamField path="DatasetKind.TEMPORAL" type="DatasetKind">
+  A dataset that contains a timestamp field
+</ParamField>
+<ParamField path="DatasetKind.SPATIOTEMPORAL" type="DatasetKind">
+  A dataset that contains a timestamp field and a geometry field
+</ParamField>
+
+## Field types
+
+<ParamField path="str" type="type">
+  A string field
+</ParamField>
+<ParamField path="bytes" type="type">
+  A bytes field
+</ParamField>
+<ParamField path="bool" type="type">
+  A boolean field
+</ParamField>
+<ParamField path="int" type="type">
+  A 64-bit signed integer field
+</ParamField>
+<ParamField path="np.uint64" type="type">
+  A 64-bit unsigned integer field
+</ParamField>
+<ParamField path="float" type="type">
+  A 64-bit floating-point number field
+</ParamField>
+<ParamField path="datetime.timedelta" type="type">
+  A duration field
+</ParamField>
+<ParamField path="datetime.datetime" type="type">
+  A timestamp field
+</ParamField>
+<ParamField path="uuid.UUID" type="type">
+  A UUID field
+</ParamField>
+<ParamField path="shapely.Geometry" type="type">
+  A geometry field
+</ParamField>
+
+Note that the type can be a list of the types above, indicating that the field is an array, e.g. `list[str]`.
+
+## Field options
+
+<ParamField path="name" type="str" required>
+  Set the name of the field
+</ParamField>
+<ParamField path="type" type="type" required>
+  Set the type of the field
+</ParamField>
+<ParamField path="description" type="str">
+  Set the description of the field to provide more context and details about the data
+</ParamField>
+<ParamField path="example_value" type="str">
+  Set the example value of the field for documentation purposes
+</ParamField>
+
+## Returns
+
+The created dataset object.
+
+<RequestExample>
+```python Python
+from shapely import Geometry
+
+dataset = client.create_dataset(
+    DatasetKind.SPATIOTEMPORAL,
+    "my_catalog",
+    [
+        {
+            "name": "field1",
+            "type": str,
+        },
+        {
+            "name": "field2",
+            "type": list[int],
+        },
+        {
+            "name": "field3",
+            "type": Geometry,
+            "description": "Field 3",
+            "example_value": "Value 3",
+        },
+    ],
+    name="My personal catalog",
+)
+```
+</RequestExample>
