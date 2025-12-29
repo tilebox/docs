@@ -4,9 +4,54 @@ description: Large Language Models (LLMs) are powerful tools for exploring and l
 icon: brain-circuit
 ---
 
-## Providing complete Tilebox context
+## Tilebox MCP Server
 
-AI assistants and Large Language Models (LLMs) can answer questions, guide you in using Tilebox, suggest relevant sections in the documentation, and assist you in creating workflows.
+The Model Context Protocol (MCP) is an open protocol that creates standardized connections between AI applications and
+external services. Tilebox provides such an MCP server that exposes tools for listing, querying and retrieving the schema
+of datasets, as well as tools for interacting with workflows.
+
+### How the Tilebox MCP servers can help
+
+When an AI tool like Claude, Cursor, or ChatGPT has the Tilebox MCP server configured, it can proactively invoke relevant
+tools. For example, when asking a question about a specific dataset, the AI tool can query the Tilebox MCP server for the
+dataset schema and include the correct, and up-to-date information about it in the response.
+
+Tilebox provides two MCP servers:
+
+- `https://mcp.tilebox.com/` - This MCP server provides tools for accessing and interacting with Tilebox datasets and workflows. It requires authentication using a Tilebox API key.
+- `https://docs.tilebox.com/mcp` - This MCP server provides access to the Tilebox documentation. It does not require authentication. When configured, AI agents can ask for detailed context on specific topics.
+
+### Configuring the Tilebox MCP servers
+
+To configure your AI tools to use the Tilebox MCP servers, you need to point it to the correct URLs using the `http` transport.
+Additionally you'll need to provide an `Authorization` header with your Tilebox API key as the bearer token for the `https://mcp.tilebox.com/` server.
+
+```json
+{
+  "mcpServers": {
+    "tilebox": {
+      "url": "https://mcp.tilebox.com/",
+      "headers": {
+        "Authorization": "Bearer <YOUR_TILEBOX_API_KEY>"
+      }
+    },
+    "tilebox-docs": {
+      "url": "https://docs.tilebox.com/mcp"
+    }
+  }
+}
+```
+
+### For Claude Desktop
+
+Run the following commands to add the Tilebox MCP server to Claude:
+
+```bash
+claude mcp add --transport http "Tilebox" https://mcp.tilebox.com/ --header "Authorization: Bearer <YOUR_TILEBOX_API_KEY>"
+claude mcp add --transport http "Tilebox Docs" https://docs.tilebox.com/mcp
+```
+
+## Providing the full Tilebox documentation as context
 
 <Card title="Download documentation for LLMs" icon="brain-circuit" href="https://docs.tilebox.com/llms-full.txt" horizontal>
 Download the complete Tilebox documentation as a plain text file to share with your AI assistant or language model.
@@ -18,35 +63,3 @@ The full content of the Tilebox documentation is available in plain markdown for
 The [Documentation Context](https://docs.tilebox.com/llms-full.txt) is updated whenever the documentation changes. If you download the file, refresh it occasionally to stay up-to-date.
 </Tip>
 
-## Providing tailored context via MCP
-
-Tilebox Docs can be installed as an MCP tool, so an MCP client can ask for detailed context on specific topics.
-
-### For Claude Desktop
-
-Run the following command to add Tilebox Docs to Claude:
-
-```bash
-claude mcp add --transport http "Tilebox Docs" https://docs.tilebox.com/mcp
-```
-
-### For other MCP clients
-
-1. Open command palette (Cmd+Shift+P / Ctrl+Shift+P)
-2. Search "Open MCP settings"
-3. Select "Add custom MCP"
-4. Add to mcp.json:
-
-```json
-{
-  "mcpServers": {
-    "tilebox-docs": {
-      "url": "https://docs.tilebox.com/mcp"
-    }
-  }
-}
-```
-
-<Tip>
-The MCP server always retrieves the most up to date version of the documentation.
-</Tip>
