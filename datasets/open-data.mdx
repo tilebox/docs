@@ -65,17 +65,47 @@ Tilebox currently supports the following datasets from the Copernicus Data Space
   atmospheric constituents related to monitoring and forecasting air quality,
   the ozone layer, and climate change.
   </Accordion>
-  <Accordion title="Landsat 8">
-  Landsat-8 is part of the long-running Landsat programme led by USGS and NASA and
-  carries the Operational Land Imager (OLI) and the Thermal Infrared Sensor
-  (TIRS). The Operational Land Imager (OLI), on board Landsat-8 measures in
+  <Accordion title="Sentinel 6">
+  The Sentinel-6 mission represents a groundbreaking advancement in Earth observation,
+  providing invaluable insights for scientists, environmentalists, and stakeholders worldwide.
+  At the heart of this mission is the cutting-edge radar altimeter instrument, designed to
+  measure sea surface height and monitor key oceanographic parameters with unparalleled accuracy.
+  The Sentinel-6 satellite collects precise data by employing advanced radar technology,
+  allowing for a comprehensive understanding of sea level variations, ocean currents, and climate patterns.
+  </Accordion>
+</AccordionGroup>
+
+### United States Geological Survey (USGS)
+
+The [United States Geological Survey (USGS)](https://www.usgs.gov/) provides a wide range of Earth observation data, including [Landsat](https://science.nasa.gov/mission/landsat/) data, which are also available as open data through Tilebox.
+
+<Frame caption="Landsat missions © USGS">
+  <img src="https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/styles/full_width/public/media/images/5019-Landsat-timeline-L7_decomissioned_2025%201.png?itok=meijDrCj" alt="USGS Landsat timeline" />
+</Frame>
+
+<AccordionGroup>
+  <Accordion title="Landsat 1-3">
+  Landsat-1/2/3 carry the Multispectral Scanner (MSS) instrument, which measures in the VIS and NIR portions of the spectrum. Its images have 79 m spatial resolution.
+  </Accordion>
+  <Accordion title="Landsat 4-5">
+  Landsat-4/5 carry both the Multispectral Scanner (MSS) which measures in the VIS, NIR and SWIR
+  portions of the spectrum in a 30m spatial resolution, and the Thematic Mapper (TM) instrument, which measures in the thermal-infrared band in a 120 m spatial resolution.
+  </Accordion>
+  <Accordion title="Landsat 7">
+  Landsat-7 carries the Enhanced Thematic Mapper Plus (ETM+) instrument, which measures in the VIS, NIR and SWIR and thermal-infrared
+  portions of the spectrum. Its images have 15-60 m spatial resolution.
+  </Accordion>
+  <Accordion title="Landsat 8-9">
+  Landsat-8/9 are part of the long-running Landsat programme led by USGS and NASA and
+  carry the Operational Land Imager (OLI) and the Thermal Infrared Sensor
+  (TIRS). The Operational Land Imager (OLI), on board measures in
   the VIS, NIR and SWIR portions of the spectrum. Its images have 15 m
   panchromatic and 30 m multi-spectral spatial resolutions along a 185 km wide
   swath, covering wide areas of the Earth's landscape while providing
   high enough resolution to distinguish features like urban centres, farms,
   forests and other land uses. The entire Earth falls within view once every
-  16 days due to Landsat-8's near-polar orbit. The Thermal Infra-Red Sensor
-  instrument, on board Landsat-8, is a thermal imager operating in pushbroom
+  16 days due to Landsat-8/9's near-polar orbit. The Thermal Infra-Red Sensor (TIRS)
+  instrument on board is a thermal imager operating in pushbroom
   mode with two Infra-Red channels: 10.8 µm and 12 µm with 100 m spatial
   resolution.
   </Accordion>
@@ -102,5 +132,25 @@ Tilebox currently supports the following datasets from Umbra Space:
 <AccordionGroup>
   <Accordion title="Umbra SAR">
   Time-series SAR data provided as Opendata by Umbra Space.
+  </Accordion>
+</AccordionGroup>
+
+### Satellogic
+
+[Satellogic](https://satellogic.com/) offers the EarthView dataset, which includes high-resolution satellite images captured over all continents. The dataset is available through Tilebox as a spatio-temporal dataset.
+
+<AccordionGroup>
+  <Accordion title="Satellogic EarthView">
+  High resolution satellite images provided as Opendata by Satellogic. The dataset provides Top-of-Atmosphere (TOA) reflectance values across four spectral bands (Red, Green, Blue, Near-Infrared) at a Ground Sample Distance (GSD) of 1 meter, accompanied by comprehensive metadata such as off-nadir angles, sun elevation, and other pertinent details. Users should note that due to an artifact in region delineation, a small number of regions present overlaps.
+  </Accordion>
+</AccordionGroup>
+
+### Wyvern
+
+[Wyvern](https://wyvern.space/) offers a constellation of satellites providing high-resolution, hyperspectral imagery. They offer products from their [Dragonette constellation](https://wyvern.space/our-products/generation-one-hyperspectral-satellites/) as open data, which is also available through Tilebox as a spatio-temporal dataset.
+
+<AccordionGroup>
+  <Accordion title="Wyvern Dragonette">
+  High resolution, hyperspectral imagery provided as Opendata by Wyvern.
   </Accordion>
 </AccordionGroup>
