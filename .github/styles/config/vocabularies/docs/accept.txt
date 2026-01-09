@@ -52,6 +52,9 @@ coroutines
 (?i)LLMs
 (?i)Imager
 (?i)pushbroom
+(?i)Satellogic
+(?i)Wyvern
+(?i)Hyperspectral
 rollout
 (?i)automations
 (?i)protobuf
