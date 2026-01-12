@@ -5,31 +5,27 @@ icon: laptop-code
 ---
 
 ```go
-func (datasetClient) Create(
+func (datasetClient) CreateOrUpdate(
     ctx context.Context,
-    name string,
     kind datasets.DatasetKind,
     codeName string, 
-    description string,
+    name string,
     fields []Field,
 ) (*datasets.Dataset, error)
 ```
 
-Create a dataset.
+Create a dataset or update an existing one, if a dataset with the given `codeName` already exists.
 
 ## Parameters
 
-<ParamField path="name" type="string">
-  The name of the dataset
-</ParamField>
 <ParamField path="kind" type="datasets.DatasetKind">
   The kind of the dataset
 </ParamField>
 <ParamField path="codeName" type="string">
   The code name of the dataset
 </ParamField>
-<ParamField path="description" type="string">
-  The description of the dataset
+<ParamField path="name" type="string">
+  The name of the dataset
 </ParamField>
 <ParamField path="fields" type="[]Field">
   The fields of the dataset
@@ -95,11 +91,10 @@ The created dataset object.
 
 <RequestExample>
 ```go Go
-dataset, err := client.Datasets.Create(ctx,
-    "My personal catalog",
+dataset, err := client.Datasets.CreateOrUpdate(ctx,
     datasets.KindSpatiotemporal,
     "my_catalog",
-    "A description of my catalog",
+    "My personal catalog",
     []Field{
         field.String("field1"),
         field.Int64("field2").Repeated(),

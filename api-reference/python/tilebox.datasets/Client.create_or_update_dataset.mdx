@@ -1,16 +1,16 @@
 ---
-title: Client.create_dataset
+title: Client.create_or_update_dataset
+sidebarTitle: Client.create_or_update...
 icon: laptop-code
 ---
 
 ```python
-def Client.create_dataset(
+def Client.create_or_update_dataset(
     kind: DatasetKind,
     code_name: str,
     fields: list[FieldDict],
     *,
     name: str | None = None,
-    description: str | None = None
 ) -> Dataset
 ```
 
@@ -29,9 +29,6 @@ Create a dataset.
 </ParamField>
 <ParamField path="name" type="str | None">
   The name of the dataset
-</ParamField>
-<ParamField path="description" type="str | None">
-  A short description of the dataset
 </ParamField>
 
 ## Dataset kinds
