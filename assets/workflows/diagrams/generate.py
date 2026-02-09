@@ -1,7 +1,58 @@
 from pathlib import Path
 import re
-import os
+import subprocess
 from tempfile import NamedTemporaryFile
+
+
+_LIGHT_THEME = """
+classes: {
+    optional: { style: {opacity: 0.8; stroke-dash: 5 }}
+    queued: { style: {fill: "#FFF0F5"; stroke: "#504448"; font-color: "#000000" }}
+    running: { style: {fill: "#AFEEEE"; stroke: "#0e5253"; font-color: "#000000" }}
+    computed: { style: {fill: "#F0FFF0"; stroke: "#3f4b40"; font-color: "#000000" }}
+    failed: { style: {fill: "#FA8072"; stroke: "#4a1511"; font-color: "#000000" }}
+    skipped: { style: {fill: "#fcf3ae"; stroke: "#877e3c"; font-color: "#000000" }}
+    subtask-edge: { style: {stroke: "#170206" }}
+    dependency-edge: { style: {stroke-dash: 3; stroke: "#9B1A47" }}
+    diagram-title: { near: top-center; shape: text; style: {font-size: 30; font-color: "#170206" }}
+}
+
+style.fill: "#FCF9FA"
+
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 102
+    sketch: true
+    pad: 10
+  }
+}
+""".strip()
+
+_DARK_THEME = """
+classes: {
+    optional: { style: {opacity: 0.8; stroke-dash: 5 }}
+    queued: { style: {fill: "#A37200"; stroke: "#fcc76f"; font-color: "#FFFFFF" }}
+	running: { style: {fill: "#3E7079"; stroke: "#b1e5ef"; font-color: "#FFFFFF" }}
+	computed: { style: {fill: "#265429"; stroke: "#b7ebb8"; font-color: "#FFFFFF" }}
+	failed: { style: {fill: "#A31800"; stroke: "#f78d79"; font-color: "#FFFFFF" }}
+	skipped: { style: {fill: "#c6b63c"; stroke: "#ffed67"; font-color: "#FFFFFF" }}
+    subtask-edge: { style: {stroke: "#F4F1F4" }}
+    dependency-edge: { style: {stroke-dash: 3; stroke: "#F97F76" }}
+    diagram-title: { near: top-center; shape: text; style: {font-size: 30; font-color: "#F4F1F4" }}
+}
+
+style.fill: "#161416"
+
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 102
+    sketch: true
+    pad: 10
+  }
+}
+"""
 
 
 def generate_svg(diagram: str, output_file: Path) -> None:
@@ -10,7 +61,7 @@ def generate_svg(diagram: str, output_file: Path) -> None:
     with NamedTemporaryFile(suffix=".d2") as tmp_file:
         Path(tmp_file.name).write_text(diagram)
         print("Generating", output_file.name)
-        os.system(f"d2 {tmp_file.name} {output_file}")
+        subprocess.run(["d2", tmp_file.name, str(output_file)])
         fix_svg_width_height(output_file)
 
 
@@ -20,40 +71,11 @@ def generate_light_and_dark_svgs(diagram_file: Path, output_dir: Path):
     diagram = diagram_file.read_text()
     output_file = output_dir / diagram_file.with_suffix(".svg").name
     dark_output_file = output_dir / diagram_file.with_suffix(".dark.svg").name
-    generate_svg(diagram, output_file)
-    generate_svg(to_dark(diagram), dark_output_file)
 
-
-def to_dark(diagram: str) -> str:
-    """Converts a diagram to dark mode by manipulating colors."""
-
-    color_mapping = {
-        # general
-        "#000000": "#FFFFFF",
-        # main background color
-        "#FCF9FA": "#161416",
-        # title text, parent->child edge color
-        "#170206": "#F4F1F4",
-        # dependency edge color
-        "#9B1A47": "#F97F76",
-        # queued
-        "#FFF0F5": "#A37200",
-        "#504448": "#fcc76f",
-        # running
-        "#AFEEEE": "#3E7079",
-        "#0e5253": "#B1E5EF",
-        # computed
-        "#F0FFF0": "#265429",
-        "#3F4B40": "#B7EBB8",
-        # failed
-        "#FA8072": "#A31800",
-        "#4A1511": "#F78D79",
-    }
-
-    for light_color, dark_color in color_mapping.items():
-        diagram = diagram.replace(light_color, dark_color)
-
-    return diagram
+    light_diagram = _LIGHT_THEME + "\n" + diagram
+    dark_diagram = _DARK_THEME + "\n" + diagram
+    generate_svg(light_diagram, output_file)
+    generate_svg(dark_diagram, dark_output_file)
 
 
 def fix_svg_width_height(svg_file: Path):

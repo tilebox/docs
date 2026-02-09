@@ -1,47 +1,26 @@
-vars: {
-  d2-config: {
-    layout-engine: dagre
-    theme-id: 102
-    sketch: true
-    pad: 10
-  }
-}
-
-style.fill: "#FCF9FA"
-style.stroke: "#170206"
 direction: down
 
-title: {
+title: { 
   label: custom-display-names
-  near: top-center
-  shape: text
-  style.font-size: 30
-  style.font-color: "#170206"
+  class: diagram-title
 }
+
 root-task: {
   label: "Root(3)"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 leaf0: {
   label: "Leaf Nr. 0"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-root-task -> leaf0: {style.stroke: "#170206"}
+root-task -> leaf0: {class: subtask-edge}
 leaf1: {
   label: "Leaf Nr. 1"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-root-task -> leaf1: {style.stroke: "#170206"}
+root-task -> leaf1: {class: subtask-edge}
 leaf2: {
   label: "Leaf Nr. 2"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-root-task -> leaf2: {style.stroke: "#170206"}
+root-task -> leaf2: {class: subtask-edge}

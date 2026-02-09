@@ -1,116 +1,76 @@
-vars: {
-  d2-config: {
-    layout-engine: dagre
-    theme-id: 102
-    sketch: true
-    pad: 10
-  }
-}
-
-style.fill: "#FCF9FA"
 direction: down
 
-title: {
+title: { 
   label: download-dog-images-recursive
-  near: top-center
-  shape: text
-  style.font-size: 30
-  style.font-color: "#170206"
+  class: diagram-title
 }
+
 01916ed6-dad9-69de-e2b9-498bfd4063ec: {
   label: "DownloadRandomDogImages"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 01916ed6-ed2c-8108-aaf6-9c3e36b2be71: {
   label: "DownloadRandomDogImages"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed6-dad9-69de-e2b9-498bfd4063ec -> 01916ed6-ed2c-8108-aaf6-9c3e36b2be71: {style.stroke: "#170206"}
+01916ed6-dad9-69de-e2b9-498bfd4063ec -> 01916ed6-ed2c-8108-aaf6-9c3e36b2be71: {class: subtask-edge}
 01916ed6-f486-0ecc-b38b-f6227ff00a64: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed6-ed2c-8108-aaf6-9c3e36b2be71 -> 01916ed6-f486-0ecc-b38b-f6227ff00a64: {style.stroke: "#170206"}
+01916ed6-ed2c-8108-aaf6-9c3e36b2be71 -> 01916ed6-f486-0ecc-b38b-f6227ff00a64: {class: subtask-edge}
 01916ed6-f486-7440-7137-8eff4418bb33: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed6-ed2c-8108-aaf6-9c3e36b2be71 -> 01916ed6-f486-7440-7137-8eff4418bb33: {style.stroke: "#170206"}
+01916ed6-ed2c-8108-aaf6-9c3e36b2be71 -> 01916ed6-f486-7440-7137-8eff4418bb33: {class: subtask-edge}
 01916ed6-f486-96f5-935e-60f53a9e236a: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed6-ed2c-8108-aaf6-9c3e36b2be71 -> 01916ed6-f486-96f5-935e-60f53a9e236a: {style.stroke: "#170206"}
+01916ed6-ed2c-8108-aaf6-9c3e36b2be71 -> 01916ed6-f486-96f5-935e-60f53a9e236a: {class: subtask-edge}
 01916ed7-0baf-73da-1803-f84c268462bf: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed7-062b-8b76-089b-d6afefbeda9d -> 01916ed7-0baf-73da-1803-f84c268462bf: {style.stroke: "#170206"}
+01916ed7-062b-8b76-089b-d6afefbeda9d -> 01916ed7-0baf-73da-1803-f84c268462bf: {class: subtask-edge}
 01916ed6-f486-b3b4-ba10-e866c110cd5f: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed6-ed2c-8108-aaf6-9c3e36b2be71 -> 01916ed6-f486-b3b4-ba10-e866c110cd5f: {style.stroke: "#170206"}
+01916ed6-ed2c-8108-aaf6-9c3e36b2be71 -> 01916ed6-f486-b3b4-ba10-e866c110cd5f: {class: subtask-edge}
 01916ed6-ed2c-cd72-4f0b-ec87c45cb3f7: {
   label: "DownloadRandomDogImages"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed6-dad9-69de-e2b9-498bfd4063ec -> 01916ed6-ed2c-cd72-4f0b-ec87c45cb3f7: {style.stroke: "#170206"}
+01916ed6-dad9-69de-e2b9-498bfd4063ec -> 01916ed6-ed2c-cd72-4f0b-ec87c45cb3f7: {class: subtask-edge}
 01916ed7-062b-8b76-089b-d6afefbeda9d: {
   label: "DownloadRandomDogImages"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed6-ed2c-cd72-4f0b-ec87c45cb3f7 -> 01916ed7-062b-8b76-089b-d6afefbeda9d: {style.stroke: "#170206"}
+01916ed6-ed2c-cd72-4f0b-ec87c45cb3f7 -> 01916ed7-062b-8b76-089b-d6afefbeda9d: {class: subtask-edge}
 01916ed7-0baf-8926-8a77-732688abe0cb: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed7-062b-8b76-089b-d6afefbeda9d -> 01916ed7-0baf-8926-8a77-732688abe0cb: {style.stroke: "#170206"}
+01916ed7-062b-8b76-089b-d6afefbeda9d -> 01916ed7-0baf-8926-8a77-732688abe0cb: {class: subtask-edge}
 01916ed7-1b55-55e6-f4ab-d931df99d369: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed7-062b-fdb3-f762-8fef23e661ba -> 01916ed7-1b55-55e6-f4ab-d931df99d369: {style.stroke: "#170206"}
+01916ed7-062b-fdb3-f762-8fef23e661ba -> 01916ed7-1b55-55e6-f4ab-d931df99d369: {class: subtask-edge}
 01916ed7-1b55-6209-99c0-8aef11bd35b6: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed7-062b-fdb3-f762-8fef23e661ba -> 01916ed7-1b55-6209-99c0-8aef11bd35b6: {style.stroke: "#170206"}
+01916ed7-062b-fdb3-f762-8fef23e661ba -> 01916ed7-1b55-6209-99c0-8aef11bd35b6: {class: subtask-edge}
 01916ed7-1b55-742f-385b-7167502a2fe2: {
   label: "DownloadImage"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed7-062b-fdb3-f762-8fef23e661ba -> 01916ed7-1b55-742f-385b-7167502a2fe2: {style.stroke: "#170206"}
+01916ed7-062b-fdb3-f762-8fef23e661ba -> 01916ed7-1b55-742f-385b-7167502a2fe2: {class: subtask-edge}
 01916ed7-062b-fdb3-f762-8fef23e661ba: {
   label: "DownloadRandomDogImages"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed6-ed2c-cd72-4f0b-ec87c45cb3f7 -> 01916ed7-062b-fdb3-f762-8fef23e661ba: {style.stroke: "#170206"}
+01916ed6-ed2c-cd72-4f0b-ec87c45cb3f7 -> 01916ed7-062b-fdb3-f762-8fef23e661ba: {class: subtask-edge}

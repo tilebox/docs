@@ -1,76 +1,47 @@
-vars: {
-  d2-config: {
-    layout-engine: dagre
-    theme-id: 102
-    sketch: true
-    pad: 10
-  }
-}
-
-style.fill: "#FCF9FA"
-style.stroke: "#170206"
 direction: down
 
-title: {
+title: { 
   label: task-states
-  near: top-center
-  shape: text
-  style.font-size: 30
-  style.font-color: "#170206"
+  class: diagram-title
 }
+
 my-task: {
   label: "ComputedRootTask"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 queued-task: {
   label: "QueuedTask"
-  style.fill: "#FFF0F5"
-  style.stroke: "#504448"
-  style.font-color: "#000000"
+  class: queued
 }
-my-task -> queued-task: {style.stroke: "#170206"}
+my-task -> queued-task: {class: subtask-edge}
 running-task: {
   label: "RunningTask"
-  style.fill: "#AFEEEE"
-  style.stroke: "#0e5253"
-  style.font-color: "#000000"
+  class: running
 }
-my-task -> running-task: {style.stroke: "#170206"}
+my-task -> running-task: {class: subtask-edge}
 computed-task: {
   label: "ComputedTask"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-my-task -> computed-task: {style.stroke: "#170206"}
+my-task -> computed-task: {class: subtask-edge}
 computed-task-child: {
   label: "RunningLeafTask"
-  style.fill: "#AFEEEE"
-  style.stroke: "#0e5253"
-  style.font-color: "#000000"
+  class: running
 }
-computed-task -> computed-task-child: {style.stroke: "#170206"}
+computed-task -> computed-task-child: {class: subtask-edge}
 completed-task: {
   label: "CompletedTask"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-my-task -> completed-task: {style.stroke: "#170206"}
+my-task -> completed-task: {class: subtask-edge}
 completed-task-child: {
   label: "CompletedLeafTask"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-completed-task -> completed-task-child: {style.stroke: "#170206"}
+completed-task -> completed-task-child: {class: subtask-edge}
 
 failed-task: {
   label: "FailedTask"
-  style.fill: "#FA8072"
-  style.stroke: "#4A1511"
-  style.font-color: "#000000"
+  class: failed
 }
-my-task -> failed-task: {style.stroke: "#170206"}
+my-task -> failed-task: {class: subtask-edge}
