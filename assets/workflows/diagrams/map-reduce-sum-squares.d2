@@ -1,119 +1,66 @@
-vars: {
-  d2-config: {
-    layout-engine: dagre
-    theme-id: 102
-    sketch: true
-    pad: 10
-  }
-}
-
-style.fill: "#FCF9FA"
 direction: down
 
-title: {
+title: { 
   label: sum-of-squares
-  near: top-center
-  shape: text
-  style.font-size: 30
-  style.font-color: "#170206"
+  class: diagram-title
 }
 
 019a9176-72e9-edbd-d024-fb99f600e1fa: {
   label: "SumOfSquares"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 
 019a9176-76c8-0480-07be-e83bf99dac2c: {
   label: "Square(98)"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 
-019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-0480-07be-e83bf99dac2c: {style.stroke: "#170206"}
+019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-0480-07be-e83bf99dac2c: {class: subtask-edge}
 
 019a9176-76c8-04f7-c2c8-e8d372d824bc: {
   label: "Square(45)"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 
-019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-04f7-c2c8-e8d372d824bc: {style.stroke: "#170206"}
+019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-04f7-c2c8-e8d372d824bc: {class: subtask-edge}
 
 019a9176-76c8-1a9a-5bd2-c41879b58bda: {
   label: "Square(21)"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 
-019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-1a9a-5bd2-c41879b58bda: {style.stroke: "#170206"}
+019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-1a9a-5bd2-c41879b58bda: {class: subtask-edge}
 
 019a9176-76c8-bb8a-5ed9-4f868d205031: {
   label: "Square(12)"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 
-019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-bb8a-5ed9-4f868d205031: {style.stroke: "#170206"}
+019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-bb8a-5ed9-4f868d205031: {class: subtask-edge}
 
 019a9176-76c8-6b0f-cc99-aced507f4af3: {
   label: "Square(453)"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 
-019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-6b0f-cc99-aced507f4af3: {style.stroke: "#170206"}
+019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-6b0f-cc99-aced507f4af3: {class: subtask-edge}
 
 019a9176-76c8-a875-d48a-6738631806bc: {
   label: "Square(345)"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 
-019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-a875-d48a-6738631806bc: {style.stroke: "#170206"}
+019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-a875-d48a-6738631806bc: {class: subtask-edge}
 
 019a9176-76c8-c8c6-2fa6-18bde250fffe: {
   label: "Sum"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 
-019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-c8c6-2fa6-18bde250fffe: {style.stroke: "#170206"}
-
-019a9176-76c8-0480-07be-e83bf99dac2c <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
-
-019a9176-76c8-04f7-c2c8-e8d372d824bc <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
-
-019a9176-76c8-1a9a-5bd2-c41879b58bda <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
-
-019a9176-76c8-6b0f-cc99-aced507f4af3 <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
-
-019a9176-76c8-a875-d48a-6738631806bc <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
-
-019a9176-76c8-bb8a-5ed9-4f868d205031 <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
+019a9176-72e9-edbd-d024-fb99f600e1fa -> 019a9176-76c8-c8c6-2fa6-18bde250fffe: {class: subtask-edge}
+019a9176-76c8-0480-07be-e83bf99dac2c <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {class: dependency-edge}
+019a9176-76c8-04f7-c2c8-e8d372d824bc <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {class: dependency-edge}
+019a9176-76c8-1a9a-5bd2-c41879b58bda <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {class: dependency-edge}
+019a9176-76c8-6b0f-cc99-aced507f4af3 <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {class: dependency-edge}
+019a9176-76c8-a875-d48a-6738631806bc <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {class: dependency-edge}
+019a9176-76c8-bb8a-5ed9-4f868d205031 <- 019a9176-76c8-c8c6-2fa6-18bde250fffe: {class: dependency-edge}

@@ -1,84 +1,50 @@
-vars: {
-  d2-config: {
-    layout-engine: dagre
-    theme-id: 102
-    sketch: true
-    pad: 10
-  }
-}
-
-style.fill: "#FCF9FA"
 direction: down
 
-title: {
+title: { 
   label: larger-job
-  near: top-center
-  shape: text
-  style.font-size: 30
-  style.font-color: "#170206"
+  class: diagram-title
 }
+
 my-task: {
   label: "MyTask"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 subtask1: {
   label: "SubTask"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-my-task -> subtask1: {style.stroke: "#170206"}
+my-task -> subtask1: {class: subtask-edge}
 subtask2: {
   label: "SubTask"
-  style.fill: "#AFEEEE"
-  style.stroke: "#0e5253"
-  style.font-color: "#000000"
+  class: running
 }
-my-task -> subtask2: {style.stroke: "#170206"}
+my-task -> subtask2: {class: subtask-edge}
 subtask3: {
   label: "SubTask"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-my-task -> subtask3: {style.stroke: "#170206"}
+my-task -> subtask3: {class: subtask-edge}
 
 dependent-task1: {
   label: "DependentTask"
-  style.fill: "#AFEEEE"
-  style.stroke: "#0e5253"
-  style.font-color: "#000000"
+  class: running
 }
-subtask1 -> dependent-task1: {style.stroke: "#170206"}
+subtask1 -> dependent-task1: {class: subtask-edge}
 leaf-task1: {
   label: "LeafTask"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-subtask1 -> leaf-task1: {style.stroke: "#170206"}
-leaf-task1 <- dependent-task1: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
+subtask1 -> leaf-task1: {class: subtask-edge}
+leaf-task1 <- dependent-task1: {class: dependency-edge}
 
 dependent-task2: {
   label: "DependentTask"
-  style.fill: "#FFF0F5"
-  style.stroke: "#504448"
-  style.font-color: "#000000"
+  class: queued
 }
-subtask3 -> dependent-task2: {style.stroke: "#170206"}
+subtask3 -> dependent-task2: {class: subtask-edge}
 leaf-task2: {
   label: "LeafTask"
-  style.fill: "#AFEEEE"
-  style.stroke: "#0e5253"
-  style.font-color: "#000000"
+  class: running
 }
-subtask3 -> leaf-task2: {style.stroke: "#170206"}
-leaf-task2 <- dependent-task2: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
+subtask3 -> leaf-task2: {class: subtask-edge}
+leaf-task2 <- dependent-task2: {class: dependency-edge}

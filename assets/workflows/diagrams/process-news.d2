@@ -1,55 +1,28 @@
-vars: {
-  d2-config: {
-    layout-engine: elk
-    theme-id: 102
-    sketch: true
-    pad: 10
-  }
-}
+direction: down
 
-style.fill: "#FCF9FA"
-style.stroke: "#170206"
-direction: right
-
-title: {
+title: { 
   label: process-news
-  near: top-center
-  shape: text
-  style.font-size: 30
-  style.font-color: "#170206"
+  class: diagram-title
 }
+
 01916ed7-bb5c-cded-13e3-577582b8c8f8: {
   label: "NewsWorkflow"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
 01916ed7-c66a-2035-de36-c3e6b1496d45: {
   label: "FetchNews"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed7-bb5c-cded-13e3-577582b8c8f8 -> 01916ed7-c66a-2035-de36-c3e6b1496d45: {style.stroke: "#170206"}
+01916ed7-bb5c-cded-13e3-577582b8c8f8 -> 01916ed7-c66a-2035-de36-c3e6b1496d45: {class: subtask-edge}
 01916ed7-c66a-4bd8-a48a-40c300bab3cb: {
   label: "PrintHeadlines"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed7-bb5c-cded-13e3-577582b8c8f8 -> 01916ed7-c66a-4bd8-a48a-40c300bab3cb: {style.stroke: "#170206"}
-01916ed7-c66a-2035-de36-c3e6b1496d45 <- 01916ed7-c66a-4bd8-a48a-40c300bab3cb: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
+01916ed7-bb5c-cded-13e3-577582b8c8f8 -> 01916ed7-c66a-4bd8-a48a-40c300bab3cb: {class: subtask-edge}
+01916ed7-c66a-2035-de36-c3e6b1496d45 <- 01916ed7-c66a-4bd8-a48a-40c300bab3cb: {class: dependency-edge}
 01916ed7-c66a-6e39-f4dd-c17e61711eeb: {
   label: "MostFrequentAuthors"
-  style.fill: "#F0FFF0"
-  style.stroke: "#3F4B40"
-  style.font-color: "#000000"
+  class: computed
 }
-01916ed7-bb5c-cded-13e3-577582b8c8f8 -> 01916ed7-c66a-6e39-f4dd-c17e61711eeb: {style.stroke: "#170206"}
-01916ed7-c66a-2035-de36-c3e6b1496d45 <- 01916ed7-c66a-6e39-f4dd-c17e61711eeb: {
-  style.stroke-dash: 3
-  style.stroke: "#9B1A47"
-}
+01916ed7-bb5c-cded-13e3-577582b8c8f8 -> 01916ed7-c66a-6e39-f4dd-c17e61711eeb: {class: subtask-edge}
+01916ed7-c66a-2035-de36-c3e6b1496d45 <- 01916ed7-c66a-6e39-f4dd-c17e61711eeb: {class: dependency-edge}
