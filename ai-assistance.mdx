@@ -16,7 +16,7 @@ When an AI tool like Claude, Cursor, or ChatGPT has the Tilebox MCP server confi
 tools. For example, when asking a question about a specific dataset, the AI tool can query the Tilebox MCP server for the
 dataset schema and include the correct, and up-to-date information about it in the response.
 
-The Tilebox MCP server at `https://mcp.tilebox.com/` provides tools for:
+The Tilebox MCP server at `https://mcp.tilebox.com/mcp` provides tools for:
 - Accessing and interacting with Tilebox datasets and workflows
 - Searching the Tilebox documentation
 
@@ -31,7 +31,7 @@ Additionally you'll need to provide an `Authorization` header with your Tilebox 
 {
   "mcpServers": {
     "tilebox": {
-      "url": "https://mcp.tilebox.com/",
+      "url": "https://mcp.tilebox.com/mcp",
       "headers": {
         "Authorization": "Bearer <YOUR_TILEBOX_API_KEY>"
       }
@@ -45,7 +45,7 @@ Additionally you'll need to provide an `Authorization` header with your Tilebox 
 Run the following command to add the Tilebox MCP server to Claude:
 
 ```bash
-claude mcp add --transport http "Tilebox" https://mcp.tilebox.com/ --header "Authorization: Bearer <YOUR_TILEBOX_API_KEY>"
+claude mcp add --transport http "Tilebox" https://mcp.tilebox.com/mcp --header "Authorization: Bearer <YOUR_TILEBOX_API_KEY>"
 ```
 
 ## Providing the full Tilebox documentation as context
@@ -62,4 +62,3 @@ The full content of the Tilebox documentation is available in plain markdown for
 <Tip>
 The [Documentation Context](https://docs.tilebox.com/llms-full.txt) is updated whenever the documentation changes. If you download the file, refresh it occasionally to stay up-to-date.
 </Tip>
-
