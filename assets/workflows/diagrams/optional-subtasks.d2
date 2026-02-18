@@ -1,0 +1,35 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+title: { 
+  label: optional-subtask
+  class: diagram-title
+}
+
+root: {
+  label: "RootTask"
+  class: computed
+}
+
+required-task: {
+  label: "Required Task"
+  class: computed
+}
+root -> required-task: {class: subtask-edge}
+
+risky-task: {
+  label: "Risky Task\n(optional)"
+  class: [optional; failed]
+}
+root -> risky-task: {class: subtask-edge}
+
+final-task: {
+  label: "Final Task"
+  class: computed
+}
+required-task <- final-task: {class: dependency-edge}
+risky-task <- final-task: {class: dependency-edge}
+root -> final-task: {class: subtask-edge}

@@ -8,7 +8,8 @@ def ExecutionContext.submit_subtask(
   task: Task,
   depends_on: list[FutureTask] = None,
   cluster: str | None = None,
-  max_retries: int = 0
+  max_retries: int = 0,
+  optional: bool = False
 ) -> FutureTask
 ```
 
@@ -32,6 +33,10 @@ Submit a [subtask](/workflows/concepts/tasks#subtasks-and-task-composition) from
   Specify the maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case of failure. The default is 0.
 </ParamField>
 
+<ParamField path="optional" type="bool">
+  Whether the subtask is [optional](/workflows/concepts/tasks#optional-tasks). If `True`, the subtask will not fail the job if it fails. Tasks that depend on this task will still execute even if this task failed. The default is `False`.
+</ParamField>
+
 ## Returns
 
 A `FutureTask` object that represents the submitted subtask. Can be used to set up dependencies between tasks.
@@ -50,6 +55,10 @@ gpu_task = context.submit_subtask(
 flaky_task = context.submit_subtask(
     MyFlakyTask(),
     max_retries=5
+)
+optional_task = context.submit_subtask(
+    MyOptionalTask(),
+    optional=True
 )
 ```
 </RequestExample>

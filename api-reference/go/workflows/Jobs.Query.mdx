@@ -33,6 +33,15 @@ The output sequence can be transformed into a slice of Job using [Collect](/api-
   Specify the automation id for which data should be queried.
   Only jobs that were created by the specified automation will be returned.
 </ParamField>
+<ParamField path="WithJobStates(states ...workflows.JobState)">
+  Filter jobs by their state. Only jobs in any of the given states will be returned.
+</ParamField>
+<ParamField path="WithName(name string)">
+  Filter jobs by name. Only jobs with a matching name will be returned.
+</ParamField>
+<ParamField path="WithTaskStates(states ...workflows.TaskState)">
+  Filter jobs by the states of their tasks. Only jobs that have at least one task in any of the given states will be returned. Useful for finding jobs with [optional](/workflows/concepts/tasks#optional-tasks) task failures.
+</ParamField>
 
 ## Returns
 

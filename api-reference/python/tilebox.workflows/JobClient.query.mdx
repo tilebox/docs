@@ -7,6 +7,9 @@ icon: diagram-project
 def JobClient.query(
     temporal_extent: TimeIntervalLike | IDIntervalLike,
     automation_id: UUID | None = None,
+    job_states: JobState | list[JobState] | None = None,
+    name: str | None = None,
+    task_states: TaskState | list[TaskState] | None = None,
 ) -> list[Job]
 ```
 
@@ -29,6 +32,15 @@ Query jobs in the specified interval.
 </ParamField>
 <ParamField path="automation_id" type="UUID | None">
   The automation id to filter jobs by. If not provided, jobs from all automations are returned.
+</ParamField>
+<ParamField path="job_states" type="JobState | list[JobState] | None">
+  A job state or list of job states to filter by. If specified, only jobs in any of the given states are returned.
+</ParamField>
+<ParamField path="name" type="str | None">
+  A name to filter jobs by. If specified, only jobs with a matching name are returned. The name is matched using case-insensitive fuzzy search.
+</ParamField>
+<ParamField path="task_states" type="TaskState | list[TaskState] | None">
+  A task state or list of task states to filter jobs by. If specified, only jobs that have at least one task in any of the given states are returned. Useful for finding jobs with [optional](/workflows/concepts/tasks#optional-tasks) task failures, e.g. `task_states=TaskState.FAILED_OPTIONAL`.
 </ParamField>
 
 ## Returns

@@ -166,7 +166,7 @@
                   "api-reference/python/tilebox.datasets/Client",
                   "api-reference/python/tilebox.datasets/Client.datasets",
                   "api-reference/python/tilebox.datasets/Client.dataset",
-                  "api-reference/python/tilebox.datasets/Client.create_dataset",
+                  "api-reference/python/tilebox.datasets/Client.create_or_update_dataset",
                   "api-reference/python/tilebox.datasets/Dataset.collections",
                   "api-reference/python/tilebox.datasets/Dataset.collection",
                   "api-reference/python/tilebox.datasets/Dataset.create_collection",
@@ -188,6 +188,7 @@
                   "api-reference/python/tilebox.workflows/TaskRunner.run_all",
                   "api-reference/python/tilebox.workflows/TaskRunner.run_forever",
                   "api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask",
+                  "api-reference/python/tilebox.workflows/ExecutionContext.submit_subtasks",
                   "api-reference/python/tilebox.workflows/ExecutionContext.job_cache",
                   "api-reference/python/tilebox.workflows/ClusterClient.create",
                   "api-reference/python/tilebox.workflows/ClusterClient.find",
@@ -327,7 +328,7 @@
   },
   "fonts": {
     "heading": {
-      "family": "Poppins"
+      "family": "Geist"
     }
   },
   "errors": {
