@@ -6,19 +6,17 @@ jobs:
     name: Run Vale Linter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           lfs: true
       - name: Install Vale
         run: |
-          VALE_URL="https://github.com/errata-ai/vale/releases/download/v3.12.0/vale_3.12.0_Linux_64-bit.tar.gz"
-          curl -L "$VALE_URL" -o vale.tar.gz
-          tar -xzf vale.tar.gz
-          mv vale /usr/local/bin/
+          curl -L "https://github.com/errata-ai/vale/releases/download/v3.13.1/vale_3.13.1_Linux_64-bit.tar.gz" -o vale.tar.gz
+          tar -xzf vale.tar.gz -C /usr/local/bin vale
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
       - name: Install MDX preprocessor
         run: npm install -g mdx2vast
       - name: Run vale
@@ -27,13 +25,13 @@ jobs:
     name: Check docs standards
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           lfs: true
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
       - name: Install Mintlify CLI
         run: npm install -g mintlify
       - name: Run Mintlify broken-links
