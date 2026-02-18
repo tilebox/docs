@@ -69,3 +69,5 @@ boolean
 reprojected
 (?i)geospatial
 (?i)cartesian
+(?i)OAuth
+
