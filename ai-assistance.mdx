@@ -20,21 +20,19 @@ The Tilebox MCP server at `https://mcp.tilebox.com/mcp` provides tools for:
 - Accessing and interacting with Tilebox datasets and workflows
 - Searching the Tilebox documentation
 
-It requires authentication using a Tilebox API key. When configured, AI agents can query datasets, interact with workflows, and search the documentation for detailed context on specific topics.
+It requires authentication via OAuth. When connecting, you'll be redirected to sign in with your Tilebox account and select a team to authorize the MCP server for.
+When configured, AI agents can query datasets, interact with workflows, and search the documentation for detailed context on specific topics.
 
 ### Configuring the Tilebox MCP server
 
 To configure your AI tools to use the Tilebox MCP server, you need to point it to the correct URL using the `http` transport.
-Additionally you'll need to provide an `Authorization` header with your Tilebox API key as the bearer token.
+Authentication is handled automatically via OAuth — no API key or headers required.
 
 ```json
 {
   "mcpServers": {
     "tilebox": {
-      "url": "https://mcp.tilebox.com/mcp",
-      "headers": {
-        "Authorization": "Bearer <YOUR_TILEBOX_API_KEY>"
-      }
+      "url": "https://mcp.tilebox.com/mcp"
     }
   }
 }
@@ -45,8 +43,27 @@ Additionally you'll need to provide an `Authorization` header with your Tilebox 
 Run the following command to add the Tilebox MCP server to Claude:
 
 ```bash
-claude mcp add --transport http "Tilebox" https://mcp.tilebox.com/mcp --header "Authorization: Bearer <YOUR_TILEBOX_API_KEY>"
+claude mcp add --transport http "Tilebox" https://mcp.tilebox.com/mcp
 ```
+
+<Tip>
+If you need to access multiple teams, add a separate MCP server instance for each one. For example:
+
+```json
+{
+  "mcpServers": {
+    "tilebox-team1": {
+      "url": "https://mcp.tilebox.com/mcp"
+    },
+    "tilebox-team2": {
+      "url": "https://mcp.tilebox.com/mcp"
+    }
+  }
+}
+```
+
+Each instance will go through its own OAuth flow, allowing you to authorize a different team.
+</Tip>
 
 ## Providing the full Tilebox documentation as context
 
