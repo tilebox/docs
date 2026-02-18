@@ -45,3 +45,27 @@ failed-task: {
   class: failed
 }
 my-task -> failed-task: {class: subtask-edge}
+
+optional-failed-task: {
+  label: "FailedTask\n(Optional)"
+  class: [optional; failed]
+}
+my-task -> optional-failed-task: {class: subtask-edge}
+
+optional-task: {
+  label: "ComputedTask\n(Optional)"
+  class: [optional; computed]
+}
+my-task -> optional-task: {class: subtask-edge}
+
+optional-task-failed-subtask: {
+  label: "FailedTask\n(in an optional subtask tree)"
+  class: failed
+}
+optional-task -> optional-task-failed-subtask: {class: subtask-edge}
+
+skipped-task: {
+  label: "SkippedTask\n(due to failing sibling task)"
+  class: skipped
+}
+optional-task -> skipped-task: {class: subtask-edge}

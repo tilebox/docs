@@ -4,6 +4,20 @@ description: A chronological record of new features, improvements, and other not
 icon: rss
 ---
 
+<Update label="February 2026">
+    <Frame>
+    ![Optional Tasks](/assets/changelog/2026-02-optional-tasks.png)
+    </Frame>
+
+    ## Optional Tasks
+
+    Subtasks can now be marked as **optional** when submitting them. If an optional task fails, the job continues instead of being canceled. Failed optional tasks are marked with the state `FAILED_OPTIONAL`, and any remaining queued sibling tasks in the same optional subtask tree are automatically `SKIPPED`. Tasks that depend on an optional task still execute even if it failed.
+
+    This is useful for workflows where certain steps are not critical and their failure should not prevent the rest of the job from completing.
+
+    See the [optional tasks documentation](/workflows/concepts/tasks#optional-tasks) for details and examples.
+</Update>
+
 <Update label="January 2026">
     <Frame>
     ![MCP Server](/assets/changelog/2026-01-02-mcp-server.png)

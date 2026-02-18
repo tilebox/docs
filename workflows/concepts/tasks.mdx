@@ -356,8 +356,13 @@ In total, six tasks are executed: the `DownloadRandomDogImages` task and five `D
 
 ## Task States
 
-Every task goes through a set of states during its lifetime. When submitted, either as a job or as a subtask, it starts in the `QUEUED` state and transitions to `RUNNING` when a task runner picks it up. If the task executes successfully, it transitions to `COMPUTED`. If the task fails, it transitions to `FAILED`.
-As soon as all subtasks of a task are also `COMPUTED`, the task is considered `COMPLETED`, allowing dependent tasks to be executed.
+Every task goes through a set of states during its lifetime.
+
+- When submitted, either as a job or as a subtask, it starts in the `QUEUED` state and transitions to `RUNNING` when a task runner picks it up.
+- If the task executes successfully, it transitions to `COMPUTED`.
+- If the task fails, it transitions to `FAILED`, unless it's an [optional task](#optional-tasks), or within an [optional task tree](#optional-subtrees), in which case it transitions to `FAILED_OPTIONAL`.
+- As soon as all subtasks of a task are `COMPUTED` (or `FAILED_OPTIONAL`), the task is considered `COMPLETED`, allowing dependent tasks to be executed.
+
 The table below summarizes the different task states and their meanings.
 
 | Task State | Description |
@@ -367,6 +372,8 @@ The table below summarizes the different task states and their meanings.
 | **Computed**   | The task has successfully been computed, but still has outstanding subtasks. |
 | **Completed**  | The task has successfully been computed, and all it's subtasks are also computed, making it `COMPLETED`. This is the final state of a task. Only once a task has been `COMPLETED`, dependent tasks can be executed. |
 | **Failed**     | The task has been executed but encountered an error. |
+| **Failed (Optional)** | The task has been executed but encountered an error. Since the task was [marked as optional](#optional-tasks), the job continues executing. |
+| **Skipped**    | The task was skipped because it's a subtask of an optional task and one of its siblings failed. |
 
 <Frame>
   <img
@@ -964,6 +971,251 @@ An important aspect is that there is no dependency between the `PrintHeadlines` 
 <Tip>
   In this example, the results from `FetchNews` are stored in a file. This is not the recommended method for passing data between tasks. When executing on a distributed cluster, the existence of a file written by a dependent task cannot be guaranteed. Instead, it's better to use a [shared cache](/workflows/caches).
 </Tip>
+
+## Optional Tasks
+
+By default, if any task in a job fails (after exhausting all [retries](#retry-handling)), the entire job is marked as failed and all remaining queued tasks are canceled. In some workflows though, certain tasks are not critical. Their failure should not prevent the rest of the job from completing. For these cases, you can mark a subtask as **optional**.
+
+An optional task has the following behavior:
+
+- If it **succeeds**, the job continues as normal, there is no difference from a regular task.
+- If it **fails**, the job is **not** canceled. Instead:
+  - The failed task is marked with the state `FAILED_OPTIONAL` instead of `FAILED`.
+  - Tasks that [depend on](#dependencies) the optional task **still execute**, even though the optional task failed.
+  - The parent task and the rest of the job continue as normal.
+
+<Note>
+  Optional tasks can be combined with [retry handling](#retry-handling). An optional task is only marked as `FAILED_OPTIONAL` after all retries have been exhausted. For example, `context.submit_subtask(RiskyTask(), optional=True, max_retries=3)` will retry up to 3 times before being treated as a failed optional task.
+</Note>
+
+### Submitting Optional Tasks
+
+To mark a subtask as optional, use the `optional` parameter when submitting it:
+
+<CodeGroup>
+```python Python
+class RootTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        required_step = context.submit_subtask(
+            RequiredTask(),
+        )
+        optional_step = context.submit_subtask(
+            RiskyTask(), optional=True
+        )
+        context.submit_subtask(
+            FinalTask(), depends_on=[required_step, optional_step]
+        )
+
+class RequiredTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        # this task may fail, but the job will continue regardless
+        print("This task is required to succeed, otherwise the job would stop")
+
+class RiskyTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        # this task may fail, but the job will continue regardless
+        print("Attempting risky operation...")
+
+class FinalTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        # this task runs even if RiskyTask failed
+        print("Running final step")
+```
+```go Go
+type RootTask struct{}
+
+func (t *RootTask) Execute(ctx context.Context) error {
+	requiredStep, err := workflows.SubmitSubtask(ctx, &RequiredTask{})
+	if err != nil {
+		return err
+	}
+
+	optionalStep, err := workflows.SubmitSubtask(ctx, &RiskyTask{},
+		subtask.WithOptional(),
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = workflows.SubmitSubtask(ctx, &FinalTask{},
+		subtask.WithDependencies(requiredStep, optionalStep),
+	)
+	return err
+}
+
+type RequiredTask struct{}
+
+func (t *RequiredTask) Execute(context.Context) error {
+	slog.Info("This task is required to succeed, otherwise the job would stop")
+	return nil
+}
+
+type RiskyTask struct{}
+
+func (t *RiskyTask) Execute(context.Context) error {
+	// this task may fail, but the job will continue regardless
+	slog.Info("Attempting risky operation...")
+	return nil
+}
+
+type FinalTask struct{}
+
+func (t *FinalTask) Execute(context.Context) error {
+	// this task runs even if RiskyTask failed
+	slog.Info("Running final step")
+	return nil
+}
+```
+</CodeGroup>
+
+In this example, `RiskyTask` is submitted as an optional subtask. If it fails, `FinalTask` still executes because it depends on an optional task. The job completes successfully. A visualization of such a job is shown below.
+
+<Frame>
+  <img src="/assets/workflows/diagrams/svg/optional-subtasks.svg" alt="Optional Subtasks Workflow" className="dark:hidden" />
+  <img
+    src="/assets/workflows/diagrams/svg/optional-subtasks.dark.svg"
+    alt="Optional Subtasks Workflow"
+    className="hidden dark:block"
+  />
+</Frame>
+
+### Optional Subtrees
+
+When an optional task itself submits subtasks, all those subtasks form an **optional subtask tree**, or **optional subtree**. If any task within this tree fails, all remaining queued tasks in the same tree are automatically **skipped**. The failure does not propagate beyond the optional boundary and the parent job continues normally.
+
+<CodeGroup>
+```python Python
+class Pipeline(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        context.submit_subtask(
+            OptionalProcessing(), optional=True
+        )
+        context.submit_subtask(AlwaysRuns())
+
+class OptionalProcessing(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        first = context.submit_subtask(Step1())
+        context.submit_subtask(Step2(), depends_on=[first])
+
+class Step1(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        raise ValueError("something went wrong")
+
+class Step1A(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        print("Step1A executed successfully")
+
+class Step1B(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        raise ValueError("something went wrong")
+
+class Step1C(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        print("This will be skipped because Step1B failed")
+
+class Step2(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        print("This will be skipped because Step1B failed")
+
+class AlwaysRuns(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        print("This runs regardless")
+```
+```go Go
+type Pipeline struct{}
+
+func (t *Pipeline) Execute(ctx context.Context) error {
+	_, err := workflows.SubmitSubtask(ctx, &OptionalProcessing{},
+		subtask.WithOptional(),
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = workflows.SubmitSubtask(ctx, &AlwaysRuns{})
+	return err
+}
+
+type OptionalProcessing struct{}
+
+func (t *OptionalProcessing) Execute(ctx context.Context) error {
+	first, err := workflows.SubmitSubtask(ctx, &Step1{})
+	if err != nil {
+		return err
+	}
+
+	_, err = workflows.SubmitSubtask(ctx, &Step2{},
+		subtask.WithDependencies(first),
+	)
+	return err
+}
+
+type Step1 struct{}
+
+func (t *Step1) Execute(context.Context) error {
+	workflows.SubmitSubtask(ctx, &Step1A{})
+	workflows.SubmitSubtask(ctx, &Step1B{})
+	workflows.SubmitSubtask(ctx, &Step1C{})
+	return nil
+}
+
+type Step1A struct{}
+
+func (t *Step1A) Execute(context.Context) error {
+  slog.Info("Step1A executed successfully")
+	return nil
+}
+
+type Step1B struct{}
+
+func (t *Step1B) Execute(context.Context) error {
+	return errors.New("something went wrong")
+}
+
+type Step1C struct{}
+
+func (t *Step1C) Execute(context.Context) error {
+  slog.Info("This will be skipped because Step1B failed")
+	return nil
+}
+
+type Step2 struct{}
+
+func (t *Step2) Execute(context.Context) error {
+	slog.Info("This will be skipped because Step1B failed")
+	return nil
+}
+
+type AlwaysRuns struct{}
+
+func (t *AlwaysRuns) Execute(context.Context) error {
+	slog.Info("This runs regardless")
+	return nil
+}
+```
+</CodeGroup>
+
+In this example, `Step1B` fails. Since it's inside the optional `Processing` subtask tree, both `Step1C` and `Step2` are skipped and `AlwaysRuns` still executes. The job completes successfully.
+
+<Frame>
+  <img src="/assets/workflows/diagrams/svg/optional-subtree.svg" alt="Optional Subtree Workflow" className="dark:hidden" />
+  <img
+    src="/assets/workflows/diagrams/svg/optional-subtree.dark.svg"
+    alt="Optional Subtree Workflow"
+    className="hidden dark:block"
+  />
+</Frame>
+
+If instead `Step1B` was also marked as optional, `Step1C` and `Step2` would still be executed, and only after that `AlwaysRuns` would execute. This means that optional subtasks can have other optional subtasks nested within them.
+
+<Frame>
+  <img src="/assets/workflows/diagrams/svg/optional-subtree-recursive.svg" alt="Optional Subtree Workflow" className="dark:hidden" />
+  <img
+    src="/assets/workflows/diagrams/svg/optional-subtree-recursive.dark.svg"
+    alt="Optional Subtree Workflow"
+    className="hidden dark:block"
+  />
+</Frame>
 
 ## Task Identifiers
 

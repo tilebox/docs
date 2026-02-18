@@ -36,6 +36,9 @@ This function is intended to be used in tasks.
 <ParamField path="WithMaxRetries(maxRetries int64)" default="0">
   Set the maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtasks in case it fails
 </ParamField>
+<ParamField path="WithOptional()" default="false">
+  Mark the subtasks as [optional](/workflows/concepts/tasks#optional-tasks). Optional subtasks will not fail the job if they fail. Tasks that depend on them will still execute even if they failed.
+</ParamField>
 
 ## Returns
 

@@ -1,0 +1,54 @@
+---
+title: Context.submit_subtasks
+icon: folder-gear
+---
+
+```python
+def ExecutionContext.submit_subtasks(
+  tasks: Sequence[Task],
+  depends_on: list[FutureTask] = None,
+  cluster: str | None = None,
+  max_retries: int = 0,
+  optional: bool = False
+) -> list[FutureTask]
+```
+
+Submit multiple [subtasks](/workflows/concepts/tasks#subtasks-and-task-composition) from a currently executing task. Same as [submit_subtask](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask), but accepts a sequence of tasks.
+
+## Parameters
+
+<ParamField path="tasks" type="Sequence[Task]">
+  The tasks to submit as subtasks.
+</ParamField>
+
+<ParamField path="depends_on" type="list[FutureTask]">
+  An optional list of tasks already submitted within the same context that the subtasks depend on.
+</ParamField>
+
+<ParamField path="cluster" type="str">
+  An optional [cluster slug](/workflows/concepts/clusters#managing-clusters) for running the subtasks. If not provided, the subtasks run on the same cluster as the parent task.
+</ParamField>
+
+<ParamField path="max_retries" type="int">
+  Specify the maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtasks in case of failure. The default is 0.
+</ParamField>
+
+<ParamField path="optional" type="bool">
+  Whether the subtasks are [optional](/workflows/concepts/tasks#optional-tasks). If `True`, the subtasks will not fail the job if they fail. Tasks that depend on them will still execute even if they failed. The default is `False`.
+</ParamField>
+
+## Returns
+
+A list of `FutureTask` objects representing the submitted subtasks. Can be used to set up dependencies between tasks.
+
+<RequestExample>
+```python Python
+# within the execute method of a Task:
+subtasks = context.submit_subtasks([
+    MySubtask(i) for i in range(10)
+])
+dependent_subtask = context.submit_subtask(
+    MyOtherSubtask(), depends_on=subtasks
+)
+```
+</RequestExample>

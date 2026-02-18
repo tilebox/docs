@@ -1,0 +1,52 @@
+title: { 
+  label: optional-subtree-recursive
+  class: diagram-title
+}
+
+pipeline: {
+  label: "Pipeline"
+  class: computed
+}
+
+optional-processing: {
+  label: "Processing\n(optional)"
+  class: [optional; computed]
+}
+pipeline -> optional-processing: {class: subtask-edge}
+
+step-1: {
+  label: "Step 1"
+  class: computed
+}
+optional-processing -> step-1: {class: subtask-edge}
+
+step-1a: {
+  label: "Step 1A"
+  class: computed
+}
+step-1 -> step-1a: {class: subtask-edge}
+
+step-1b: {
+  label: "Step 1B\n(optional)"
+  class: [optional; failed]
+}
+step-1 -> step-1b: {class: subtask-edge}
+
+step-1c: {
+  label: "Step 1C"
+  class: computed
+}
+step-1 -> step-1c: {class: subtask-edge}
+
+step-2: {
+  label: "Step 2"
+  class: computed
+}
+optional-processing -> step-2: {class: subtask-edge}
+step-1 <- step-2: {class: dependency-edge}
+
+always-runs: {
+  label: "AlwaysRuns"
+  class: computed
+}
+pipeline -> always-runs: {class: subtask-edge}
