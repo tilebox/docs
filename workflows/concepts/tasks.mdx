@@ -360,7 +360,7 @@ Every task goes through a set of states during its lifetime.
 
 - When submitted, either as a job or as a subtask, it starts in the `QUEUED` state and transitions to `RUNNING` when a task runner picks it up.
 - If the task executes successfully, it transitions to `COMPUTED`.
-- If the task fails, it transitions to `FAILED`, unless it's an [optional task](#optional-tasks), or within an [optional task tree](#optional-subtrees), in which case it transitions to `FAILED_OPTIONAL`.
+- If the task fails, it transitions to `FAILED`, unless it's an [optional task](#optional-tasks), or nested within an [optional task](#nested-optional-tasks), in which case it transitions to `FAILED_OPTIONAL`.
 - As soon as all subtasks of a task are `COMPUTED` (or `FAILED_OPTIONAL`), the task is considered `COMPLETED`, allowing dependent tasks to be executed.
 
 The table below summarizes the different task states and their meanings.
@@ -984,8 +984,16 @@ An optional task has the following behavior:
   - Tasks that [depend on](#dependencies) the optional task **still execute**, even though the optional task failed.
   - The parent task and the rest of the job continue as normal.
 
+Some scenarios where optional tasks are useful are:
+
+- **Data enrichment**: A task responsible for fetching auxiliary data that is not critical for the job to complete.
+- **Reporting**: If a task is a notification or logging task, its failure should not prevent the rest of the job from completing.
+- **Fault tolerance**: If a task is known to be flaky and may fail intermittently, marking it as optional can help ensure the job continues to make progress.
+- **Aggregation workflows**: If a workflow is composed of multiple independent subtasks, and an aggregation task summarizing the results, not every subtask needs to succeed for the aggregation task to run.
+- **Cleanup tasks**: If certain tasks need to always run at the end of a job, for example to send a notification, or to clean up temporary resources, marking the job tasks as optional ensures they always run.
+
 <Note>
-  Optional tasks can be combined with [retry handling](#retry-handling). An optional task is only marked as `FAILED_OPTIONAL` after all retries have been exhausted. For example, `context.submit_subtask(RiskyTask(), optional=True, max_retries=3)` will retry up to 3 times before being treated as a failed optional task.
+  Optional tasks can be combined with [retry handling](#retry-handling). An optional task is only marked as `FAILED_OPTIONAL` after all retries have been exhausted. For example, `context.submit_subtask(FlakyTask(), optional=True, max_retries=3)` will retry up to 3 times before being treated as a failed optional task.
 </Note>
 
 ### Submitting Optional Tasks
@@ -1000,7 +1008,7 @@ class RootTask(Task):
             RequiredTask(),
         )
         optional_step = context.submit_subtask(
-            RiskyTask(), optional=True
+            FlakyTask(), optional=True
         )
         context.submit_subtask(
             FinalTask(), depends_on=[required_step, optional_step]
@@ -1011,14 +1019,14 @@ class RequiredTask(Task):
         # this task may fail, but the job will continue regardless
         print("This task is required to succeed, otherwise the job would stop")
 
-class RiskyTask(Task):
+class FlakyTask(Task):
     def execute(self, context: ExecutionContext) -> None:
         # this task may fail, but the job will continue regardless
-        print("Attempting risky operation...")
+        print("Attempting flaky operation...")
 
 class FinalTask(Task):
     def execute(self, context: ExecutionContext) -> None:
-        # this task runs even if RiskyTask failed
+        # this task runs even if FlakyTask failed
         print("Running final step")
 ```
 ```go Go
@@ -1030,7 +1038,7 @@ func (t *RootTask) Execute(ctx context.Context) error {
 		return err
 	}
 
-	optionalStep, err := workflows.SubmitSubtask(ctx, &RiskyTask{},
+	optionalStep, err := workflows.SubmitSubtask(ctx, &FlakyTask{},
 		subtask.WithOptional(),
 	)
 	if err != nil {
@@ -1050,25 +1058,25 @@ func (t *RequiredTask) Execute(context.Context) error {
 	return nil
 }
 
-type RiskyTask struct{}
+type FlakyTask struct{}
 
-func (t *RiskyTask) Execute(context.Context) error {
+func (t *FlakyTask) Execute(context.Context) error {
 	// this task may fail, but the job will continue regardless
-	slog.Info("Attempting risky operation...")
+	slog.Info("Attempting flaky operation...")
 	return nil
 }
 
 type FinalTask struct{}
 
 func (t *FinalTask) Execute(context.Context) error {
-	// this task runs even if RiskyTask failed
+	// this task runs even if FlakyTask failed
 	slog.Info("Running final step")
 	return nil
 }
 ```
 </CodeGroup>
 
-In this example, `RiskyTask` is submitted as an optional subtask. If it fails, `FinalTask` still executes because it depends on an optional task. The job completes successfully. A visualization of such a job is shown below.
+In this example, `FlakyTask` is submitted as an optional subtask. If it fails, `FinalTask` still executes because it depends on an optional task. The job completes successfully. A visualization of such a job is shown below.
 
 <Frame>
   <img src="/assets/workflows/diagrams/svg/optional-subtasks.svg" alt="Optional Subtasks Workflow" className="dark:hidden" />
@@ -1079,9 +1087,9 @@ In this example, `RiskyTask` is submitted as an optional subtask. If it fails, `
   />
 </Frame>
 
-### Optional Subtrees
+### Nested Optional Tasks
 
-When an optional task itself submits subtasks, all those subtasks form an **optional subtask tree**, or **optional subtree**. If any task within this tree fails, all remaining queued tasks in the same tree are automatically **skipped**. The failure does not propagate beyond the optional boundary and the parent job continues normally.
+When an optional task itself submits subtasks, those subtasks, and also their subtasks recursively, are also considered optional. If any of those tasks fail, all remaining queued tasks that are nested within the same optional root task are automatically **skipped**. This ensures that the failure does not propagate beyond the optional boundary and the parent job continues normally.
 
 <CodeGroup>
 ```python Python
@@ -1195,12 +1203,12 @@ func (t *AlwaysRuns) Execute(context.Context) error {
 ```
 </CodeGroup>
 
-In this example, `Step1B` fails. Since it's inside the optional `Processing` subtask tree, both `Step1C` and `Step2` are skipped and `AlwaysRuns` still executes. The job completes successfully.
+In this example, `Step1B` fails. Since it's an indirect subtask of the optional `Processing` subtask, both `Step1C` and `Step2` are skipped and `AlwaysRuns` still executes. The job completes successfully.
 
 <Frame>
-  <img src="/assets/workflows/diagrams/svg/optional-subtree.svg" alt="Optional Subtree Workflow" className="dark:hidden" />
+  <img src="/assets/workflows/diagrams/svg/nested-optional-subtasks.svg" alt="Optional Subtree Workflow" className="dark:hidden" />
   <img
-    src="/assets/workflows/diagrams/svg/optional-subtree.dark.svg"
+    src="/assets/workflows/diagrams/svg/nested-optional-subtasks.dark.svg"
     alt="Optional Subtree Workflow"
     className="hidden dark:block"
   />
@@ -1209,9 +1217,9 @@ In this example, `Step1B` fails. Since it's inside the optional `Processing` sub
 If instead `Step1B` was also marked as optional, `Step1C` and `Step2` would still be executed, and only after that `AlwaysRuns` would execute. This means that optional subtasks can have other optional subtasks nested within them.
 
 <Frame>
-  <img src="/assets/workflows/diagrams/svg/optional-subtree-recursive.svg" alt="Optional Subtree Workflow" className="dark:hidden" />
+  <img src="/assets/workflows/diagrams/svg/nested-optional-subtasks-recursive.svg" alt="Optional Subtree Workflow" className="dark:hidden" />
   <img
-    src="/assets/workflows/diagrams/svg/optional-subtree-recursive.dark.svg"
+    src="/assets/workflows/diagrams/svg/nested-optional-subtasks-recursive.dark.svg"
     alt="Optional Subtree Workflow"
     className="hidden dark:block"
   />
@@ -1219,7 +1227,7 @@ If instead `Step1B` was also marked as optional, `Step1C` and `Step2` would stil
 
 ## Task Identifiers
 
-A task identifier is a unique string used by the Tilebox Workflow Orchestrator to identify the task. It's used by [task runners](/workflows/concepts/task-runners) to map submitted tasks to a task class and execute them. It also serves as the default name in execution visualizations as a tree of tasks.
+A task identifier is a unique string used by the Tilebox Workflow Orchestrator to identify the task. It's used by [task runners](/workflows/concepts/task-runners) to map submitted tasks to a task class and execute them. It also serves as the default name in execution visualizations.
 
 If unspecified, the identifier of a task defaults to the class name. For instance, the identifier of the `PrintHeadlines` task in the previous example is `"PrintHeadlines"`. This is good for prototyping, but not recommended for production, as changing the class name also changes the identifier, which can lead to issues during refactoring. It also prevents different tasks from sharing the same class name.
 
