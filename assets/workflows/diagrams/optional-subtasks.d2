@@ -20,16 +20,16 @@ required-task: {
 }
 root -> required-task: {class: subtask-edge}
 
-risky-task: {
-  label: "Risky Task\n(optional)"
+flaky-task: {
+  label: "Flaky Task\n(optional)"
   class: [optional; failed]
 }
-root -> risky-task: {class: subtask-edge}
+root -> flaky-task: {class: subtask-edge}
 
 final-task: {
   label: "Final Task"
   class: computed
 }
 required-task <- final-task: {class: dependency-edge}
-risky-task <- final-task: {class: dependency-edge}
+flaky-task <- final-task: {class: dependency-edge}
 root -> final-task: {class: subtask-edge}
