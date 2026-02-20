@@ -1,17 +1,64 @@
 ---
 title: Storage Clients
-description: Configure and use storage clients in the Tilebox Python SDK to download satellite data products from supported public providers for local processing.
+description: Configure and use storage clients in the Tilebox Python SDK to access satellite data products from public providers and local file systems.
 icon: hard-drive
 ---
 
 Tilebox does not host the actual open data satellite products but instead relies on publicly accessible storage providers for data access.
 Tilebox ingests available metadata as [datasets](/datasets/concepts/datasets) to enable high performance querying and structured access of the data as [xarray.Dataset](/sdks/python/xarray).
 
+In addition to public provider clients, Tilebox also supports a local file system storage client. This is useful when your data is already available on a local disk, a mounted network share, or a synced folder such as Dropbox or Google Drive.
+
 Below is a list of the storage providers currently supported by Tilebox.
 
 <Note>
   This feature is only available in the Python SDK.
 </Note>
+
+## Local File System (including Dropbox-synced folders)
+
+Use `LocalFileSystemStorageClient` when your dataset datapoints already reference files on a local or mounted path.
+
+This client does not download remote data. Instead, it resolves and validates local paths using each datapoint's `location` field.
+
+```python Python highlight={4, 11, 21}
+from pathlib import Path
+
+from tilebox.datasets import Client
+from tilebox.storage import LocalFileSystemStorageClient
+
+# Creating clients
+client = Client()
+storage_client = LocalFileSystemStorageClient(root=Path("/Volumes/data"))
+
+# Querying a dataset that stores file locations
+dataset = client.dataset("my_org.local.imagery")
+collection = dataset.collection("ORTHO")
+data = collection.query(temporal_extent=("2025-01-01", "2025-01-02"), show_progress=True)
+
+# Selecting a single datapoint
+selected = data.isel(time=0)
+
+# Returns the local path where data already exists
+local_path = storage_client.download(selected)
+print(local_path)
+
+# List files relative to the datapoint location
+objects = storage_client.list_objects(selected)
+print(objects)
+```
+
+### Datapoint fields used by this client
+
+- `location` (required): Path to the product directory or file, relative to the configured `root`.
+- `thumbnail`, `overview`, or `quicklook` (optional): Relative path used by `download_quicklook` and `quicklook`.
+
+If quicklook metadata is present, you can access it the same way as with other storage clients:
+
+```python Python
+quicklook_path = storage_client.download_quicklook(selected)
+storage_client.quicklook(selected)
+```
 
 ## Copernicus Data Space
 
