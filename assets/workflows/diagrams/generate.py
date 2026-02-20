@@ -61,7 +61,21 @@ def generate_svg(diagram: str, output_file: Path) -> None:
     with NamedTemporaryFile(suffix=".d2") as tmp_file:
         Path(tmp_file.name).write_text(diagram)
         print("Generating", output_file.name)
-        subprocess.run(["d2", tmp_file.name, str(output_file)])
+        subprocess.run(
+            [
+                "d2",
+                "--font-regular",
+                "fonts/Geist-Regular.ttf",
+                "--font-bold",
+                "fonts/Geist-Bold.ttf",
+                "--font-semibold",
+                "fonts/Geist-SemiBold.ttf",
+                "--font-italic",
+                "fonts/Geist-Italic.ttf",
+                tmp_file.name,
+                str(output_file),
+            ]
+        )
         fix_svg_width_height(output_file)
 
 
