@@ -167,7 +167,6 @@ If you prefer to work locally, follow these steps to get started.
 		"log/slog"
 		"time"
 
-		"github.com/google/uuid"
 		"github.com/paulmach/orb"
 		"github.com/paulmach/orb/encoding/wkt"
 		"github.com/tilebox/tilebox-go/datasets/v1"
@@ -201,10 +200,12 @@ If you prefer to work locally, follow these steps to get started.
 	// You have to use tilebox-generate to generate the dataset type
 		var datapointsOverColorado []*v1.Sentinel2Msi
 		err = client.Datapoints.QueryInto(ctx,
-			[]uuid.UUID{collection.ID}, &datapointsOverColorado,
-			datasets.WithTemporalExtent(march2025),
-			datasets.WithSpatialExtent(colorado),
-		)
+			dataset.ID,
+			&datapointsOverColorado,
+			datasets.WithCollectionIDs(collection.ID),
+                        datasets.WithTemporalExtent(march2025),
+                        datasets.WithSpatialExtent(colorado),
+                )
 		if err != nil {
 			log.Fatalf("Failed to query datapoints: %v", err)
 		}

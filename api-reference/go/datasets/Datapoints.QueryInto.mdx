@@ -7,20 +7,20 @@ icon: layer-group
 ```go
 func (datapointClient) QueryInto(
     ctx context.Context,
-    collectionIDs []uuid.UUID,
+    datasetID uuid.UUID,
     datapoints any,
     options ...datasets.QueryOption,
 ) error
 ```
 
-Query a range of data points in the specified collections in a specified interval.
+Query datapoints from one or more collections of the same dataset into a slice.
 
 QueryInto is a convenience function for [Query](/api-reference/go/datasets/Datapoints.Query), when no manual pagination or custom iteration is required.
 
 ## Parameters
 
-<ParamField path="collectionIDs" type="[]uuid.UUID">
-  The ids of the collections to query
+<ParamField path="datasetID" type="uuid.UUID">
+  The ID of the dataset to query.
 </ParamField>
 <ParamField path="datapoints" type="*[]proto.Message">
   The datapoints to query into
@@ -38,6 +38,15 @@ QueryInto is a convenience function for [Query](/api-reference/go/datasets/Datap
 <ParamField path="WithSpatialExtent(spatialExtent orb.Geometry)">
   Specify the geographical extent in which to query data.
   Optional, if not specified the query will return all results found globally.
+</ParamField>
+<ParamField path="WithSpatialExtentFilter(spatialExtent query.SpatialExtent)">
+  Specify a geographical extent with an explicit spatial filter mode and coordinate system.
+</ParamField>
+<ParamField path="WithCollections(collections ...*datasets.Collection)">
+  Restrict the query to specific dataset collections by collection object.
+</ParamField>
+<ParamField path="WithCollectionIDs(collectionIDs ...uuid.UUID)">
+  Restrict the query to specific dataset collections by collection ID.
 </ParamField>
 <ParamField path="WithSkipData()" default="false">
   Skip the data when querying datapoints.
@@ -62,8 +71,9 @@ queryInterval := query.NewTimeInterval(startDate, endDate)
 
 var datapoints []*v1.Sentinel1Sar
 err := client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID},
+    dataset.ID,
     &datapoints,
+    datasets.WithCollectionIDs(collection.ID),
     datasets.WithTemporalExtent(queryInterval),
 )
 ```

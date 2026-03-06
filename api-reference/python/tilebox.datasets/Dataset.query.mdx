@@ -1,0 +1,92 @@
+---
+title: Dataset.query
+icon: database
+---
+
+```python
+def Dataset.query(
+    *,
+    collections: list[str] | list[UUID] | list[Collection] | list[CollectionInfo] | list[CollectionClient] | dict[str, CollectionClient] | None = None,
+    temporal_extent: TimeIntervalLike,
+    spatial_extent: SpatialFilterLike | None = None,
+    skip_data: bool = False,
+    show_progress: bool | Callable[[float], None] = False,
+) -> xarray.Dataset
+```
+
+Query data points across one or more collections in this dataset.
+
+If `collections` is not provided, all collections in the dataset are queried.
+If no data matches the filters, an empty `xarray.Dataset` is returned.
+
+## Parameters
+
+<ParamField path="collections" type="list[...] | dict[str, CollectionClient] | None">
+  Optional collection scope for the query.
+
+  Supported values include:
+  - A list of collection names (`list[str]`)
+  - A list of collection IDs (`list[UUID]`)
+  - A list of collection objects (`list[Collection]`, `list[CollectionInfo]`, `list[CollectionClient]`)
+  - The dictionary returned by `dataset.collections()`
+
+  If omitted or set to `None`, all collections in the dataset are queried.
+</ParamField>
+
+<ParamField path="temporal_extent" type="TimeIntervalLike">
+  The time or time interval to query. This can be a single time scalar, a tuple of two time scalars, or a `TimeInterval` object.
+</ParamField>
+
+<ParamField path="spatial_extent" type="SpatialFilterLike | None">
+  Optional spatial filter. Use this for spatial queries in spatio-temporal datasets.
+</ParamField>
+
+<ParamField path="skip_data" type="bool">
+  If `True`, only required datapoint fields are returned (`time`, `id`, `ingestion_time`). Defaults to `False`.
+</ParamField>
+
+<ParamField path="show_progress" type="bool | Callable[[float], None]">
+  If `True`, display a progress bar when pagination is required. You can also pass a callback to receive progress values between `0` and `1`. Defaults to `False`.
+</ParamField>
+
+## Returns
+
+An [`xarray.Dataset`](/sdks/python/xarray) containing matching datapoints.
+
+## Errors
+
+<ParamField path="ValueError" type="A temporal_extent for your query must be specified">
+  Raised when `temporal_extent` is not provided.
+</ParamField>
+
+<ParamField path="ValueError" type="Collection <name> not found in dataset <dataset>">
+  Raised when one or more collection names do not exist in the dataset.
+</ParamField>
+
+<ParamField path="ValueError" type="Collection <id> is not part of the dataset <dataset>">
+  Raised when one or more provided collection IDs/objects are not part of the dataset.
+</ParamField>
+
+<RequestExample>
+```python Python
+# query all collections in the dataset
+data = dataset.query(
+    temporal_extent=("2025-04-01", "2025-05-01"),
+)
+
+# query selected collections by name
+data = dataset.query(
+    collections=["S2A_S2MSI2A", "S2B_S2MSI2A"],
+    temporal_extent=("2025-04-01", "2025-05-01"),
+    show_progress=True,
+)
+
+# query selected collections by object
+collections = dataset.collections()
+data = dataset.query(
+    collections=[collections["S2A_S2MSI2A"], collections["S2B_S2MSI2A"]],
+    temporal_extent=("2025-04-01", "2025-05-01"),
+    skip_data=True,
+)
+```
+</RequestExample>

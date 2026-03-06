@@ -284,7 +284,9 @@ endDate := time.Date(2025, time.March, 29, 0, 0, 0, 0, time.UTC)
 
 var dataToCopy []*v1.MyCustomDataset
 err = client.Datapoints.QueryInto(ctx,
-  []uuid.UUID{srcCollection.ID}, &dataToCopy,
+  dataset.ID,
+  &dataToCopy,
+  datasets.WithCollectionIDs(srcCollection.ID),
   datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
 )
 if err != nil {
@@ -402,4 +404,3 @@ Check out the [Ingestion from common file formats](/guides/datasets/ingest-forma
 
 Ingesting Geometries can traditionally be a bit tricky, especially when working with geometries that cross the antimeridian or cover a pole.
 Tilebox is designed to take away most of the friction involved in this, but it's still recommended to follow the [best practices for handling geometries](/datasets/geometries).
-

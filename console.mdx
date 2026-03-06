@@ -58,7 +58,9 @@ timeInterval := query.NewTimeInterval(startDate, endDate)
 
 var datapoints []*v1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID}, &datapoints,
+    dataset.ID,
+    &datapoints,
+    datasets.WithCollectionIDs(collection.ID),
     datasets.WithTemporalExtent(timeInterval),
 )
 if err != nil {

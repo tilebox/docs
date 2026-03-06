@@ -101,6 +101,7 @@ n_deleted = collection.delete(to_delete)
 print(f"Deleted {n_deleted} data points.")
 ```
 ```go Go
+datasetID := uuid.MustParse("25a6f262-f6eb-4de5-be4f-b021f4f7dd13")
 collectionID := uuid.MustParse("c5145c99-1843-4816-9221-970f9ce3ac93")
 startDate := time.Date(2023, time.May, 1, 0, 0, 0, 0, time.UTC)
 endDate := time.Date(2023, time.June, 1, 0, 0, 0, 0, time.UTC)
@@ -108,7 +109,9 @@ mai2023 := query.NewTimeInterval(startDate, endDate)
 
 var toDelete []*v1.Sentinel2Msi
 err := client.Datapoints.QueryInto(ctx,
-  []uuid.UUID{collectionID}, &toDelete,
+  datasetID,
+  &toDelete,
+  datasets.WithCollectionIDs(collectionID),
   datasets.WithTemporalExtent(mai2023),
   datasets.WithSkipData(),
 )

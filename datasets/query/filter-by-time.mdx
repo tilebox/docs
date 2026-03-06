@@ -7,8 +7,6 @@ icon: timeline
 
 Both [Timeseries](/datasets/types/timeseries) and [Spatio-temporal](/datasets/types/spatiotemporal) datasets support efficient time-based queries.
 
-To query data from a collection, use the [query](/api-reference/python/tilebox.datasets/Collection.query) method. It requires a temporal extent parameter to specify the time or time interval for querying. The behavior of the `query` method depends on the exact temporal extent parameter you provide.
-
 ## Time interval queries
 
 To query data for a specific time interval, use a `tuple` in the form `(start, end)` as the `temporal_extent` parameter. Both `start` and `end` must be [TimeScalars](#time-scalar-queries), which can be `datetime` objects or strings in ISO 8601 format.
@@ -19,10 +17,13 @@ from tilebox.datasets import Client
 
 client = Client()
 sentinel2_msi = client.dataset("open_data.copernicus.sentinel2_msi")
-collection = sentinel2_msi.collection("S2A_S2MSI2A")
+data = sentinel2_msi.query(
+  collections=["S2A_S2MSI2A", "S2B_S2MSI2A", "S2C_S2MSI2A"],
+  temporal_extent=("2025-05-01", "2025-06-01"),
+  show_progress=True,
+)
 
-interval = ("2025-05-01", "2025-06-01")
-data = collection.query(temporal_extent=interval, show_progress=True)
+print(f"Queried {data.sizes['time']} data points.")
 ```
 ```go Go
 startDate := time.Date(2025, time.May, 1, 0, 0, 0, 0, time.UTC)
@@ -42,10 +43,21 @@ if err != nil {
   log.Fatalf("Failed to get collection: %v", err)
 }
 
+collectionB, err := client.Collections.Get(ctx, dataset.ID, "S2B_S2MSI2A")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
+collectionC, err := client.Collections.Get(ctx, dataset.ID, "S2C_S2MSI2A")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
 var datapoints []*v1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-  []uuid.UUID{collection.ID},
+  dataset.ID,
   &datapoints,
+  datasets.WithCollectionIDs(collection.ID, collectionB.ID, collectionC.ID),
   datasets.WithTemporalExtent(interval),
 )
 if err != nil {
@@ -56,37 +68,15 @@ log.Printf("Queried %d datapoints", len(datapoints))
 ```
 </CodeGroup>
 
-Output
-
-<CodeGroup>
-```plaintext Python
-<xarray.Dataset> Size: 39MB
-Dimensions:                (time: 87121)
-Coordinates:
-  * time                   (time) datetime64[ns] 697kB 2025-05-01T00:00:51.02...
-Data variables: (12/23)
-    id                     (time) <U36 13MB '01968925-6350-1044-ad4d-317659b8...
-    ingestion_time         (time) datetime64[ns] 697kB 2025-05-01T04:03:42.65...
-    geometry               (time) object 697kB POLYGON ((167.130052 54.937758...
-    granule_name           (time) object 697kB 'S2A_MSIL2A_20250501T000051_N0...
-    processing_level       (time) uint8 87kB 5 5 5 5 5 5 5 5 ... 5 5 5 5 5 5 5 5
-    product_type           (time) object 697kB 'S2MSI2A' 'S2MSI2A' ... 'S2MSI2A'
-    ...                     ...
-    thumbnail              (time) object 697kB 'https://catalogue.dataspace.c...
-    cloud_cover            (time) float64 697kB 18.19 70.69 ... 0.005713 0.00293
-    resolution             (time) int64 697kB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0
-    flight_direction       (time) uint8 87kB 2 2 2 2 2 2 2 2 ... 2 2 2 2 2 2 2 2
-    acquisition_mode       (time) uint8 87kB 20 20 20 20 20 ... 20 20 20 20 20
-    mission_take_id        (time) object 697kB 'GS2A_20250501T000051_051479_N...
+```plaintext Output
+Queried 481079 data points.
 ```
-```plaintext Go
-Queried 87121 datapoints
-```
-</CodeGroup>
 
 <Note>
   The `show_progress` parameter is optional and can be used to display a [tqdm](https://tqdm.github.io/) progress bar while loading data.
 </Note>
+
+### Endpoint inclusivity
 
 A time interval specified as a tuple is interpreted as a half-closed interval. This means the start time is inclusive, and the end time is exclusive.
 For instance, using an end time of `2025-06-01` includes data points up to `2025-05-31 23:59:59.999`, but excludes those from `2025-06-01 00:00:00.000`.
@@ -114,8 +104,9 @@ for month := 4; month <= 6; month++ {
 
   var partialDatapoints []*v1.Sentinel2Msi
   err = client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID},
+    dataset.ID,
     &partialDatapoints,
+    datasets.WithCollectionIDs(collection.ID),
     datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
   )
   if err != nil {
@@ -131,7 +122,7 @@ for month := 4; month <= 6; month++ {
 
 Above example demonstrates how to split a large time interval into smaller chunks while loading data in separate requests. Typically, this is not necessary as the datasets client auto-paginates large intervals.
 
-### Endpoint inclusivity
+### Manual endpoint inclusivity
 
 For greater control over inclusivity of start and end times, you can explicitly specify a `TimeInterval`. This way you can specify both the `start` and `end` times, as well as their inclusivity. Here's an example of creating equivalent `TimeInterval` objects in two different ways.
 
@@ -182,8 +173,9 @@ log.Println(interval2.ToHalfOpen().String())
 // Query data for a time interval
 var datapoints []*v1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-  []uuid.UUID{collection.ID},
+  dataset.ID,
   &datapoints,
+  datasets.WithCollectionIDs(collection.ID),
   datasets.WithTemporalExtent(interval1),
 )
 ```
@@ -205,19 +197,22 @@ You can query all datapoints linked to a specific timestamp by specifying a `Tim
   Tilebox uses millisecond precision for time indexing datapoints. Thus, querying a specific time scalar, is equivalent to a time interval query of length 1 millisecond.
 </Tip>
 
-Here's how to query a data point at a specific millisecond from a [collection](/datasets/concepts/collections).
+Here's how to query a data point at a specific millisecond from a [dataset](/datasets/concepts/datasets) or [collection](/datasets/concepts/collections).
 
 <CodeGroup>
 ```python Python
-data = collection.query(temporal_extent="2025-06-15T02:31:41.024")
-print(data)
+data = sentinel2_msi.query(temporal_extent="2025-06-15T02:31:41.024")
+print(f"Queried {data.sizes['time']} data points.")
+first_timestamp = data.time[0].dt.strftime("%Y-%m-%dT%H:%M:%S.%f").item()
+print("First datapoint time:", first_timestamp)
 ```
 ```go Go
 temporalExtent := query.NewPointInTime(time.Date(2025, time.June, 15, 2, 31, 41, 024000000, time.UTC))
 
 var datapoints []*v1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-  []uuid.UUID{collection.ID}, &datapoints,
+  dataset.ID,
+  &datapoints,
   datasets.WithTemporalExtent(temporalExtent),
 )
 
@@ -226,34 +221,10 @@ log.Printf("First datapoint time: %s", datapoints[0].GetTime().AsTime())
 ```
 </CodeGroup>
 
-Output
-
-<CodeGroup>
-```plaintext Python
-<xarray.Dataset> Size: 158kB
-Dimensions:                (time: 357)
-Coordinates:
-  * time                   (time) datetime64[ns] 3kB 2025-06-15T02:31:41.0240...
-Data variables: (12/23)
-    id                     (time) <U36 51kB '0197716d-a6e0-0801-2381-b9fb8d84...
-    ingestion_time         (time) datetime64[ns] 3kB 2025-06-15T09:33:12.6870...
-    geometry               (time) object 3kB POLYGON ((117.655813 3.346576, 1...
-    granule_name           (time) object 3kB 'S2A_MSIL2A_20250615T023141_N051...
-    processing_level       (time) uint8 357B 5 5 5 5 5 5 5 5 ... 5 5 5 5 5 5 5 5
-    product_type           (time) object 3kB 'S2MSI2A' 'S2MSI2A' ... 'S2MSI2A'
-    ...                     ...
-    thumbnail              (time) object 3kB 'https://catalogue.dataspace.cop...
-    cloud_cover            (time) float64 3kB 99.87 93.26 99.24 ... 100.0 100.0
-    resolution             (time) int64 3kB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
-    flight_direction       (time) uint8 357B 2 2 2 2 2 2 2 2 ... 2 2 2 2 2 2 2 2
-    acquisition_mode       (time) uint8 357B 20 20 20 20 20 ... 20 20 20 20 20
-    mission_take_id        (time) object 3kB 'GS2A_20250615T023141_052124_N05...
-```
-```plaintext Go
-Queried 357 datapoints
+```plaintext Output
+Queried 714 datapoints
 First datapoint time: 2025-06-15T02:31:41.024 +0000 UTC
 ```
-</CodeGroup>
 
 <Tip>
     A collection may contain multiple datapoints for the same millisecond, so multiple data points may be returned. If you want to fetch only a single data point, [query the collection by id](#loading-a-data-point-by-id) instead.
@@ -289,7 +260,9 @@ log.Println(tokyoTime)
 
 var datapoints []*v1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-  []uuid.UUID{collection.ID}, &datapoints,
+  dataset.ID,
+  &datapoints,
+  datasets.WithCollectionIDs(collection.ID),
   datasets.WithTemporalExtent(tokyoTime),
 )
 if err != nil {
@@ -323,4 +296,3 @@ Queried 1 datapoints
 First datapoint time: 2021-01-01 02:45:25.679 +0000 UTC
 ```
 </CodeGroup>
-
