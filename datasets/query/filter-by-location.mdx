@@ -15,7 +15,7 @@ When querying, you can specify arbitrary geometries as an area of interest. Tile
 
 To filter by an area of interest, use a `Polygon` or `MultiPolygon` geometry as the spatial extent parameter.
 
-Here is how to query Sentinel-2 `S2A_S2MSI2A` data over Colorado for a specific day in April 2025.
+Here is how to query Sentinel-2 `L2A` data over Colorado for a specific day in April 2025.
 
 <CodeGroup>
 ```python Python
@@ -28,15 +28,15 @@ area = Polygon(  # area roughly covering the state of Colorado
 
 client = Client()
 sentinel2_msi = client.dataset("open_data.copernicus.sentinel2_msi")
-collection = sentinel2_msi.collection("S2A_S2MSI2A")
-data = collection.query(
+data = sentinel2_msi.query(
+    collections=["S2A_S2MSI2A", "S2B_S2MSI2A", "S2C_S2MSI2A"],
     temporal_extent=("2025-04-02", "2025-04-03"),
     spatial_extent=area,
 )
 ```
 ```go Go
 startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
-endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC)
 area := orb.Polygon{  // area roughly covering the state of Colorado
     {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
 }
@@ -54,10 +54,21 @@ if err != nil {
     log.Fatalf("Failed to get collection: %v", err)
 }
 
+collectionB, err := client.Collections.Get(ctx, dataset.ID, "S2B_S2MSI2A")
+if err != nil {
+    log.Fatalf("Failed to get collection: %v", err)
+}
+
+collectionC, err := client.Collections.Get(ctx, dataset.ID, "S2C_S2MSI2A")
+if err != nil {
+    log.Fatalf("Failed to get collection: %v", err)
+}
+
 var datapoints []*v1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID},
+    dataset.ID,
     &datapoints,
+    datasets.WithCollectionIDs(collection.ID, collectionB.ID, collectionC.ID),
     datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
     datasets.WithSpatialExtent(area),
 )
@@ -92,7 +103,7 @@ area = Polygon(  # area roughly covering the state of Colorado
     ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
 )
 
-data = collection.query(
+data = dataset.query(
     temporal_extent=("2025-04-02", "2025-04-03"),
     # intersects is the default, so can also be omitted entirely
     spatial_extent={"geometry": area, "mode": "intersects"},
@@ -101,14 +112,14 @@ print(f"There are {data.sizes['time']} Sentinel-2A granules intersecting the are
 ```
 ```go Go
 startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
-endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC)
 area := orb.Polygon{  // area roughly covering the state of Colorado
     {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
 }
 
 var datapoints []*examplesv1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID},
+    dataset.ID,
     &datapoints,
     datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
     datasets.WithSpatialExtentFilter(&query.SpatialFilter{
@@ -145,15 +156,16 @@ print(f"There are {data.sizes['time']} Sentinel-2A granules fully contained with
 ```
 ```go Go
 startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
-endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 5, 2, 0, 0, 0, 0, time.UTC)
 area := orb.Polygon{  // area roughly covering the state of Colorado
     {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
 }
 
 var datapoints []*examplesv1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID},
+    dataset.ID,
     &datapoints,
+    datasets.WithCollectionIDs(collection.ID),
     datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
     datasets.WithSpatialExtentFilter(&query.SpatialFilter{
         Geometry: area,
@@ -220,7 +232,7 @@ area = Polygon(  # area roughly covering the state of Colorado
     ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
 )
 
-data = collection.query(
+data = dataset.query(
     temporal_extent=("2025-04-01", "2025-05-02"),
     # spherical is the default, so can also be omitted entirely
     spatial_extent={"geometry": area, "coordinate_system": "spherical"},
@@ -228,14 +240,14 @@ data = collection.query(
 ```
 ```go Go
 startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
-endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 5, 2, 0, 0, 0, 0, time.UTC)
 area := orb.Polygon{  // area roughly covering the state of Colorado
     {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
 }
 
 var datapoints []*examplesv1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID},
+    dataset.ID,
     &datapoints,
     datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
     datasets.WithSpatialExtentFilter(&query.SpatialFilter{
@@ -261,21 +273,21 @@ area = Polygon(  # area roughly covering the state of Colorado
     ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
 )
 
-data = collection.query(
+data = dataset.query(
     temporal_extent=("2025-04-01", "2025-05-02"),
     spatial_extent={"geometry": area, "coordinate_system": "cartesian"},
 )
 ```
 ```go Go
 startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC) 
-endDate := time.Date(2025, 4, 3, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 5, 2, 0, 0, 0, 0, time.UTC)
 area := orb.Polygon{  // area roughly covering the state of Colorado
     {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
 }
 
 var datapoints []*examplesv1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID},
+    dataset.ID,
     &datapoints,
     datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
     datasets.WithSpatialExtentFilter(&query.SpatialFilter{

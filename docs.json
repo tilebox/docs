@@ -172,6 +172,8 @@
                   "api-reference/python/tilebox.datasets/Dataset.create_collection",
                   "api-reference/python/tilebox.datasets/Dataset.delete_collection",
                   "api-reference/python/tilebox.datasets/Dataset.get_or_create_collection",
+                  "api-reference/python/tilebox.datasets/Dataset.find",
+                  "api-reference/python/tilebox.datasets/Dataset.query",
                   "api-reference/python/tilebox.datasets/Collection.delete",
                   "api-reference/python/tilebox.datasets/Collection.find",
                   "api-reference/python/tilebox.datasets/Collection.info",

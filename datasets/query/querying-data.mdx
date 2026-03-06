@@ -1,61 +1,17 @@
 ---
 title: Querying data
 sidebarTitle: Querying data
-description: Access and filter data stored in your dataset collections using time-based and spatial queries, with built-in support for pagination and progress tracking.
+description: Access and filter data stored in your datasets using time-based and spatial queries, with built-in support for pagination and progress tracking.
 icon: magnifying-glass
 ---
 
 Tilebox offers a powerful and flexible querying API to access and filter data from your datasets. When querying, you can
 [filter by time](/datasets/query/filter-by-time) and for [Spatio-temporal datasets](/datasets/types/spatiotemporal) optionally also [filter by a location in the form of a geometry](/datasets/query/filter-by-location).
 
-## Selecting a collection
-
-Querying is always done on a [collection](/datasets/concepts/collections) level, so to get started first select a collection to query.
-
-<CodeGroup>
-```python Python
-from tilebox.datasets import Client
-
-client = Client()
-sentinel2_msi = client.dataset("open_data.copernicus.sentinel2_msi")
-collection = sentinel2_msi.collection("S2A_S2MSI2A")
-```
-```go Go
-package main
-
-import (
-	"context"
-	"log"
-
-	"github.com/tilebox/tilebox-go/datasets/v1"
-)
-
-func main() {
-	ctx := context.Background()
-	client := datasets.NewClient()
-
-	dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
-	if err != nil {
-		log.Fatalf("Failed to get dataset: %v", err)
-	}
-
-	collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
-	if err != nil {
-		log.Fatalf("Failed to get collection: %v", err)
-	}
-}
-```
-</CodeGroup>
-
-<Note>
-  Querying multiple dataset collections at once is a feature already on our roadmap. If you need this functionality, please [get in touch](mailto:support@tilebox.com) so we can let you know as soon as it is available.
-</Note>
-
 ## Running a query
 
-To query data points from a dataset collection, use the `query` method which is available for both [python](/api-reference/python/tilebox.datasets/Collection.query) and [go](/api-reference/go/datasets/Datapoints.Query).
-
-Below is a simple example of querying all Sentinel-2 `S2A_S2MSI2A` data for April 2025 over the state of Colorado.
+You can query data from either a specific collection of a dataset, from a selected set of collections of a dataset, or from all collections of a dataset at once.
+Below is a simple example showcasing those options by querying Sentinel-2 data for April 2025 over the state of Colorado.
 
 <CodeGroup>
 ```python Python
@@ -66,8 +22,28 @@ area = Polygon(  # area roughly covering the state of Colorado
     ((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),
 )
 
+client = Client()
+sentinel2_msi = client.dataset("open_data.copernicus.sentinel2_msi")
+
+# query data from a specific collection
 collection = sentinel2_msi.collection("S2A_S2MSI2A")
 data = collection.query(
+    temporal_extent=("2025-04-01", "2025-05-01"),
+    spatial_extent=area,
+    show_progress=True,
+)
+
+# query data from a selected set of collections
+data = sentinel2_msi.query(
+    collections=["S2A_S2MSI2A", "S2B_S2MSI2A", "S2C_S2MSI2A"],
+    temporal_extent=("2025-04-01", "2025-05-01"),
+    spatial_extent=area,
+    show_progress=True,
+)
+
+# query data from all collections in the dataset
+data = sentinel2_msi.query(
+    # omit the collections argument to query all collections
     temporal_extent=("2025-04-01", "2025-05-01"),
     spatial_extent=area,
     show_progress=True,
@@ -75,21 +51,58 @@ data = collection.query(
 ```
 ```go Go
 startDate := time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC) 
-endDate := time.Date(2025, 5, 2, 0, 0, 0, 0, time.UTC) 
+endDate := time.Date(2025, 5, 1, 0, 0, 0, 0, time.UTC)
 timeInterval := query.NewTimeInterval(startDate, endDate)
 area := orb.Polygon{  // area roughly covering the state of Colorado
     {{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
 }
 
-collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
+collectionA, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
 if err != nil {
     log.Fatalf("Failed to get collection: %v", err)
 }
 
+collectionB, err := client.Collections.Get(ctx, dataset.ID, "S2B_S2MSI2A")
+if err != nil {
+    log.Fatalf("Failed to get collection: %v", err)
+}
+
+collectionC, err := client.Collections.Get(ctx, dataset.ID, "S2C_S2MSI2A")
+if err != nil {
+    log.Fatalf("Failed to get collection: %v", err)
+}
+
+// query data from a specific collection
+var fromCollection []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    dataset.ID,
+    &fromCollection,
+    datasets.WithCollectionIDs(collectionA.ID),
+    datasets.WithTemporalExtent(timeInterval),
+    datasets.WithSpatialExtent(area),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+// query data from a selected set of collections
 var datapoints []*v1.Sentinel2Msi
 err = client.Datapoints.QueryInto(ctx,
-    []uuid.UUID{collection.ID},
+    dataset.ID,
     &datapoints,
+    datasets.WithCollectionIDs(collectionA.ID, collectionB.ID, collectionC.ID),
+    datasets.WithTemporalExtent(timeInterval),
+    datasets.WithSpatialExtent(area),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+
+// query data from all collections in the dataset
+var datapointsFromAllCollections []*v1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    dataset.ID,
+    &datapointsFromAllCollections,
     datasets.WithTemporalExtent(timeInterval),
     datasets.WithSpatialExtent(area),
 )
@@ -146,6 +159,7 @@ Sometimes, only the ID or timestamp associated with a datapoint is required. In 
 querying by skipping downloading of all dataset fields except of the `time`, the `id` and the `ingestion_time` by setting the `skip_data` parameter to `True`.
 
 For example, when checking how many datapoints exist in a given time interval, you can use `skip_data=True` to avoid loading the data fields.
+This works the same way on both collection-level and dataset-level queries.
 
 <CodeGroup>
 ```python Python
@@ -160,9 +174,10 @@ interval := query.NewTimeInterval(startDate, endDate)
 
 var datapoints []*v1.Sentinel1Sar
 err = client.Datapoints.QueryInto(ctx,
-  []uuid.UUID{collection.ID},
+  dataset.ID,
   &datapoints,
-  datasets.WithTemporalExtent(temporalExtent),
+  datasets.WithCollectionIDs(collection.ID),
+  datasets.WithTemporalExtent(interval),
   datasets.WithSkipData(),
 )
 if err != nil {
@@ -212,8 +227,9 @@ timeWithNoDatapoints := query.NewPointInTime(time.Date(1997, time.February, 6, 1
 
 var datapoints []*v1.Sentinel1Sar
 err = client.Datapoints.QueryInto(ctx,
-  []uuid.UUID{collection.ID},
+  dataset.ID,
   &datapoints,
+  datasets.WithCollectionIDs(collection.ID),
   datasets.WithTemporalExtent(timeWithNoDatapoints),
 )
 if err != nil {
@@ -236,4 +252,3 @@ No data points found
 No data points found
 ```
 </CodeGroup>
-

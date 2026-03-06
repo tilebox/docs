@@ -1,30 +1,76 @@
 ---
 title: Querying individual datapoints by ID
 sidebarTitle: Filter by ID
-description: Look up specific datapoints from a dataset collection by providing their unique identifiers, without needing to construct and execute a broader query.
+description: Look up specific datapoints by ID across one or more dataset collections, without needing to construct and execute a broader query.
 icon: fingerprint
 ---
 
-If you already know the ID of the data point you want to query, you can query it directly, using
-[Collection.find](/api-reference/python/tilebox.datasets/Collection.find) in Python or [Datapoints.GetInto](/api-reference/go/datasets/Datapoints.GetInto) in Go.
-
-<Tip>
-  Check out [selecting a collection](/datasets/query/querying-data#selecting-a-collection) to learn how to get a collection object
-  to query from.
-</Tip>
+If you already know the ID of the datapoint you want to query, you can fetch it directly without needing to construct and execute a broader query.
+You can query a datapoint ID either in only specific collection of a dataset, a selected set of collections of a dataset, or from all collections of a dataset at once.
 
 <CodeGroup>
 ```python Python
 datapoint_id = "0197a491-1520-102f-48f4-f087d6ef8603"
-datapoint = collection.find(datapoint_id)
+
+# query in all collections of a dataset
+datapoint = dataset.find(datapoint_id)
+
+# query in selected collections of a dataset
+datapoint = dataset.find(
+    datapoint_id,
+    collections=["S2A_S2MSI2A", "S2B_S2MSI2A"],
+)
+
+# query in a single collection
+datapoint = dataset.collection("S2A_S2MSI2A").find(
+    datapoint_id
+)
+
 print(datapoint)
 ```
 ```go Go
 datapointID := uuid.MustParse("0197a491-1520-102f-48f4-f087d6ef8603")
 
+// query in all collections of a dataset
 var datapoint v1.Sentinel2Msi
 err = client.Datapoints.GetInto(ctx,
-  []uuid.UUID{collection.ID}, datapointID, &datapoint,
+  dataset.ID,
+  datapointID,
+  &datapoint,
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoint: %v", err)
+}
+
+collectionA, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI2A")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
+collectionB, err := client.Collections.Get(ctx, dataset.ID, "S2B_S2MSI2A")
+if err != nil {
+  log.Fatalf("Failed to get collection: %v", err)
+}
+
+// query in selected collections of a dataset
+var datapointFromSelectedCollections v1.Sentinel2Msi
+err = client.Datapoints.GetInto(ctx,
+  dataset.ID,
+  datapointID,
+  &datapointFromSelectedCollections,
+  datasets.WithCollectionIDs(collectionA.ID, collectionB.ID),
+)
+if err != nil {
+  log.Fatalf("Failed to query datapoint: %v", err)
+}
+
+// query in a single collection
+var datapointFromSingleCollection v1.Sentinel2Msi
+err = client.Datapoints.GetInto(ctx,
+  dataset.ID,
+  datapointID,
+  &datapointFromSingleCollection,
+  datasets.WithCollectionIDs(collectionA.ID),
 )
 if err != nil {
   log.Fatalf("Failed to query datapoint: %v", err)
@@ -110,7 +156,7 @@ from tilebox.datasets.sync.dataset import NotFoundError
 datapoint_id = "0197a47f-a830-1160-6df5-61ac723dae17"  # doesn't exist
 
 try:
-    collection.find(datapoint_id)
+    dataset.find(datapoint_id)
     exists = True
 except NotFoundError:
     exists = False
@@ -118,10 +164,12 @@ except NotFoundError:
 ```go Go
 datapointID := uuid.MustParse("0197a47f-a830-1160-6df5-61ac723dae17")
 
-exists := True
+exists := true
 var datapoint v1.Sentinel2Msi
 err = client.Datapoints.GetInto(ctx,
-  []uuid.UUID{collection.ID}, datapointID, &datapoint,
+  dataset.ID,
+  datapointID,
+  &datapoint,
 )
 if err != nil {
   if connect.CodeOf(err) == connect.CodeNotFound {
