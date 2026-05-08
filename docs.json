@@ -88,9 +88,18 @@
                 "group": "Observability",
                 "icon": "eye",
                 "pages": [
-                  "workflows/observability/open-telemetry",
+                  "workflows/observability/introduction",
                   "workflows/observability/tracing",
-                  "workflows/observability/logging"
+                  "workflows/observability/logging",
+                  "workflows/observability/query",
+                  {
+                    "group": "Integrations",
+                    "icon": "plug",
+                    "pages": [
+                      "workflows/observability/integrations/open-telemetry",
+                      "workflows/observability/integrations/axiom"
+                    ]
+                  }
                 ]
               },
               {
@@ -187,8 +196,11 @@
                   "api-reference/python/tilebox.workflows/Client",
                   "api-reference/python/tilebox.workflows/Task",
                   "api-reference/python/tilebox.workflows/Client.runner",
+                  "api-reference/python/tilebox.workflows/Client.configure_logging",
                   "api-reference/python/tilebox.workflows/TaskRunner.run_all",
                   "api-reference/python/tilebox.workflows/TaskRunner.run_forever",
+                  "api-reference/python/tilebox.workflows/ExecutionContext.logger",
+                  "api-reference/python/tilebox.workflows/ExecutionContext.tracer",
                   "api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask",
                   "api-reference/python/tilebox.workflows/ExecutionContext.submit_subtasks",
                   "api-reference/python/tilebox.workflows/ExecutionContext.job_cache",
@@ -203,6 +215,8 @@
                   "api-reference/python/tilebox.workflows/JobClient.retry",
                   "api-reference/python/tilebox.workflows/JobClient.cancel",
                   "api-reference/python/tilebox.workflows/JobClient.visualize",
+                  "api-reference/python/tilebox.workflows/JobClient.query_logs",
+                  "api-reference/python/tilebox.workflows/JobClient.query_spans",
                   "api-reference/python/tilebox.workflows/JobClient.query"
                 ]
               }

@@ -1,0 +1,32 @@
+---
+title: Context.tracer
+icon: folder-gear
+---
+
+```python
+ExecutionContext.tracer: WorkflowTracer
+```
+
+Tracer for creating custom spans inside the currently executing task.
+
+## Methods
+
+```python
+context.tracer.span(name: str, *args, **kwargs) -> ContextManager[Span]
+context.tracer.current_span() -> Span
+```
+
+Custom spans are nested under the current task span and are exported to Tilebox with the job trace.
+
+<RequestExample>
+```python Python
+from tilebox.workflows import ExecutionContext, Task
+
+class ProcessScene(Task):
+    scene_id: str
+
+    def execute(self, context: ExecutionContext) -> None:
+        with context.tracer.span("download-scene") as span:
+            span.set_attribute("scene_id", self.scene_id)
+```
+</RequestExample>

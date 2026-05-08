@@ -1,0 +1,88 @@
+---
+title: Query telemetry
+description: Query workflow logs and spans for a job from Python and convert the results to pandas DataFrames.
+icon: magnifying-glass-chart
+---
+
+Tilebox stores logs and spans for each workflow job. Use the jobs client to query that telemetry from notebooks, scripts, or automated diagnostics.
+
+## Query job logs
+
+`query_logs()` returns a `LogRecords` list. Pagination is handled automatically.
+
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+job = client.jobs().find("019e07b1-916b-0630-f3ba-f1c33235d174")
+
+logs = client.jobs().query_logs(job)
+
+for record in logs:
+    print(record.time, record.severity_text, record.body)
+    print(record.attributes)
+```
+
+Each log record includes:
+
+- `time`
+- `severity_number` and `severity_text`
+- `body`
+- `trace_id` and `span_id`
+- `attributes`
+- `runner_attributes`
+
+### As pandas DataFrame
+
+Use `to_pandas()` to convert log records to a pandas DataFrame.
+
+```python Python
+logs_df = client.jobs().query_logs(job).to_pandas()
+logs_df[["time", "severity_text", "body"]]
+```
+
+<Frame>
+  <img src="/assets/workflows/observability/job-logs-pandas-light.png" alt="Job Logs as Pandas DataFrame" className="dark:hidden" />
+  <img src="/assets/workflows/observability/job-logs-pandas-dark.png" alt="Job Logs as Pandas DataFrame" className="hidden dark:block" />
+</Frame>
+
+## Query job spans
+
+`query_spans()` returns a `Spans` list. Pagination is handled automatically.
+
+```python Python
+spans = client.jobs().query_spans(job.id)
+
+for span in spans:
+    print(span.name, span.status_code, span.duration)
+    print(span.attributes)
+```
+
+Each span includes:
+
+- `start_time` and `end_time`
+- `duration`
+- `trace_id`, `span_id`, and `parent_span_id`
+- `name`
+- `status_code` and `status_message`
+- `attributes`
+- `runner_attributes`
+- `events`
+
+### As pandas DataFrame
+
+Use `to_pandas()` to convert spans to a pandas DataFrame.
+
+```python Python
+spans_df = client.jobs().query_spans(job).to_pandas()
+
+slow_spans = spans_df.sort_values("duration", ascending=False).head(10)
+slow_spans[["name", "duration", "start_time"]]
+```
+
+<Frame>
+  <img src="/assets/workflows/observability/job-traces-pandas-light.png" alt="Job Traces as Pandas DataFrame" className="dark:hidden" />
+  <img src="/assets/workflows/observability/job-traces-pandas-dark.png" alt="Job Traces as Pandas DataFrame" className="hidden dark:block" />
+</Frame>
+
+Nested `attributes`, `runner_attributes`, and `events` stay as Python objects in DataFrame columns. Span DataFrames include a computed `duration` column.

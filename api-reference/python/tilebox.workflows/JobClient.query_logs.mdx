@@ -1,0 +1,33 @@
+---
+title: JobClient.query_logs
+icon: rectangle-terminal
+---
+
+```python
+def JobClient.query_logs(job_id: Job | UUID | str) -> LogRecords
+```
+
+Query logs emitted while running a job. Pagination is handled automatically.
+
+## Parameters
+
+<ParamField path="job_id" type="Job | UUID | str" required>
+  The job, job ID, or job ID string to query logs for.
+</ParamField>
+
+## Returns
+
+A `LogRecords` list. Each `LogRecord` contains `time`, `severity_number`, `severity_text`, `body`, `trace_id`, `span_id`, `attributes`, and `runner_attributes`.
+
+`LogRecords.to_pandas()` converts the records to a pandas DataFrame.
+
+<RequestExample>
+```python Python
+logs = client.jobs().query_logs(job)
+
+for record in logs:
+    print(record.time, record.severity_text, record.body)
+
+df = logs.to_pandas()
+```
+</RequestExample>

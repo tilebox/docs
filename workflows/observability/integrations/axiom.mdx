@@ -1,0 +1,67 @@
+---
+title: Axiom
+description: Export Tilebox workflow logs and traces to Axiom datasets in addition to Tilebox Console.
+icon: chart-line
+---
+
+Tilebox can export workflow telemetry to [Axiom](https://axiom.co/) through OTLP. Use this when your team already analyzes logs and traces in Axiom or wants long-term telemetry in Axiom datasets.
+
+Built-in Tilebox Console observability does not require Axiom. Axiom export is optional and additive.
+
+<Frame>
+  <img src="/assets/workflows/observability/tilebox-axiom.png" alt="Tilebox is pre-integrated with Axiom" />
+</Frame>
+
+## Configure Axiom export
+
+Create Axiom datasets for logs and traces and an API key with ingest permissions. Then configure export when the runner process starts.
+
+```python Python
+from tilebox.workflows import Client
+from tilebox.workflows.observability.logging import configure_otel_logging_axiom
+from tilebox.workflows.observability.tracing import configure_otel_tracing_axiom
+
+from my_workflow import ProcessScene
+
+configure_otel_tracing_axiom(
+    service="sentinel-2-runner",
+    dataset="workflow-traces",
+    api_key="<axiom-api-key>",
+)
+configure_otel_logging_axiom(
+    service="sentinel-2-runner",
+    dataset="workflow-logs",
+    api_key="<axiom-api-key>",
+)
+
+client = Client(name="sentinel-2-runner")
+runner = client.runner(tasks=[ProcessScene])
+runner.run_forever()
+```
+
+## Environment variables
+
+You can omit credentials from code by setting environment variables:
+
+| Variable | Used by |
+| --- | --- |
+| `AXIOM_API_KEY` | log and trace export |
+| `AXIOM_LOGS_DATASET` | `configure_otel_logging_axiom()` |
+| `AXIOM_TRACES_DATASET` | `configure_otel_tracing_axiom()` |
+
+```python Python
+configure_otel_tracing_axiom(service="sentinel-2-runner")
+configure_otel_logging_axiom(service="sentinel-2-runner")
+```
+
+## Existing Axiom screenshots
+
+<Frame>
+  <img src="/assets/workflows/observability/logs-light.png" alt="Tilebox workflow logs in Axiom" className="dark:hidden" />
+  <img src="/assets/workflows/observability/logs-dark.png" alt="Tilebox workflow logs in Axiom" className="hidden dark:block" />
+</Frame>
+
+<Frame>
+  <img src="/assets/workflows/observability/traces-light.png" alt="Tilebox workflow traces in Axiom" className="dark:hidden" />
+  <img src="/assets/workflows/observability/traces-dark.png" alt="Tilebox workflow traces in Axiom" className="hidden dark:block" />
+</Frame>
