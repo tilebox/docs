@@ -1,0 +1,33 @@
+---
+title: JobClient.query_spans
+icon: chart-gantt
+---
+
+```python
+def JobClient.query_spans(job_id: Job | UUID | str) -> Spans
+```
+
+Query spans emitted while running a job. Pagination is handled automatically.
+
+## Parameters
+
+<ParamField path="job_id" type="Job | UUID | str" required>
+  The job, job ID, or job ID string to query spans for.
+</ParamField>
+
+## Returns
+
+A `Spans` list. Each `Span` contains `start_time`, `end_time`, `duration`, `trace_id`, `span_id`, `parent_span_id`, `name`, `status_code`, `status_message`, `attributes`, `runner_attributes`, and `events`.
+
+`Spans.to_pandas()` converts the spans to a pandas DataFrame and includes a computed `duration` column.
+
+<RequestExample>
+```python Python
+spans = client.jobs().query_spans(job.id)
+
+for span in spans:
+    print(span.name, span.status_code, span.duration)
+
+df = spans.to_pandas()
+```
+</RequestExample>

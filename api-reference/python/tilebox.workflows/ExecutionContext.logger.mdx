@@ -1,0 +1,39 @@
+---
+title: Context.logger
+icon: folder-gear
+---
+
+```python
+ExecutionContext.logger: StructuredLogger
+```
+
+Structured logger for logs emitted by the currently executing task.
+
+## Methods
+
+```python
+context.logger.debug(message, /, *args, **attributes) -> None
+context.logger.info(message, /, *args, **attributes) -> None
+context.logger.warning(message, /, *args, **attributes) -> None
+context.logger.error(message, /, *args, **attributes) -> None
+context.logger.exception(message, /, *args, **attributes) -> None
+context.logger.critical(message, /, *args, **attributes) -> None
+context.logger.bind(**attributes) -> StructuredLogger
+```
+
+Structured attributes are attached to the log record and become searchable telemetry attributes.
+
+<RequestExample>
+```python Python
+from tilebox.workflows import ExecutionContext, Task
+
+class ProcessScene(Task):
+    scene_id: str
+
+    def execute(self, context: ExecutionContext) -> None:
+        context.logger.info("Started", scene_id=self.scene_id)
+
+        log = context.logger.bind(component="download")
+        log.debug("Fetching input")
+```
+</RequestExample>

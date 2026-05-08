@@ -1,0 +1,61 @@
+---
+title: OpenTelemetry
+description: Export Tilebox workflow logs and traces to any OTLP-compatible backend in addition to Tilebox Console.
+icon: telescope
+---
+
+Tilebox uses OpenTelemetry data models for workflow telemetry. Built-in Tilebox observability works without any OpenTelemetry setup, but you can add OTLP export when you need the same logs and traces in another backend.
+
+## Configure OTLP export
+
+Call the configuration functions when the runner process starts, before creating the client or runner.
+
+```python Python
+from tilebox.workflows import Client
+from tilebox.workflows.observability.logging import configure_otel_logging
+from tilebox.workflows.observability.tracing import configure_otel_tracing
+
+from my_workflow import ProcessScene
+
+configure_otel_tracing(
+    service="sentinel-2-runner",
+    endpoint="http://localhost:4318/v1/traces",
+    headers={"Authorization": "Bearer <token>"},
+)
+configure_otel_logging(
+    service="sentinel-2-runner",
+    endpoint="http://localhost:4318/v1/logs",
+    headers={"Authorization": "Bearer <token>"},
+)
+
+client = Client(name="sentinel-2-runner")
+runner = client.runner(tasks=[ProcessScene])
+runner.run_forever()
+```
+
+If the endpoint does not include `/v1/traces` or `/v1/logs`, the Python SDK adds the correct path automatically.
+
+## Environment variables
+
+You can omit endpoint and interval arguments by setting environment variables:
+
+| Variable | Used by |
+| --- | --- |
+| `OTEL_TRACES_ENDPOINT` | `configure_otel_tracing()` |
+| `OTEL_LOGS_ENDPOINT` | `configure_otel_logging()` |
+| `OTEL_EXPORT_INTERVAL` | tracing and logging exporters |
+
+`OTEL_EXPORT_INTERVAL` accepts durations such as `5s`, `30s`, or `2m`.
+
+## Local collector example
+
+For local trace testing, run Jaeger with OTLP HTTP enabled:
+
+```bash
+docker run --rm --name jaeger \
+  -p 16686:16686 \
+  -p 4318:4318 \
+  jaegertracing/jaeger:2.9.0
+```
+
+Then configure tracing with `endpoint="http://localhost:4318"` and open the Jaeger UI at [http://localhost:16686](http://localhost:16686).

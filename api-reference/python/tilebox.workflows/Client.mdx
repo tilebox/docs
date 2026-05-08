@@ -4,7 +4,12 @@ icon: code
 ---
 
 ```python
-class Client(url: str, token: str)
+class Client(
+    *,
+    url: str = "https://api.tilebox.com",
+    token: str | None = None,
+    name: str | None = None,
+)
 ```
 
 Create a Tilebox workflows client.
@@ -17,6 +22,10 @@ Create a Tilebox workflows client.
 
 <ParamField path="token" type="string">
   The API Key to authenticate with. If not set the `TILEBOX_API_KEY` environment variable will be used.
+</ParamField>
+
+<ParamField path="name" type="string | None">
+  Optional service name for workflow telemetry. If not set, the default service name is used.
 </ParamField>
 
 ## Sub clients
@@ -41,6 +50,14 @@ def Client.automations() -> AutomationClient
 
 A client for scheduling automations.
 
+## Logging
+
+```python
+def Client.configure_logging(level: int, runner_level: int | None = None) -> None
+```
+
+Configure which task and runner logs this client exports. See [`Client.configure_logging`](/api-reference/python/tilebox.workflows/Client.configure_logging).
+
 ## Task runners
 
 ```python
@@ -59,7 +76,8 @@ client = Client()
 # or provide connection details directly
 client = Client(
     url="https://api.tilebox.com",
-    token="YOUR_TILEBOX_API_KEY"
+    token="YOUR_TILEBOX_API_KEY",
+    name="sentinel-2-runner",
 )
 
 # access sub clients

@@ -1,206 +1,99 @@
 ---
 title: Tracing
-description: Record and visualize workflow job execution as structured traces to understand task ordering, parallelism, and duration across distributed task runners.
+description: Use built-in workflow traces and custom spans to inspect job execution, task duration, and bottlenecks.
 icon: chart-gantt
 ---
 
-## Overview
-
-Applying [OpenTelemetry traces](https://opentelemetry.io/docs/concepts/signals/traces/) to the concept of workflows allows you to monitor the execution of your jobs and their individual tasks. Visualizing the trace for a job in a tool like [Axiom](https://axiom.co/) may look like this:
+Tilebox traces workflow jobs automatically. Job submission creates a root trace, task runners continue that trace across machines, and every task execution creates a span.
 
 <Frame>
-  <img src="/assets/workflows/observability/traces-light.png" alt="Tilebox Workflows tracing in Axiom" className="dark:hidden" />
-  <img src="/assets/workflows/observability/traces-dark.png" alt="Tilebox Workflows tracing in Axiom" className="hidden dark:block" />
+  <img src="/assets/console/job-execution-light.png" alt="Job Execution Trace View" className="dark:hidden" />
+  <img src="/assets/console/job-execution-dark.png" alt="Job Execution Trace View" className="hidden dark:block" />
 </Frame>
 
-Tracing your workflows enables you to easily observe:
+Built-in traces connect task order, dependencies, parallel execution, task duration, task status, runner identity, service identity, and logs emitted while a span was active.
 
-- The order of task execution
-- Which tasks run in parallel
-- The [task runner](/workflows/concepts/task-runners) handling each task
-- The duration of each task
-- The outcome of each task (success or failure)
+## Add custom spans
 
-This information helps identify bottlenecks and performance issues, ensuring that your workflows execute correctly.
+Use `context.tracer` inside a task to add spans around meaningful parts of your own code.
 
-## Configure tracing
+<CodeGroup>
+```python Python
+from tilebox.workflows import ExecutionContext, Task
 
-The Tilebox workflow SDKs have built-in support for exporting OpenTelemetry traces. To enable tracing, call the appropriate configuration functions during the startup of your [task runner](/workflows/concepts/task-runners).
+class ProcessScene(Task):
+    scene_id: str
 
-<Tabs>
-    <Tab title="Axiom">
-    To configure tracing with Axiom, you first need to create a [Axiom Dataset](https://axiom.co/docs/reference/datasets) to export your workflow traces to. You will also need an [Axiom API key](https://axiom.co/docs/reference/tokens) with the necessary write permissions for your Axiom dataset.
-    
-    <CodeGroup>
-    ```python Python
-    from tilebox.workflows import Client
-    from tilebox.workflows.observability.tracing import configure_otel_tracing_axiom
+    def execute(self, context: ExecutionContext) -> None:
+        with context.tracer.span("download-scene") as span:
+            span.set_attribute("scene_id", self.scene_id)
+            # download input data
 
-    # your own workflow:
-    from my_workflow import MyTask
-
-    def main():
-        configure_otel_tracing_axiom(
-            # specify an Axiom dataset to export traces to
-            dataset="my-axiom-traces-dataset",
-            # along with an Axiom API key for ingest permissions
-            api_key="my-axiom-api-key",
-        )
-
-        # the following task runner generates traces for executed tasks and
-        # exports trace and span data to the specified Axiom dataset
-        client = Client()
-        runner = client.runner(tasks=[MyTask])
-        runner.run_forever()
-    
-    if __name__ == "__main__":
-        main()
-    ```
+        with context.tracer.span("compute-index"):
+            # perform expensive computation
+            pass
+```
 ```go Go
-package main
+package tasks
 
 import (
 	"context"
-	"log/slog"
 
-	"github.com/tilebox/tilebox-go/examples/workflows/axiom"
-	"github.com/tilebox/tilebox-go/observability"
-	"github.com/tilebox/tilebox-go/observability/tracer"
-	"github.com/tilebox/tilebox-go/workflows/v1"
-	"go.opentelemetry.io/otel"
+	"github.com/tilebox/tilebox-go"
 )
 
-// specify a service name and version to identify the instrumenting application in traces and logs
-var service = &observability.Service{Name: "task-runner", Version: "dev"}
+type ProcessScene struct{}
 
-func main() {
-	ctx := context.Background()
-
-	// Setup an OpenTelemetry trace span processor, exporting traces and spans to Axiom
-	// It uses AXIOM_API_KEY and AXIOM_TRACES_DATASET from the environment
-	tileboxTracerProvider, shutdown, err := tracer.NewAxiomProviderFromEnv(ctx, service)
-	defer shutdown(ctx)
-	if err != nil {
-		slog.Error("failed to set up axiom tracer provider", slog.Any("error", err))
-		return
-	}
-	otel.SetTracerProvider(tileboxTracerProvider) // set the tilebox tracer provider as the global OTEL tracer provider
-
-	client := workflows.NewClient()
-
-	taskRunner, err := client.NewTaskRunner(ctx)
-	if err != nil {
-		slog.Error("failed to create task runner", slog.Any("error", err))
-		return
-	}
-
-	err = taskRunner.RegisterTasks(&MyTask{})
-	if err != nil {
-		slog.Error("failed to register tasks", slog.Any("error", err))
-		return
-	}
-
-	taskRunner.RunForever(ctx)
+func (t *ProcessScene) Execute(ctx context.Context) error {
+	return tilebox.WithSpan(ctx, "compute-index", func(ctx context.Context) error {
+		// perform expensive computation
+		return nil
+	})
 }
 ```
-    </CodeGroup>
+</CodeGroup>
 
-    <Tip>
-        Set the environment variables `AXIOM_API_KEY` and `AXIOM_TRACES_DATASET` to omit those arguments
-        in the `configure_otel_tracing_axiom` function.
-    </Tip>
-    
-    </Tab>
-    <Tab title="OpenTelemetry-compatible backend">
-    If you are using another OpenTelemetry-compatible backend besides Axiom, like OpenTelemetry Collector or Jaeger, you can configure tracing by specifying the URL endpoint to export traces to.
+Custom spans are nested under the current task span. Logs emitted inside the span are correlated with its `trace_id` and `span_id`.
 
-    <CodeGroup>
-    ```python Python
-    from tilebox.workflows import Client
-    from tilebox.workflows.observability.tracing import configure_otel_tracing
+## Span status and exceptions
 
-    # your own workflow:
-    from my_workflow import MyTask
+If a task raises an exception, Tilebox records the exception on the task span and marks the span as failed before the task is retried or marked failed.
 
-    def main():
-        configure_otel_tracing(
-            # specify an endpoint for trace ingestion, such as a
-            # locally running instance of OpenTelemetry Collector
-            endpoint="http://localhost:4318/v1/traces",
-            # optional headers for each request
-            headers={"Authorization": "Bearer some-api-key"},
-        )
+For finer-grained error reporting, record errors on your custom spans before re-raising them.
 
-        # the following task runner generates traces for executed tasks and
-        # exports trace and span data to the specified endpoint
-        client = Client()
-        runner = client.runner(tasks=[MyTask])
-        runner.run_forever()
-    
-    if __name__ == "__main__":
-        main()
-    ```
-```go Go
-package main
+```python Python
+class ProcessScene(Task):
+    scene_id: str
 
-import (
-	"context"
-	"log/slog"
-
-	"github.com/tilebox/tilebox-go/examples/workflows/opentelemetry"
-	"github.com/tilebox/tilebox-go/observability"
-	"github.com/tilebox/tilebox-go/observability/tracer"
-	"github.com/tilebox/tilebox-go/workflows/v1"
-	"go.opentelemetry.io/otel"
-)
-
-// specify a service name and version to identify the instrumenting application in traces and logs
-var service = &observability.Service{Name: "task-runner", Version: "dev"}
-
-func main() {
-	ctx := context.Background()
-
-	endpoint := "http://localhost:4318"
-	headers := map[string]string{
-		"Authorization": "Bearer <ENDPOINT_AUTH>",
-	}
-
-	// Setup an OpenTelemetry trace span processor, exporting traces and spans to an OTEL compatible trace endpoint
-	tileboxTracerProvider, shutdown, err := tracer.NewOtelProvider(ctx, service,
-		tracer.WithEndpointURL(endpoint),
-		tracer.WithHeaders(headers),
-	)
-	defer shutdown(ctx)
-	if err != nil {
-		slog.Error("failed to set up otel span processor", slog.Any("error", err))
-		return
-	}
-	otel.SetTracerProvider(tileboxTracerProvider) // set the tilebox tracer provider as the global OTEL tracer provider
-
-	client := workflows.NewClient()
-
-	taskRunner, err := client.NewTaskRunner(ctx)
-	if err != nil {
-		slog.Error("failed to create task runner", slog.Any("error", err))
-		return
-	}
-
-	err = taskRunner.RegisterTasks(&MyTask{})
-	if err != nil {
-		slog.Error("failed to register tasks", slog.Any("error", err))
-		return
-	}
-
-	taskRunner.RunForever(ctx)
-}
+    def execute(self, context: ExecutionContext) -> None:
+        with context.tracer.span("publish-output") as span:
+            try:
+                # publish output
+                pass
+            except Exception as error:
+                span.record_exception(error)
+                raise
 ```
-    </CodeGroup>
 
-    <Tip>
-        Set the environment variable `OTEL_TRACES_ENDPOINT` to omit that argument
-        in the `configure_otel_tracing` function.
-    </Tip>
-    </Tab>
-</Tabs>
+## Query spans
 
-Once the runner picks up tasks and executes them, corresponding traces and spans are automatically generated and exported to the configured backend.
+You can retrieve spans for a job through the jobs client and convert the result to a pandas DataFrame.
+
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+job = client.jobs().submit("process-scene", ProcessScene(scene_id="S2A_001"))
+
+spans = client.jobs().query_spans(job)
+for span in spans:
+    print(span.name, span.status_code, span.duration)
+
+df = spans.to_pandas()
+```
+
+See [Query telemetry](/workflows/observability/query) for the log and span query APIs.
+
+## Export to another backend
+
+Tilebox stores traces by default. To export spans to your own observability backend as well, configure an [OpenTelemetry](/workflows/observability/integrations/open-telemetry) or [Axiom](/workflows/observability/integrations/axiom) integration when the runner process starts.

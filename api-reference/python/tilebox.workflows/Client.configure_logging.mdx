@@ -1,0 +1,38 @@
+---
+title: Client.configure_logging
+icon: laptop-code
+---
+
+```python
+def Client.configure_logging(
+    level: int,
+    runner_level: int | None = None,
+) -> None
+```
+
+Configure the log level for logs exported by this workflow client.
+
+## Parameters
+
+<ParamField path="level" type="int" required>
+  Logging level for task logs emitted with `context.logger`, for example `logging.INFO` or `logging.DEBUG`.
+</ParamField>
+
+<ParamField path="runner_level" type="int | None">
+  Logging level for internal task runner logs. If omitted, the value of `level` is used.
+</ParamField>
+
+## Returns
+
+`None`
+
+<RequestExample>
+```python Python
+import logging
+
+from tilebox.workflows import Client
+
+client = Client(name="sentinel-2-runner")
+client.configure_logging(level=logging.DEBUG, runner_level=logging.INFO)
+```
+</RequestExample>
