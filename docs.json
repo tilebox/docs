@@ -254,6 +254,9 @@
                   "api-reference/go/workflows/GetCurrentCluster",
                   "api-reference/go/workflows/SubmitSubtask",
                   "api-reference/go/workflows/SubmitSubtasks",
+                  "api-reference/go/workflows/ConfigureConsoleLogging",
+                  "api-reference/go/workflows/WithSpan",
+                  "api-reference/go/workflows/WithSpanResult",
                   "api-reference/go/workflows/WithTaskSpan",
                   "api-reference/go/workflows/WithTaskSpanResult",
                   "api-reference/go/workflows/NewTaskRunner",
@@ -268,6 +271,8 @@
                   "api-reference/go/workflows/Jobs.Get",
                   "api-reference/go/workflows/Jobs.Retry",
                   "api-reference/go/workflows/Jobs.Cancel",
+                  "api-reference/go/workflows/Jobs.QueryLogs",
+                  "api-reference/go/workflows/Jobs.QuerySpans",
                   "api-reference/go/workflows/Jobs.Query",
                   "api-reference/go/workflows/Collect"
                 ]

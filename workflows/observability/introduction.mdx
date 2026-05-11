@@ -87,7 +87,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/tilebox/tilebox-go"
 	"github.com/tilebox/tilebox-go/workflows/v1"
 	"github.com/tilebox/tilebox-go/workflows/v1/subtask"
 )
@@ -99,7 +98,7 @@ type ProcessScene struct {
 func (t *ProcessScene) Execute(ctx context.Context) error {
 	slog.InfoContext(ctx, "processing scene", slog.String("scene_id", t.SceneID))
 
-	return tilebox.WithSpan(ctx, "plan-subtasks", func(ctx context.Context) error {
+	return workflows.WithSpan(ctx, "plan-subtasks", func(ctx context.Context) error {
 		thumbnail, err := workflows.SubmitSubtask(ctx, &BuildThumbnail{SceneID: t.SceneID})
 		if err != nil {
 			return fmt.Errorf("failed to submit thumbnail subtask: %w", err)

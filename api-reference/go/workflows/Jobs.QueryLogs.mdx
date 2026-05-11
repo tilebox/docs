@@ -1,0 +1,71 @@
+---
+title: Client.Jobs.QueryLogs
+sidebarTitle: Jobs.QueryLogs
+icon: rectangle-terminal
+---
+
+```go
+func (*JobClient) QueryLogs(
+    ctx context.Context,
+    jobID uuid.UUID,
+    options ...workflows.TelemetryQueryOption,
+) iter.Seq2[*workflows.LogRecord, error]
+```
+
+Query log records emitted while running a job.
+
+The logs are lazily loaded and returned as a sequence of log records. Use [Collect](/api-reference/go/workflows/Collect) to transform the sequence into a slice.
+
+## Parameters
+
+<ParamField path="jobID" type="uuid.UUID" required>
+  The ID of the job to query logs for.
+</ParamField>
+<ParamField path="options" type="[]workflows.TelemetryQueryOption">
+  Options for querying logs.
+</ParamField>
+
+## Options
+
+<ParamField path="WithSortDirection(direction workflows.SortDirection)">
+  Sort logs by time. Use `workflows.Ascending` for oldest first or `workflows.Descending` for newest first.
+</ParamField>
+<ParamField path="WithLimit(limit int64)">
+  Limit the number of log records returned.
+</ParamField>
+
+## Returns
+
+A sequence of log records. Each record includes `Time`, `Level`, `Body`, and structured attributes.
+
+<RequestExample>
+```go Go
+import (
+    "fmt"
+    "log/slog"
+    "time"
+
+    "github.com/google/uuid"
+    "github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
+
+for record, err := range client.Jobs.QueryLogs(
+    ctx,
+    jobID,
+    workflows.WithSortDirection(workflows.Ascending),
+) {
+    if err != nil {
+        slog.ErrorContext(ctx, "failed to query job logs", slog.Any("error", err))
+        return
+    }
+
+    fmt.Printf("%s %-5s %s\n",
+        record.Time.Format(time.RFC3339),
+        record.Level,
+        record.Body,
+    )
+}
+```
+</RequestExample>

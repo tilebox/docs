@@ -1,6 +1,6 @@
 ---
 title: Query telemetry
-description: Query workflow logs and spans for a job from Python and convert the results to pandas DataFrames.
+description: Query workflow logs and spans for a job from Python or Go.
 icon: magnifying-glass-chart
 ---
 
@@ -10,6 +10,7 @@ Tilebox stores logs and spans for each workflow job. Use the jobs client to quer
 
 `query_logs()` returns a `LogRecords` list. Pagination is handled automatically.
 
+<CodeGroup>
 ```python Python
 from tilebox.workflows import Client
 
@@ -22,6 +23,40 @@ for record in logs:
     print(record.time, record.severity_text, record.body)
     print(record.attributes)
 ```
+```go Go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+func main() {
+	ctx := context.Background()
+	client := workflows.NewClient()
+	jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
+
+	for record, err := range client.Jobs.QueryLogs(
+		ctx,
+		jobID,
+		workflows.WithSortDirection(workflows.Ascending),
+	) {
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to query job logs", slog.Any("error", err))
+			return
+		}
+
+		fmt.Println(record.Time.Format(time.RFC3339Nano), record.Level, record.Body)
+		fmt.Println(record.Attributes)
+	}
+}
+```
+</CodeGroup>
 
 Each log record includes:
 
@@ -50,6 +85,7 @@ logs_df[["time", "severity_text", "body"]]
 
 `query_spans()` returns a `Spans` list. Pagination is handled automatically.
 
+<CodeGroup>
 ```python Python
 spans = client.jobs().query_spans(job.id)
 
@@ -57,6 +93,39 @@ for span in spans:
     print(span.name, span.status_code, span.duration)
     print(span.attributes)
 ```
+```go Go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+
+	"github.com/google/uuid"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+func main() {
+	ctx := context.Background()
+	client := workflows.NewClient()
+	jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
+
+	for span, err := range client.Jobs.QuerySpans(
+		ctx,
+		jobID,
+		workflows.WithSortDirection(workflows.Ascending),
+	) {
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to query job spans", slog.Any("error", err))
+			return
+		}
+
+		fmt.Println(span.Name, span.StatusCode, span.Duration())
+		fmt.Println(span.Attributes)
+	}
+}
+```
+</CodeGroup>
 
 Each span includes:
 

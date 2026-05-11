@@ -1,0 +1,48 @@
+---
+title: workflows.ConfigureConsoleLogging
+sidebarTitle: ConfigureConsoleLogging
+icon: rectangle-terminal
+---
+
+```go
+func ConfigureConsoleLogging(level slog.Level)
+```
+
+Configure the default `slog` logger to write workflow logs to standard output at the given level.
+
+The console handler composes with the Tilebox log exporter installed by `workflows.NewClient()`, so logs can be sent to Tilebox and printed locally. Calling `ConfigureConsoleLogging` more than once does not add duplicate console handlers.
+
+## Parameters
+
+<ParamField path="level" type="slog.Level" required>
+  The minimum log level to print to the console.
+</ParamField>
+
+## Returns
+
+Nothing.
+
+<RequestExample>
+```go Go
+import (
+    "context"
+    "log/slog"
+
+    "github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+func main() {
+    ctx := context.Background()
+    workflows.ConfigureConsoleLogging(slog.LevelDebug)
+
+    client := workflows.NewClient()
+    runner, err := client.NewTaskRunner(ctx)
+    if err != nil {
+        slog.ErrorContext(ctx, "failed to create task runner", slog.Any("error", err))
+        return
+    }
+
+    runner.Run(ctx)
+}
+```
+</RequestExample>

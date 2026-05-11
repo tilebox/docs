@@ -1,0 +1,71 @@
+---
+title: Client.Jobs.QuerySpans
+sidebarTitle: Jobs.QuerySpans
+icon: chart-gantt
+---
+
+```go
+func (*JobClient) QuerySpans(
+    ctx context.Context,
+    jobID uuid.UUID,
+    options ...workflows.TelemetryQueryOption,
+) iter.Seq2[*workflows.Span, error]
+```
+
+Query spans emitted while running a job.
+
+The spans are lazily loaded and returned as a sequence of spans. Use [Collect](/api-reference/go/workflows/Collect) to transform the sequence into a slice.
+
+## Parameters
+
+<ParamField path="jobID" type="uuid.UUID" required>
+  The ID of the job to query spans for.
+</ParamField>
+<ParamField path="options" type="[]workflows.TelemetryQueryOption">
+  Options for querying spans.
+</ParamField>
+
+## Options
+
+<ParamField path="WithSortDirection(direction workflows.SortDirection)">
+  Sort spans by start time. Use `workflows.Ascending` for oldest first or `workflows.Descending` for newest first.
+</ParamField>
+<ParamField path="WithLimit(limit int64)">
+  Limit the number of spans returned.
+</ParamField>
+
+## Returns
+
+A sequence of spans. Each span includes `StartTime`, `Name`, `StatusCode`, `Attributes`, and `Duration()`.
+
+<RequestExample>
+```go Go
+import (
+    "fmt"
+    "log/slog"
+    "time"
+
+    "github.com/google/uuid"
+    "github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
+
+for span, err := range client.Jobs.QuerySpans(
+    ctx,
+    jobID,
+    workflows.WithSortDirection(workflows.Ascending),
+) {
+    if err != nil {
+        slog.ErrorContext(ctx, "failed to query job spans", slog.Any("error", err))
+        return
+    }
+
+    fmt.Printf("%s %-40s %s\n",
+        span.StartTime.Format(time.RFC3339),
+        span.Name,
+        span.Duration(),
+    )
+}
+```
+</RequestExample>

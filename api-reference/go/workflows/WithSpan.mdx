@@ -1,0 +1,58 @@
+---
+title: workflows.WithSpan
+sidebarTitle: WithSpan
+icon: chart-gantt
+---
+
+```go
+func WithSpan(
+    ctx context.Context,
+    name string,
+    f func(ctx context.Context) error,
+) error
+```
+
+Wrap a function with a [tracing span](/workflows/observability/tracing) using the current task runner's tracer.
+
+Use `WithSpan` inside a task `Execute` method. If the context is not a task execution context, the function runs without creating a span.
+
+## Parameters
+
+<ParamField path="ctx" type="context.Context" required>
+  The task execution context.
+</ParamField>
+<ParamField path="name" type="string" required>
+  The name of the span.
+</ParamField>
+<ParamField path="f" type="func(context.Context) error" required>
+  The function to wrap.
+</ParamField>
+
+## Returns
+
+The error returned by `f`, if any.
+
+<RequestExample>
+```go Go
+import (
+    "context"
+    "fmt"
+
+    "github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+type ProcessScene struct{}
+
+func (t *ProcessScene) Execute(ctx context.Context) error {
+    err := workflows.WithSpan(ctx, "write-output", func(ctx context.Context) error {
+        // Write output here.
+        return nil
+    })
+    if err != nil {
+        return fmt.Errorf("failed to write output: %w", err)
+    }
+
+    return nil
+}
+```
+</RequestExample>
