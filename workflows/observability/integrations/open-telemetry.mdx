@@ -10,6 +10,7 @@ Tilebox uses OpenTelemetry data models for workflow telemetry. Built-in Tilebox 
 
 Call the configuration functions when the runner process starts, before creating the client or runner.
 
+<CodeGroup>
 ```python Python
 from tilebox.workflows import Client
 from tilebox.workflows.observability.logging import configure_otel_logging
@@ -32,6 +33,70 @@ client = Client(name="sentinel-2-runner")
 runner = client.runner(tasks=[ProcessScene])
 runner.run_forever()
 ```
+```go Go
+package main
+
+import (
+	"context"
+	"log/slog"
+
+	"github.com/tilebox/tilebox-go/observability"
+	"github.com/tilebox/tilebox-go/observability/logger"
+	"github.com/tilebox/tilebox-go/observability/tracer"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+	"go.opentelemetry.io/otel"
+)
+
+type ProcessScene struct{}
+
+func (t *ProcessScene) Execute(ctx context.Context) error {
+	slog.InfoContext(ctx, "processing scene")
+	return nil
+}
+
+func main() {
+	ctx := context.Background()
+	service := &observability.Service{Name: "sentinel-2-runner"}
+
+	traceProvider, shutdownTracer, err := tracer.NewOtelProvider(ctx, service,
+		tracer.WithEndpointURL("http://localhost:4318/v1/traces"),
+		tracer.WithHeaders(map[string]string{"Authorization": "Bearer <token>"}),
+	)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to configure tracing", slog.Any("error", err))
+		return
+	}
+	defer shutdownTracer(ctx)
+	otel.SetTracerProvider(traceProvider)
+
+	logHandler, shutdownLogger, err := logger.NewOtelHandler(ctx, service,
+		logger.WithEndpointURL("http://localhost:4318/v1/logs"),
+		logger.WithHeaders(map[string]string{"Authorization": "Bearer <token>"}),
+		logger.WithLevel(slog.LevelInfo),
+	)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to configure logging", slog.Any("error", err))
+		return
+	}
+	defer shutdownLogger(ctx)
+	slog.SetDefault(logger.New(logHandler))
+
+	client := workflows.NewClient()
+	runner, err := client.NewTaskRunner(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to create task runner", slog.Any("error", err))
+		return
+	}
+
+	if err := runner.RegisterTasks(&ProcessScene{}); err != nil {
+		slog.ErrorContext(ctx, "failed to register tasks", slog.Any("error", err))
+		return
+	}
+
+	runner.Run(ctx)
+}
+```
+</CodeGroup>
 
 If the endpoint does not include `/v1/traces` or `/v1/logs`, the Python SDK adds the correct path automatically.
 

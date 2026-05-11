@@ -16,6 +16,7 @@ Built-in Tilebox Console observability does not require Axiom. Axiom export is o
 
 Create Axiom datasets for logs and traces and an API key with ingest permissions. Then configure export when the runner process starts.
 
+<CodeGroup>
 ```python Python
 from tilebox.workflows import Client
 from tilebox.workflows.observability.logging import configure_otel_logging_axiom
@@ -38,6 +39,66 @@ client = Client(name="sentinel-2-runner")
 runner = client.runner(tasks=[ProcessScene])
 runner.run_forever()
 ```
+```go Go
+package main
+
+import (
+	"context"
+	"log/slog"
+
+	"github.com/tilebox/tilebox-go/observability"
+	"github.com/tilebox/tilebox-go/observability/logger"
+	"github.com/tilebox/tilebox-go/observability/tracer"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+	"go.opentelemetry.io/otel"
+)
+
+type ProcessScene struct{}
+
+func (t *ProcessScene) Execute(ctx context.Context) error {
+	slog.InfoContext(ctx, "processing scene")
+	return nil
+}
+
+func main() {
+	ctx := context.Background()
+	service := &observability.Service{Name: "sentinel-2-runner"}
+	apiKey := "<axiom-api-key>"
+
+	traceProvider, shutdownTracer, err := tracer.NewAxiomProvider(ctx, service, "workflow-traces", apiKey)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to configure Axiom tracing", slog.Any("error", err))
+		return
+	}
+	defer shutdownTracer(ctx)
+	otel.SetTracerProvider(traceProvider)
+
+	logHandler, shutdownLogger, err := logger.NewAxiomHandler(ctx, service, "workflow-logs", apiKey,
+		logger.WithLevel(slog.LevelInfo),
+	)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to configure Axiom logging", slog.Any("error", err))
+		return
+	}
+	defer shutdownLogger(ctx)
+	slog.SetDefault(logger.New(logHandler))
+
+	client := workflows.NewClient()
+	runner, err := client.NewTaskRunner(ctx)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to create task runner", slog.Any("error", err))
+		return
+	}
+
+	if err := runner.RegisterTasks(&ProcessScene{}); err != nil {
+		slog.ErrorContext(ctx, "failed to register tasks", slog.Any("error", err))
+		return
+	}
+
+	runner.Run(ctx)
+}
+```
+</CodeGroup>
 
 ## Environment variables
 
@@ -49,10 +110,31 @@ You can omit credentials from code by setting environment variables:
 | `AXIOM_LOGS_DATASET` | `configure_otel_logging_axiom()` |
 | `AXIOM_TRACES_DATASET` | `configure_otel_tracing_axiom()` |
 
+<CodeGroup>
 ```python Python
 configure_otel_tracing_axiom(service="sentinel-2-runner")
 configure_otel_logging_axiom(service="sentinel-2-runner")
 ```
+```go Go
+traceProvider, shutdownTracer, err := tracer.NewAxiomProviderFromEnv(ctx, service)
+if err != nil {
+	slog.ErrorContext(ctx, "failed to configure Axiom tracing", slog.Any("error", err))
+	return
+}
+defer shutdownTracer(ctx)
+otel.SetTracerProvider(traceProvider)
+
+logHandler, shutdownLogger, err := logger.NewAxiomHandlerFromEnv(ctx, service,
+	logger.WithLevel(slog.LevelInfo),
+)
+if err != nil {
+	slog.ErrorContext(ctx, "failed to configure Axiom logging", slog.Any("error", err))
+	return
+}
+defer shutdownLogger(ctx)
+slog.SetDefault(logger.New(logHandler))
+```
+</CodeGroup>
 
 ## Existing Axiom screenshots
 

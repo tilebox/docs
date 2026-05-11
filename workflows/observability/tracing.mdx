@@ -39,13 +39,13 @@ package tasks
 import (
 	"context"
 
-	"github.com/tilebox/tilebox-go"
+	"github.com/tilebox/tilebox-go/workflows/v1"
 )
 
 type ProcessScene struct{}
 
 func (t *ProcessScene) Execute(ctx context.Context) error {
-	return tilebox.WithSpan(ctx, "compute-index", func(ctx context.Context) error {
+	return workflows.WithSpan(ctx, "compute-index", func(ctx context.Context) error {
 		// perform expensive computation
 		return nil
 	})
@@ -61,6 +61,7 @@ If a task raises an exception, Tilebox records the exception on the task span an
 
 For finer-grained error reporting, record errors on your custom spans before re-raising them.
 
+<CodeGroup>
 ```python Python
 class ProcessScene(Task):
     scene_id: str
@@ -74,11 +75,38 @@ class ProcessScene(Task):
                 span.record_exception(error)
                 raise
 ```
+```go Go
+package tasks
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+type ProcessScene struct{}
+
+func (t *ProcessScene) Execute(ctx context.Context) error {
+	return workflows.WithSpan(ctx, "publish-output", func(ctx context.Context) error {
+		if err := publishOutput(); err != nil {
+			return fmt.Errorf("failed to publish output: %w", err)
+		}
+		return nil
+	})
+}
+
+func publishOutput() error {
+	return nil
+}
+```
+</CodeGroup>
 
 ## Query spans
 
-You can retrieve spans for a job through the jobs client and convert the result to a pandas DataFrame.
+You can retrieve spans for a job through the jobs client. Python results can also be converted to a pandas DataFrame.
 
+<CodeGroup>
 ```python Python
 from tilebox.workflows import Client
 
@@ -91,6 +119,39 @@ for span in spans:
 
 df = spans.to_pandas()
 ```
+```go Go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/tilebox/tilebox-go/workflows/v1"
+)
+
+func main() {
+	ctx := context.Background()
+	client := workflows.NewClient()
+	jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
+
+	for span, err := range client.Jobs.QuerySpans(ctx, jobID) {
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to query job spans", slog.Any("error", err))
+			return
+		}
+
+		fmt.Printf("%s %-40s %s\n",
+			span.StartTime.Format(time.RFC3339Nano),
+			span.Name,
+			span.Duration(),
+		)
+	}
+}
+```
+</CodeGroup>
 
 See [Query telemetry](/workflows/observability/query) for the log and span query APIs.
 
