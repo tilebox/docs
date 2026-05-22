@@ -39,7 +39,12 @@ class ScheduleImageCapture(Task):
 
     def execute(self, context: ExecutionContext) -> None:
         # Here you can implement your task logic, submit subtasks, etc.
-        print(f"Image captured for {self.location} with {self.resolution_m}m resolution and bands {self.spectral_bands}")
+        context.logger.info(
+            "Image captured",
+            location=self.location,
+            resolution_m=self.resolution_m,
+            spectral_bands=self.spectral_bands,
+        )
 
     @staticmethod
     def identifier() -> tuple[str, str]:
@@ -197,10 +202,10 @@ Submit a job to the Go server.
 curl http://localhost:8080/submit?lat=40.75&lon=-73.98&resolution=30&bands[]=489.0,560.6,666.5
 ```
 
-Check the Python runner output, it should print the following line:
+Check the Python runner logs for the following entry:
 
-```plaintext Output
-Image captured for [40.75, -73.98] with 30m resolution and bands [489, 560.6, 666.5]
+```plaintext Logs
+Image captured location=[40.75, -73.98] resolution_m=30 spectral_bands=[489, 560.6, 666.5]
 ```
 
 ## Next Steps

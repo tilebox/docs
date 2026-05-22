@@ -11,6 +11,11 @@
   "interaction": {
     "drilldown": false
   },
+  "integrations": {
+    "posthog": {
+      "apiKey": "phc_neTVVD8S3p76S25BXYXYf7TadgWK6ri4pg8sLqb4TVhJ"
+    }
+  },
   "navigation": {
     "tabs": [
       {

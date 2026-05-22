@@ -21,11 +21,14 @@ class MyCronTask(CronTask):
     message: str
 
     def execute(self, context: ExecutionContext) -> None:
-        print(f"Hello {self.message} from a Cron Task!")
         # self.trigger is an attribute of the CronTask class,
         # which contains information about the trigger event
         # that caused this task to be submitted as part of a job
-        print(f"This task was triggered at {self.trigger.time}")
+        context.logger.info(
+            "Cron task triggered",
+            message=self.message,
+            trigger_time=self.trigger.time,
+        )
 ```
 
 ## Registering a Cron trigger
@@ -67,19 +70,14 @@ runner = client.runner(tasks=[MyCronTask])
 runner.run_all()
 ```
 
-If this task runner runs continuously, its output may resemble the following:
+If this task runner runs continuously, its logs may resemble the following:
 
-```plaintext Output
-Hello World from a Cron Task!
-This task was triggered at 2023-09-25 16:12:00
-Hello World from a Cron Task!
-This task was triggered at 2023-09-25 17:12:00
-Hello World from a Cron Task!
-This task was triggered at 2023-09-25 18:12:00
-Hello World from a Cron Task!
-This task was triggered at 2023-09-25 18:45:00
-Hello World from a Cron Task!
-This task was triggered at 2023-09-25 19:12:00
+```plaintext Logs
+Cron task triggered message=World trigger_time=2023-09-25 16:12:00
+Cron task triggered message=World trigger_time=2023-09-25 17:12:00
+Cron task triggered message=World trigger_time=2023-09-25 18:12:00
+Cron task triggered message=World trigger_time=2023-09-25 18:45:00
+Cron task triggered message=World trigger_time=2023-09-25 19:12:00
 ```
 
 ## Inspecting in the Console

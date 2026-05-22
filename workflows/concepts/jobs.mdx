@@ -414,10 +414,16 @@ class PrintMovieStats(Task):
     def execute(self, context: ExecutionContext) -> None:
         params = {"t": self.title, "apikey": "<OMDB API Key>"}
         url = "http://www.omdbapi.com/?" + urlencode(params)
-        response = httpx.get(url).json()
+        with context.tracer.span("fetch-movie-stats") as span:
+            span.set_attribute("movie.title", self.title)
+            response = httpx.get(url).json()
         # set the display name of the task to the title of the movie:
         context.current_task.display = response["Title"]
-        print(f"{response['Title']} was released on {response['Released']}")
+        context.logger.info(
+            "Movie release date fetched",
+            title=response["Title"],
+            released=response["Released"],
+        )
 ```
 ```go Go
 package movie
@@ -521,11 +527,11 @@ job, err := client.Jobs.Submit(ctx, "movies-stats",
 
 One of the `PrintMovieStats` tasks fails with a `KeyError`. This error occurs when a movie title is not found by the [OMDb API](http://www.omdbapi.com/), leading to a response without the `Title` and `Released` fields.
 
-Console output from the task runners confirms this:
+Task logs from the runners confirm this:
 
-```plaintext Output
-The Matrix was released on 31 Mar 1999
-Shrek 2 was released on 19 May 2004
+```plaintext Logs
+Movie release date fetched title="The Matrix" released="31 Mar 1999"
+Movie release date fetched title="Shrek 2" released="19 May 2004"
 ERROR: Task PrintMovieStats failed with exception: KeyError('Title')
 ```
 
@@ -539,13 +545,19 @@ class PrintMovieStats(Task):
     def execute(self, context: ExecutionContext) -> None:
         params = {"t": self.title, "apikey": "<OMDB API Key>"}
         url = "http://www.omdbapi.com/?" + urlencode(params)
-        response = httpx.get(url).json()
+        with context.tracer.span("fetch-movie-stats") as span:
+            span.set_attribute("movie.title", self.title)
+            response = httpx.get(url).json()
         if "Title" in response and "Released" in response:
             context.current_task.display = response["Title"]
-            print(f"{response['Title']} was released on {response['Released']}")
+            context.logger.info(
+                "Movie release date fetched",
+                title=response["Title"],
+                released=response["Released"],
+            )
         else:
             context.current_task.display = f"NotFound: {self.title}"
-            print(f"Could not find the release date for {self.title}")
+            context.logger.info("Movie release date not found", title=self.title)
 ```
 ```go Go
 type PrintMovieStats struct {
@@ -607,15 +619,15 @@ _, err := client.Jobs.Retry(ctx, job.ID)
     <img src="/assets/workflows/diagrams/svg/movies-retried.dark.svg" alt="Job retried successfully" className="hidden dark:block" />
 </Frame>
 
-Now the console output shows:
+Now the task logs show:
 
-```plaintext Output
-Could not find the release date for Tilebox - The Movie
-The Avengers was released on 04 May 2012
+```plaintext Logs
+Movie release date not found title="Tilebox - The Movie"
+Movie release date fetched title="The Avengers" released="04 May 2012"
 ```
 
 <Note>
-The output confirms that only two tasks were executed, resuming from the point of failure instead of re-executing all tasks.
+The logs confirm that only two tasks were executed, resuming from the point of failure instead of re-executing all tasks.
 </Note>
 
 The job was retried and succeeded. The two tasks that completed before the failure were not re-executed.
