@@ -162,13 +162,13 @@ The following snippet illustrates storing and retrieving data from the cache.
     class ConsumerTask(Task):
         def execute(self, context: ExecutionContext) -> None:
             data = context.job_cache["data"]
-            print(f"Read {data} from cache")
+            context.logger.info("Read data from cache", data=data.decode())
     ```
 </CodeGroup>
 
 In this example, data stored under the key `"data"` can be any size that fits the cache backend constraints. Ensure the key remains unique within the job's scope to avoid conflicts.
 
-To test the workflow, you can start a local task runner using the `InMemoryCache` backend. Then, submit a job to execute the `ProducerTask` and observe the output of the `ConsumerTask`.
+To test the workflow, you can start a local task runner using the `InMemoryCache` backend. Then, submit a job to execute the `ProducerTask` and inspect the logs emitted by the `ConsumerTask`.
 
 <CodeGroup>
     ```python Python
@@ -185,8 +185,8 @@ To test the workflow, you can start a local task runner using the `InMemoryCache
     ```
 </CodeGroup>
 
-```plaintext Output
-Read b'my_binary_data_to_store' from cache
+```plaintext Logs
+Read data from cache data=my_binary_data_to_store
 ```
 
 ## Groups and Hierarchical Keys
@@ -244,7 +244,7 @@ class PrintSum(Task):
             number = group[key]  # read data from cache
             numbers.append(int(number.decode()))  # convert bytes back to int
 
-        print(f"Sum of all numbers: {sum(numbers)}")
+        context.logger.info("Computed sum of all numbers", total=sum(numbers))
 ```
 </CodeGroup>
 
@@ -265,6 +265,6 @@ Submitting a job of the `CacheGroupDemo` and running it with a task runner can b
     ```
 </CodeGroup>
 
-```plaintext Output
-Sum of all numbers: 284
+```plaintext Logs
+Computed sum of all numbers total=284
 ```

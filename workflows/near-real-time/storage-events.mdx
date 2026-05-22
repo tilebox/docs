@@ -16,9 +16,6 @@ To create a Storage Event task, use `tilebox.workflows.automations.StorageEventT
 ```python Python
 from tilebox.workflows import ExecutionContext
 from tilebox.workflows.automations import StorageEventTask, StorageEventType
-from tilebox.workflows.observability.logging import get_logger
-
-logger = get_logger()
 
 class LogObjectCreation(StorageEventTask):
     head_bytes: int
@@ -28,14 +25,14 @@ class LogObjectCreation(StorageEventTask):
         # which contains information about the storage event that triggered this task
         if self.trigger.type == StorageEventType.CREATED:
             path = self.trigger.location
-            logger.info(f"A new object was created: {path}")
+            context.logger.info("A new object was created", path=path)
 
             # trigger.storage is a storage client for interacting with the storage
             # location that triggered the event
             # using it, we can read the object to get its content as a bytes object
             data = self.trigger.storage.read(path)
-            logger.info(f"The object's file size is {len(data)} bytes")
-            logger.info(f"The object's first {self.head_bytes} bytes are: {data[:self.head_bytes]}")
+            context.logger.info("Read object data", path=path, size_bytes=len(data))
+            context.logger.info("Object preview", path=path, preview=data[:self.head_bytes].hex())
 ```
 
 ## Storage Locations

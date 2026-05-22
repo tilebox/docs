@@ -42,7 +42,7 @@ For python, the key components of this task are:
     The `execute` method is the entry point for executing the task. This is where the task's logic is defined. It's invoked by a [task runner](/workflows/concepts/task-runners) when the task runs and performs the task's operation.
   </Accordion>
   <Accordion title="context: ExecutionContext">
-    The `context` argument is an `ExecutionContext` instance that provides access to an [API for submitting new tasks](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask) as part of the same job and features like [shared caching](/api-reference/python/tilebox.workflows/ExecutionContext.job_cache).
+    The `context` argument is an `ExecutionContext` instance that provides access to an [API for submitting new tasks](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask) as part of the same job, [task logging](/api-reference/python/tilebox.workflows/ExecutionContext.logger), [custom tracing](/api-reference/python/tilebox.workflows/ExecutionContext.tracer), and features like [shared caching](/api-reference/python/tilebox.workflows/ExecutionContext.job_cache).
   </Accordion>
 </AccordionGroup>
 
@@ -129,7 +129,7 @@ class ChildTask(Task):
     index: int
 
     def execute(self, context: ExecutionContext) -> None:
-        print(f"Executing ChildTask {self.index}")
+        context.logger.info("Executing child task", index=self.index)
 
 # after submitting this task, a task runner may pick it up and execute it
 # which will result in 5 ChildTasks being submitted and executed as well
@@ -425,7 +425,7 @@ class Sum(Task):  # The reduce step
         for key in squares:
             result += int(squares[key].decode())
 
-        print("Sum of squares is:", result)
+        context.logger.info("Computed sum of squares", result=result)
 ```
 </CodeGroup>
 
@@ -449,8 +449,8 @@ jobs.display(job)
 ```
 </CodeGroup>
 
-```plaintext Output
-Sum of squares is: 336448
+```plaintext Logs
+Computed sum of squares result=336448
 ```
 
 <Frame>
@@ -479,7 +479,7 @@ For example, the `RecursiveTask` below is a valid task that submits smaller inst
         num: int
 
         def execute(self, context: ExecutionContext) -> None:
-            print(f"Executing RecursiveTask with num={self.num}")
+            context.logger.info("Executing recursive task", num=self.num)
 			# if num < 2, we reached the base case and stop recursion
             if self.num >= 2:
                 context.submit_subtask(RecursiveTask(self.num // 2))
@@ -613,7 +613,7 @@ class RootTask(Task):
 
 class FlakyTask(Task):
     def execute(self, context: ExecutionContext) -> None:
-        print(f"Executing FlakyTask")
+        context.logger.info("Executing flaky task")
 
         if random.random() < 0.1:
             raise Exception("FlakyTask failed randomly")
@@ -683,7 +683,7 @@ class PrintTask(Task):
     message: str
 
     def execute(self, context: ExecutionContext) -> None:
-        print(self.message)
+        context.logger.info("Print task executed", message=self.message)
 ```
 ```go Go
 type RootTask struct{}
@@ -761,23 +761,35 @@ A practical example is a workflow that fetches news articles from an API and pro
 
         def execute(self, context: ExecutionContext) -> None:
             url = f"https://newsapi.org/v2/top-headlines?category={self.category}&pageSize={self.max_articles}&country=us&apiKey=API_KEY"
-            news = httpx.get(url).json()
+            with context.tracer.span("fetch-news") as span:
+                span.set_attribute("category", self.category)
+                span.set_attribute("max_articles", self.max_articles)
+                news = httpx.get(url).json()
             # check out our documentation page on caches to learn
             # about a better way of passing data between tasks
             Path("news.json").write_text(json.dumps(news))
+            context.logger.info(
+                "Fetched news articles",
+                category=self.category,
+                article_count=len(news["articles"]),
+            )
 
     class PrintHeadlines(Task):
         def execute(self, context: ExecutionContext) -> None:
             news = json.loads(Path("news.json").read_text())
             for article in news["articles"]:
-                print(f"{article['publishedAt'][:10]}: {article['title']}")
+                context.logger.info(
+                    "News headline",
+                    published_at=article["publishedAt"][:10],
+                    title=article["title"],
+                )
 
     class MostFrequentAuthors(Task):
         def execute(self, context: ExecutionContext) -> None:
             news = json.loads(Path("news.json").read_text())
             authors = [article["author"] for article in news["articles"]]
             for author, count in Counter(authors).most_common():
-                print(f"Author {author} has written {count} articles")
+                context.logger.info("Author article count", author=author, count=count)
 
     # now submit a job, and then visualize it
     job = job_client.submit("process-news",
@@ -935,17 +947,17 @@ job, err := client.Jobs.Submit(ctx, "process-news",
 ```
 </CodeGroup>
 
-```plaintext Output
-2024-02-15: NASA selects ultraviolet astronomy mission but delays its launch two years - SpaceNews
-2024-02-15: SpaceX launches Space Force mission from Cape Canaveral - Orlando Sentinel
-2024-02-14: Saturn's largest moon most likely uninhabitable - Phys.org
-2024-02-14: AI Unveils Mysteries of Unknown Proteins' Functions - Neuroscience News
-2024-02-14: Anthropologists' research unveils early stone plaza in the Andes - Phys.org
-Author Jeff Foust has written 1 articles
-Author Richard Tribou has written 1 articles
-Author Jeff Renaud has written 1 articles
-Author Neuroscience News has written 1 articles
-Author Science X has written 1 articles
+```plaintext Logs
+News headline published_at=2024-02-15 title="NASA selects ultraviolet astronomy mission but delays its launch two years - SpaceNews"
+News headline published_at=2024-02-15 title="SpaceX launches Space Force mission from Cape Canaveral - Orlando Sentinel"
+News headline published_at=2024-02-14 title="Saturn's largest moon most likely uninhabitable - Phys.org"
+News headline published_at=2024-02-14 title="AI Unveils Mysteries of Unknown Proteins' Functions - Neuroscience News"
+News headline published_at=2024-02-14 title="Anthropologists' research unveils early stone plaza in the Andes - Phys.org"
+Author article count author="Jeff Foust" count=1
+Author article count author="Richard Tribou" count=1
+Author article count author="Jeff Renaud" count=1
+Author article count author="Neuroscience News" count=1
+Author article count author="Science X" count=1
 ```
 
 <Frame>
@@ -963,8 +975,8 @@ This workflow consists of four tasks:
 | ------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------- |
 | NewsWorkflow        | -            | The root task of the workflow. It spawns the other tasks and sets up the dependencies between them.                       |
 | FetchNews           | -            | A task that fetches news articles from the API and writes the results to a file, which is then read by dependent tasks.    |
-| PrintHeadlines      | FetchNews    | A task that prints the headlines of the news articles to the console.                                                      |
-| MostFrequentAuthors | FetchNews    | A task that counts the number of articles each author has written and prints the result to the console.                    |
+| PrintHeadlines      | FetchNews    | A task that logs the headlines of the news articles.                                                                       |
+| MostFrequentAuthors | FetchNews    | A task that counts the number of articles each author has written and logs the result.                                     |
 
 An important aspect is that there is no dependency between the `PrintHeadlines` and `MostFrequentAuthors` tasks. This means they can execute in parallel, which the Tilebox Workflow Orchestrator will do, provided multiple task runners are available.
 
@@ -1017,17 +1029,17 @@ class RootTask(Task):
 class RequiredTask(Task):
     def execute(self, context: ExecutionContext) -> None:
         # this task may fail, but the job will continue regardless
-        print("This task is required to succeed, otherwise the job would stop")
+        context.logger.info("Required task completed")
 
 class FlakyTask(Task):
     def execute(self, context: ExecutionContext) -> None:
         # this task may fail, but the job will continue regardless
-        print("Attempting flaky operation...")
+        context.logger.info("Attempting flaky operation")
 
 class FinalTask(Task):
     def execute(self, context: ExecutionContext) -> None:
         # this task runs even if FlakyTask failed
-        print("Running final step")
+        context.logger.info("Running final step")
 ```
 ```go Go
 type RootTask struct{}
@@ -1111,7 +1123,7 @@ class Step1(Task):
 
 class Step1A(Task):
     def execute(self, context: ExecutionContext) -> None:
-        print("Step1A executed successfully")
+        context.logger.info("Step1A executed successfully")
 
 class Step1B(Task):
     def execute(self, context: ExecutionContext) -> None:
@@ -1119,15 +1131,15 @@ class Step1B(Task):
 
 class Step1C(Task):
     def execute(self, context: ExecutionContext) -> None:
-        print("This will be skipped because Step1B failed")
+        context.logger.info("This will be skipped because Step1B failed")
 
 class Step2(Task):
     def execute(self, context: ExecutionContext) -> None:
-        print("This will be skipped because Step1B failed")
+        context.logger.info("This will be skipped because Step1B failed")
 
 class AlwaysRuns(Task):
     def execute(self, context: ExecutionContext) -> None:
-        print("This runs regardless")
+        context.logger.info("This runs regardless")
 ```
 ```go Go
 type Pipeline struct{}
