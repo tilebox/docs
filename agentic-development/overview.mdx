@@ -1,0 +1,33 @@
+---
+title: AI Overview
+description: Learn how Tilebox supports agentic development through the CLI, agent skills, the MCP server, and documentation context.
+icon: brain-circuit
+---
+
+AI-assisted development in Tilebox is built around giving agents the same operational context that developers use: current documentation, authenticated access to Tilebox resources, and predictable tools for running actions. The section explains how to connect agents to Tilebox, which interface to use for each task, and how the Tilebox CLI and skills help agents work with datasets and workflows.
+
+## How Tilebox supports agents
+
+Tilebox supports agents through a CLI-based setup. The CLI gives agents a deterministic terminal interface with structured output, machine-readable command discovery, and file-based inputs. Agent skills teach agents how to compose CLI commands into common Tilebox tasks, while the MCP server is available for AI tools where terminal access is limited, such as web-based chat agents.
+
+<Columns cols={2}>
+  <Card title="Onboard your agent" icon="rocket" href="/agentic-development/onboard-your-agent">
+    Configure an agent with the Tilebox CLI, Tilebox skills, and documentation context.
+  </Card>
+  <Card title="AI interfaces" icon="route" href="/agentic-development/ai-interfaces">
+    Decide when to use MCP, the CLI, skills, SDKs, or documentation context.
+  </Card>
+  <Card title="Tilebox MCP" icon="plug" href="/agentic-development/tilebox-mcp">
+    Connect AI tools to the Tilebox MCP server when terminal access is not available.
+  </Card>
+  <Card title="Tilebox CLI" icon="terminal" href="/agentic-development/tilebox-cli">
+    Install the CLI, authenticate it, and use agent-friendly command patterns.
+  </Card>
+  <Card title="Agent Skills" icon="wand-magic-sparkles" href="/agentic-development/agent-skills">
+    Install Tilebox skills that teach agents how to work with Tilebox tools.
+  </Card>
+</Columns>
+
+## Recommended setup
+
+Use [Onboard your agent](/agentic-development/onboard-your-agent) if you want an AI coding agent to help with Tilebox work in a repository. It covers the default setup with CLI installation, CLI authentication, Tilebox skills, and documentation context. Use the MCP setup when your agent runs in a web or chat environment where commands and terminals are not easy to use.

@@ -4,6 +4,10 @@
 
 This repository contains the Mintlify source for [docs.tilebox.com](https://docs.tilebox.com). Use this file to keep documentation updates consistent with the current information architecture, writing style, and tooling.
 
+## Required Writing Skill
+
+Always read and respect the `writing-technical-content` skill before writing, drafting, revising, or outlining technical documentation, guides, or long-form content in this repository.
+
 ## Information Architecture
 
 Navigation is defined in `docs.json` and currently follows this top-level structure:

@@ -1,0 +1,45 @@
+---
+title: Agent Skills
+description: Install Tilebox skills that teach AI agents how to work with Tilebox tools and workflows.
+icon: wand-magic-sparkles
+---
+
+Tilebox skills are task-level instructions for AI agents. They explain how to use the Tilebox CLI, which command patterns to prefer, and how to approach common workflows such as dataset management and job monitoring.
+
+## Install Tilebox skills
+
+Install the skills from the Tilebox skills repository.
+
+```bash
+npx skills add tilebox/skills
+```
+
+<Columns cols={1}>
+  <Card title="Tilebox skills on GitHub" icon="github" href="https://github.com/tilebox/skills" horizontal>
+    Browse the source repository for the Tilebox agent skills.
+  </Card>
+</Columns>
+
+After installation, your agent can load the relevant skill before working on a Tilebox task.
+
+## Included skills
+
+Tilebox skills cover common agent workflows around the CLI, datasets, workflows, jobs, and automations.
+
+| Skill | What it covers |
+| --- | --- |
+| `using-tilebox-cli` | Authentication, `--json`, `jq`, `agent-context`, and documentation search |
+| `managing-tilebox-datasets` | Creating schemas, updating metadata, and querying datasets |
+| `managing-tilebox-jobs` | Submitting jobs, monitoring status, reading logs, and inspecting spans |
+| `working-with-tilebox-automations` | Working with triggers, automations, and storage locations |
+| `writing-tilebox-workflows` | Writing Tilebox workflow tasks and task runners |
+
+## How to use skills with agents
+
+Ask your agent to load the most specific Tilebox skill for the task. For example, use `managing-tilebox-datasets` for schema work and `managing-tilebox-jobs` for workflow execution or observability tasks.
+
+```text Prompt
+Load the relevant Tilebox skills. Use the Tilebox CLI to submit a Sentinel-2 mosaic job, then monitor it until it completes.
+```
+
+Skills work best with the Tilebox CLI. The CLI gives the agent repeatable terminal commands, and skills tell it how to combine those commands safely. Use MCP as an alternative when the agent runs in a web or chat environment without practical terminal access.

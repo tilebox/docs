@@ -1,0 +1,65 @@
+---
+title: Tilebox MCP
+description: Configure the Tilebox MCP server for AI tools that support the Model Context Protocol.
+icon: plug
+---
+
+The Tilebox MCP server connects AI tools to Tilebox through the Model Context Protocol. It exposes tools for working with Tilebox datasets and workflows, and it includes documentation search so agents can retrieve current Tilebox context before answering questions or taking action.
+
+Use MCP when your agent cannot easily use terminal commands. For coding agents with shell access, the [Tilebox CLI](/agentic-development/tilebox-cli) and [Agent Skills](/agentic-development/agent-skills) are the default setup. MCP is a good fit for web-based agents, chat tools, or hosted AI clients that support MCP but do not run local commands.
+
+## What the MCP server provides
+
+The MCP server at `https://mcp.tilebox.com/mcp` provides tools for:
+
+- Accessing and interacting with Tilebox datasets and workflows
+- Searching the Tilebox documentation
+
+When an MCP-capable client has the server configured, it can invoke relevant tools during a conversation. For example, when you ask about a dataset, the agent can query the Tilebox MCP server for the current schema and include that information in its response.
+
+## Authentication
+
+The Tilebox MCP server uses OAuth. When your AI client connects, you are redirected to sign in with your Tilebox account and select a team. You do not need to configure API keys or custom headers for MCP authentication.
+
+## Configure an MCP client
+
+Add the Tilebox MCP server using the HTTP transport when your AI client supports MCP.
+
+```json
+{
+  "mcpServers": {
+    "tilebox": {
+      "url": "https://mcp.tilebox.com/mcp"
+    }
+  }
+}
+```
+
+## Configure Claude Code
+
+Run the following command to add the Tilebox MCP server to Claude Code:
+
+```bash
+claude mcp add --transport http "Tilebox" https://mcp.tilebox.com/mcp
+```
+
+## Use multiple teams
+
+If you need to access multiple Tilebox teams, add a separate MCP server entry for each team. Each entry goes through its own OAuth flow and can be authorized for a different team.
+
+```json
+{
+  "mcpServers": {
+    "tilebox-team1": {
+      "url": "https://mcp.tilebox.com/mcp"
+    },
+    "tilebox-team2": {
+      "url": "https://mcp.tilebox.com/mcp"
+    }
+  }
+}
+```
+
+<Tip>
+Use clear server names when configuring multiple teams so your agent can choose the correct Tilebox workspace for each task.
+</Tip>

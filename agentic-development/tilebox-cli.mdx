@@ -1,0 +1,70 @@
+---
+title: Tilebox CLI
+description: Install, authenticate, and use the Tilebox CLI in AI-assisted development workflows.
+icon: terminal
+---
+
+The Tilebox CLI is a command-line interface for humans, agents, and automation. It helps AI-assisted workflows by exposing Tilebox operations through explicit commands, supporting structured output, and letting agents inspect the command tree before taking action.
+
+Use the CLI as the default Tilebox interface for coding agents that can run terminal commands. It keeps actions visible in the shell, works with existing development workflows, and pairs with Tilebox skills for multi-step tasks.
+
+## Install the CLI
+
+Install the Tilebox CLI with the install script.
+
+```bash
+curl -fsSL https://cli.tilebox.com/install.sh | sh
+```
+
+## Authenticate
+
+The CLI reads the `TILEBOX_API_KEY` environment variable. Create an API key in the [Tilebox Console](https://console.tilebox.com/settings/api-keys), then export it in the shell or agent environment that runs CLI commands.
+
+```bash
+export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"
+```
+
+Use API keys with the smallest permissions needed for the agent's task.
+
+## Discover commands with agent-context
+
+Agents should inspect the CLI instead of guessing command names and flags. The `agent-context` command returns machine-readable information about the available command tree, arguments, flags, and descriptions.
+
+```bash
+tilebox agent-context
+```
+
+Use this before asking an agent to create datasets, submit jobs, or manage automations with the CLI.
+
+## Prefer JSON output
+
+Use `--json` when the agent needs to parse command output. Structured output is easier for agents to inspect, filter, and pass to follow-up commands than terminal tables.
+
+```bash
+tilebox dataset list --json
+```
+
+## Use files and standard input for generated input
+
+For larger inputs, prefer file-based flags instead of long shell-quoted strings. The CLI supports input patterns such as `--schema-file`, `--input-file`, `--spatial-extent-file`, and `--description-file`. Many file flags also support `-` for reading from standard input.
+
+```bash
+tilebox dataset create --schema-file schema.json
+```
+
+```bash
+# Read from stdin.
+cat schema.json | tilebox dataset create --schema-file -
+```
+
+This pattern is safer for agents because generated JSON, geometry, and descriptions do not need to be embedded in one fragile shell command.
+
+## Use the CLI with Tilebox skills
+
+The Tilebox skills include guidance for using the CLI in agent workflows. Install them when you want an agent to combine CLI commands into higher-level tasks such as managing datasets, monitoring jobs, or configuring automations.
+
+```bash
+npx skills add tilebox/skills
+```
+
+After installing the skills, ask your agent to inspect `tilebox agent-context` and follow the relevant Tilebox skill before running commands that change resources. If your agent cannot use a terminal, configure the [Tilebox MCP server](/agentic-development/tilebox-mcp) instead.
