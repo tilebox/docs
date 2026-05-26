@@ -1,0 +1,29 @@
+---
+title: AI interfaces
+description: Choose the right Tilebox interface for AI-assisted work.
+icon: route
+---
+
+Tilebox gives agents multiple ways to get context and take action. The right interface depends on whether the agent needs live Tilebox access, repeatable terminal commands, workflow instructions, or documentation-only context.
+
+## Interface guide
+
+| Interface | Use it for | What it gives the agent |
+| --- | --- | --- |
+| [Tilebox CLI](/agentic-development/tilebox-cli) | Default setup for coding agents, terminal operations, automation, and CI-friendly workflows | Structured command output, command discovery, and predictable inputs |
+| [Agent Skills](/agentic-development/agent-skills) | Repeated Tilebox tasks across datasets, jobs, and automations | Instructions for composing CLI commands into end-to-end workflows |
+| [Tilebox MCP](/agentic-development/tilebox-mcp) | Web-based agents, chat tools, or MCP-capable clients where terminal access is limited | Authenticated tools for datasets, workflows, and documentation search |
+| [Tilebox SDKs](/sdks/introduction) | Application code and production integrations | Language-native APIs for Python and Go |
+| [`llms-full.txt`](https://docs.tilebox.com/llms-full.txt) | Documentation-only context | A static markdown bundle of the Tilebox documentation |
+
+## How the interfaces fit together
+
+Use the CLI when an agent can run terminal commands. This is the default interface for repository-based coding agents because commands are explicit, repeatable, and easy to inspect. Use skills when the agent needs guidance for multi-step Tilebox tasks, such as creating datasets or monitoring workflow jobs.
+
+Use the MCP server when an agent cannot easily run terminal commands. This is common for web-based agents and chat tools where the agent can call hosted tools but cannot access a shell. MCP is also useful when you want an AI client to access Tilebox documentation search and live Tilebox tools without installing local software.
+
+The interfaces are complementary. For example, a coding agent can use the CLI to inspect available commands with `tilebox agent-context` and use the `managing-tilebox-jobs` skill to monitor a submitted workflow job. A web-based agent can use the MCP server for documentation search and live Tilebox access instead.
+
+## Recommended defaults
+
+For AI-assisted development in a codebase, install the CLI and Tilebox skills. Add MCP when your agent runs outside a terminal environment or when you prefer a hosted tool connection from a web or chat interface.

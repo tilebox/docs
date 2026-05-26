@@ -27,8 +27,18 @@
               "introduction",
               "quickstart",
               "console",
-              "ai-assistance",
               "authentication"
+            ]
+          },
+          {
+            "group": "Agentic Development",
+            "pages": [
+              "agentic-development/overview",
+              "agentic-development/onboard-your-agent",
+              "agentic-development/ai-interfaces",
+              "agentic-development/tilebox-cli",
+              "agentic-development/tilebox-mcp",
+              "agentic-development/agent-skills"
             ]
           },
           {
@@ -303,7 +313,7 @@
         {
           "anchor": "Console",
           "href": "https://console.tilebox.com",
-          "icon": "terminal"
+          "icon": "display"
         },
         {
           "anchor": "Book a Demo",
