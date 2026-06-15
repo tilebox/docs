@@ -1,0 +1,21 @@
+---
+title: Automations.ListStorageLocations
+sidebarTitle: Automations.ListStorageLocations
+icon: diagram-project
+---
+
+```go
+func (automationClient) ListStorageLocations(ctx context.Context) ([]*workflows.StorageLocation, error)
+```
+
+List storage locations available for automation storage event triggers.
+
+## Returns
+
+A list of storage location objects.
+
+<RequestExample>
+```go Go
+locations, err := client.Automations.ListStorageLocations(ctx)
+```
+</RequestExample>

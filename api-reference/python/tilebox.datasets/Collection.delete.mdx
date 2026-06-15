@@ -4,7 +4,11 @@ icon: layer-group
 ---
 
 ```python
-def Collection.delete(datapoints: DatapointIDs) -> int
+def Collection.delete(
+    datapoints: DatapointIDs,
+    *,
+    show_progress: bool | Callable[[float], None] = False,
+) -> int
 ```
 
 Delete data points from the collection.
@@ -20,7 +24,7 @@ Data points are identified and deleted by their ids.
 <ParamField path="datapoints" type="DatapointIDs">
   Datapoint IDs to delete from the collection.
 
-  Supported `DatapointIDs` types are.
+  Supported `DatapointIDs` types are:
   - A `pandas.DataFrame` containing an `id` column.
   - A `pandas.Series` containing datapoint IDs.
   - An `xarray.Dataset` containing an "id" variable.
@@ -28,6 +32,10 @@ Data points are identified and deleted by their ids.
   - A `numpy.ndarray` containing datapoint IDs.
   - A `Collection[UUID]` containing datapoint IDs as python built-in `UUID` objects, e.g. `list[UUID]`.
   - A `Collection[str]` containing datapoint IDs as strings, e.g. `list[str]`.
+</ParamField>
+
+<ParamField path="show_progress" type="bool | Callable[[float], None]">
+  If `True`, display a progress bar while deleting many datapoints. You can also pass a callback to receive progress values between `0` and `1`. Defaults to `False`.
 </ParamField>
 
 ## Returns

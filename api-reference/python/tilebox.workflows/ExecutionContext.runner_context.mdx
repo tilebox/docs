@@ -1,0 +1,25 @@
+---
+title: ExecutionContext.runner_context
+icon: folder-gear
+---
+
+```python
+ExecutionContext.runner_context: RunnerContext
+```
+
+Access the runner context instance for the runner executing the task.
+
+Use a custom `RunnerContext` subclass when tasks need shared runtime configuration or helpers during execution.
+
+## Returns
+
+The runner context object associated with the runner.
+
+<RequestExample>
+```python Python
+def execute(self, context: ExecutionContext) -> None:
+    bucket = context.runner_context.gcs_client("my-project:my-bucket")
+    blob = bucket.blob("inputs/scene.json")
+    data = blob.download_as_bytes()
+```
+</RequestExample>

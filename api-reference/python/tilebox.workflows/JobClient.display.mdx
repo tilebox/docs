@@ -1,0 +1,45 @@
+---
+title: JobClient.display
+icon: diagram-project
+---
+
+```python
+def JobClient.display(
+    job_id: Job | UUID | str,
+    direction: str = "down",
+    layout: str = "dagre",
+    sketchy: bool = True,
+) -> None
+```
+
+Display a job diagram in an interactive Python environment, such as a Jupyter notebook.
+
+Use [`JobClient.visualize`](/api-reference/python/tilebox.workflows/JobClient.visualize) when you need the SVG markup instead of displaying it directly.
+
+## Parameters
+
+<ParamField path="job_id" type="Job | UUID | str" required>
+  The job, job ID, or job ID string to display.
+</ParamField>
+
+<ParamField path="direction" type="str">
+  Direction for the diagram to flow. Defaults to `down`.
+</ParamField>
+
+<ParamField path="layout" type="str">
+  Layout engine for the diagram. Supported values are `dagre` and `elk`. Defaults to `dagre`.
+</ParamField>
+
+<ParamField path="sketchy" type="bool">
+  Whether to render the diagram in a sketchy, hand-drawn style. Defaults to `True`.
+</ParamField>
+
+## Returns
+
+`None`
+
+<RequestExample>
+```python Python
+job_client.display(job)
+```
+</RequestExample>

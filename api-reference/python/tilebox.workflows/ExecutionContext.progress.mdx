@@ -1,0 +1,34 @@
+---
+title: ExecutionContext.progress
+icon: folder-gear
+---
+
+```python
+def ExecutionContext.progress(label: str | None = None) -> ProgressUpdate
+```
+
+Create or return a progress indicator for the currently executing task.
+
+Progress updates are attached to the task result and are visible in job execution state. Calling `progress` again with the same label returns the same progress indicator.
+
+## Parameters
+
+<ParamField path="label" type="str | None">
+  Optional label for the progress indicator. Empty strings are treated as `None`.
+</ParamField>
+
+## Returns
+
+A `ProgressUpdate` object for tracking total and completed work.
+
+<RequestExample>
+```python Python
+def execute(self, context: ExecutionContext) -> None:
+    progress = context.progress("download-scenes")
+    progress.add(len(self.scenes))
+
+    for scene in self.scenes:
+        download(scene)
+        progress.done(1)
+```
+</RequestExample>

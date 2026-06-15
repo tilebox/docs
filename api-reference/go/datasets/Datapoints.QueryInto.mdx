@@ -1,5 +1,5 @@
 ---
-title: Client.Datapoints.QueryInto
+title: Datapoints.QueryInto
 sidebarTitle: Datapoints.QueryInto
 icon: layer-group
 ---
@@ -51,6 +51,12 @@ QueryInto is a convenience function for [Query](/api-reference/go/datasets/Datap
 <ParamField path="WithSkipData()" default="false">
   Skip the data when querying datapoints.
   If set, only the required and auto-generated fields will be returned.
+</ParamField>
+<ParamField path="WithCursor(cursor *datasets.Cursor)">
+  Start the query after the cursor returned by a previous page.
+</ParamField>
+<ParamField path="WithLimit(limit int64)">
+  Limit the total number of datapoints returned.
 </ParamField>
 
 ## Returns

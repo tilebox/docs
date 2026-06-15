@@ -12,7 +12,7 @@ workflows.SubmitSubtask(
 ) (subtask.FutureTask, error)
 ```
 
-Submit a subtask to the task runner.
+Submit a subtask to the runner.
 
 This function is intended to be used in tasks.
 
@@ -30,7 +30,7 @@ This function is intended to be used in tasks.
 <ParamField path="WithDependencies(dependencies ...FutureTask)">
   Set dependencies for the task
 </ParamField>
-<ParamField path="WithClusterSlug(clusterSlug string)" default="cluster of the task runner">
+<ParamField path="WithClusterSlug(clusterSlug string)" default="cluster of the runner">
   Set the cluster slug of the cluster where the task will be executed.
 </ParamField>
 <ParamField path="WithMaxRetries(maxRetries int64)" default="0">

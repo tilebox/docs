@@ -1,0 +1,30 @@
+---
+title: Automations.Get
+sidebarTitle: Automations.Get
+icon: diagram-project
+---
+
+```go
+func (automationClient) Get(
+    ctx context.Context,
+    automationID uuid.UUID,
+) (*workflows.Automation, error)
+```
+
+Get an automation prototype by ID.
+
+## Parameters
+
+<ParamField path="automationID" type="uuid.UUID" required>
+  The ID of the automation.
+</ParamField>
+
+## Returns
+
+An automation object.
+
+<RequestExample>
+```go Go
+automation, err := client.Automations.Get(ctx, automationID)
+```
+</RequestExample>

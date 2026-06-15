@@ -1,0 +1,54 @@
+---
+title: AutomationClient.create_cron_automation
+sidebarTitle: AutomationClient.create_cron...
+icon: calendar-clock
+---
+
+```python
+def AutomationClient.create_cron_automation(
+    name: str,
+    task: CronTask,
+    cron_schedules: str | list[str],
+    cluster: ClusterSlugLike | None = None,
+    max_retries: int = 0,
+) -> AutomationPrototype
+```
+
+Create an automation that submits a task on one or more cron schedules.
+
+## Parameters
+
+<ParamField path="name" type="str" required>
+  Name of the automation to create.
+</ParamField>
+
+<ParamField path="task" type="CronTask" required>
+  Task to run when the automation is triggered.
+</ParamField>
+
+<ParamField path="cron_schedules" type="str | list[str]" required>
+  Cron schedule or schedules that trigger the automation.
+</ParamField>
+
+<ParamField path="cluster" type="ClusterSlugLike | None">
+  Cluster to run the task on. If not provided, the default cluster is used.
+</ParamField>
+
+<ParamField path="max_retries" type="int">
+  Maximum number of retries for the task. Defaults to `0`.
+</ParamField>
+
+## Returns
+
+The created automation prototype.
+
+<RequestExample>
+```python Python
+automation = client.automations().create_cron_automation(
+    name="daily-index-refresh",
+    task=RefreshIndex(),
+    cron_schedules="0 2 * * *",
+    cluster="default",
+)
+```
+</RequestExample>

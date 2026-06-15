@@ -1,0 +1,31 @@
+---
+title: PollingTaskRunner.InterruptActiveTask
+sidebarTitle: PollingTaskRunner.InterruptActiveTask
+icon: gear-code
+---
+
+```go
+func (*PollingTaskRunner) InterruptActiveTask(ctx context.Context) error
+```
+
+Interrupt the active task by canceling its lease extension and reporting it as failed.
+
+If there is no active task, the method returns nil.
+
+## Parameters
+
+<ParamField path="ctx" type="context.Context" required>
+  The context used to report the interrupted task.
+</ParamField>
+
+## Returns
+
+An error if the active task could not be reported as failed.
+
+<RequestExample>
+```go Go
+if err := runner.InterruptActiveTask(ctx); err != nil {
+    return err
+}
+```
+</RequestExample>

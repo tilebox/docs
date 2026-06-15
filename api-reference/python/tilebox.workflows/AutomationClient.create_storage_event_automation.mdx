@@ -1,0 +1,55 @@
+---
+title: AutomationClient.create_storage_event_automation
+sidebarTitle: AutomationClient.create_storage...
+icon: folder-sync
+---
+
+```python
+def AutomationClient.create_storage_event_automation(
+    name: str,
+    task: StorageEventTask,
+    triggers: list[tuple[StorageLocation, str]] | tuple[StorageLocation, str],
+    cluster: ClusterSlugLike | None = None,
+    max_retries: int = 0,
+) -> AutomationPrototype
+```
+
+Create an automation that submits a task when objects are added to storage.
+
+## Parameters
+
+<ParamField path="name" type="str" required>
+  Name of the automation to create.
+</ParamField>
+
+<ParamField path="task" type="StorageEventTask" required>
+  Task to run when a matching storage event occurs.
+</ParamField>
+
+<ParamField path="triggers" type="list[tuple[StorageLocation, str]] | tuple[StorageLocation, str]" required>
+  One trigger or a list of triggers. Each trigger contains a storage location and a glob pattern.
+</ParamField>
+
+<ParamField path="cluster" type="ClusterSlugLike | None">
+  Cluster to run the task on. If not provided, the default cluster is used.
+</ParamField>
+
+<ParamField path="max_retries" type="int">
+  Maximum number of retries for the task. Defaults to `0`.
+</ParamField>
+
+## Returns
+
+The created automation prototype.
+
+<RequestExample>
+```python Python
+location = client.automations().storage_locations()[0]
+
+automation = client.automations().create_storage_event_automation(
+    name="ingest-new-scenes",
+    task=IngestScene(),
+    triggers=(location, "incoming/**/*.json"),
+)
+```
+</RequestExample>

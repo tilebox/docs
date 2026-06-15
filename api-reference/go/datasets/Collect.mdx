@@ -10,12 +10,12 @@ func Collect[K any](seq iter.Seq2[K, error]) ([]K, error)
 
 Convert any sequence into a slice.
 
-It return an error if any of the elements in the sequence has a non-nil error.
+It returns an error if any element in the sequence has a non-nil error.
 
 ## Parameters
 
-<ParamField path="seq" type="iter.Seq2[[]K, error]">
-  The sequence of bytes to convert
+<ParamField path="seq" type="iter.Seq2[K, error]">
+  The sequence to convert.
 </ParamField>
 
 ## Returns

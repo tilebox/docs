@@ -1,0 +1,21 @@
+---
+title: Automations.List
+sidebarTitle: Automations.List
+icon: diagram-project
+---
+
+```go
+func (automationClient) List(ctx context.Context) ([]*workflows.Automation, error)
+```
+
+List all automation prototypes.
+
+## Returns
+
+A list of automation objects.
+
+<RequestExample>
+```go Go
+automations, err := client.Automations.List(ctx)
+```
+</RequestExample>

@@ -1,5 +1,5 @@
 ---
-title: Client.Datapoints.Query
+title: Datapoints.Query
 sidebarTitle: Datapoints.Query
 icon: layer-group
 ---
@@ -14,7 +14,7 @@ func (datapointClient) Query(
 
 Query datapoints from one or more collections of the same dataset.
 
-The datapoints are lazily queried and returned as a sequence of bytes.
+The datapoints are lazily queried across pages and returned as a sequence of bytes.
 The output sequence can be transformed into a typed `proto.Message` using [CollectAs](/api-reference/go/datasets/CollectAs) or [As](/api-reference/go/datasets/As) functions.
 
 ## Parameters
@@ -48,6 +48,12 @@ The output sequence can be transformed into a typed `proto.Message` using [Colle
 <ParamField path="WithSkipData()" default="false">
   Skip the data when querying datapoints.
   If set, only the required and auto-generated fields will be returned.
+</ParamField>
+<ParamField path="WithCursor(cursor *datasets.Cursor)">
+  Start the query after the cursor returned by a previous page.
+</ParamField>
+<ParamField path="WithLimit(limit int64)">
+  Limit the total number of datapoints yielded by the sequence.
 </ParamField>
 
 ## Returns

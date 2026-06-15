@@ -1,0 +1,72 @@
+---
+title: Release Lifecycle
+description: Understand how workflow releases are built, checked, published, deployed, and used by release runners.
+icon: box-open
+---
+
+Workflow releases make workflow code reproducible. A release captures the files selected from a Python workflow project, the runtime entrypoint, and the task identifiers discovered from the configured runner. Release runners later use that release to execute compatible tasks on clusters that have the release deployed.
+
+The release lifecycle separates code packaging from cluster rollout. Building and publishing create immutable release content. Deploying a release changes which workflow code release runners on a cluster can execute.
+
+## Lifecycle overview
+
+| Stage | What it does | What changes |
+| --- | --- | --- |
+| Workflow creation | Creates the long-lived workflow object and slug. | Adds a workflow record. |
+| Local build | Resolves files, creates a deterministic artifact, and checks the configured Python runtime. | Writes local build output and cache entries. |
+| Publishing | Uploads the artifact when needed and creates an immutable release record. | Adds or reuses a workflow release. |
+| Deployment | Maps a release to one or more clusters. | Changes which release runners can execute the release. |
+| Job execution | Submits tasks that match the release's task identifiers and compatible versions. | Creates or updates jobs and tasks. |
+
+## Workflow object
+
+A workflow is the stable object that releases belong to. It has a slug, such as `my-workflow`, which is referenced from `tilebox.workflow.toml`. The workflow object is not the executable code itself; it provides the long-lived name under which releases are published.
+
+Create the workflow object once, then keep publishing new releases to it as the code changes. This gives release runners and deployment commands a stable workflow identity while each release remains immutable.
+
+## Release artifact
+
+The release artifact is the package that release runners download and execute. Tilebox assembles it from the files selected by the `[build]` section in `tilebox.workflow.toml`, after include patterns, exclude patterns, and `.gitignore` handling are applied.
+
+Artifacts should contain source code, lock files, and small configuration. They should not contain downloaded source data, model checkpoints, generated outputs, local virtual environments, or task caches. If a workflow needs large runtime assets, the task code should fetch them at runtime and cache them in the runner environment.
+
+## Runtime checks and task discovery
+
+During a build, Tilebox starts the configured Python workflow runtime and imports the runner object or command from `tilebox.workflow.toml`. This checks that the artifact contains the files needed to start the workflow runtime.
+
+The same step discovers the task identifiers registered by the workflow. Those identifiers become part of the release metadata and determine which submitted tasks a release runner can execute after the release is deployed.
+
+## Publishing
+
+Publishing turns checked local release content into a workflow release in Tilebox. The release record points to the artifact, the discovered task registrations, and the workflow slug it belongs to.
+
+Publishing is idempotent for identical release content and artifact digests. If the same release already exists, Tilebox returns the existing release instead of creating another copy. This is useful in agent-assisted and automated workflows where the same build step may run more than once.
+
+## Deployment
+
+Publishing a release does not make release runners execute it. A release must be deployed to a cluster before release runners on that cluster load its workflow code and execute compatible tasks from it.
+
+A deployment maps one release to one cluster. Different clusters can run different releases of the same workflow, which makes it possible to test a release in a development cluster before promoting it to production-like clusters.
+
+## Compatibility and retries
+
+Release compatibility matters when retrying existing jobs. A failed job can resume from failed tasks after you deploy a compatible fixed release to the same cluster. The task identifier name, major version, and input schema must remain compatible with the failed task that is being retried.
+
+Use a new major task version and submit a new job when the task input schema or behavior is no longer compatible with tasks submitted before the change. This keeps old jobs reproducible while allowing breaking workflow changes to move forward safely.
+
+## Related documentation
+
+<Columns cols={2}>
+  <Card title="Project structure" icon="folder-tree" href="/workflows/build-and-deploy/project-structure" horizontal>
+    Structure a Python workflow project for workflow releases and release runners.
+  </Card>
+  <Card title="Workflow configuration" icon="file-code" href="/workflows/build-and-deploy/workflow-configuration" horizontal>
+    Configure `tilebox.workflow.toml`, build inputs, and deployment targets.
+  </Card>
+  <Card title="Deploy releases to clusters" icon="rocket" href="/workflows/build-and-deploy/cluster-deployments" horizontal>
+    Map workflow releases to clusters and run them with release runners.
+  </Card>
+  <Card title="Workflow release concepts" icon="box-open" href="/workflows/concepts/workflow-releases" horizontal>
+    Learn how workflows, releases, artifacts, and cluster deployments fit together.
+  </Card>
+</Columns>

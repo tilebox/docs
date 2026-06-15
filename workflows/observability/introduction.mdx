@@ -5,7 +5,7 @@ description: Inspect workflow logs, traces, task status, and runner behavior.
 icon: lightbulb
 ---
 
-Tilebox Workflows gives each job a live observability record. As task runners execute work, Tilebox captures logs, traces, task status, and runner context. You can follow a job from the root task through its subtasks, inspect failures, and compare slow steps across distributed runners.
+Tilebox Workflows gives each job a live observability record. As runners execute work, Tilebox captures logs, traces, task status, and runner context. You can follow a job from the root task through its subtasks, inspect failures, and compare slow steps across distributed runners.
 
 <Frame>
   <img src="/assets/console/job-execution-light.png" alt="Job Execution Trace View" className="dark:hidden" />
@@ -45,7 +45,7 @@ Use the built-in view for day-to-day debugging and operations. Add structured lo
 
 A submitted job starts a trace. Each task run creates a span, and custom spans sit under the task that creates them. Log records emitted from task code attach to active spans, which connects messages to timing data.
 
-Tilebox adds job, task, runner, and service metadata to telemetry records. This data helps you filter by job, inspect a single task run, or compare work across task runners.
+Tilebox adds job, task, runner, and service metadata to telemetry records. This data helps you filter by job, inspect a single task run, or compare work across runners.
 
 ## Observability example
 

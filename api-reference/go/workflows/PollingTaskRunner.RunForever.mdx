@@ -1,0 +1,29 @@
+---
+title: PollingTaskRunner.RunForever
+sidebarTitle: PollingTaskRunner.RunForever
+icon: gear-code
+---
+
+```go
+func (*PollingTaskRunner) RunForever(ctx context.Context) error
+```
+
+Run the polling runner continuously, polling for tasks when idle.
+
+## Parameters
+
+<ParamField path="ctx" type="context.Context" required>
+  The context controlling the polling loop lifetime.
+</ParamField>
+
+## Returns
+
+An error if the polling loop fails.
+
+<RequestExample>
+```go Go
+if err := runner.RunForever(ctx); err != nil {
+    return err
+}
+```
+</RequestExample>

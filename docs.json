@@ -93,8 +93,19 @@
                 "pages": [
                   "workflows/concepts/tasks",
                   "workflows/concepts/jobs",
-                  "workflows/concepts/task-runners",
+                  "workflows/concepts/runners",
+                  "workflows/concepts/workflow-releases",
                   "workflows/concepts/clusters"
+                ]
+              },
+              {
+                "group": "Build and Deploy",
+                "icon": "rocket",
+                "pages": [
+                  "workflows/build-and-deploy/project-structure",
+                  "workflows/build-and-deploy/workflow-configuration",
+                  "workflows/build-and-deploy/releases",
+                  "workflows/build-and-deploy/cluster-deployments"
                 ]
               },
               "workflows/caches",
@@ -145,6 +156,7 @@
           {
             "group": "Workflows",
             "pages": [
+              "guides/workflows/agentic-workflow-iteration",
               "guides/workflows/multi-language"
             ]
           }
@@ -210,19 +222,32 @@
                 "pages": [
                   "api-reference/python/tilebox.workflows/Client",
                   "api-reference/python/tilebox.workflows/Task",
+                  "api-reference/python/tilebox.workflows/Runner",
+                  "api-reference/python/tilebox.workflows/Runner.register",
+                  "api-reference/python/tilebox.workflows/Runner.connect_to",
                   "api-reference/python/tilebox.workflows/Client.runner",
                   "api-reference/python/tilebox.workflows/Client.configure_logging",
                   "api-reference/python/tilebox.workflows/TaskRunner.run_all",
                   "api-reference/python/tilebox.workflows/TaskRunner.run_forever",
                   "api-reference/python/tilebox.workflows/ExecutionContext.logger",
                   "api-reference/python/tilebox.workflows/ExecutionContext.tracer",
+                  "api-reference/python/tilebox.workflows/ExecutionContext.progress",
                   "api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask",
                   "api-reference/python/tilebox.workflows/ExecutionContext.submit_subtasks",
+                  "api-reference/python/tilebox.workflows/ExecutionContext.runner_context",
                   "api-reference/python/tilebox.workflows/ExecutionContext.job_cache",
+                  "api-reference/python/tilebox.workflows/ProgressUpdate.add",
+                  "api-reference/python/tilebox.workflows/ProgressUpdate.done",
                   "api-reference/python/tilebox.workflows/ClusterClient.create",
                   "api-reference/python/tilebox.workflows/ClusterClient.find",
                   "api-reference/python/tilebox.workflows/ClusterClient.delete",
                   "api-reference/python/tilebox.workflows/ClusterClient.all",
+                  "api-reference/python/tilebox.workflows/AutomationClient.storage_locations",
+                  "api-reference/python/tilebox.workflows/AutomationClient.all",
+                  "api-reference/python/tilebox.workflows/AutomationClient.find",
+                  "api-reference/python/tilebox.workflows/AutomationClient.create_cron_automation",
+                  "api-reference/python/tilebox.workflows/AutomationClient.create_storage_event_automation",
+                  "api-reference/python/tilebox.workflows/AutomationClient.delete",
                   "api-reference/python/tilebox.workflows/JobCache.group",
                   "api-reference/python/tilebox.workflows/JobCache.__iter__",
                   "api-reference/python/tilebox.workflows/JobClient.submit",
@@ -230,6 +255,7 @@
                   "api-reference/python/tilebox.workflows/JobClient.retry",
                   "api-reference/python/tilebox.workflows/JobClient.cancel",
                   "api-reference/python/tilebox.workflows/JobClient.visualize",
+                  "api-reference/python/tilebox.workflows/JobClient.display",
                   "api-reference/python/tilebox.workflows/JobClient.query_logs",
                   "api-reference/python/tilebox.workflows/JobClient.query_spans",
                   "api-reference/python/tilebox.workflows/JobClient.query"
@@ -244,6 +270,8 @@
                 "group": "datasets",
                 "pages": [
                   "api-reference/go/datasets/Create",
+                  "api-reference/go/datasets/Update",
+                  "api-reference/go/datasets/CreateOrUpdate",
                   "api-reference/go/datasets/Get",
                   "api-reference/go/datasets/List",
                   "api-reference/go/datasets/Collections.Create",
@@ -253,10 +281,14 @@
                   "api-reference/go/datasets/Collections.List",
                   "api-reference/go/datasets/Datapoints.GetInto",
                   "api-reference/go/datasets/Datapoints.Query",
+                  "api-reference/go/datasets/Datapoints.QueryPage",
                   "api-reference/go/datasets/Datapoints.QueryInto",
                   "api-reference/go/datasets/Datapoints.Ingest",
                   "api-reference/go/datasets/Datapoints.Delete",
                   "api-reference/go/datasets/Datapoints.DeleteIDs",
+                  "api-reference/go/datasets/NewDatapointDescriptor",
+                  "api-reference/go/datasets/UnmarshalDatapoint",
+                  "api-reference/go/datasets/DatapointDecoder.Unmarshal",
                   "api-reference/go/datasets/CollectAs",
                   "api-reference/go/datasets/Collect",
                   "api-reference/go/datasets/As"
@@ -269,26 +301,53 @@
                   "api-reference/go/workflows/GetCurrentCluster",
                   "api-reference/go/workflows/SubmitSubtask",
                   "api-reference/go/workflows/SubmitSubtasks",
+                  "api-reference/go/workflows/SetTaskDisplay",
+                  "api-reference/go/workflows/DefaultProgress",
+                  "api-reference/go/workflows/Progress",
+                  "api-reference/go/workflows/ProgressTracker.Add",
+                  "api-reference/go/workflows/ProgressTracker.Done",
                   "api-reference/go/workflows/ConfigureConsoleLogging",
                   "api-reference/go/workflows/WithSpan",
                   "api-reference/go/workflows/WithSpanResult",
                   "api-reference/go/workflows/WithTaskSpan",
                   "api-reference/go/workflows/WithTaskSpanResult",
                   "api-reference/go/workflows/NewTaskRunner",
+                  "api-reference/go/workflows/NewPollingTaskRunner",
+                  "api-reference/go/workflows/TaskExecutor",
                   "api-reference/go/workflows/TaskRunner.GetRegisteredTask",
                   "api-reference/go/workflows/TaskRunner.RegisterTasks",
-                  "api-reference/go/workflows/TaskRunner.Run",
+                  "api-reference/go/workflows/TaskRunner.RunForever",
+                  "api-reference/go/workflows/TaskRunner.RunAll",
+                  "api-reference/go/workflows/PollingTaskRunner.RunForever",
+                  "api-reference/go/workflows/PollingTaskRunner.RunAll",
+                  "api-reference/go/workflows/PollingTaskRunner.StopRequestingNewTasks",
+                  "api-reference/go/workflows/PollingTaskRunner.IsRequestingTasks",
+                  "api-reference/go/workflows/PollingTaskRunner.HasActiveTask",
+                  "api-reference/go/workflows/PollingTaskRunner.InterruptActiveTask",
                   "api-reference/go/workflows/Clusters.Create",
                   "api-reference/go/workflows/Clusters.Get",
                   "api-reference/go/workflows/Clusters.Delete",
                   "api-reference/go/workflows/Clusters.List",
+                  "api-reference/go/workflows/Workflows.Create",
+                  "api-reference/go/workflows/Workflows.List",
+                  "api-reference/go/workflows/Workflows.Get",
+                  "api-reference/go/workflows/Workflows.PublishRelease",
+                  "api-reference/go/workflows/Workflows.DeployRelease",
+                  "api-reference/go/workflows/Workflows.UndeployRelease",
+                  "api-reference/go/workflows/Automations.List",
+                  "api-reference/go/workflows/Automations.Get",
+                  "api-reference/go/workflows/Automations.GetStorageLocation",
+                  "api-reference/go/workflows/Automations.ListStorageLocations",
                   "api-reference/go/workflows/Jobs.Submit",
                   "api-reference/go/workflows/Jobs.Get",
                   "api-reference/go/workflows/Jobs.Retry",
                   "api-reference/go/workflows/Jobs.Cancel",
-                  "api-reference/go/workflows/Jobs.QueryLogs",
-                  "api-reference/go/workflows/Jobs.QuerySpans",
                   "api-reference/go/workflows/Jobs.Query",
+                  "api-reference/go/workflows/Jobs.QueryPage",
+                  "api-reference/go/workflows/Jobs.QueryLogs",
+                  "api-reference/go/workflows/Jobs.QueryLogsPage",
+                  "api-reference/go/workflows/Jobs.QuerySpans",
+                  "api-reference/go/workflows/Jobs.QuerySpansPage",
                   "api-reference/go/workflows/Collect"
                 ]
               }
@@ -316,9 +375,9 @@
           "icon": "display"
         },
         {
-          "anchor": "Book a Demo",
-          "href": "https://book.vimcal.com/p/lauracosta/tilebox-demo",
-          "icon": "calendar"
+          "anchor": "Talk to us",
+          "href": "https://book.vimcal.com/p/meeshvia/30-minute-meeting",
+          "icon": "phone"
         },
         {
           "anchor": "Discord",

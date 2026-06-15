@@ -1,0 +1,73 @@
+---
+title: Datasets.Create
+sidebarTitle: Create
+icon: laptop-code
+---
+
+```go
+func (datasetClient) Create(
+    ctx context.Context,
+    kind datasets.DatasetKind,
+    codeName string,
+    name string,
+    fields []datasets.Field,
+    options ...datasets.DatasetOption,
+) (*datasets.Dataset, error)
+```
+
+Create a dataset with the given code name, display name, schema kind, and custom fields.
+
+## Parameters
+
+<ParamField path="kind" type="datasets.DatasetKind" required>
+  The dataset kind.
+</ParamField>
+<ParamField path="codeName" type="string" required>
+  The stable code identifier for the dataset.
+</ParamField>
+<ParamField path="name" type="string" required>
+  The display name of the dataset.
+</ParamField>
+<ParamField path="fields" type="[]datasets.Field" required>
+  The custom fields in the dataset schema.
+</ParamField>
+<ParamField path="options" type="[]datasets.DatasetOption">
+  Options for dataset metadata.
+</ParamField>
+
+## Options
+
+<ParamField path="datasets.WithSummary(summary string)">
+  Set a short dataset summary.
+</ParamField>
+<ParamField path="datasets.WithDescription(description string)">
+  Set the dataset's markdown description.
+</ParamField>
+
+## Dataset kinds
+
+<ParamField path="datasets.KindTemporal" type="datasets.DatasetKind">
+  A dataset that contains timestamp, ID, and ingestion time fields.
+</ParamField>
+<ParamField path="datasets.KindSpatiotemporal" type="datasets.DatasetKind">
+  A dataset that contains timestamp, ID, ingestion time, and geometry fields.
+</ParamField>
+
+## Returns
+
+The created dataset object.
+
+<RequestExample>
+```go Go
+dataset, err := client.Datasets.Create(ctx,
+    datasets.KindSpatiotemporal,
+    "my_catalog",
+    "My catalog",
+    []datasets.Field{
+        field.String("source").Description("Source system"),
+        field.Float64("cloud_cover"),
+    },
+    datasets.WithSummary("Scenes prepared for analysis"),
+)
+```
+</RequestExample>

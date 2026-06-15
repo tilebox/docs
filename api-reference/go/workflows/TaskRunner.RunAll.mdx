@@ -1,0 +1,31 @@
+---
+title: TaskRunner.RunAll
+sidebarTitle: TaskRunner.RunAll
+icon: gear-code
+---
+
+```go
+func (*TaskRunner) RunAll(ctx context.Context) error
+```
+
+Run the runner until there are no more tasks available.
+
+Use `RunAll` for finite worker processes and local draining workflows. Use [`RunForever`](/api-reference/go/workflows/TaskRunner.RunForever) for long-running runners.
+
+## Parameters
+
+<ParamField path="ctx" type="context.Context" required>
+  The context controlling the runner lifetime.
+</ParamField>
+
+## Returns
+
+An error if the polling loop fails.
+
+<RequestExample>
+```go Go
+if err := runner.RunAll(ctx); err != nil {
+    return err
+}
+```
+</RequestExample>

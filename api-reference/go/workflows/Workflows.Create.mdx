@@ -1,0 +1,43 @@
+---
+title: Workflows.Create
+sidebarTitle: Workflows.Create
+icon: diagram-project
+---
+
+```go
+func (workflowClient) Create(
+    ctx context.Context,
+    name string,
+    options ...workflows.WorkflowOption,
+) (*workflows.Workflow, error)
+```
+
+Create a workflow.
+
+## Parameters
+
+<ParamField path="name" type="string" required>
+  The workflow display name.
+</ParamField>
+<ParamField path="options" type="[]workflows.WorkflowOption">
+  Options for creating the workflow.
+</ParamField>
+
+## Options
+
+<ParamField path="workflows.WithDescription(description string)">
+  Set the workflow description.
+</ParamField>
+
+## Returns
+
+The created workflow object.
+
+<RequestExample>
+```go Go
+workflow, err := client.Workflows.Create(ctx,
+    "Scene processing",
+    workflows.WithDescription("Process new scenes into analysis-ready outputs."),
+)
+```
+</RequestExample>

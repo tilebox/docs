@@ -57,10 +57,10 @@ cron_automation = automations.create_cron_automation(
     A helpful tool to test your cron expressions is [crontab.guru](https://crontab.guru/).
 </Tip>
 
-## Starting a Cron Task Runner
+## Starting a Cron runner
 
-With the Cron automation registered, a job is submitted whenever the Cron expression matches. But unless a [task runner](/workflows/concepts/task-runners) is available to execute the Cron task the submitted jobs remain in a task queue.
-Once an [eligible task runner](/workflows/concepts/task-runners#task-selection) becomes available, all jobs in the queue are executed.
+With the Cron automation registered, a job is submitted whenever the Cron expression matches. But unless a [runner](/workflows/concepts/runners) is available to execute the Cron task the submitted jobs remain in a task queue.
+Once an [eligible runner](/workflows/concepts/runners#task-selection) becomes available, all jobs in the queue are executed.
 
 ```python Python
 from tilebox.workflows import Client
@@ -70,7 +70,7 @@ runner = client.runner(tasks=[MyCronTask])
 runner.run_all()
 ```
 
-If this task runner runs continuously, its logs may resemble the following:
+If this runner runs continuously, its logs may resemble the following:
 
 ```plaintext Logs
 Cron task triggered message=World trigger_time=2023-09-25 16:12:00

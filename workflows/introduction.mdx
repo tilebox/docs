@@ -1,31 +1,42 @@
 ---
 title: Tilebox Workflows
 sidebarTitle: Introduction
-description: The Tilebox workflow orchestrator is a parallel processing engine. It simplifies the creation of dynamic tasks that can be executed across various computing environments, including on-premise and auto-scaling clusters in public clouds.
+description: Run space data workflows across local, on-premises, and cloud environments with agent-friendly iteration loops.
 icon: network-wired
 mode: wide
 ---
 
-This section provides guides showcasing how to use the Tilebox workflow orchestrator effectively. Here are some of the key learning areas:
+Tilebox Workflows is a parallel processing engine for space data operations. It helps you turn processing steps such as fetching scenes, validating products, generating previews, running models, and publishing outputs into [tasks](/workflows/concepts/tasks) that can run across local machines, on-premises systems, and cloud environments.
+
+<Frame>
+  <img src="/assets/workflows/workflows-architecture-light.png" alt="Tilebox Workflows architecture showing workflow code submitted as a job, Tilebox tracking queued tasks and job state, and a runner executing matching tasks" className="dark:hidden" />
+  <img src="/assets/workflows/workflows-architecture-dark.png" alt="Tilebox Workflows architecture showing workflow code submitted as a job, Tilebox tracking queued tasks and job state, and a runner executing matching tasks" className="hidden dark:block" />
+</Frame>
+
+You submit a [job](/workflows/concepts/jobs) from workflow code, and Tilebox tracks the resulting task graph while [runners](/workflows/concepts/runners) execute eligible work on the selected [cluster](/workflows/concepts/clusters). During development, you can run tasks directly from your own script or service. For reproducible deployment, you can publish [workflow releases](/workflows/concepts/workflow-releases), deploy them to clusters, and let release runners execute the deployed code.
+
+This model also gives AI coding agents a practical iteration loop: edit workflow code, publish a release, deploy it to a development cluster, submit a test job, and inspect logs, traces, and job state before making the next change.
+
+## Get Started with Tilebox Workflows
 
 <Columns cols={2}>
-    <Card title="Create Tasks" icon="laptop-code" href="/workflows/concepts/tasks" horizontal>
-        Create tasks using the Tilebox Workflow Orchestrator.
+    <Card title="Create tasks" icon="laptop-code" href="/workflows/concepts/tasks" horizontal>
+        Define task classes, inputs, subtasks, dependencies, retries, and identifiers.
     </Card>
-    <Card title="Submit Jobs" icon="diagram-project" href="/workflows/concepts/jobs" horizontal>
-        Learn how to submit jobs to the workflow orchestrator, which schedules tasks for execution.
+    <Card title="Submit jobs" icon="diagram-project" href="/workflows/concepts/jobs" horizontal>
+        Submit a root task to a cluster and let runners execute the resulting task graph.
     </Card>
-    <Card title="Set up Task Runners" icon="list-check" href="/workflows/concepts/task-runners" horizontal>
-        Learn how to set up task runners to execute tasks in a distributed manner.
+    <Card title="Setup a runner" icon="list-check" href="/workflows/concepts/runners" horizontal>
+        Learn how to set up a runner in order to execute tasks.
     </Card>
-    <Card title="Gain insights through observability" icon="eye" href="/workflows/observability" horizontal>
-        Understand how to gain insights into task executions using observability features like tracing and logging.
+    <Card title="Build workflow releases" icon="box-open" href="/workflows/concepts/workflow-releases" horizontal>
+        Package workflow projects into immutable releases.
     </Card>
-    <Card title="Configure shared data access" icon="box-archive" href="/workflows/caches" horizontal>
-        Learn to configure shared data access for all tasks of a job using caches.
+    <Card title="Deploy releases to clusters" icon="rocket" href="/workflows/build-and-deploy/cluster-deployments" horizontal>
+        Map releases to clusters and run them with `tilebox runner start`.
     </Card>
-    <Card title="Trigger Jobs in near-real-time" icon="bolt-lightning" href="/workflows/near-real-time/automations" horizontal>
-        Trigger jobs based on events or schedules, such as new data availability or CRON schedules.
+    <Card title="Inspect workflow runs" icon="eye" href="/workflows/observability/introduction" horizontal>
+        Use logs, traces, and job state to debug workflows across runners.
     </Card>
 </Columns>
 
@@ -40,11 +51,14 @@ Before exploring Tilebox Workflows in depth, familiarize yourself with some comm
     <Accordion title="Jobs">
         A job is a specific execution of a workflow with designated input parameters. It consists of one or more tasks that can run in parallel or sequentially, based on their dependencies. Submitting a job involves creating a root task with specific input parameters, which may trigger the execution of other tasks within the same job.
     </Accordion>
-    <Accordion title="Task Runners">
-        Task runners are the execution agents within the Tilebox Workflows ecosystem that execute tasks. They can be deployed in different computing environments, including on-premise servers and cloud-based auto-scaling clusters. Task runners execute tasks as scheduled by the workflow orchestrator, ensuring they have the necessary resources and environment for effective execution.
+    <Accordion title="Runners">
+        Runners are processes that execute workflow tasks for a cluster. Direct runners register task classes from a standalone script, service, or binary that connects to the Tilebox API through the SDK. Release runners are started by the Tilebox CLI and load task registrations from Python workflow releases deployed to their cluster.
+    </Accordion>
+    <Accordion title="Workflow releases">
+        A workflow release is an immutable package of a workflow project. It includes source files, the command or runner object used to start the workflow runtime, and the task identifiers discovered during release validation.
     </Accordion>
     <Accordion title="Clusters">
-        Clusters are a logical grouping for task runners. Using clusters, you can scope certain tasks to a specific group of task runners. Tasks, which are always submitted to a specific cluster, are only executed on task runners assigned to the same cluster.
+        Clusters group runners and receive workflow release deployments. Jobs are submitted to a cluster, and only runners assigned to that cluster can claim the job's tasks. A release runner can run multiple releases that are deployed to its cluster.
     </Accordion>
     <Accordion title="Caches">
         Caches are shared storage that enable data storage and retrieval across tasks within a single job. They store intermediate results and share data among tasks, enabling distributed computing and reducing redundant data processing.

@@ -1,39 +1,46 @@
 ---
 title: Clusters
+description: Use clusters to group runners, target job execution, and control where workflow releases are deployed.
 icon: circle-nodes
 ---
 
-<Accordion title="What is a Cluster?">
-  Clusters are a logical grouping for [task runners](/workflows/concepts/task-runners).
-  Using clusters, you can scope certain tasks to a specific group of task runners.
-  Tasks, which are always submitted to a specific cluster, are only executed on task runners assigned to the same cluster.
-</Accordion>
+A cluster determines where workflow tasks can run. When you submit a [job](/workflows/concepts/jobs), its root [task](/workflows/concepts/tasks) is submitted to a cluster, and only [runners](/workflows/concepts/runners) assigned to that cluster can claim it.
+
+By default, subtasks are submitted to the same cluster as their parent task. Task code can submit individual subtasks to other clusters when a workflow needs to execute across different environments.
+
+[Workflow releases](/workflows/concepts/workflow-releases) can be deployed to individual clusters. This lets [release runners](/workflows/concepts/runners#release-runners) automatically load workflow code and execute compatible tasks from those releases.
 
 ## Use Cases
 
-Use clusters to organize [task runners](/workflows/concepts/clusters) into logical groups, which can help with:
+Use clusters to organize [runners](/workflows/concepts/runners) and workflow deployments into logical groups, which can help with:
 
-- Targeting specific task runners for a particular job
-- Reserving a group of task runners for specific purposes, such as running certain types of batch jobs
+- Targeting specific runners for a particular job
+- Reserving a group of runners for specific purposes, such as running certain types of batch jobs
 - Setting up different clusters for different environments (like development and production)
+- Deploying different workflow releases to development, staging, or production clusters
 
-Even when using different clusters, task runners within the same cluster may still have different capabilities, such as different registered tasks.
-If multiple task runners have the same set of registered tasks, you can assign them to different clusters to target specific task runners for a particular job.
+Even within the same cluster, runners may have different capabilities. A direct runner advertises the tasks registered in its own process. A release runner advertises tasks from the workflow releases currently deployed to that cluster.
 
-### Adding Task Runners to a Cluster
+## Cluster deployments
 
-You can add task runners to a cluster by specifying the [cluster's slug](#cluster-slug) when [registering a task runner](/workflows/concepts/task-runners).
-Each task runner must always be assigned to a cluster.
+A workflow release deployment maps one workflow release to one cluster. Deploying a release does not submit a job. It only makes the release available to release runners on that cluster.
+
+A release runner can run multiple deployed releases for the same cluster. While it runs, it polls cluster deployment state and updates its task registrations when releases are deployed, updated, or removed.
+
+### Adding runners to a cluster
+
+You can add direct runners to a cluster by specifying the [cluster's slug](#cluster-slug) when starting the runner from your SDK code. You can add release runners to a cluster with `tilebox runner start --cluster <cluster-slug>`.
+Each runner must always be assigned to a cluster. If no cluster is specified, Tilebox uses the default cluster.
 
 ## Default Cluster
 
 Each team has a default cluster that is automatically created for them.
-This cluster is used when no cluster is specified when [registering a task runner](/workflows/concepts/task-runners) or [submitting a job](/workflows/concepts/jobs).
+This cluster is used when no cluster is specified when [starting a runner](/workflows/concepts/runners), [deploying a release](/workflows/build-and-deploy/cluster-deployments), or [submitting a job](/workflows/concepts/jobs).
 This is useful when you are just getting started and don't need to create any custom clusters yet.
 
 ## Managing Clusters
 
-Before registering a task runner or submitting a job, you must create a cluster. You can also list, fetch, and delete clusters as needed. The following sections explain how to do this.
+Before starting a runner or submitting a job to a custom cluster, create the cluster. You can also list, fetch, and delete clusters as needed. The following sections explain how to do this.
 
 To manage clusters, first instantiate a cluster client using the `clusters` method in the workflows client.
 
@@ -158,7 +165,7 @@ To delete a cluster, use the `delete` method and pass the cluster's slug:
 ## Jobs Across Different Clusters
 
 When [submitting a job](/workflows/concepts/jobs), you need to specify which cluster the job's root task should be executed on.
-This allows you to direct the job to a specific set of task runners.
+This allows you to direct the job to a specific set of runners.
 By default, all sub-tasks within a job are also submitted to the same cluster, but this can be overridden to submit sub-tasks to different clusters if needed.
 See the example below for a job that spans across multiple clusters.
 
@@ -173,7 +180,7 @@ class MultiCluster(Task):
         
         other_cluster = context.submit_subtask(
             DummyTask(),
-            # this task runs only on a task runner in the "other-cluster" cluster
+            # this task runs only on a runner in the "other-cluster" cluster
             cluster="other-cluster-As3dcSb3D9SAdK",
             # dependencies can be specified across clusters
             depends_on=[same_cluster],
@@ -214,7 +221,7 @@ func (t *MultiCluster) Execute(ctx context.Context) error {
 	otherCluster, err := workflows.SubmitSubtask(
 		ctx,
 		&DummyTask{},
-		// this task runs only on a task runner in the "other-cluster" cluster
+		// this task runs only on a runner in the "other-cluster" cluster
 		subtask.WithClusterSlug("other-cluster-As3dcSb3D9SAdK"),
 		// dependencies can be specified across clusters
 		subtask.WithDependencies(sameCluster),
@@ -246,6 +253,6 @@ func main() {
 ```
 </CodeGroup>
 
-This workflow requires at least two task runners to complete. One must be in the "testing" cluster, and the other must be in the "other-cluster" cluster.
-If no task runners are available in the "other-cluster," the task submitted to that cluster will remain queued until a task runner is available.
-It won't execute on a task runner in the "testing" cluster, even if the task runner has the `DummyTask` registered.
+This workflow requires at least two runners to complete. One must be in the "testing" cluster, and the other must be in the "other-cluster" cluster.
+If no runners are available in the "other-cluster," the task submitted to that cluster will remain queued until a runner is available.
+It won't execute on a runner in the "testing" cluster, even if that runner has the `DummyTask` registered.

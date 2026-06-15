@@ -6,8 +6,8 @@ icon: diagram-project
 ```python
 def JobClient.submit(
   job_name: str,
-  root_task_or_tasks: Task | Iterable[Task],
-  cluster: str | Cluster | Iterable[str | Cluster] | None = None,
+  root_task_or_tasks: Task | list[Task],
+  cluster: ClusterSlugLike | list[ClusterSlugLike] | None = None,
   max_retries: int = 0
 ) -> Job
 ```
@@ -20,17 +20,16 @@ Submit a job.
   The name of the job.
 </ParamField>
 
-<ParamField path="root_task_or_tasks" type="Task">
-  The root task for the job. This task is executed first and can submit subtasks to manage the entire workflow. A job can have optionally consist of multiple root tasks.
+<ParamField path="root_task_or_tasks" type="Task | list[Task]">
+  The root task or root tasks for the job. Root tasks execute first and can submit subtasks to compose the workflow.
 </ParamField>
 
-<ParamField path="cluster" type="str | Cluster | Iterable[str | Cluster] | None">
-  The [cluster slug](/workflows/concepts/clusters#managing-clusters) for the cluster to run the root task on. In case of multiple root tasks, a list of cluster slugs can be provided.
-  If not provided, the default cluster is used.
+<ParamField path="cluster" type="ClusterSlugLike | list[ClusterSlugLike] | None">
+  The [cluster slug](/workflows/concepts/clusters#managing-clusters) or cluster object for the root task. When submitting multiple root tasks, pass one cluster or a list with one cluster per task. If not provided, the default cluster is used.
 </ParamField>
 
 <ParamField path="max_retries" type="int">
-  The maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the subtask in case it fails. Defaults to 0.
+  The maximum number of [retries](/workflows/concepts/tasks#retry-handling) for the root task or tasks. Defaults to 0.
 </ParamField>
 
 <RequestExample>

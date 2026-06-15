@@ -1,0 +1,31 @@
+---
+title: TaskRunner.RunForever
+sidebarTitle: TaskRunner.RunForever
+icon: gear-code
+---
+
+```go
+func (*TaskRunner) RunForever(ctx context.Context) error
+```
+
+Run the runner continuously, polling for tasks when idle.
+
+`RunForever` stops when the context is canceled or when the process receives a supported shutdown signal.
+
+## Parameters
+
+<ParamField path="ctx" type="context.Context" required>
+  The context controlling the runner lifetime.
+</ParamField>
+
+## Returns
+
+An error if the polling loop fails.
+
+<RequestExample>
+```go Go
+if err := runner.RunForever(ctx); err != nil {
+    return err
+}
+```
+</RequestExample>

@@ -4,20 +4,31 @@ icon: code
 ---
 
 ```python
-class Client(url: str, token: str)
+class Client(
+    *,
+    url: str = "https://api.tilebox.com",
+    token: str | None = None,
+    warn_if_unauthenticated: bool = True,
+)
 ```
 
 Create a Tilebox datasets client.
 
 ## Parameters
 
-<ParamField path="url" type="string">
+<ParamField path="url" type="str">
   Tilebox API Url. Defaults to `https://api.tilebox.com`.
 </ParamField>
 
-<ParamField path="token" type="string">
-  The API Key to authenticate with. If not set the `TILEBOX_API_KEY` environment variable will be used.
+<ParamField path="token" type="str | None">
+  The API key to authenticate with. If not set, the `TILEBOX_API_KEY` environment variable is used.
 </ParamField>
+
+<ParamField path="warn_if_unauthenticated" type="bool">
+  Whether to log a warning when no API key is provided for the Tilebox API URL. Defaults to `True`.
+</ParamField>
+
+If no API key is provided, the client uses anonymous open data access for public datasets.
 
 <RequestExample>
 ```python Python
@@ -29,7 +40,7 @@ client = Client()
 # or provide connection details directly
 client = Client(
     url="https://api.tilebox.com",
-    token="YOUR_TILEBOX_API_KEY"
+    token="YOUR_TILEBOX_API_KEY",
 )
 ```
 </RequestExample>

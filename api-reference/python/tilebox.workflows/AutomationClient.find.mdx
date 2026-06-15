@@ -1,0 +1,26 @@
+---
+title: AutomationClient.find
+icon: clock-3
+---
+
+```python
+def AutomationClient.find(automation_id: UUID | str) -> AutomationPrototype
+```
+
+Find an automation by ID.
+
+## Parameters
+
+<ParamField path="automation_id" type="UUID | str" required>
+  ID of the automation to fetch.
+</ParamField>
+
+## Returns
+
+The automation prototype for the given ID.
+
+<RequestExample>
+```python Python
+automation = client.automations().find("0195c87a-49f6-5ffa-e3cb-92215d057ea6")
+```
+</RequestExample>

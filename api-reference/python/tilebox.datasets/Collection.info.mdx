@@ -4,10 +4,25 @@ icon: layer-group
 ---
 
 ```python
-def Collection.info() -> CollectionInfo
+def Collection.info(
+    availability: bool | None = None,
+    count: bool | None = None,
+) -> CollectionInfo
 ```
 
 Fetch metadata about the data points in this collection.
+
+Collection availability and datapoint counts are always returned. The `availability` and `count` arguments are deprecated and no longer affect the response.
+
+## Parameters
+
+<ParamField path="availability" type="bool | None">
+  Deprecated. Collection availability is always returned.
+</ParamField>
+
+<ParamField path="count" type="bool | None">
+  Deprecated. Collection datapoint counts are always returned.
+</ParamField>
 
 ## Returns
 

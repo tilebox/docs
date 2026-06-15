@@ -1,5 +1,5 @@
 ---
-title: Client.Jobs.QuerySpans
+title: Jobs.QuerySpans
 sidebarTitle: Jobs.QuerySpans
 icon: chart-gantt
 ---
@@ -8,7 +8,7 @@ icon: chart-gantt
 func (*JobClient) QuerySpans(
     ctx context.Context,
     jobID uuid.UUID,
-    options ...workflows.TelemetryQueryOption,
+    options ...job.TelemetryQueryOption,
 ) iter.Seq2[*workflows.Span, error]
 ```
 
@@ -21,17 +21,20 @@ The spans are lazily loaded and returned as a sequence of spans. Use [Collect](/
 <ParamField path="jobID" type="uuid.UUID" required>
   The ID of the job to query spans for.
 </ParamField>
-<ParamField path="options" type="[]workflows.TelemetryQueryOption">
+<ParamField path="options" type="[]job.TelemetryQueryOption">
   Options for querying spans.
 </ParamField>
 
 ## Options
 
-<ParamField path="WithSortDirection(direction workflows.SortDirection)">
-  Sort spans by start time. Use `workflows.Ascending` for oldest first or `workflows.Descending` for newest first.
+<ParamField path="job.WithCursor(cursor *job.Cursor)">
+  Start the query after the cursor returned by a previous page.
 </ParamField>
-<ParamField path="WithLimit(limit int64)">
-  Limit the number of spans returned.
+<ParamField path="job.WithLimit(limit int64)">
+  Limit the total number of spans yielded by the sequence.
+</ParamField>
+<ParamField path="job.WithSortDirection(direction job.SortDirection)">
+  Sort spans by start time. Use `job.Ascending` for oldest first or `job.Descending` for newest first.
 </ParamField>
 
 ## Returns
@@ -47,6 +50,7 @@ import (
 
     "github.com/google/uuid"
     "github.com/tilebox/tilebox-go/workflows/v1"
+    "github.com/tilebox/tilebox-go/workflows/v1/job"
 )
 
 jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
@@ -54,7 +58,7 @@ jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
 for span, err := range client.Jobs.QuerySpans(
     ctx,
     jobID,
-    workflows.WithSortDirection(workflows.Ascending),
+    job.WithSortDirection(job.Ascending),
 ) {
     if err != nil {
         slog.ErrorContext(ctx, "failed to query job spans", slog.Any("error", err))

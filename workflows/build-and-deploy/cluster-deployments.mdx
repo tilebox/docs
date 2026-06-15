@@ -1,0 +1,76 @@
+---
+title: Cluster Deployments
+description: Understand how workflow release deployments map releases to clusters and control what release runners can execute.
+icon: rocket
+---
+
+Deploying a workflow release creates a cluster deployment. A cluster deployment maps one workflow release to one cluster, which controls what workflow code release runners on that cluster can load and execute.
+
+Creating, updating, or removing a deployment does not submit a job, start a runner, delete a release, or change past jobs. Existing release runners for that cluster observe the deployment change and update which workflow code they can execute.
+
+## Deployment model
+
+A workflow can have many releases, and each release can be deployed to one or more clusters. A cluster can also have releases from multiple workflows deployed at the same time. Release runners on that cluster load the deployed releases and execute compatible tasks when matching jobs are submitted.
+
+For a single workflow, a cluster has one active release deployment at a time. Updating the deployment changes which release new compatible task executions use on that cluster.
+
+## Default and explicit clusters
+
+Every team has a default cluster. If a deployment command does not specify a cluster or target, the default cluster is used. This is useful for quick tests when you do not need separate development or production clusters.
+
+Explicit clusters are useful when environments should run different workflow code. For example, a development cluster can run the latest release while a production cluster keeps running a release that has already been tested.
+
+Use explicit release IDs for production-like deployments when you need to know exactly which release is active. Use latest-release deployment only when that behavior is acceptable for the environment.
+
+## Targets
+
+Targets are named cluster groups defined in `tilebox.workflow.toml`. They let a deployment refer to a logical environment instead of repeating cluster slugs.
+
+```toml
+[targets.dev]
+clusters = ["dev-cluster"]
+
+[targets.production]
+clusters = ["prod-a", "prod-b"]
+```
+
+A target can contain one cluster or multiple clusters. The same release is deployed to each cluster in the target.
+
+## Release runners and task execution
+
+A release runner runs in an environment you control and watches one cluster. It loads workflow code from releases deployed to that cluster, starts Python workflow runtime processes through the Tilebox command-line tool, and updates its task set when deployments change.
+
+Deployment alone is not enough for execution. A compatible release runner must be running for the cluster, and submitted tasks must match task identifiers and compatible versions from one of the deployed releases.
+
+<Note>
+  You still choose where the release runner process runs. Tilebox manages release selection through cluster deployments, while your environment provides the compute process that runs `tilebox runner start`.
+</Note>
+
+## Job and deployment clusters must match
+
+When you submit a job, its root task is submitted to a cluster. For a release runner to execute that task, the job cluster, release deployment cluster, and release runner cluster must match.
+
+If a job stays queued, check the cluster first. A task submitted to `dev-cluster` is not claimed by a release runner on `staging-cluster`, even if the same workflow release is deployed somewhere else.
+
+## Removing deployments
+
+Removing a release deployment removes the active release mapping from the selected cluster or target. It does not delete the workflow, release, artifact, or past jobs.
+
+Release runners update their task set after a deployment is removed. They stop accepting new tasks that require the removed release, but already completed jobs and release records remain available for inspection.
+
+## Related documentation
+
+<Columns cols={2}>
+  <Card title="Release lifecycle" icon="box-open" href="/workflows/build-and-deploy/releases" horizontal>
+    Understand how releases are built, checked, published, deployed, and used by release runners.
+  </Card>
+  <Card title="Workflow configuration" icon="file-code" href="/workflows/build-and-deploy/workflow-configuration" horizontal>
+    Define deployment targets in `tilebox.workflow.toml`.
+  </Card>
+  <Card title="Clusters" icon="circle-nodes" href="/workflows/concepts/clusters" horizontal>
+    Learn how clusters determine where workflow tasks can run.
+  </Card>
+  <Card title="Runners" icon="list-check" href="/workflows/concepts/runners" horizontal>
+    Learn how release runners load deployed releases and execute compatible tasks.
+  </Card>
+</Columns>

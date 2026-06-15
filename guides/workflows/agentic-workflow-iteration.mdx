@@ -1,0 +1,118 @@
+---
+title: Iterate on Workflow Releases with Agents
+description: Use a coding agent with the Tilebox command-line tool to edit, publish, deploy, run, and debug Python workflow releases.
+icon: robot
+---
+
+This guide shows the recommended loop for AI-assisted workflow development. The agent edits Python workflow code, publishes a release, deploys it to a development cluster, starts a release runner, submits a test job, and inspects logs or spans before iterating.
+
+Use this loop when you want the code under test to match the artifact that release runners execute.
+
+## Prerequisites
+
+Set up the Tilebox command-line tool and skills in the environment where your agent runs.
+
+```bash
+curl -fsSL https://cli.tilebox.com/install.sh | sh
+export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"
+npx skills add tilebox/skills
+```
+
+Ask the agent to inspect the command-line tool before changing resources.
+
+```text Prompt
+Load the Tilebox workflow skills. Inspect `tilebox agent-context workflow --output-schema` and `tilebox agent-context runner start --output-schema`. Do not modify Tilebox resources yet.
+```
+
+## Create or update the workflow project
+
+Ask the agent to keep the workflow project centered on one reusable `Runner` definition.
+
+```text Prompt
+Update this Python workflow project. Keep task classes in `src/<package>/tasks.py`, export `runner = Runner(tasks=[...])` from `src/<package>/runner.py`, and keep `tilebox.workflow.toml` pointing at that runner object.
+```
+
+The direct runner path and release runner path should use the same `Runner` object. Direct execution uses `runner.connect_to(Client(), cluster=...)`; release execution uses `tilebox.workflow.toml` and `tilebox runner start`.
+
+## Use a development cluster
+
+Create a development cluster if you do not already have one.
+
+```bash
+tilebox cluster create "workflow-dev" --json
+```
+
+Add the cluster slug to `tilebox.workflow.toml`.
+
+```toml
+[targets.dev]
+clusters = ["workflow-dev-abc123"]
+```
+
+## Build and publish a release
+
+Ask the agent to build locally first when it needs detailed validation output.
+
+```bash
+tilebox workflow build-release --debug --json
+```
+
+Then publish the release.
+
+```bash
+RELEASE_ID=$(tilebox workflow publish-release --json | jq -r '.id')
+```
+
+## Deploy to the development cluster
+
+Deploy the exact release the agent just published.
+
+```bash
+tilebox workflow deploy-release --release "$RELEASE_ID" --target dev --json
+```
+
+This updates cluster deployment state. It does not submit a job.
+
+## Start a release runner
+
+In another terminal, start a release runner for the development cluster.
+
+```bash
+tilebox runner start --cluster workflow-dev-abc123 --debug
+```
+
+Keep this runner running while the agent iterates. It can run multiple deployed releases for the cluster and reacts when the agent deploys a new release.
+
+## Submit and inspect a test job
+
+Submit a root task to the same cluster.
+
+```bash
+JOB_ID=$(tilebox job submit \
+  --name my-workflow-test \
+  --task tilebox.com/example/ProcessScene \
+  --version v1.0 \
+  --cluster workflow-dev-abc123 \
+  --input '{"scene_id":"S2A_001"}' \
+  --wait \
+  --json | jq -r '.id')
+```
+
+Inspect logs and spans when the job fails or takes longer than expected.
+
+```bash
+tilebox job logs "$JOB_ID" --json
+tilebox job spans "$JOB_ID" --json
+```
+
+## Iterate safely
+
+For compatible fixes, keep the task identifier name and major version stable. Publish and deploy the fix, then retry the failed job.
+
+```bash
+RELEASE_ID=$(tilebox workflow publish-release --json | jq -r '.id')
+tilebox workflow deploy-release --release "$RELEASE_ID" --target dev --json
+tilebox job retry "$JOB_ID" --json
+```
+
+For breaking input or behavior changes, bump the task major version and submit a new test job.

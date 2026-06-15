@@ -1,0 +1,21 @@
+---
+title: Workflows.List
+sidebarTitle: Workflows.List
+icon: diagram-project
+---
+
+```go
+func (workflowClient) List(ctx context.Context) ([]*workflows.Workflow, error)
+```
+
+List all workflows.
+
+## Returns
+
+A list of workflow objects.
+
+<RequestExample>
+```go Go
+workflowsList, err := client.Workflows.List(ctx)
+```
+</RequestExample>

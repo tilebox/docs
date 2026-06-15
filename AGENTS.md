@@ -101,18 +101,18 @@ Local setup and validation commands:
 
 ```bash
 # install tooling
-npm i -g mintlify
+npm i -g mint
 vale sync
 pre-commit install
 
 # run docs locally
-mintlify dev
+mint dev
 
 # lint prose
 vale .
 
 # check broken links
-mintlify broken-links
+mint broken-links
 
 # optional: run all hooks
 pre-commit run --all-files
@@ -124,11 +124,13 @@ CI notes:
 2. CI installs `mdx2vast` before running Vale.
 3. CI runs `vale sync && vale .` and `mintlify broken-links`.
 
-## Diagrams And Assets
+## Documentation Graphics And Workflow DAG Assets
 
-Workflow diagrams under `assets/workflows/diagrams/` are generated from `.d2` files via `generate.py`.
+For normal documentation graphics, use the `creating-documentation-graphics` skill and generate PNGs with painter from the start. This applies to architecture diagrams, concept diagrams, release/deployment diagrams, data-flow diagrams, and other visual explainers embedded in docs pages.
 
-When updating workflow diagrams:
+Do not hand-author SVGs for normal documentation graphics just because they seem more maintainable. The intended output is a light/dark PNG pair, usually named like `name-light.png` and `name-dark.png`, referenced with the standard Mintlify light/dark image pattern.
+
+The D2/SVG workflow under `assets/workflows/diagrams/` is only for workflow DAG diagrams, such as task graphs, task-state DAGs, retry DAGs, optional-subtask trees, or existing diagrams with `.d2` sources. When updating those workflow DAG diagrams:
 
 1. Edit the `.d2` source.
 2. Regenerate SVG assets with `python generate.py` from `assets/workflows/diagrams/`.

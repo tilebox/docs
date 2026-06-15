@@ -1,5 +1,5 @@
 ---
-title: Client.Jobs.Cancel
+title: Jobs.Cancel
 sidebarTitle: Jobs.Cancel
 icon: diagram-project
 ---
@@ -8,7 +8,7 @@ icon: diagram-project
 func (*JobClient) Cancel(ctx context.Context, jobID uuid.UUID) error
 ```
 
-Cancel a job. When a job is canceled, no queued tasks will be picked up by task runners and executed even if task runners are idle. Tasks that are already being executed will finish their execution and not be interrupted. All sub-tasks spawned from such tasks after the cancellation will not be picked up by task runners.
+Cancel a job. When a job is canceled, no queued tasks will be picked up by runners and executed even if runners are idle. Tasks that are already being executed will finish their execution and not be interrupted. All sub-tasks spawned from such tasks after the cancellation will not be picked up by runners.
 
 ## Parameters
 

@@ -1,0 +1,33 @@
+---
+title: AutomationClient.delete
+icon: trash-2
+---
+
+```python
+def AutomationClient.delete(
+    automation_or_id: AutomationPrototype | UUID | str,
+    cancel_jobs: bool = False,
+) -> None
+```
+
+Delete an automation by object or ID.
+
+## Parameters
+
+<ParamField path="automation_or_id" type="AutomationPrototype | UUID | str" required>
+  Automation object, automation ID, or automation ID string to delete.
+</ParamField>
+
+<ParamField path="cancel_jobs" type="bool">
+  Whether to cancel currently queued or running jobs for the automation. Defaults to `False`.
+</ParamField>
+
+## Returns
+
+`None`
+
+<RequestExample>
+```python Python
+client.automations().delete(automation, cancel_jobs=True)
+```
+</RequestExample>

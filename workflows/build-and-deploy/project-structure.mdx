@@ -1,0 +1,100 @@
+---
+title: Project Structure
+description: Structure a Python workflow project so releases can be built reproducibly and release runners can discover and execute its tasks.
+icon: folder-tree
+---
+
+A Python workflow project contains task classes, a `Runner` definition, and a `tilebox.workflow.toml` file. The Tilebox command-line tool uses these files to build a workflow release, discover the tasks it can execute, and make the release available to release runners after deployment.
+
+Keep the project small and importable from its root. Release builds import the configured runner object, check that the Python runtime starts, and package the selected files into an immutable artifact.
+
+## Project structure
+
+Use a layout where task code and the runner definition are importable from the project root.
+
+<Tree>
+  <Tree.Folder name="my-workflow" defaultOpen>
+    <Tree.File name="pyproject.toml" />
+    <Tree.File name="uv.lock" />
+    <Tree.File name="tilebox.workflow.toml" />
+    <Tree.Folder name="my_workflow" defaultOpen>
+      <Tree.File name="__init__.py" />
+      <Tree.File name="tasks.py" />
+      <Tree.File name="runner.py" />
+    </Tree.Folder>
+  </Tree.Folder>
+</Tree>
+
+## Define tasks
+
+Put task classes in a module that can be imported during release validation.
+
+```python Python
+# my_workflow/tasks.py
+from tilebox.workflows import ExecutionContext, Task
+
+
+class ProcessScene(Task):
+    scene_id: str
+
+    @staticmethod
+    def identifier() -> tuple[str, str]:
+        return "tilebox.com/example/ProcessScene", "v1.0"
+
+    def execute(self, context: ExecutionContext) -> None:
+        context.current_task.display = f"ProcessScene({self.scene_id})"
+        context.logger.info("Processing scene", scene_id=self.scene_id)
+```
+
+Use explicit identifiers for workflow code that will be published. A stable identifier lets existing jobs continue to run after refactors and compatible bug fixes.
+
+## Define the runner
+
+Create a module that exports a `Runner` object. This object defines the task registrations for the workflow, and release builds import it during validation.
+
+```python Python
+# my_workflow/runner.py
+from tilebox.workflows import Runner
+from tilebox.workflows.cache import LocalFileSystemCache
+
+from my_workflow.tasks import ProcessScene
+
+
+runner = Runner(
+    tasks=[ProcessScene],
+    cache=LocalFileSystemCache(),
+)
+```
+
+## Configure the workflow release
+
+Point `tilebox.workflow.toml` at the exported `Runner` object and include the files required by the release runner.
+
+```toml
+[workflow]
+slug = "my-workflow"
+root = "."
+runner = "my_workflow.runner:runner"
+
+[build]
+include = [
+  "pyproject.toml",
+  "uv.lock",
+  "my_workflow/**",
+]
+exclude = [
+  ".venv/**",
+  "**/__pycache__/**",
+  "**/*.pyc",
+  ".pytest_cache/**",
+]
+use_gitignore = true
+```
+
+The Tilebox command-line tool imports the runner object during `build-release` and `publish-release`, discovers its task identifiers, and records them in the workflow release. A release runner later loads the release artifact and invokes the Python runtime through the command-line tool.
+
+## Keep release artifacts small
+
+Include source code, lock files, and small configuration. Exclude local virtual environments, test caches, downloaded provider data, model checkpoints, generated outputs, and other large runtime artifacts.
+
+If a task needs a large model or reference file, fetch it lazily at runtime and cache it in a deterministic runner-local path such as `~/.cache/tilebox/...`. The workflow should still work when a release runner starts with an empty cache.

@@ -1,0 +1,81 @@
+---
+title: Workflow Configuration
+description: Understand the tilebox.workflow.toml fields that define workflow identity, release contents, runtime entrypoints, and deployment targets.
+icon: file-code
+---
+
+`tilebox.workflow.toml` describes how a Python workflow project becomes a workflow release. It identifies the Tilebox workflow, defines which files belong in the release artifact, selects the runtime entrypoint, and optionally names cluster targets for deployments.
+
+The Tilebox command-line tool searches upward from the current directory for the nearest configuration file. This lets release commands run from the project root or from subdirectories inside the project.
+
+## Minimal configuration
+
+```toml
+[workflow]
+slug = "my-workflow"
+root = "."
+runner = "my_workflow.runner:runner"
+
+[build]
+include = [
+  "pyproject.toml",
+  "uv.lock",
+  "my_workflow/**",
+]
+exclude = [
+  ".venv/**",
+  "**/__pycache__/**",
+  "**/*.pyc",
+  ".pytest_cache/**",
+]
+use_gitignore = true
+```
+
+## Workflow section
+
+The `[workflow]` section identifies the workflow and tells the Tilebox command-line tool how to start the Python workflow runtime during release checks and release execution.
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `slug` | Yes | Stable workflow slug, such as `my-workflow`. Releases are published under this workflow. |
+| `root` | No | Project root for build paths. Defaults to `"."`. |
+| `runner` | One of `runner` or `command` | Python module/object path to a `Runner` object. The Tilebox command-line tool runs it with `uv run python -m tilebox.workflows.runner <module:object>`. |
+| `command` | One of `runner` or `command` | Custom worker command as an array of strings. Use this only when the standard runner object path does not fit your runtime. |
+
+Set exactly one of `runner` or `command`.
+
+## Build section
+
+The `[build]` section controls which files are included in the release artifact.
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `include` | Yes | Glob patterns, relative to `[workflow].root`, for files to include. |
+| `exclude` | No | Glob patterns to exclude from the included file set. |
+| `use_gitignore` | No | Whether to apply `.gitignore`. Defaults to `true`. |
+
+Include lock files and source files so release runners resolve the same dependencies that were tested during release validation. Exclude local environments, generated files, caches, and large runtime assets.
+
+## Targets
+
+Targets name reusable cluster groups. They are optional, but useful when the same release should be deployed to a known set of development, staging, or production clusters.
+
+```toml
+[targets.dev]
+clusters = ["dev-cluster"]
+
+[targets.production]
+clusters = ["prod-a", "prod-b"]
+```
+
+A target can contain one cluster or multiple clusters. Deployment commands can refer to the target name instead of listing the same cluster slugs every time. For production-like deployments, use explicit release IDs so the active release is traceable.
+
+## Validation rules
+
+The Tilebox command-line tool checks configuration before building or publishing a release:
+
+- `workflow.slug` is required.
+- Exactly one of `workflow.runner` or `workflow.command` is required.
+- `build.include` must contain at least one pattern.
+- Unknown TOML keys fail configuration loading.
+- Build paths must stay within the configured workflow root.

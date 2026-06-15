@@ -1,5 +1,5 @@
 ---
-title: Client.Jobs.Query
+title: Jobs.Query
 sidebarTitle: Jobs.Query
 icon: diagram-project
 ---
@@ -11,10 +11,9 @@ func (*JobClient) Query(
 ) iter.Seq2[*workflows.Job, error]
 ```
 
-Query jobs in the specified interval.
+Query jobs matching the provided options.
 
-The jobs are lazily loaded and returned as a sequence of Jobs.
-The jobs are returned sorted by creation time in reverse order.
+The jobs are lazily loaded across pages and returned as a sequence of jobs.
 The output sequence can be transformed into a slice of Job using [Collect](/api-reference/go/workflows/Collect) function.
 
 ## Parameters
@@ -25,22 +24,29 @@ The output sequence can be transformed into a slice of Job using [Collect](/api-
 
 ## Options
 
-<ParamField path="WithTemporalExtent(temporalExtent query.TemporalExtent)" required>
-  Specify the time interval for which data should be queried.
-  Right now, a temporal extent is required for every query.
+<ParamField path="job.WithTemporalExtent(temporalExtent query.TemporalExtent)">
+  Filter jobs by time or job ID interval.
 </ParamField>
-<ParamField path="WithAutomationID(automationID uuid.UUID)">
-  Specify the automation id for which data should be queried.
-  Only jobs that were created by the specified automation will be returned.
+<ParamField path="job.WithAutomationIDs(automationIDs ...uuid.UUID)">
+  Filter jobs by the automations that submitted them.
 </ParamField>
-<ParamField path="WithJobStates(states ...workflows.JobState)">
-  Filter jobs by their state. Only jobs in any of the given states will be returned.
+<ParamField path="job.WithJobStates(states ...job.State)">
+  Filter jobs by job state.
 </ParamField>
-<ParamField path="WithName(name string)">
-  Filter jobs by name. Only jobs with a matching name will be returned.
+<ParamField path="job.WithJobName(name string)">
+  Filter jobs by name.
 </ParamField>
-<ParamField path="WithTaskStates(states ...workflows.TaskState)">
+<ParamField path="job.WithTaskStates(states ...job.TaskState)">
   Filter jobs by the states of their tasks. Only jobs that have at least one task in any of the given states will be returned. Useful for finding jobs with [optional](/workflows/concepts/tasks#optional-tasks) task failures.
+</ParamField>
+<ParamField path="job.WithCursor(cursor *job.Cursor)">
+  Start the query after the cursor returned by a previous page.
+</ParamField>
+<ParamField path="job.WithLimit(limit int64)">
+  Limit the total number of jobs yielded by the sequence.
+</ParamField>
+<ParamField path="job.WithSortDirection(direction job.SortDirection)">
+  Sort jobs by submission date. Use `job.Ascending` for oldest first or `job.Descending` for newest first.
 </ParamField>
 
 ## Returns
@@ -62,8 +68,9 @@ interval := query.NewTimeInterval(
 )
 
 jobs, err := workflows.Collect(
-  client.Jobs.Query(ctx, 
+  client.Jobs.Query(ctx,
     job.WithTemporalExtent(interval),
+    job.WithJobStates(job.Running, job.Started),
   ),
 )
 ```

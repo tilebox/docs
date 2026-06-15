@@ -1,0 +1,34 @@
+---
+title: Runner.register
+icon: list-check
+---
+
+```python
+def Runner.register(task: type[Task]) -> None
+```
+
+Register a task class with a reusable runner definition.
+
+Use `register` when you want to build a runner incrementally instead of passing all task classes to the [`Runner`](/api-reference/python/tilebox.workflows/Runner) constructor.
+
+## Parameters
+
+<ParamField path="task" type="type[Task]" required>
+  Task class that this runner can execute.
+</ParamField>
+
+## Returns
+
+`None`
+
+<RequestExample>
+```python Python
+from tilebox.workflows import Runner
+
+from my_workflow.tasks import MyRootTask, MySubtask
+
+runner = Runner()
+runner.register(MyRootTask)
+runner.register(MySubtask)
+```
+</RequestExample>

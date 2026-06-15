@@ -1,0 +1,37 @@
+---
+title: workflows.SetTaskDisplay
+sidebarTitle: SetTaskDisplay
+icon: code
+---
+
+```go
+func SetTaskDisplay(ctx context.Context, display string) error
+```
+
+Set the display label of the currently executing task.
+
+This function is intended to be used inside a task `Execute` method.
+
+## Parameters
+
+<ParamField path="ctx" type="context.Context" required>
+  The task execution context.
+</ParamField>
+<ParamField path="display" type="string" required>
+  The display label to set for the current task.
+</ParamField>
+
+## Returns
+
+An error if the context is not a task execution context.
+
+<RequestExample>
+```go Go
+func (t *ProcessScene) Execute(ctx context.Context) error {
+    if err := workflows.SetTaskDisplay(ctx, "Process scene " + t.SceneID); err != nil {
+        return err
+    }
+    return nil
+}
+```
+</RequestExample>

@@ -8,7 +8,7 @@ icon: box-archive
   The cache API is currently experimental and may undergo changes in the future. Many more features and new [backends](#cache-backends) are on the roadmap. There might be breaking changes to the Cache API in the future.
 </Warning>
 
-Caches are configured at the [task runner](/workflows/concepts/task-runners) level. Because task runners can be deployed across multiple locations, caches must be accessible from all task runners contributing to a workflow.
+Caches are configured at the [runner](/workflows/concepts/runners) level. Because runners can be deployed across multiple locations, caches must be accessible from all runners contributing to a workflow.
 
 Currently, the default cache implementation uses a Google Cloud Storage bucket, providing a scalable method to share data between tasks. For quick prototyping and local development, you can also use a local file system cache, which is included by default.
 
@@ -16,7 +16,7 @@ If needed, you can create your own cache backend by implementing the `Cache` int
 
 ## Configuring a Cache
 
-You can configure a cache while creating a task runner by passing a cache instance to the `cache` parameter. To use an in-memory cache, use `tilebox.workflows.cache.InMemoryCache`. This implementation is helpful for local development and quick testing. For alternatives, see the supported [cache backends](#cache-backends).
+You can configure a cache while creating a runner by passing a cache instance to the `cache` parameter. To use an in-memory cache, use `tilebox.workflows.cache.InMemoryCache`. This implementation is helpful for local development and quick testing. For alternatives, see the supported [cache backends](#cache-backends).
 
 <CodeGroup>
     ```python Python
@@ -97,7 +97,7 @@ runner = client.runner(
 
 ### Local File System Cache
 
-A cache implementation backed by a local file system. It's suitable for quick prototyping and local development, assuming all task runners share the same machine or access the same file system.
+A cache implementation backed by a local file system. It's suitable for quick prototyping and local development, assuming all runners share the same machine or access the same file system.
 
 <CodeGroup>
 ```python Python
@@ -118,7 +118,7 @@ runner = client.runner(
 
 ### In-Memory Cache
 
-A simple in-memory cache useful for quick prototyping and development. The data is not shared between task runners and is lost upon task runner restarts. Use this cache only for workflows executed on a single task runner.
+A simple in-memory cache useful for quick prototyping and development. The data is not shared between runners and is lost upon runner restarts. Use this cache only for workflows executed on a single runner.
 
 <CodeGroup>
 ```python Python
@@ -168,7 +168,7 @@ The following snippet illustrates storing and retrieving data from the cache.
 
 In this example, data stored under the key `"data"` can be any size that fits the cache backend constraints. Ensure the key remains unique within the job's scope to avoid conflicts.
 
-To test the workflow, you can start a local task runner using the `InMemoryCache` backend. Then, submit a job to execute the `ProducerTask` and inspect the logs emitted by the `ConsumerTask`.
+To test the workflow, you can start a local runner using the `InMemoryCache` backend. Then, submit a job to execute the `ProducerTask` and inspect the logs emitted by the `ConsumerTask`.
 
 <CodeGroup>
     ```python Python
@@ -248,7 +248,7 @@ class PrintSum(Task):
 ```
 </CodeGroup>
 
-Submitting a job of the `CacheGroupDemo` and running it with a task runner can be done as follows:
+Submitting a job of the `CacheGroupDemo` and running it with a runner can be done as follows:
 
 <CodeGroup>
     ```python Python

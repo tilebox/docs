@@ -1,17 +1,18 @@
 ---
 title: Jobs
+description: Submit workflow jobs, target clusters, inspect job state, visualize execution, cancel jobs, and retry failed work.
 icon: diagram-project
 ---
 
-<Accordion title="What is a Job?">
-    A job is a specific execution of a workflow with designated input parameters. It consists of one or more tasks that can run in parallel or sequentially, based on their dependencies. Submitting a job involves creating a root task with specific input parameters, which may trigger the execution of other tasks within the same job.
-</Accordion>
+A job is one execution of a workflow, starting from a root [task](/workflows/concepts/tasks) with concrete input values. As the root task runs, it can submit subtasks, creating the task graph that belongs to the same job.
+
+When you submit a job, its root task is assigned to a [cluster](/workflows/concepts/clusters). Compatible [runners](/workflows/concepts/runners) execute tasks as they become eligible, and Tilebox updates job state from submission through completion, failure, cancellation, or retry.
 
 ## Submission
 
 To execute a [task](/workflows/concepts/tasks), it must be initialized with concrete inputs and submitted as a job. The task will then run within the context of the job, and if it generates sub-tasks, those will also execute as part of the same job.
 
-After submitting a job, the root task is scheduled for execution, and any [eligible task runner](/workflows/concepts/task-runners#task-selection) can pick it up and execute it.
+After submitting a job, the root task is scheduled for execution, and any [eligible runner](/workflows/concepts/runners#task-selection) can pick it up and execute it.
 
 First, instantiate a job client by calling the `jobs` method on the workflow client.
 
@@ -54,7 +55,7 @@ if err != nil {
 ```
 </CodeGroup>
 
-Once a job is submitted, it's immediately scheduled for execution. The root task will be picked up and executed as soon as an [eligible task runner](/workflows/concepts/task-runners#task-selection) is available.
+Once a job is submitted, it's immediately scheduled for execution. The root task will be picked up and executed as soon as an [eligible runner](/workflows/concepts/runners#task-selection) is available.
 
 ## Retry Handling
 
@@ -197,7 +198,7 @@ Every Job is always in exactly one of the following states:
 </div>
 <div class="flex flex-row gap-12 items-center border-t py-2">
     <div class="flex flex-row gap-2 h-full items-center align-middle text-sm" style={{ minWidth: "110px"}}><img src="/assets/workflows/job_states/started.svg" alt="Job submitted" class="m-0 dark:hidden"/><img src="/assets/workflows/job_states/started.dark.svg" alt="Job submitted" class="m-0 hidden dark:block"/> Started </div>
-    <div class="text-sm">The job has started, some tasks are already `COMPUTED`, but others are still `QUEUED`, waiting for an [eligible task runner](/workflows/concepts/task-runners#task-selection) to pick them up. However no task is currently `RUNNING`.</div>
+    <div class="text-sm">The job has started, some tasks are already `COMPUTED`, but others are still `QUEUED`, waiting for an [eligible runner](/workflows/concepts/runners#task-selection) to pick them up. However no task is currently `RUNNING`.</div>
 </div>
 <div class="flex flex-row gap-12 items-center border-t py-2">
     <div class="flex flex-row gap-2 h-full items-center align-middle text-sm" style={{ minWidth: "110px"}}><img src="/assets/workflows/job_states/completed.svg" alt="Job submitted" class="m-0 dark:hidden"/><img src="/assets/workflows/job_states/completed.dark.svg" alt="Job submitted" class="m-0 hidden dark:block"/> Completed </div>
@@ -264,7 +265,7 @@ The following diagram represents the job execution as a graph. Each task is show
     <img src="/assets/workflows/diagrams/svg/task-states.dark.svg" alt="Color coding of task states" className="hidden dark:block" />
 </Frame>
 
-Below is another visualization of a job currently being executed by multiple task runners.
+Below is another visualization of a job currently being executed by multiple runners.
 
 <Frame>
     <img src="/assets/workflows/diagrams/svg/multiple-runners.svg" alt="Job being executed by multiple runners" className="dark:hidden"/>
@@ -274,7 +275,7 @@ Below is another visualization of a job currently being executed by multiple tas
 From the diagram, the following can be inferred:
 
 - The root task, `MyTask`, has been executed, is marked as `COMPUTED` and submitted three sub-tasks.
-- At least three task runners are available, as three tasks currently are executed simultaneously.
+- At least three runners are available, as three tasks currently are executed simultaneously.
 - The `SubTask` that is still executing has not generated any sub-tasks yet, as sub-tasks are queued for execution only after the parent task finishes and becomes computed.
 - The queued `DependentTask` requires the `LeafTask` to complete before it can be executed.
 
@@ -355,7 +356,7 @@ job, err := client.Jobs.Submit(ctx, "custom-display-names",
 
 ## Cancellation
 
-You can cancel a job at any time. When a job is canceled, no queued tasks will be picked up by task runners and executed even if task runners are idle. Tasks that are already being executed will finish their execution and not be interrupted. All sub-tasks spawned from such tasks after the cancellation will not be picked up by task runners.
+You can cancel a job at any time. When a job is canceled, no queued tasks will be picked up by runners and executed even if runners are idle. Tasks that are already being executed will finish their execution and not be interrupted. All sub-tasks spawned from such tasks after the cancellation will not be picked up by runners.
 
 Use the `cancel` method on the job client to cancel a job.
 
@@ -602,7 +603,7 @@ func (t *PrintMovieStats) Execute(ctx context.Context) error {
 ```
 </CodeGroup>
 
-With this fix, and after redeploying the task runners with the updated `PrintMovieStats` implementation, you can retry the job:
+With this fix, and after redeploying the runners with the updated `PrintMovieStats` implementation, you can retry the job:
 
 <CodeGroup>
 ```python Python

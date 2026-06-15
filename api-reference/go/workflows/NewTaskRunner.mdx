@@ -11,29 +11,29 @@ func (*Client) NewTaskRunner(
 ) (*workflows.TaskRunner, error)
 ```
 
-Initialize a task runner.
+Initialize a runner.
 
 ## Parameters
 
 <ParamField path="options" type="[]runner.Option">
-  Options for initializing the task runner
+  Options for initializing the runner
 </ParamField>
 
 ## Options
 
-<ParamField path="WithClusterSlug(clusterSlug string)" default="">
+<ParamField path="runner.WithClusterSlug(clusterSlug string)" default="">
   The [cluster](/workflows/concepts/clusters#managing-clusters) to connect to. If not provided, the default cluster is used.
 </ParamField>
-<ParamField path="WithRunnerLogger(logger *slog.Logger)" default="slog.Default()">
-  Set the logger to use for the task runner
+<ParamField path="runner.WithRunnerLogger(logger *slog.Logger)" default="slog.Default()">
+  Set the logger to use for the runner
 </ParamField>
-<ParamField path="WithDisableMetrics()">
-  Disable OpenTelemetry metrics for the task runner
+<ParamField path="runner.WithDisableMetrics()">
+  Disable OpenTelemetry metrics for the runner
 </ParamField>
 
 ## Returns
 
-The created task runner object.
+The created runner object.
 
 <RequestExample>
 ```go Go
