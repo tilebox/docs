@@ -1,0 +1,42 @@
+---
+title: Workflows.DeployRelease
+sidebarTitle: Workflows.DeployRelease
+icon: diagram-project
+---
+
+```go
+func (workflowClient) DeployRelease(
+    ctx context.Context,
+    workflowSlug string,
+    releaseID uuid.UUID,
+    clusterSlugs []string,
+) (*workflows.WorkflowReleaseDeployment, error)
+```
+
+Deploy a workflow release to one or more clusters.
+
+## Parameters
+
+<ParamField path="workflowSlug" type="string" required>
+  The workflow slug.
+</ParamField>
+<ParamField path="releaseID" type="uuid.UUID" required>
+  The ID of the workflow release to deploy.
+</ParamField>
+<ParamField path="clusterSlugs" type="[]string" required>
+  The clusters to deploy the release to.
+</ParamField>
+
+## Returns
+
+The deployment result, including the release and affected clusters.
+
+<RequestExample>
+```go Go
+deployment, err := client.Workflows.DeployRelease(ctx,
+    workflow.Slug,
+    release.ID,
+    []string{"production"},
+)
+```
+</RequestExample>

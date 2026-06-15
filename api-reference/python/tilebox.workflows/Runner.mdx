@@ -1,0 +1,74 @@
+---
+title: Runner
+icon: list-check
+---
+
+```python
+class Runner(
+    *,
+    tasks: list[type[Task]] | None = None,
+    cache: JobCache | None = None,
+    context: type[RunnerContext] | None = None,
+)
+```
+
+Define task registrations for a Python workflow project.
+
+A `Runner` object is a reusable definition. Use it for direct execution by connecting it to a [`Client`](/api-reference/python/tilebox.workflows/Client), or reference it from `tilebox.workflow.toml` so release runners can load the same task registrations from a workflow release.
+
+## Parameters
+
+<ParamField path="tasks" type="list[type[Task]] | None">
+  A list of task classes this runner can execute.
+</ParamField>
+
+<ParamField path="cache" type="JobCache | None">
+  Optional [job cache](/workflows/caches) used by tasks executed by this runner.
+</ParamField>
+
+<ParamField path="context" type="type[RunnerContext] | None">
+  Optional runner context class to instantiate for tasks executed by this runner.
+</ParamField>
+
+## Example
+
+```python Python
+from tilebox.workflows import Runner
+from tilebox.workflows.cache import LocalFileSystemCache
+
+from my_workflow.tasks import MyRootTask, MySubtask
+
+
+runner = Runner(
+    tasks=[MyRootTask, MySubtask],
+    cache=LocalFileSystemCache(),
+)
+```
+
+You can also register tasks after creating a runner:
+
+```python Python
+runner = Runner(cache=LocalFileSystemCache())
+runner.register(MyRootTask)
+runner.register(MySubtask)
+```
+
+Use the same object for direct execution:
+
+```python Python
+from tilebox.workflows import Client
+
+from my_workflow.runner import runner
+
+
+runner.connect_to(Client(), cluster="dev-cluster").run_forever()
+```
+
+Or reference it from `tilebox.workflow.toml` for release execution:
+
+```toml
+[workflow]
+slug = "my-workflow"
+root = "."
+runner = "my_workflow.runner:runner"
+```

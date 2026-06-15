@@ -6,7 +6,7 @@ icon: folder-gear
 ```python
 def ExecutionContext.submit_subtasks(
   tasks: Sequence[Task],
-  depends_on: list[FutureTask] = None,
+  depends_on: FutureTask | list[FutureTask] | None = None,
   cluster: str | None = None,
   max_retries: int = 0,
   optional: bool = False
@@ -21,8 +21,8 @@ Submit multiple [subtasks](/workflows/concepts/tasks#subtasks-and-task-compositi
   The tasks to submit as subtasks.
 </ParamField>
 
-<ParamField path="depends_on" type="list[FutureTask]">
-  An optional list of tasks already submitted within the same context that the subtasks depend on.
+<ParamField path="depends_on" type="FutureTask | list[FutureTask] | None">
+  An optional task or list of tasks already submitted within the same context that the subtasks depend on.
 </ParamField>
 
 <ParamField path="cluster" type="str">

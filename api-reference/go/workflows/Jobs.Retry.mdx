@@ -1,5 +1,5 @@
 ---
-title: Client.Jobs.Retry
+title: Jobs.Retry
 sidebarTitle: Jobs.Retry
 icon: diagram-project
 ---
@@ -11,7 +11,7 @@ func (*JobClient) Retry(
 ) (int64, error)
 ```
 
-Retry a job. All failed tasks will become queued again, and queued tasks will be picked up by task runners again.
+Retry a job. All failed tasks will become queued again, and queued tasks will be picked up by runners again.
 
 ## Parameters
 

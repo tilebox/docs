@@ -1,0 +1,31 @@
+---
+title: ProgressTracker.Done
+sidebarTitle: ProgressTracker.Done
+icon: chart-gantt
+---
+
+```go
+func (ProgressTracker) Done(ctx context.Context, n uint64) error
+```
+
+Mark work units as completed for a progress indicator.
+
+## Parameters
+
+<ParamField path="ctx" type="context.Context" required>
+  The task execution context.
+</ParamField>
+<ParamField path="n" type="uint64" required>
+  The number of completed work units to add.
+</ParamField>
+
+## Returns
+
+An error if the context is not a task execution context.
+
+<RequestExample>
+```go Go
+progress := workflows.DefaultProgress()
+err := progress.Done(ctx, 1)
+```
+</RequestExample>

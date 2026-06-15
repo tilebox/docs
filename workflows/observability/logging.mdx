@@ -4,7 +4,7 @@ description: Emit structured task logs and tune how workflow clients export log 
 icon: rectangle-terminal
 ---
 
-Tilebox collects workflow logs automatically. When a task runner is created from a `Client`, logs emitted through the task execution context are exported to Tilebox and correlated with the active job, task, and trace.
+Tilebox collects workflow logs automatically. When a runner is created from a `Client`, logs emitted through the task execution context are exported to Tilebox and correlated with the active job, task, and trace.
 
 <Frame>
   <img src="/assets/console/job-logs-light.png" alt="Job Logs View" className="dark:hidden" />
@@ -104,7 +104,7 @@ func main() {
 	client := workflows.NewClient()
 	runner, err := client.NewTaskRunner(ctx)
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to create task runner", slog.Any("error", err))
+		slog.ErrorContext(ctx, "failed to create runner", slog.Any("error", err))
 		return
 	}
 
@@ -152,7 +152,7 @@ func main() {
 ```
 </CodeGroup>
 
-The Python `level` argument applies to logs emitted with `context.logger`. The optional `runner_level` argument applies to internal task runner logs. If `runner_level` is omitted, it uses the same value as `level`. In Go, `workflows.ConfigureConsoleLogging()` sets the local console log level, and `workflows.NewClient()` configures Tilebox workflow log export.
+The Python `level` argument applies to logs emitted with `context.logger`. The optional `runner_level` argument applies to internal runner logs. If `runner_level` is omitted, it uses the same value as `level`. In Go, `workflows.ConfigureConsoleLogging()` sets the local console log level, and `workflows.NewClient()` configures Tilebox workflow log export.
 
 ## Query logs
 

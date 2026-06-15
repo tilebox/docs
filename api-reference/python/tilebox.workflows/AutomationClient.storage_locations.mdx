@@ -1,0 +1,20 @@
+---
+title: AutomationClient.storage_locations
+icon: hard-drive
+---
+
+```python
+def AutomationClient.storage_locations() -> list[StorageLocation]
+```
+
+List storage locations that can be used as storage event automation triggers.
+
+## Returns
+
+A list of storage locations available to the current account.
+
+<RequestExample>
+```python Python
+locations = client.automations().storage_locations()
+```
+</RequestExample>

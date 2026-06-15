@@ -1,0 +1,46 @@
+---
+title: Workflows.PublishRelease
+sidebarTitle: Workflows.PublishRelease
+icon: diagram-project
+---
+
+```go
+func (workflowClient) PublishRelease(
+    ctx context.Context,
+    workflowSlug string,
+    artifactID uuid.UUID,
+    content *workflows.ReleaseContent,
+) (*workflows.WorkflowRelease, error)
+```
+
+Publish an immutable release for a workflow.
+
+## Parameters
+
+<ParamField path="workflowSlug" type="string" required>
+  The workflow slug.
+</ParamField>
+<ParamField path="artifactID" type="uuid.UUID" required>
+  The ID of the release artifact.
+</ParamField>
+<ParamField path="content" type="*workflows.ReleaseContent" required>
+  The files, task identifiers, runner object path, and optional command override included in the release.
+</ParamField>
+
+## Returns
+
+The published workflow release.
+
+<RequestExample>
+```go Go
+release, err := client.Workflows.PublishRelease(ctx,
+    workflow.Slug,
+    artifactID,
+    &workflows.ReleaseContent{
+        Fingerprint:      fingerprint,
+        Tasks:            []workflows.TaskIdentifier{workflows.NewTaskIdentifier("tilebox.com/tasks/ProcessScene", "v1.0")},
+        RunnerObjectPath: "worker.runner",
+    },
+)
+```
+</RequestExample>

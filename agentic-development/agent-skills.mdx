@@ -32,7 +32,8 @@ Tilebox skills cover common agent workflows around the CLI, datasets, workflows,
 | `managing-tilebox-datasets` | Creating schemas, updating metadata, and querying datasets |
 | `managing-tilebox-jobs` | Submitting jobs, monitoring status, reading logs, and inspecting spans |
 | `working-with-tilebox-automations` | Working with triggers, automations, and storage locations |
-| `writing-tilebox-workflows` | Writing Tilebox workflow tasks and task runners |
+| `writing-tilebox-workflows` | Writing workflow task classes, task graphs, runner definitions, caches, logs, and spans |
+| `releasing-tilebox-workflows` | Creating `tilebox.workflow.toml`, building releases, publishing releases, deploying to clusters, and running release runners |
 
 ## How to use skills with agents
 
@@ -43,3 +44,5 @@ Load the relevant Tilebox skills. Use the Tilebox CLI to submit a Sentinel-2 mos
 ```
 
 Skills work best with the Tilebox CLI. The CLI gives the agent repeatable terminal commands, and skills tell it how to combine those commands safely. Use MCP as an alternative when the agent runs in a web or chat environment without practical terminal access.
+
+For Python workflow release work, ask the agent to use both `writing-tilebox-workflows` and `releasing-tilebox-workflows`. The typical loop is to edit tasks, build and publish a release, deploy it to a development cluster, run `tilebox runner start`, submit a test job, and inspect logs or spans before iterating.

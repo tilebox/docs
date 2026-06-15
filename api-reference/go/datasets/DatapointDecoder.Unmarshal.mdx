@@ -1,0 +1,55 @@
+---
+title: DatapointDecoder.Unmarshal
+sidebarTitle: DatapointDecoder.Unmarshal
+icon: layer-group
+---
+
+```go
+func (d datasets.DatapointDecoder) Unmarshal(
+    descriptor *datasets.DatapointDescriptor,
+    data []byte,
+) (map[string]any, error)
+```
+
+Decode a raw protobuf datapoint into a JSON-like map with configurable protobuf decoding options.
+
+## Parameters
+
+<ParamField path="descriptor" type="*datasets.DatapointDescriptor" required>
+  The descriptor returned by [`NewDatapointDescriptor`](/api-reference/go/datasets/NewDatapointDescriptor).
+</ParamField>
+<ParamField path="data" type="[]byte" required>
+  The raw protobuf datapoint bytes returned by a datapoint query.
+</ParamField>
+
+## Decoder options
+
+<ParamField path="AllowPartial" type="bool">
+  Allow messages that are missing required fields.
+</ParamField>
+<ParamField path="DiscardUnknown" type="bool">
+  Ignore unknown fields in the raw protobuf message.
+</ParamField>
+<ParamField path="Resolver">
+  Override the resolver used to look up message and extension types.
+</ParamField>
+<ParamField path="RecursionLimit" type="int">
+  Limit how deeply nested messages may be decoded. A zero value uses the protobuf default.
+</ParamField>
+
+## Returns
+
+A map of datapoint fields, or an error if the raw datapoint cannot be decoded.
+
+<RequestExample>
+```go Go
+decoder := datasets.DatapointDecoder{
+    DiscardUnknown: true,
+}
+
+datapoint, err := decoder.Unmarshal(descriptor, data)
+if err != nil {
+    return err
+}
+```
+</RequestExample>

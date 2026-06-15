@@ -5,11 +5,11 @@ icon: diagram-project
 
 ```python
 def JobClient.visualize(
-  job_or_id: Job | str,
+  job: Job | UUID | str,
   direction: str = "down",
   layout: str = "dagre",
   sketchy: bool = True
-)
+) -> str
 ```
 
 Create a visualization of a job as a diagram.
@@ -20,8 +20,8 @@ Create a visualization of a job as a diagram.
 
 ## Parameters
 
-<ParamField path="job_or_id" type="Job | str">
-  The job to visualize.
+<ParamField path="job" type="Job | UUID | str">
+  The job, job ID, or job ID string to visualize.
 </ParamField>
 
 <ParamField path="direction" type="str">
@@ -35,6 +35,10 @@ Create a visualization of a job as a diagram.
 <ParamField path="sketchy" type="bool">
   Indicates whether to use a sketchy, hand-drawn style for the diagram. The default is `True`.
 </ParamField>
+
+## Returns
+
+Rendered SVG markup for the job diagram.
 
 <RequestExample>
 ```python Python

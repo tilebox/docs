@@ -1,0 +1,51 @@
+---
+title: datasets.UnmarshalDatapoint
+sidebarTitle: UnmarshalDatapoint
+icon: layer-group
+---
+
+```go
+func UnmarshalDatapoint(
+    descriptor *datasets.DatapointDescriptor,
+    data []byte,
+) (map[string]any, error)
+```
+
+Decode a raw protobuf datapoint into a JSON-like map using a dataset descriptor.
+
+## Parameters
+
+<ParamField path="descriptor" type="*datasets.DatapointDescriptor" required>
+  The descriptor returned by [`NewDatapointDescriptor`](/api-reference/go/datasets/NewDatapointDescriptor).
+</ParamField>
+<ParamField path="data" type="[]byte" required>
+  The raw protobuf datapoint bytes returned by a datapoint query.
+</ParamField>
+
+## Returns
+
+A map of datapoint fields, or an error if the raw datapoint cannot be decoded.
+
+<RequestExample>
+```go Go
+descriptor, err := datasets.NewDatapointDescriptor(dataset)
+if err != nil {
+    return err
+}
+
+for data, err := range client.Datapoints.Query(ctx,
+    dataset.ID,
+    datasets.WithTemporalExtent(queryInterval),
+) {
+    if err != nil {
+        return err
+    }
+
+    datapoint, err := datasets.UnmarshalDatapoint(descriptor, data)
+    if err != nil {
+        return err
+    }
+    fmt.Println(datapoint["id"])
+}
+```
+</RequestExample>

@@ -12,7 +12,7 @@ func WithSpan(
 ) error
 ```
 
-Wrap a function with a [tracing span](/workflows/observability/tracing) using the current task runner's tracer.
+Wrap a function with a [tracing span](/workflows/observability/tracing) using the current runner's tracer.
 
 Use `WithSpan` inside a task `Execute` method. If the context is not a task execution context, the function runs without creating a span.
 

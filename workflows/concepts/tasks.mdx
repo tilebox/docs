@@ -1,12 +1,13 @@
 ---
 title: Understanding and Creating Tasks
 sidebarTitle: Tasks
+description: Define workflow tasks, inputs, subtasks, dependencies, retries, and stable task identifiers.
 icon: laptop-code
 ---
 
-<Accordion title="What is a Task?">
-    A Task is the smallest unit of work, designed to perform a specific operation. Each task represents a distinct operation or process that can be executed, such as processing data, performing calculations, or managing resources. Tasks can operate independently or as components of a more complex set of connected tasks known as a Workflow. Tasks are defined by their code, inputs, and dependencies on other tasks. To create tasks, you need to define the input parameters and specify the action to be performed during execution.
-</Accordion>
+A task is the unit of work Tilebox [runners](/workflows/concepts/runners) execute. A task class defines the code to run, the input fields that are serialized with each task submission, and optional relationships to other tasks through subtasks and dependencies.
+
+Tasks can run as the root task of a [job](/workflows/concepts/jobs) or as subtasks submitted by another task. This lets a workflow build a dynamic task graph while Tilebox schedules eligible tasks across runners in the selected [cluster](/workflows/concepts/clusters).
 
 ## Creating a Task
 
@@ -39,7 +40,7 @@ For python, the key components of this task are:
     `MyFirstTask` is a subclass of the `Task` class, which serves as the base class for all defined tasks. It provides the essential structure for a task. Inheriting from `Task` automatically makes the class a `dataclass`, which is useful [for specifying inputs](#input-parameters). Additionally, by inheriting from `Task`, the task is automatically assigned an [identifier based on the class name](#task-identifiers).
   </Accordion>
   <Accordion title="def execute">
-    The `execute` method is the entry point for executing the task. This is where the task's logic is defined. It's invoked by a [task runner](/workflows/concepts/task-runners) when the task runs and performs the task's operation.
+    The `execute` method is the entry point for executing the task. This is where the task's logic is defined. It's invoked by a [runner](/workflows/concepts/runners) when the task runs and performs the task's operation.
   </Accordion>
   <Accordion title="context: ExecutionContext">
     The `context` argument is an `ExecutionContext` instance that provides access to an [API for submitting new tasks](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask) as part of the same job, [task logging](/api-reference/python/tilebox.workflows/ExecutionContext.logger), [custom tracing](/api-reference/python/tilebox.workflows/ExecutionContext.tracer), and features like [shared caching](/api-reference/python/tilebox.workflows/ExecutionContext.job_cache).
@@ -53,13 +54,13 @@ For Go, the key components are:
     `MyFirstTask` is a struct that implements the `Task` interface. It represents the task to be executed.
   </Accordion>
   <Accordion title="func (t *MyFirstTask) Execute(ctx context.Context) error">
-    The `Execute` method is the entry point for executing the task. This is where the task's logic is defined. It's invoked by a [task runner](/workflows/concepts/task-runners) when the task runs and performs the task's operation.
+    The `Execute` method is the entry point for executing the task. This is where the task's logic is defined. It's invoked by a [runner](/workflows/concepts/runners) when the task runs and performs the task's operation.
   </Accordion>
 </AccordionGroup>
 
 <Note>
   The code samples on this page do not illustrate how to execute the task. That will be covered in the 
-  [next section on task runners](/workflows/concepts/task-runners). The reason for that is that executing tasks is a separate concern from implementing tasks.
+  [next section on runners](/workflows/concepts/runners). The reason for that is that executing tasks is a separate concern from implementing tasks.
 </Note>
 
 ## Input Parameters
@@ -67,7 +68,7 @@ For Go, the key components are:
 Tasks often require input parameters to operate. These inputs can range from simple values to complex data structures. By inheriting from the `Task` class, the task is treated as a Python `dataclass`, allowing input parameters to be defined as class attributes.
 
 <Info>
-  Tasks must be **serializable to JSON or to protobuf** because they may be distributed across a cluster of [task runners](/workflows/concepts/task-runners).
+  Tasks must be **serializable to JSON or to protobuf** because they may be distributed across a cluster of [runners](/workflows/concepts/runners).
 </Info>
 
 <Info>
@@ -131,7 +132,7 @@ class ChildTask(Task):
     def execute(self, context: ExecutionContext) -> None:
         context.logger.info("Executing child task", index=self.index)
 
-# after submitting this task, a task runner may pick it up and execute it
+# after submitting this task, a runner may pick it up and execute it
 # which will result in 5 ChildTasks being submitted and executed as well
 task = ParentTask(5)
 ```
@@ -161,7 +162,7 @@ func (t *ChildTask) Execute(context.Context) error {
 	return nil
 }
 
-// after submitting this task, a task runner may pick it up and execute it 
+// after submitting this task, a runner may pick it up and execute it 
 // which will result in 5 ChildTasks being submitted and executed as well
 task := &ParentTask{numSubtasks: 5}
 ```
@@ -172,7 +173,7 @@ In this example, a `ParentTask` submits `ChildTask` tasks as subtasks. The numbe
 Parent task do not have access to results of subtasks, instead, tasks can use [shared caching](/workflows/caches#storing-and-retrieving-data) to share data between tasks.
 
 <Info>
-  By submitting a task as a subtask, its execution is scheduled as part of the same job as the parent task. Compared to just directly invoking the subtask's `execute` method, this allows the subtask's execution to occur on a different machine or in parallel with other subtasks. To learn more about how tasks are executed, see the section on [task runners](/workflows/concepts/task-runners).
+  By submitting a task as a subtask, its execution is scheduled as part of the same job as the parent task. Compared to just directly invoking the subtask's `execute` method, this allows the subtask's execution to occur on a different machine or in parallel with other subtasks. To learn more about how tasks are executed, see the section on [runners](/workflows/concepts/runners).
 </Info>
 
 ### Larger subtasks example
@@ -311,7 +312,7 @@ job = jobs.submit(
     DownloadRandomDogImages(5),
 )
 
-# now our deployed task runners will pick up the task and execute it
+# now our deployed runners will pick up the task and execute it
 
 jobs.display(job)
 ```
@@ -331,7 +332,7 @@ if err != nil {
   return
 }
 
-// now our deployed task runners will pick up the task and execute it
+// now our deployed runners will pick up the task and execute it
 ```
 </CodeGroup>
 
@@ -348,7 +349,7 @@ if err != nil {
   />
 </Frame>
 
-In total, six tasks are executed: the `DownloadRandomDogImages` task and five `DownloadImage` tasks. The `DownloadImage` tasks can execute in parallel, as they are independent. If more than one task runner is available, the Tilebox Workflow Orchestrator **automatically parallelizes** the execution of these tasks.
+In total, six tasks are executed: the `DownloadRandomDogImages` task and five `DownloadImage` tasks. The `DownloadImage` tasks can execute in parallel, as they are independent. If more than one runner is available, the Tilebox Workflow Orchestrator **automatically parallelizes** the execution of these tasks.
 
 <Tip>
   Check out [job_client.display](/workflows/concepts/jobs#visualization) to learn how this visualization was automatically generated from the task executions.
@@ -358,7 +359,7 @@ In total, six tasks are executed: the `DownloadRandomDogImages` task and five `D
 
 Every task goes through a set of states during its lifetime.
 
-- When submitted, either as a job or as a subtask, it starts in the `QUEUED` state and transitions to `RUNNING` when a task runner picks it up.
+- When submitted, either as a job or as a subtask, it starts in the `QUEUED` state and transitions to `RUNNING` when a runner picks it up.
 - If the task executes successfully, it transitions to `COMPUTED`.
 - If the task fails, it transitions to `FAILED`, unless it's an [optional task](#optional-tasks), or nested within an [optional task](#nested-optional-tasks), in which case it transitions to `FAILED_OPTIONAL`.
 - As soon as all subtasks of a task are `COMPUTED` (or `FAILED_OPTIONAL`), the task is considered `COMPLETED`, allowing dependent tasks to be executed.
@@ -367,8 +368,8 @@ The table below summarizes the different task states and their meanings.
 
 | Task State | Description |
 |------------|-------------|
-| **Queued**     | The task is queued and waiting for execution. Any [eligible](/workflows/concepts/task-runners#task-selection) task runner can pick it up and execute it, as soon as it's parent task is `COMPUTED` and all it's dependencies are `COMPLETED`. |
-| **Running**    | The task is currently being executed by a task runner. |
+| **Queued**     | The task is queued and waiting for execution. Any [eligible](/workflows/concepts/runners#task-selection) runner can pick it up and execute it, as soon as it's parent task is `COMPUTED` and all it's dependencies are `COMPLETED`. |
+| **Running**    | The task is currently being executed by a runner. |
 | **Computed**   | The task has successfully been computed, but still has outstanding subtasks. |
 | **Completed**  | The task has successfully been computed, and all it's subtasks are also computed, making it `COMPLETED`. This is the final state of a task. Only once a task has been `COMPLETED`, dependent tasks can be executed. |
 | **Failed**     | The task has been executed but encountered an error. |
@@ -429,7 +430,7 @@ class Sum(Task):  # The reduce step
 ```
 </CodeGroup>
 
-Submitting a job of the `SumOfSquares` task and running it with a task runner can be done as follows:
+Submitting a job of the `SumOfSquares` task and running it with a runner can be done as follows:
 
 <CodeGroup>
 ```python Python
@@ -978,7 +979,7 @@ This workflow consists of four tasks:
 | PrintHeadlines      | FetchNews    | A task that logs the headlines of the news articles.                                                                       |
 | MostFrequentAuthors | FetchNews    | A task that counts the number of articles each author has written and logs the result.                                     |
 
-An important aspect is that there is no dependency between the `PrintHeadlines` and `MostFrequentAuthors` tasks. This means they can execute in parallel, which the Tilebox Workflow Orchestrator will do, provided multiple task runners are available.
+An important aspect is that there is no dependency between the `PrintHeadlines` and `MostFrequentAuthors` tasks. This means they can execute in parallel, which the Tilebox Workflow Orchestrator will do, provided multiple runners are available.
 
 <Tip>
   In this example, the results from `FetchNews` are stored in a file. This is not the recommended method for passing data between tasks. When executing on a distributed cluster, the existence of a file written by a dependent task cannot be guaranteed. Instead, it's better to use a [shared cache](/workflows/caches).
@@ -1239,7 +1240,7 @@ If instead `Step1B` was also marked as optional, `Step1C` and `Step2` would stil
 
 ## Task Identifiers
 
-A task identifier is a unique string used by the Tilebox Workflow Orchestrator to identify the task. It's used by [task runners](/workflows/concepts/task-runners) to map submitted tasks to a task class and execute them. It also serves as the default name in execution visualizations.
+A task identifier is a unique string used by the Tilebox Workflow Orchestrator to identify the task. It's used by [runners](/workflows/concepts/runners) to map submitted tasks to a task class and execute them. It also serves as the default name in execution visualizations.
 
 If unspecified, the identifier of a task defaults to the class name. For instance, the identifier of the `PrintHeadlines` task in the previous example is `"PrintHeadlines"`. This is good for prototyping, but not recommended for production, as changing the class name also changes the identifier, which can lead to issues during refactoring. It also prevents different tasks from sharing the same class name.
 
@@ -1323,17 +1324,17 @@ func (t *MyTask) Execute(context.Context) error {
 ```
 </CodeGroup>
 
-When a task is submitted as part of a job, the version from which it's submitted is recorded and may differ from the version on the task runner executing the task.
+When a task is submitted as part of a job, the version from which it's submitted is recorded and may differ from the version on the runner executing the task.
 
-When task runners execute a task, they require a registered task with a matching identifier and compatible version number. A compatible version is where the major version number on the task runner matches that of the submitted task, and the minor version number on the task runner is equal to or greater than that of the submitted task.
+When runners execute a task, they require a registered task with a matching identifier and compatible version number. A compatible version is where the major version number on the runner matches that of the submitted task, and the minor version number on the runner is equal to or greater than that of the submitted task.
 
 Examples of compatible version numbers include:
 
 - `MyTask` is submitted as part of a job. The version is `"v1.3"`.
-- A task runner with version `"v1.3"` of `MyTask` would executes this task.
-- A task runner with version `"v1.5"` of `MyTask` would also executes this task.
-- A task runner with version `"v1.2"` of `MyTask` would not execute this task, as its minor version is lower than that of the submitted task.
-- A task runner with version `"v2.5"` of `MyTask` would not execute this task, as its major version differs from that of the submitted task.
+- A runner with version `"v1.3"` of `MyTask` would execute this task.
+- A runner with version `"v1.5"` of `MyTask` would also execute this task.
+- A runner with version `"v1.2"` of `MyTask` would not execute this task, as its minor version is lower than that of the submitted task.
+- A runner with version `"v2.5"` of `MyTask` would not execute this task, as its major version differs from that of the submitted task.
 
 ## Conclusion
 

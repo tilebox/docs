@@ -1,0 +1,29 @@
+---
+title: ProgressUpdate.add
+icon: bars-progress
+---
+
+```python
+def ProgressUpdate.add(count: int) -> None
+```
+
+Add work to the total amount tracked by a progress indicator.
+
+Call `add` before or during a task when the task discovers more work to complete.
+
+## Parameters
+
+<ParamField path="count" type="int" required>
+  Amount of work to add to the progress indicator total.
+</ParamField>
+
+## Returns
+
+`None`
+
+<RequestExample>
+```python Python
+progress = context.progress("process-items")
+progress.add(len(items))
+```
+</RequestExample>

@@ -1,0 +1,70 @@
+---
+title: Datasets.Update
+sidebarTitle: Update
+icon: laptop-code
+---
+
+```go
+func (datasetClient) Update(
+    ctx context.Context,
+    id uuid.UUID,
+    kind datasets.DatasetKind,
+    codeName string,
+    name string,
+    fields []datasets.Field,
+    options ...datasets.DatasetOption,
+) (*datasets.Dataset, error)
+```
+
+Update an existing dataset by ID with the given code name, display name, schema kind, custom fields, and metadata.
+
+## Parameters
+
+<ParamField path="id" type="uuid.UUID" required>
+  The ID of the dataset to update.
+</ParamField>
+<ParamField path="kind" type="datasets.DatasetKind" required>
+  The dataset kind.
+</ParamField>
+<ParamField path="codeName" type="string" required>
+  The stable code identifier for the dataset.
+</ParamField>
+<ParamField path="name" type="string" required>
+  The display name of the dataset.
+</ParamField>
+<ParamField path="fields" type="[]datasets.Field" required>
+  The full custom field list for the dataset schema.
+</ParamField>
+<ParamField path="options" type="[]datasets.DatasetOption">
+  Options for dataset metadata.
+</ParamField>
+
+## Options
+
+<ParamField path="datasets.WithSummary(summary string)">
+  Set a short dataset summary.
+</ParamField>
+<ParamField path="datasets.WithDescription(description string)">
+  Set the dataset's markdown description.
+</ParamField>
+
+## Returns
+
+The updated dataset object.
+
+<RequestExample>
+```go Go
+dataset, err := client.Datasets.Update(ctx,
+    datasetID,
+    datasets.KindSpatiotemporal,
+    "my_catalog",
+    "My catalog",
+    []datasets.Field{
+        field.String("source").Description("Source system"),
+        field.Float64("cloud_cover"),
+        field.Timestamp("processed_at"),
+    },
+    datasets.WithDescription("Catalog of scenes prepared for analysis."),
+)
+```
+</RequestExample>

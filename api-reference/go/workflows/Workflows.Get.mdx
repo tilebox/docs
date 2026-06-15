@@ -1,0 +1,30 @@
+---
+title: Workflows.Get
+sidebarTitle: Workflows.Get
+icon: diagram-project
+---
+
+```go
+func (workflowClient) Get(
+    ctx context.Context,
+    slug string,
+) (*workflows.Workflow, error)
+```
+
+Get a workflow by slug.
+
+## Parameters
+
+<ParamField path="slug" type="string" required>
+  The workflow slug.
+</ParamField>
+
+## Returns
+
+A workflow object.
+
+<RequestExample>
+```go Go
+workflow, err := client.Workflows.Get(ctx, "scene-processing")
+```
+</RequestExample>

@@ -1,0 +1,75 @@
+---
+title: Jobs.QueryPage
+sidebarTitle: Jobs.QueryPage
+icon: diagram-project
+---
+
+```go
+func (jobClient) QueryPage(
+    ctx context.Context,
+    options ...job.QueryOption,
+) (*workflows.JobPage, error)
+```
+
+Query a single page of jobs matching the provided options.
+
+Use `QueryPage` when you need manual pagination. Use [`Jobs.Query`](/api-reference/go/workflows/Jobs.Query) for automatic lazy pagination.
+
+## Parameters
+
+<ParamField path="options" type="[]job.QueryOption">
+  Options for querying jobs.
+</ParamField>
+
+## Options
+
+<ParamField path="job.WithTemporalExtent(temporalExtent query.TemporalExtent)">
+  Filter jobs by time or job ID interval.
+</ParamField>
+<ParamField path="job.WithAutomationIDs(automationIDs ...uuid.UUID)">
+  Filter jobs by the automations that submitted them.
+</ParamField>
+<ParamField path="job.WithJobStates(states ...job.State)">
+  Filter jobs by job state.
+</ParamField>
+<ParamField path="job.WithTaskStates(states ...job.TaskState)">
+  Filter jobs by task state. Only jobs with at least one task in any of the given states are returned.
+</ParamField>
+<ParamField path="job.WithJobName(name string)">
+  Filter jobs by name.
+</ParamField>
+<ParamField path="job.WithCursor(cursor *job.Cursor)">
+  Start the query after the cursor returned by a previous page.
+</ParamField>
+<ParamField path="job.WithLimit(limit int64)">
+  Limit the number of jobs returned in this page.
+</ParamField>
+<ParamField path="job.WithSortDirection(direction job.SortDirection)">
+  Sort jobs by submission date. Use `job.Ascending` for oldest first or `job.Descending` for newest first.
+</ParamField>
+
+## Returns
+
+A `JobPage` with jobs and an optional `NextCursor` for the next page.
+
+<RequestExample>
+```go Go
+page, err := client.Jobs.QueryPage(ctx,
+    job.WithJobStates(job.Running, job.Started),
+    job.WithLimit(50),
+    job.WithSortDirection(job.Descending),
+)
+if err != nil {
+    return err
+}
+
+if page.NextCursor != nil {
+    nextPage, err := client.Jobs.QueryPage(ctx,
+        job.WithCursor(page.NextCursor),
+        job.WithLimit(50),
+    )
+    _ = nextPage
+    _ = err
+}
+```
+</RequestExample>

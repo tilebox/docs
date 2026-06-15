@@ -1,0 +1,37 @@
+---
+title: datasets.NewDatapointDescriptor
+sidebarTitle: NewDatapointDescriptor
+icon: layer-group
+---
+
+```go
+func NewDatapointDescriptor(dataset *datasets.Dataset) (*datasets.DatapointDescriptor, error)
+```
+
+Create a reusable descriptor for decoding raw protobuf datapoints from a loaded dataset.
+
+Use this helper when you want to query datasets without generated Go protobuf types.
+
+## Parameters
+
+<ParamField path="dataset" type="*datasets.Dataset" required>
+  A dataset returned by `client.Datasets.Get` or another dataset client method.
+</ParamField>
+
+## Returns
+
+A `DatapointDescriptor` that can be passed to [`UnmarshalDatapoint`](/api-reference/go/datasets/UnmarshalDatapoint) or [`DatapointDecoder.Unmarshal`](/api-reference/go/datasets/DatapointDecoder.Unmarshal).
+
+<RequestExample>
+```go Go
+dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel1_sar")
+if err != nil {
+    return err
+}
+
+descriptor, err := datasets.NewDatapointDescriptor(dataset)
+if err != nil {
+    return err
+}
+```
+</RequestExample>

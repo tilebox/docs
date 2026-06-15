@@ -5,27 +5,39 @@ icon: laptop-code
 
 ```python
 def Client.runner(
-  cluster: ClusterSlugLike | None = None,
-  tasks: list[type[Task]],
-  cache: JobCache | None = None
+    cluster: ClusterSlugLike | None = None,
+    tasks: list[type[Task]] | None = None,
+    cache: JobCache | None = None,
+    context: type[RunnerContext] | None = None,
+    runner: Runner | None = None,
 ) -> TaskRunner
 ```
 
-Initialize a task runner.
+Initialize a direct runner from task classes.
+
+For new Python workflow projects, define a reusable [`Runner`](/api-reference/python/tilebox.workflows/Runner) object and call [`Runner.connect_to`](/api-reference/python/tilebox.workflows/Runner.connect_to) when you want direct execution. The `Client.runner` method remains available for existing code and simple direct runner scripts.
 
 ## Parameters
 
 <ParamField path="cluster" type="str | None">
-  The [cluster slug](/workflows/concepts/clusters#managing-clusters) for the cluster associated with this task runner.
+  The [cluster slug](/workflows/concepts/clusters#cluster-slug) for the cluster associated with this direct runner.
   If not provided, the default cluster is used.
 </ParamField>
 
-<ParamField path="tasks" type="list[type[Task]]">
-  A list of task classes that this runner can execute.
+<ParamField path="tasks" type="list[type[Task]] | None">
+  A list of task classes that this runner can execute. Pass either `tasks`, `cache`, and `context`, or pass a reusable `runner` object.
 </ParamField>
 
 <ParamField path="cache" type="JobCache">
   An optional [job cache](/workflows/caches) for caching results from tasks and sharing data between tasks.
+</ParamField>
+
+<ParamField path="context" type="type[RunnerContext] | None">
+  Optional runner context class to instantiate for task execution.
+</ParamField>
+
+<ParamField path="runner" type="Runner | None">
+  A reusable runner definition. If provided, do not also pass `tasks`, `cache`, or `context`.
 </ParamField>
 
 <RequestExample>

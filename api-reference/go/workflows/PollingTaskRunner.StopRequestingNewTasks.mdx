@@ -1,0 +1,23 @@
+---
+title: PollingTaskRunner.StopRequestingNewTasks
+sidebarTitle: PollingTaskRunner.StopRequestingNewTasks
+icon: gear-code
+---
+
+```go
+func (*PollingTaskRunner) StopRequestingNewTasks()
+```
+
+Stop requesting new tasks from the Tilebox API.
+
+The runner can still finish and report an active task after this method is called.
+
+## Returns
+
+Nothing.
+
+<RequestExample>
+```go Go
+runner.StopRequestingNewTasks()
+```
+</RequestExample>

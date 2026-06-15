@@ -1,0 +1,23 @@
+---
+title: PollingTaskRunner.HasActiveTask
+sidebarTitle: PollingTaskRunner.HasActiveTask
+icon: gear-code
+---
+
+```go
+func (*PollingTaskRunner) HasActiveTask() bool
+```
+
+Report whether the polling runner currently has an active task.
+
+## Returns
+
+`true` if a task is currently active.
+
+<RequestExample>
+```go Go
+if runner.HasActiveTask() {
+    slog.Info("runner has an active task")
+}
+```
+</RequestExample>

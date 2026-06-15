@@ -1,0 +1,29 @@
+---
+title: workflows.DefaultProgress
+sidebarTitle: DefaultProgress
+icon: chart-gantt
+---
+
+```go
+func DefaultProgress() workflows.ProgressTracker
+```
+
+Return the default progress tracker for the currently executing task.
+
+Use the returned tracker to update total and completed work units inside a task `Execute` method.
+
+## Returns
+
+A progress tracker for the default progress indicator.
+
+<RequestExample>
+```go Go
+progress := workflows.DefaultProgress()
+if err := progress.Add(ctx, 10); err != nil {
+    return err
+}
+if err := progress.Done(ctx, 1); err != nil {
+    return err
+}
+```
+</RequestExample>

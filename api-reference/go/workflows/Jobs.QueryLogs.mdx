@@ -1,5 +1,5 @@
 ---
-title: Client.Jobs.QueryLogs
+title: Jobs.QueryLogs
 sidebarTitle: Jobs.QueryLogs
 icon: rectangle-terminal
 ---
@@ -8,7 +8,7 @@ icon: rectangle-terminal
 func (*JobClient) QueryLogs(
     ctx context.Context,
     jobID uuid.UUID,
-    options ...workflows.TelemetryQueryOption,
+    options ...job.TelemetryQueryOption,
 ) iter.Seq2[*workflows.LogRecord, error]
 ```
 
@@ -21,22 +21,25 @@ The logs are lazily loaded and returned as a sequence of log records. Use [Colle
 <ParamField path="jobID" type="uuid.UUID" required>
   The ID of the job to query logs for.
 </ParamField>
-<ParamField path="options" type="[]workflows.TelemetryQueryOption">
+<ParamField path="options" type="[]job.TelemetryQueryOption">
   Options for querying logs.
 </ParamField>
 
 ## Options
 
-<ParamField path="WithSortDirection(direction workflows.SortDirection)">
-  Sort logs by time. Use `workflows.Ascending` for oldest first or `workflows.Descending` for newest first.
+<ParamField path="job.WithCursor(cursor *job.Cursor)">
+  Start the query after the cursor returned by a previous page.
 </ParamField>
-<ParamField path="WithLimit(limit int64)">
-  Limit the number of log records returned.
+<ParamField path="job.WithLimit(limit int64)">
+  Limit the total number of log records yielded by the sequence.
+</ParamField>
+<ParamField path="job.WithSortDirection(direction job.SortDirection)">
+  Sort logs by time. Use `job.Ascending` for oldest first or `job.Descending` for newest first.
 </ParamField>
 
 ## Returns
 
-A sequence of log records. Each record includes `Time`, `Level`, `Body`, and structured attributes.
+A sequence of log records. Each record includes `Time`, `SeverityText`, `Body`, trace IDs, span IDs, and structured attributes.
 
 <RequestExample>
 ```go Go
@@ -47,6 +50,7 @@ import (
 
     "github.com/google/uuid"
     "github.com/tilebox/tilebox-go/workflows/v1"
+    "github.com/tilebox/tilebox-go/workflows/v1/job"
 )
 
 jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
@@ -54,7 +58,7 @@ jobID := uuid.MustParse("019e07b1-916b-0630-f3ba-f1c33235d174")
 for record, err := range client.Jobs.QueryLogs(
     ctx,
     jobID,
-    workflows.WithSortDirection(workflows.Ascending),
+    job.WithSortDirection(job.Ascending),
 ) {
     if err != nil {
         slog.ErrorContext(ctx, "failed to query job logs", slog.Any("error", err))
@@ -63,7 +67,7 @@ for record, err := range client.Jobs.QueryLogs(
 
     fmt.Printf("%s %-5s %s\n",
         record.Time.Format(time.RFC3339),
-        record.Level,
+        record.SeverityText,
         record.Body,
     )
 }

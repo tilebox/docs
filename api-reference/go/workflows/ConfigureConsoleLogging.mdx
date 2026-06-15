@@ -38,11 +38,13 @@ func main() {
     client := workflows.NewClient()
     runner, err := client.NewTaskRunner(ctx)
     if err != nil {
-        slog.ErrorContext(ctx, "failed to create task runner", slog.Any("error", err))
+        slog.ErrorContext(ctx, "failed to create runner", slog.Any("error", err))
         return
     }
 
-    runner.Run(ctx)
+    if err := runner.RunForever(ctx); err != nil {
+        slog.ErrorContext(ctx, "runner failed", slog.Any("error", err))
+    }
 }
 ```
 </RequestExample>

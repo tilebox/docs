@@ -12,7 +12,7 @@ workflows.SubmitSubtasks(
 ) ([]subtask.FutureTask, error)
 ```
 
-Submit multiple subtasks to the task runner. Same as [SubmitSubtask](/api-reference/go/workflows/SubmitSubtask), but accepts a list of tasks.
+Submit multiple subtasks to the runner. Same as [SubmitSubtask](/api-reference/go/workflows/SubmitSubtask), but accepts a list of tasks.
 
 This function is intended to be used in tasks.
 
@@ -30,7 +30,7 @@ This function is intended to be used in tasks.
 <ParamField path="WithDependencies(dependencies ...FutureTask)">
   Set dependencies for the tasks
 </ParamField>
-<ParamField path="WithClusterSlug(clusterSlug string)" default="cluster of the task runner">
+<ParamField path="WithClusterSlug(clusterSlug string)" default="cluster of the runner">
   Set the cluster slug of the cluster where the tasks will be executed.
 </ParamField>
 <ParamField path="WithMaxRetries(maxRetries int64)" default="0">

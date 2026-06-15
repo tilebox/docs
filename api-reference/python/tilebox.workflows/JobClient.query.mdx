@@ -6,7 +6,7 @@ icon: diagram-project
 ```python
 def JobClient.query(
     temporal_extent: TimeIntervalLike | IDIntervalLike,
-    automation_id: UUID | None = None,
+    automation_ids: UUID | list[UUID] | None = None,
     job_states: JobState | list[JobState] | None = None,
     name: str | None = None,
     task_states: TaskState | list[TaskState] | None = None,
@@ -30,8 +30,8 @@ Query jobs in the specified interval.
     - tuple of two strings: [start, end) -> Construct an `IDInterval` with the given start and end id
         parsed from the strings
 </ParamField>
-<ParamField path="automation_id" type="UUID | None">
-  The automation id to filter jobs by. If not provided, jobs from all automations are returned.
+<ParamField path="automation_ids" type="UUID | list[UUID] | None">
+  One automation ID or a list of automation IDs to filter jobs by. If not provided, jobs from all automations are returned.
 </ParamField>
 <ParamField path="job_states" type="JobState | list[JobState] | None">
   A job state or list of job states to filter by. If specified, only jobs in any of the given states are returned.

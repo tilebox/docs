@@ -1,0 +1,25 @@
+---
+title: TaskExecutor
+sidebarTitle: TaskExecutor
+icon: gear-code
+---
+
+```go
+type TaskExecutor interface {
+    TaskIdentifiers() []*workflowsv1.TaskIdentifier
+    ExecuteTask(ctx context.Context, task *workflowsv1.Task) (*workflowsv1.ExecuteTaskResponse, error)
+}
+```
+
+`TaskExecutor` is the interface used by [`NewPollingTaskRunner`](/api-reference/go/workflows/NewPollingTaskRunner) for custom task execution backends.
+
+Use this interface when you need Tilebox to poll and lease tasks, but you want another runtime to execute them.
+
+## Methods
+
+<ParamField path="TaskIdentifiers" type="func() []*workflowsv1.TaskIdentifier">
+  Return the task implementations the executor can currently run. This method should be cheap and non-blocking.
+</ParamField>
+<ParamField path="ExecuteTask" type="func(context.Context, *workflowsv1.Task) (*workflowsv1.ExecuteTaskResponse, error)">
+  Execute a leased task and return the computed or failed task response.
+</ParamField>

@@ -1,0 +1,32 @@
+---
+title: workflows.Progress
+sidebarTitle: Progress
+icon: chart-gantt
+---
+
+```go
+func Progress(label string) workflows.ProgressTracker
+```
+
+Return a named progress tracker for the currently executing task.
+
+Use named trackers when a task reports multiple progress indicators.
+
+## Parameters
+
+<ParamField path="label" type="string" required>
+  The progress indicator label.
+</ParamField>
+
+## Returns
+
+A progress tracker for the named progress indicator.
+
+<RequestExample>
+```go Go
+download := workflows.Progress("Download")
+if err := download.Add(ctx, 100); err != nil {
+    return err
+}
+```
+</RequestExample>

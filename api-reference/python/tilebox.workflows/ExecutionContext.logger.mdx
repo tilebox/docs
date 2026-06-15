@@ -27,11 +27,11 @@ Structured attributes are attached to the log record and become searchable telem
 ```python Python
 from tilebox.workflows import ExecutionContext, Task
 
-class ProcessScene(Task):
-    scene_id: str
+class DownloadInput(Task):
+    input_id: str
 
     def execute(self, context: ExecutionContext) -> None:
-        context.logger.info("Started", scene_id=self.scene_id)
+        context.logger.info("Started", input_id=self.input_id)
 
         log = context.logger.bind(component="download")
         log.debug("Fetching input")

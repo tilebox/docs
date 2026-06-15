@@ -1,0 +1,75 @@
+---
+title: Workflow Releases
+description: Understand workflow releases, release artifacts, and how release runners execute deployed Python workflow projects.
+icon: box-open
+---
+
+A workflow is a set of interrelated tasks. You can run those tasks directly without registering the workflow with Tilebox. Registering a workflow with the Tilebox API gives it a stable slug, which lets you publish immutable release artifacts to it and deploy a release to one or more clusters.
+
+That release path enables [release runners](/workflows/concepts/runners#release-runners). Release runners operate on a cluster, pick up all the releases deployed to that cluster, and execute tasks. This provides an easy way of deploying workflows to a compute cluster, including a quick and agent-accessible iteration loop: change code, publish a release, deploy it, run a job, and inspect the result.
+
+## Workflows and releases
+
+A workflow is the long-lived object referred to by slug. A release is one concrete version of that workflow. The release is immutable, so a later code change creates a new release instead of modifying the old one. You can deploy the same release to one or multiple clusters. Release runners on those clusters then pick up that release and run tasks registered by it.
+
+<Frame>
+  <img src="/assets/workflows/releases/workflow-release-deployments-light.png" alt="Workflow slug with multiple releases, release artifacts, and cluster deployments" className="dark:hidden" />
+  <img src="/assets/workflows/releases/workflow-release-deployments-dark.png" alt="Workflow slug with multiple releases, release artifacts, and cluster deployments" className="hidden dark:block" />
+</Frame>
+
+Use this model when you want reproducible workflow execution. You can inspect which release is deployed to a cluster, promote a known release to another cluster, or retry a failed job after deploying a compatible fix.
+
+## Release artifacts
+
+The release artifact is built from the files selected by `tilebox.workflow.toml`. The build command resolves include patterns, applies exclude patterns and `.gitignore` when enabled, creates a deterministic `.tar.zst` archive, and validates the runtime by discovering registered tasks.
+
+The artifact should contain code and small configuration. Keep downloaded data, model checkpoints, generated caches, and local virtual environments out of the release. If a workflow needs large runtime assets, fetch them lazily from the task code into a runner-local cache.
+
+## Task registrations
+
+Task registrations are discovered from the configured Python runner object or command during release validation. The discovered task identifiers are stored in the release content and later advertised by release runners.
+
+For a reusable Python workflow project, define a `Runner` object:
+
+```python Python
+# my_workflow/runner.py
+from tilebox.workflows import ExecutionContext, Runner, Task
+
+
+class FirstTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        ...
+
+
+class SecondTask(Task):
+    def execute(self, context: ExecutionContext) -> None:
+        ...
+
+
+runner = Runner(tasks=[FirstTask, SecondTask])
+```
+
+Then point `tilebox.workflow.toml` at that object:
+
+```toml
+[workflow]
+slug = "my-workflow"
+root = "."
+runner = "my_workflow.runner:runner"
+```
+
+## Cluster deployments
+
+A cluster deployment maps a workflow release to a cluster. A release runner can run multiple deployed releases for the same cluster and updates its task registrations when cluster deployments change.
+
+Deploying, updating, or removing a release deployment changes what the release runner can execute. It does not require rebuilding the runner process itself.
+
+## Fixing failed jobs
+
+If a job fails because of a bug in task code, publish a compatible fixed release and deploy it to the same cluster before retrying the job. Keep the task identifier name, major version, and input schema compatible when you want the existing failed job to resume from failed tasks.
+
+```bash
+tilebox workflow publish-release --json
+tilebox workflow deploy-release --latest --cluster dev-cluster --json
+tilebox job retry <job-id> --json
+```

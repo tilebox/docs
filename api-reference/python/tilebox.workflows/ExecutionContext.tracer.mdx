@@ -22,11 +22,11 @@ Custom spans are nested under the current task span and are exported to Tilebox 
 ```python Python
 from tilebox.workflows import ExecutionContext, Task
 
-class ProcessScene(Task):
-    scene_id: str
+class DownloadInput(Task):
+    input_id: str
 
     def execute(self, context: ExecutionContext) -> None:
-        with context.tracer.span("download-scene") as span:
-            span.set_attribute("scene_id", self.scene_id)
+        with context.tracer.span("download-input") as span:
+            span.set_attribute("input_id", self.input_id)
 ```
 </RequestExample>

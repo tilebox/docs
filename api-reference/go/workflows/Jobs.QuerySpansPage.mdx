@@ -1,0 +1,50 @@
+---
+title: Jobs.QuerySpansPage
+sidebarTitle: Jobs.QuerySpansPage
+icon: chart-gantt
+---
+
+```go
+func (jobClient) QuerySpansPage(
+    ctx context.Context,
+    jobID uuid.UUID,
+    options ...job.TelemetryQueryOption,
+) (*workflows.SpanPage, error)
+```
+
+Query a single page of spans emitted while running a job.
+
+## Parameters
+
+<ParamField path="jobID" type="uuid.UUID" required>
+  The ID of the job to query spans for.
+</ParamField>
+<ParamField path="options" type="[]job.TelemetryQueryOption">
+  Options for querying spans.
+</ParamField>
+
+## Options
+
+<ParamField path="job.WithCursor(cursor *job.Cursor)">
+  Start the query after the cursor returned by a previous page.
+</ParamField>
+<ParamField path="job.WithLimit(limit int64)">
+  Limit the number of spans returned in this page.
+</ParamField>
+<ParamField path="job.WithSortDirection(direction job.SortDirection)">
+  Sort spans by start time. Use `job.Ascending` for oldest first or `job.Descending` for newest first.
+</ParamField>
+
+## Returns
+
+A `SpanPage` with spans and an optional `NextCursor` for the next page.
+
+<RequestExample>
+```go Go
+page, err := client.Jobs.QuerySpansPage(ctx,
+    jobID,
+    job.WithLimit(100),
+    job.WithSortDirection(job.Ascending),
+)
+```
+</RequestExample>

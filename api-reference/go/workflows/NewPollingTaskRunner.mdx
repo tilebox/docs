@@ -1,0 +1,45 @@
+---
+title: Client.NewPollingTaskRunner
+sidebarTitle: NewPollingTaskRunner
+icon: gear-code
+---
+
+```go
+func (*Client) NewPollingTaskRunner(
+    ctx context.Context,
+    executor workflows.TaskExecutor,
+    options ...runner.Option,
+) (*workflows.PollingTaskRunner, error)
+```
+
+Create a polling runner for a custom task executor.
+
+Use this lower-level runner when you need a custom execution backend, such as a dynamic runtime, but still want the Tilebox polling protocol to request, lease, and report tasks.
+
+## Parameters
+
+<ParamField path="executor" type="workflows.TaskExecutor" required>
+  The executor that reports task capabilities and executes leased tasks.
+</ParamField>
+<ParamField path="options" type="[]runner.Option">
+  Options for initializing the polling runner.
+</ParamField>
+
+## Options
+
+<ParamField path="runner.WithClusterSlug(clusterSlug string)" default="">
+  The cluster to poll for tasks. If not provided, the default cluster is used.
+</ParamField>
+<ParamField path="runner.WithRunnerLogger(logger *slog.Logger)" default="slog.Default()">
+  Set the logger to use for the polling runner.
+</ParamField>
+
+## Returns
+
+The created polling runner.
+
+<RequestExample>
+```go Go
+runner, err := client.NewPollingTaskRunner(ctx, executor)
+```
+</RequestExample>

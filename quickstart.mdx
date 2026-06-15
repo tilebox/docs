@@ -1,13 +1,13 @@
 ---
 title: Quickstart
-description: This guide helps you set up and get started using Tilebox. It covers how to install a Tilebox client for your preferred language and how to use it to query data from a dataset and run a workflow.
+description: Start here to set up Tilebox and get started building.
 icon: rocket
 ---
 
-Select your preferred language and follow the steps below to get started.
+Tilebox works across the [Console](/console), [command line](/agentic-development/tilebox-cli), [SDKs](/sdks), and [coding agents](/agentic-development/onboard-your-agent). The first step is the same for each path: create an API key.
 
-<Tabs>
-<Tab title="Python">
+Follow the steps below to get started.
+
 ## Start in a Notebook
 
 Explore the provided [Sample Notebooks](/sdks/python/sample-notebooks) to begin your journey with Tilebox. These notebooks offer a step-by-step guide to using the API and showcase many features supported by Tilebox Python clients. You can also use these notebooks as a foundation for your own projects.
@@ -16,305 +16,107 @@ Explore the provided [Sample Notebooks](/sdks/python/sample-notebooks) to begin 
 
 If you prefer to work locally, follow these steps to get started.
 
-  <Steps>
-    <Step title="Install Packages">
-      Install the Tilebox Python packages.
+<Steps>
+  <Step title="Create an API Key">
+    Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Settings -> API Keys](https://console.tilebox.com/settings/api-keys), and clicking the "Create API Key" button.
 
-      <CodeGroup>
-      ```bash uv
-      uv add tilebox-datasets tilebox-workflows tilebox-storage
-      ```
-      ```bash pip
-      pip install tilebox-datasets tilebox-workflows tilebox-storage
-      ```
-      ```bash poetry
-      poetry add tilebox-datasets="*" tilebox-workflows="*" tilebox-storage="*"
-      ```
-      ```bash pipenv
-      pipenv install tilebox-datasets tilebox-workflows tilebox-storage
-      ```
-      </CodeGroup>
+    <Frame>
+      <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
+      <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+    </Frame>
 
-      <Tip>
-        For new projects we recommend using [uv](https://docs.astral.sh/uv/). More information about installing the Tilebox Python SDKs can be found in the [Installation](/sdks/python/install) section.
-      </Tip>
-    </Step>
-    <Step title="Create an API Key">
-      Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Settings -> API Keys](https://console.tilebox.com/settings/api-keys), and clicking the "Create API Key" button.
+    Then, add it to your environment
 
-      <Frame>
-        <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
-        <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
-      </Frame>
+    ```bash
+    export TILEBOX_API_KEY=<your-api-key>
+    ```
+  </Step>
+  <Step title="Choose your access point">
+    Tilebox can be used from the browser, terminal, via SDKs or coding agents. Choose the access point that matches how you want to start.
 
-      <Tip>Copy the API key and keep it somewhere safe. You will need it to authenticate your requests.</Tip>
-    </Step>
-    <Step title="Query Data">
-      Use the datasets client to query data from a dataset.
+    <CardGroup cols={2}>
+      <Card title="Console" icon="display" href="/console">
+        Use Tilebox from the browser. Create API keys, inspect datasets and monitor jobs without installing anything.
+      </Card>
 
-      ```python Python
-      from tilebox.datasets import Client
+      <Card title="Command line" icon="terminal" href="/agentic-development/tilebox-cli">
+        Work locally from your terminal. Use this path for setup, local development, and operational commands.
+      </Card>
 
-      client = Client(token="YOUR_TILEBOX_API_KEY")
+      <Card title="SDKs" icon="code" href="/sdks/introduction">
+        Use Tilebox from your application code in Python or Go.
+      </Card>
 
-      # select a dataset
-      datasets = client.datasets()
-      dataset = datasets.open_data.copernicus.sentinel2_msi
+      <Card title="Coding agents" icon="robot" href="/agentic-development/onboard-your-agent">
+        Setup your coding agent, and give it access to Tilebox-specific skills and resources for catalogs, workflows, jobs and automations.
+      </Card>
+    </CardGroup>
+  </Step>
+  <Step title="Query Data">
+    Use the datasets client to query data from a dataset.
 
-      # and load data from a collection in a given time range
-      collection = dataset.collection("S2A_S2MSI1C")
-      data_january_2022 = collection.query(temporal_extent=("2022-01-01", "2022-02-01"))
-      ```
-    </Step>
-    <Step title="Run a Workflow">
-      Use the workflows client to create a task and submit it as a job.
+    ```python Python
+    from tilebox.datasets import Client
 
-      ```python Python
-      from tilebox.workflows import Client, Task
+    client = Client(token="YOUR_TILEBOX_API_KEY")
 
-      # Replace with your actual token
-      client = Client(token="YOUR_TILEBOX_API_KEY")
+    # select a dataset
+    datasets = client.datasets()
+    dataset = datasets.open_data.copernicus.sentinel2_msi
 
-      class HelloWorldTask(Task):
-          greeting: str = "Hello"
-          name: str = "World"
+    # and load data from a collection in a given time range
+    collection = dataset.collection("S2A_S2MSI1C")
+    data_january_2022 = collection.query(temporal_extent=("2022-01-01", "2022-02-01"))
+    ```
+  </Step>
+  <Step title="Run a Workflow">
+    Use the workflows client to create a task and submit it as a job.
 
-          def execute(self, context):
-              print(f"{self.greeting} {self.name}, from the main task!")
-              context.submit_subtask(HelloSubtask(name=self.name))
+    ```python Python
+    from tilebox.workflows import Client, Runner, Task
 
-      class HelloSubtask(Task):
-          name: str
+    # Replace with your actual token
+    client = Client(token="YOUR_TILEBOX_API_KEY")
 
-          def execute(self, context):
-              print(f"Hello from the subtask, {self.name}!")
+    class HelloWorldTask(Task):
+        greeting: str = "Hello"
+        name: str = "World"
 
-      # Initiate the job
-      jobs = client.jobs()
-      jobs.submit("parameterized-hello-world", HelloWorldTask(greeting="Greetings", name="Universe"))
+        def execute(self, context):
+            print(f"{self.greeting} {self.name}, from the main task!")
+            context.submit_subtask(HelloSubtask(name=self.name))
 
-      # Run the tasks
-      runner = client.runner(tasks=[HelloWorldTask, HelloSubtask])
-      runner.run_all()
-      ```
-    </Step>
-    <Step title="Explore Further">
-      Review the following guides to learn more about the modules that make up Tilebox:
+    class HelloSubtask(Task):
+        name: str
 
-      <Columns cols={2}>
-        <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
-          Learn how to create a Timeseries dataset using the Tilebox Console.
-        </Card>
-        <Card title="Ingesting data" icon="up-from-bracket" href="/guides/datasets/ingest" horizontal>
-          Learn how to ingest an existing CSV dataset into a Timeseries dataset collection.
-        </Card>
-      </Columns>
-    </Step>
+        def execute(self, context):
+            print(f"Hello from the subtask, {self.name}!")
 
-  </Steps>
-</Tab>
-<Tab title="Go">
-## Start with Examples
+    # Initiate the job
+    jobs = client.jobs()
+    jobs.submit("parameterized-hello-world", HelloWorldTask(greeting="Greetings", name="Universe"))
 
-Explore the provided [Examples](/sdks/go/examples) to begin your journey with Tilebox. These examples offer a step-by-step guide to using the API and showcase many features supported by Tilebox Go clients. You can also use these examples as a foundation for your own projects.
+    # Run the tasks
+    runner = Runner(tasks=[HelloWorldTask, HelloSubtask])
+    runner.connect_to(client).run_all()
+    ```
+  </Step>
+  <Step title="Explore Further">
+    Review the following guides to learn more about the modules that make up Tilebox:
 
-## Start on Your Device
-
-If you prefer to work locally, follow these steps to get started.
-
-  <Steps>
-    <Step title="Install Packages">
-      Add the Tilebox library in your project.
-
-      ```bash Shell
-      go get github.com/tilebox/tilebox-go
-      ```
-
-      Install [tilebox-generate](https://github.com/tilebox/tilebox-generate) command-line tool on your machine.
-      It's used to generate Go structs for Tilebox datasets.
-
-      ```bash Shell
-      go install github.com/tilebox/tilebox-generate@latest
-      ```
-    </Step>
-    <Step title="Create an API Key">
-      Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Settings -> API Keys](https://console.tilebox.com/settings/api-keys), and clicking the "Create API Key" button.
-
-      <Frame>
-        <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
-        <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
-      </Frame>
-
-      <Tip>Copy the API key and keep it somewhere safe. You will need it to authenticate your requests.</Tip>
-    </Step>
-    <Step title="Query Data">
-      Run [tilebox-generate](https://github.com/tilebox/tilebox-generate) in the root directory of your Go project.
-      It generates the dataset type for Sentinel-2 MSI dataset. It will generate a `./protogen/tilebox/v1/sentinel2_msi.pb.go` file.
-
-      ```bash Shell
-      tilebox-generate --dataset open_data.copernicus.sentinel2_msi --tilebox-api-key $TILEBOX_API_KEY
-      ```
-    </Step>
-    <Step title="Query Data">
-      Use the datasets client to query data from a dataset.
-
-      ```go Go
-	package main
-
-	import (
-		"context"
-		"log"
-		"log/slog"
-		"time"
-
-		"github.com/paulmach/orb"
-		"github.com/paulmach/orb/encoding/wkt"
-		"github.com/tilebox/tilebox-go/datasets/v1"
-		"github.com/tilebox/tilebox-go/query"
-	)
-
-	func main() {
-		ctx := context.Background()
-		client := datasets.NewClient()
-
-		// select a dataset
-		dataset, err := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
-		if err != nil {
-			log.Fatalf("Failed to get dataset: %v", err)
-		}
-
-		// select a collection
-		collection, err := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI1C")
-		if err != nil {
-			log.Fatalf("Failed to get collection: %v", err)
-		}
-
-		// load data from a collection in a given time range and spatial extent
-		colorado := orb.Polygon{
-			{{-109.05, 41.00}, {-109.045, 37.0},  {-102.05, 37.0}, {-102.05, 41.00}, {-109.05, 41.00}},
-		}
-		startDate := time.Date(2025, time.March, 1, 0, 0, 0, 0, time.UTC)
-		endDate := time.Date(2025, time.April, 1, 0, 0, 0, 0, time.UTC)
-		march2025 := query.NewTimeInterval(startDate, endDate)
-
-	// You have to use tilebox-generate to generate the dataset type
-		var datapointsOverColorado []*v1.Sentinel2Msi
-		err = client.Datapoints.QueryInto(ctx,
-			dataset.ID,
-			&datapointsOverColorado,
-			datasets.WithCollectionIDs(collection.ID),
-                        datasets.WithTemporalExtent(march2025),
-                        datasets.WithSpatialExtent(colorado),
-                )
-		if err != nil {
-			log.Fatalf("Failed to query datapoints: %v", err)
-		}
-
-		slog.Info("Found datapoints over Colorado in March 2025", slog.Int("count", len(datapointsOverColorado)))
-		slog.Info("First datapoint over Colorado",
-			slog.String("id", datapointsOverColorado[0].GetId().AsUUID().String()),
-			slog.Time("event time", datapointsOverColorado[0].GetTime().AsTime()),
-			slog.Time("ingestion time", datapointsOverColorado[0].GetIngestionTime().AsTime()),
-			slog.String("geometry", wkt.MarshalString(datapointsOverColorado[0].GetGeometry().AsGeometry())),
-			slog.String("granule name", datapointsOverColorado[0].GetGranuleName()),
-			slog.String("processing level", datapointsOverColorado[0].GetProcessingLevel().String()),
-			slog.String("product type", datapointsOverColorado[0].GetProductType()),
-			// and so on...
-		)
-	}
-      ```
-    </Step>
-    <Step title="Run a Workflow">
-      Use the workflows client to create a task and submit it as a job.
-
-      ```go Go
-	package main
-
-	import (
-		"context"
-		"log/slog"
-
-		"github.com/tilebox/tilebox-go/workflows/v1"
-	)
-
-	type HelloTask struct {
-		Greeting string
-		Name     string
-	}
-
-	func (t *HelloTask) Execute(ctx context.Context) error {
-		slog.InfoContext(ctx, "Hello from the main task!", slog.String("Greeting", t.Greeting), slog.String("Name", t.Name))
-
-		err := workflows.SubmitSubtasks(ctx, &HelloSubtask{Name: t.Name})
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	type HelloSubtask struct {
-		Name string
-	}
-
-	func (t *HelloSubtask) Execute(context.Context) error {
-		slog.Info("Hello from the subtask!", slog.String("Name", t.Name))
-		return nil
-	}
-
-	func main() {
-		ctx := context.Background()
-
-		// Replace with your actual token
-		client := workflows.NewClient()
-
-		job, err := client.Jobs.Submit(ctx, "hello-world", 
-		[]workflows.Task{
-				&HelloTask{
-					Greeting: "Greetings",
-					Name: "Tilebox",
-				},
-			},
-		)
-		if err != nil {
-			slog.ErrorContext(ctx, "Failed to submit job", slog.Any("error", err))
-			return
-		}
-
-		slog.InfoContext(ctx, "Job submitted", slog.String("job_id", job.ID.String()))
-
-		runner, err := client.NewTaskRunner(ctx)
-		if err != nil {
-			slog.Error("failed to create task runner", slog.Any("error", err))
-			return
-		}
-
-		err = runner.RegisterTasks(
-			&HelloTask{},
-			&HelloSubtask{},
-		)
-		if err != nil {
-			slog.Error("failed to register task", slog.Any("error", err))
-			return
-		}
-
-		runner.Run(ctx)
-	}
-      ```
-    </Step>
-    <Step title="Explore Further">
-      Review the following guides to learn more about the modules that make up Tilebox:
-
-      <Columns cols={2}>
-        <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
-          Learn how to create a Timeseries dataset using the Tilebox Console.
-        </Card>
-        <Card title="Ingesting data" icon="up-from-bracket" href="/guides/datasets/ingest" horizontal>
-          Learn how to ingest an existing CSV dataset into a Timeseries dataset collection.
-        </Card>
-      </Columns>
-    </Step>
-
-  </Steps>
-</Tab>
-</Tabs>
+    <Columns cols={2}>
+      <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
+        Learn how to create a Timeseries dataset using the Tilebox Console.
+      </Card>
+      <Card title="Ingesting data" icon="up-from-bracket" href="/guides/datasets/ingest" horizontal>
+        Learn how to ingest an existing CSV dataset into a Timeseries dataset collection.
+      </Card>
+      <Card title="Building workflow releases" icon="rocket" href="/workflows/build-and-deploy/releases" horizontal>
+        Package a Python workflow project, publish a release, and deploy it to a cluster.
+      </Card>
+      <Card title="Agentic workflow iteration" icon="robot" href="/guides/workflows/agentic-workflow-iteration" horizontal>
+        Use a coding agent with the Tilebox CLI to build, deploy, run, and debug workflow releases.
+      </Card>
+    </Columns>
+  </Step>
+</Steps>

@@ -5,7 +5,7 @@ icon: laptop-code
 
 ```python
 def Client.configure_logging(
-    level: int,
+    level: int | logging.Logger,
     runner_level: int | None = None,
 ) -> None
 ```
@@ -14,13 +14,17 @@ Configure the log level for logs exported by this workflow client.
 
 ## Parameters
 
-<ParamField path="level" type="int" required>
+<ParamField path="level" type="int | logging.Logger" required>
   Logging level for task logs emitted with `context.logger`, for example `logging.INFO` or `logging.DEBUG`.
 </ParamField>
 
 <ParamField path="runner_level" type="int | None">
-  Logging level for internal task runner logs. If omitted, the value of `level` is used.
+  Logging level for internal runner logs. If omitted, the value of `level` is used.
 </ParamField>
+
+<Note>
+  Passing a `logging.Logger` instance as `level` is deprecated. Configure the Tilebox root logger directly when you need to export logs to another destination.
+</Note>
 
 ## Returns
 

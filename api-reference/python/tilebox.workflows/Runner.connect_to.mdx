@@ -1,0 +1,38 @@
+---
+title: Runner.connect_to
+icon: plug
+---
+
+```python
+def Runner.connect_to(
+  client: Client,
+  cluster: ClusterSlugLike | None = None,
+) -> TaskRunner
+```
+
+Create a direct runner from a reusable [`Runner`](/api-reference/python/tilebox.workflows/Runner) definition and a Tilebox workflows client.
+
+The returned [`TaskRunner`](/api-reference/python/tilebox.workflows/TaskRunner.run_forever) connects to the Tilebox API, advertises the task registrations from the `Runner` definition, and executes matching tasks from the selected cluster.
+
+## Parameters
+
+<ParamField path="client" type="Client">
+  Tilebox workflows client used by the direct runner.
+</ParamField>
+
+<ParamField path="cluster" type="str | None">
+  The [cluster slug](/workflows/concepts/clusters#cluster-slug) for the runner. If not provided, the default cluster is used.
+</ParamField>
+
+## Example
+
+```python Python
+from tilebox.workflows import Client
+
+from my_workflow.runner import runner
+
+
+client = Client(name="my-workflow-direct")
+task_runner = runner.connect_to(client, cluster="dev-cluster")
+task_runner.run_forever()
+```

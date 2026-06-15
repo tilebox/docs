@@ -17,7 +17,7 @@ Task.Execute(ctx context.Context) error
 ```
 
 The entry point for the execution of the task.
-If not defined, the task can't be registered with a task runner but can still be submitted.
+If not defined, the task can't be registered with a runner but can still be submitted.
 
 ```go
 Task.Identifier() TaskIdentifier
@@ -25,7 +25,7 @@ Task.Identifier() TaskIdentifier
 
 Provides a user-defined task identifier.
 The identifier is used to uniquely identify the task and specify its version.
-If not defined, the task runner will generate an identifier for it using reflection.
+If not defined, the runner will generate an identifier for it using reflection.
 
 ## JSON-serializable task
 

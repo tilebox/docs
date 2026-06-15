@@ -12,20 +12,25 @@ workflows.WithTaskSpan(
 ) error
 ```
 
-Wrap a function with a [tracing span](/workflows/observability/tracing).
+Wrap a function with a [tracing span](/workflows/observability/tracing) using the current runner's tracer.
+
+`WithTaskSpan` is an alias for [`WithSpan`](/api-reference/go/workflows/WithSpan). Use it inside a task `Execute` method. If the context is not a task execution context, the function runs without creating a span.
 
 ## Parameters
 
-<ParamField path="name" type="string">
-  The name of the span
+<ParamField path="ctx" type="context.Context" required>
+  The task execution context.
 </ParamField>
-<ParamField path="f" type="func(context.Context) error">
-  The function to wrap
+<ParamField path="name" type="string" required>
+  The name of the span.
+</ParamField>
+<ParamField path="f" type="func(context.Context) error" required>
+  The function to wrap.
 </ParamField>
 
 ## Returns
 
-An error if any.
+The error returned by `f`, if any.
 
 <RequestExample>
 ```go Go

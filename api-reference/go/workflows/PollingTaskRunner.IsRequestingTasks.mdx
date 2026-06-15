@@ -1,0 +1,23 @@
+---
+title: PollingTaskRunner.IsRequestingTasks
+sidebarTitle: PollingTaskRunner.IsRequestingTasks
+icon: gear-code
+---
+
+```go
+func (*PollingTaskRunner) IsRequestingTasks() bool
+```
+
+Report whether the polling runner is currently requesting new tasks.
+
+## Returns
+
+`true` if the runner is requesting new tasks.
+
+<RequestExample>
+```go Go
+if runner.IsRequestingTasks() {
+    slog.Info("runner is requesting tasks")
+}
+```
+</RequestExample>

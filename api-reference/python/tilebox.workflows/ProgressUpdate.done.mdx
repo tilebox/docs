@@ -1,0 +1,33 @@
+---
+title: ProgressUpdate.done
+icon: bars-progress
+---
+
+```python
+def ProgressUpdate.done(count: int) -> None
+```
+
+Mark work as completed on a progress indicator.
+
+Call `done` as the task finishes units of work added with [`ProgressUpdate.add`](/api-reference/python/tilebox.workflows/ProgressUpdate.add).
+
+## Parameters
+
+<ParamField path="count" type="int" required>
+  Amount of work to mark as completed.
+</ParamField>
+
+## Returns
+
+`None`
+
+<RequestExample>
+```python Python
+progress = context.progress("process-items")
+progress.add(len(items))
+
+for item in items:
+    process(item)
+    progress.done(1)
+```
+</RequestExample>

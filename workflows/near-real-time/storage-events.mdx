@@ -98,7 +98,7 @@ local_object = local_folder.read("my-object.txt")
 
 <Note>
     The `read` method instantiates a client for the specific storage location. This requires that
-    the storage location is accessible by a task runner and may require credentials for cloud storage
+    the storage location is accessible by a runner and may require credentials for cloud storage
     or physical/network access to a locally mounted file system.
 </Note>
 
@@ -142,10 +142,10 @@ Here are some examples of valid glob patterns:
 | `folder/**` | Any file directly or recursively part of a `folder` subdirectory |
 | `[a-z].txt`| Matches `a.txt`, `b.txt`, etc. |
 
-## Start a Storage Event Task Runner
+## Start a Storage Event runner
 
-With the Storage Event automation registered, a job is submitted whenever a storage event occurs. But unless a [task runner](/workflows/concepts/task-runners) is available to execute the Storage Event task the submitted jobs remain in a task queue.
-Once an [eligible task runner](/workflows/concepts/task-runners#task-selection) becomes available, all jobs in the queue are executed.
+With the Storage Event automation registered, a job is submitted whenever a storage event occurs. But unless a [runner](/workflows/concepts/runners) is available to execute the Storage Event task the submitted jobs remain in a task queue.
+Once an [eligible runner](/workflows/concepts/runners#task-selection) becomes available, all jobs in the queue are executed.
 
 ```python Python
 from tilebox.workflows import Client
@@ -164,7 +164,7 @@ echo "Hello World" > my-object.txt
 gcloud storage cp my-object.txt gs://gcs-bucket-fab3fa2
 ```
 
-Inspecting the task runner output reveals that the job was submitted and the task executed:
+Inspecting the runner output reveals that the job was submitted and the task executed:
 
 ```plaintext Output
 2024-09-25 16:51:45,621 INFO A new object was created: my-object.txt

@@ -1,0 +1,30 @@
+---
+title: Automations.GetStorageLocation
+sidebarTitle: Automations.GetStorageLocation
+icon: diagram-project
+---
+
+```go
+func (automationClient) GetStorageLocation(
+    ctx context.Context,
+    storageLocationID uuid.UUID,
+) (*workflows.StorageLocation, error)
+```
+
+Get a storage location used by automation storage event triggers.
+
+## Parameters
+
+<ParamField path="storageLocationID" type="uuid.UUID" required>
+  The ID of the storage location.
+</ParamField>
+
+## Returns
+
+A storage location object.
+
+<RequestExample>
+```go Go
+location, err := client.Automations.GetStorageLocation(ctx, storageLocationID)
+```
+</RequestExample>

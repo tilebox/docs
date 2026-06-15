@@ -1,0 +1,83 @@
+---
+title: Datapoints.QueryPage
+sidebarTitle: Datapoints.QueryPage
+icon: layer-group
+---
+
+```go
+func (datapointClient) QueryPage(
+    ctx context.Context,
+    datasetID uuid.UUID,
+    options ...datasets.QueryOption,
+) (*datasets.DatapointPage, error)
+```
+
+Query a single page of datapoints from one or more collections of the same dataset.
+
+Use `QueryPage` when you need manual pagination. Use [`Datapoints.Query`](/api-reference/go/datasets/Datapoints.Query) for automatic lazy pagination.
+
+## Parameters
+
+<ParamField path="datasetID" type="uuid.UUID" required>
+  The ID of the dataset to query.
+</ParamField>
+<ParamField path="options" type="[]datasets.QueryOption">
+  Options for querying datapoints.
+</ParamField>
+
+## Options
+
+<ParamField path="datasets.WithTemporalExtent(temporalExtent query.TemporalExtent)" required>
+  Specify the time or datapoint ID interval to query.
+</ParamField>
+<ParamField path="datasets.WithSpatialExtent(spatialExtent orb.Geometry)">
+  Specify the geographical extent to query.
+</ParamField>
+<ParamField path="datasets.WithSpatialExtentFilter(spatialExtent query.SpatialExtent)">
+  Specify a geographical extent with an explicit spatial filter mode and coordinate system.
+</ParamField>
+<ParamField path="datasets.WithCollections(collections ...*datasets.Collection)">
+  Restrict the query to specific dataset collections by collection object.
+</ParamField>
+<ParamField path="datasets.WithCollectionIDs(collectionIDs ...uuid.UUID)">
+  Restrict the query to specific dataset collections by collection ID.
+</ParamField>
+<ParamField path="datasets.WithSkipData()" default="false">
+  Skip datapoint data and return only required and generated fields.
+</ParamField>
+<ParamField path="datasets.WithCursor(cursor *datasets.Cursor)">
+  Start the query after the cursor returned by a previous page.
+</ParamField>
+<ParamField path="datasets.WithLimit(limit int64)">
+  Limit the number of datapoints returned in this page.
+</ParamField>
+
+## Returns
+
+A `DatapointPage` with raw protobuf datapoints in `Datapoints` and an optional `NextCursor` for the next page.
+
+<RequestExample>
+```go Go
+page, err := client.Datapoints.QueryPage(ctx,
+    dataset.ID,
+    datasets.WithTemporalExtent(queryInterval),
+    datasets.WithCollectionIDs(collection.ID),
+    datasets.WithLimit(100),
+)
+if err != nil {
+    return err
+}
+
+if page.NextCursor != nil {
+    nextPage, err := client.Datapoints.QueryPage(ctx,
+        dataset.ID,
+        datasets.WithTemporalExtent(queryInterval),
+        datasets.WithCollectionIDs(collection.ID),
+        datasets.WithCursor(page.NextCursor),
+        datasets.WithLimit(100),
+    )
+    _ = nextPage
+    _ = err
+}
+```
+</RequestExample>
