@@ -1,0 +1,314 @@
+---
+title: Tilebox
+sidebarTitle: Introduction
+description: "One API for humans and agents to discover data, run workflows, and debug results across environments."
+icon: house
+mode: custom
+'og:title': "Tilebox Docs"
+---
+
+export const HomeSearch = () => {
+  const openSearch = () => {
+    const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+    const event = new KeyboardEvent("keydown", {
+        key: "k",
+        code: "KeyK",
+        metaKey: isMac,
+        ctrlKey: !isMac,
+        bubbles: true,
+    });
+    document.dispatchEvent(event);
+    window.dispatchEvent(event);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={openSearch}
+      className="mt-8 w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-3 text-left shadow-sm hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+      aria-label="Search Tilebox documentation"
+    >
+      <span className="flex items-center justify-between gap-3">
+        <span className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
+          <Icon icon="magnifying-glass" />
+          <span>What do you want to build?</span>
+        </span>
+        <kbd className="hidden sm:inline-flex px-1.5 py-0.5 text-xs text-gray-500 dark:text-gray-400">
+          ⌘K
+        </kbd>
+      </span>
+    </button>
+  );
+};
+
+<div className="tilebox-home-marker hidden" aria-hidden="true" />
+
+<div className="tilebox-landing-hero px-6 py-16 lg:pt-24">
+  <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 items-start">
+    <div className="lg:col-span-5">
+      <p className="text-sm font-semibold text-primary dark:text-primary-light uppercase tracking-wide">
+        Tilebox documentation
+      </p>
+      <h1 className="mt-4 text-4xl lg:text-6xl font-semibold tracking-tight text-gray-950 dark:text-white">
+        Start building with Tilebox
+      </h1>
+      <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-400">
+        Query Earth Data. Build, run, debug, and scale geospatial workflows across environments. One API for humans and agents.
+      </p>
+
+      <HomeSearch />
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-950 dark:hover:text-white" href="/quickstart">
+          <Icon icon="play" />
+          Quickstart
+        </a>
+        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-950 dark:hover:text-white" href="/authentication">
+          <Icon icon="key" />
+          Get API Key
+        </a>
+        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-950 dark:hover:text-white" href="/guides/datasets/ingest">
+          <Icon icon="database" />
+          Ingest data
+        </a>
+      </div>
+    </div>
+
+    <div className="lg:col-span-7">
+      <CodeGroup>
+      ```text Agent
+      > User
+      Onboard yourself to Tilebox: https://docs.tilebox.com/onboard-your-agent
+      
+      Then use Tilebox to find which data center sites changed most from space.
+      
+      Build a reproducible workflow that:
+         - starting from a user-provided CSV of known data centers
+         - finds cloud-free Sentinel-2 imagery over a target lat/lon in a time window
+         - reads the relevant band products, crops scenes to a 3km area around the target
+         - computes the cloud fraction for the cropped area, filter out scenes > 1%
+         - compares before/after by scoring visible change based on suitable metrics
+         - then create a datacenter site ranking based on score
+      
+      Use the provided Tilebox skills to research datasets, storage access and outline the
+      workflow, then implement it. Deploy and run on our GCP cluster, in case of failures
+      inspect runner logs and iterate on the workflow.
+      ```
+
+      ```bash CLI
+      curl -fsSL https://cli.tilebox.com/install.sh | sh
+
+      tilebox dataset query
+        open_data.copernicus.sentinel2_msi
+        --last 7d
+        --spatial-extent 'POLYGON((-109.05 41,-109.05 37,-102.05 37,-102.05 41,-109.05 41))'
+        --limit 10
+      
+      tilebox job submit 
+        --name "Datacenter Monitoring"
+        --task "ComputeVisibleChange"
+        --input "{\"before\": \"2024-06-01\", \"after\": \"2026-06-01\"}"
+        --cluster gcp-Drv6L7Li4t7Yvk
+      ```
+
+      ```python Python lines
+      from tilebox.datasets import Client
+      from tilebox.workflows import Task, ExecutionContext
+      
+      class ComputeVisibleChange(Task):
+        before: str
+        after: str
+
+        def execute(self, context: ExecutionContext):
+          sentinel2 = Client().dataset(
+            "open_data.copernicus.sentinel2_msi"
+          )
+          scenes = sentinel2.collection("S2A_S2MSI1A").query(
+              temporal_extent=(before, after),
+          )
+          context.logger.info("Found scenes", n=len(scenes.granule_name))
+          context.submit_subtasks([
+            ProcessScene(str(name) for name in scenes.granule_name)
+          ])
+      ```
+
+      ```go Go lines
+      type ComputeVisibleChange struct {
+          Before time.Time
+          After  time.Time
+      }
+
+      func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
+          client := datasets.NewClient()
+          dataset, _ := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+          collection, _ := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI1C")
+
+          var scenes []*examplesv1.Sentinel2Msi
+          _ = client.Datapoints.QueryInto(ctx, dataset.ID, &scenes,
+              datasets.WithCollections(collection),
+              datasets.WithTemporalExtent(query.NewTimeInterval(t.Before, t.After)),
+          )
+
+          slog.InfoContext(ctx, "Found scenes", slog.Int("n", len(scenes)))
+          for _, scene := range scenes {
+              _, _ = workflows.SubmitSubtask(ctx, &ProcessScene{
+                  Name: scene.GetGranuleName(),
+              })
+          }
+          return nil
+      }
+      ```
+      </CodeGroup>
+    </div>
+  </div>
+</div>
+
+<div className="px-6 pb-16">
+  <div className="max-w-6xl mx-auto">
+    <p className="text-sm font-semibold text-primary dark:text-primary-light uppercase tracking-wide">
+      Get started
+    </p>
+    <h2 className="mt-3 text-3xl font-semibold tracking-tight text-gray-950 dark:text-white">
+      Choose how you build
+    </h2>
+    <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-400 max-w-2xl">
+      Use Tilebox directly as a developer, or give an agent the same tools and documentation context so it can work with Tilebox for you.
+    </p>
+
+    <div className="mt-10 grid lg:grid-cols-2 gap-6">
+      <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
+        <div className="tilebox-mode-card-preview flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
+          <img src="/assets/landing/agent-mode-light.png" alt="Agent connected to Earth data and workflow observability tools" className="tilebox-mode-card-image dark:hidden" />
+          <img src="/assets/landing/agent-mode-dark.png" alt="Agent connected to Earth data and workflow observability tools" className="tilebox-mode-card-image hidden dark:block" />
+        </div>
+        <div className="p-8">
+          <h3 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
+            Use an agent
+          </h3>
+          <p className="mt-3 text-gray-600 dark:text-gray-400 leading-7">
+            Configure a coding agent with the Tilebox CLI, agent skills, and optional MCP access. Agents can inspect datasets, write workflow code, submit jobs, and debug runs with Tilebox context.
+          </p>
+          <div className="mt-8 space-y-4">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/onboard-your-agent">
+              <Icon icon="play" />
+              Onboard your agent
+            </a>
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/guides/workflows/agentic-workflow-iteration">
+              <Icon icon="book" />
+              Create and deploy workflows
+            </a>
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/agentic-development/tilebox-mcp">
+              <Icon icon="plug" />
+              Connect with MCP
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
+        <div className="tilebox-mode-card-preview flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
+          <img src="/assets/landing/developer-mode-light.png" alt="Developer terminal connected to code debugging and dataset tools" className="tilebox-mode-card-image dark:hidden" />
+          <img src="/assets/landing/developer-mode-dark.png" alt="Developer terminal connected to code debugging and dataset tools" className="tilebox-mode-card-image hidden dark:block" />
+        </div>
+        <div className="p-8">
+          <h3 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
+            Build as a developer
+          </h3>
+          <p className="mt-3 text-gray-600 dark:text-gray-400 leading-7">
+            Use the Console, Python SDK, Go SDK, and CLI to query data, ingest your own catalogs, create workflow tasks, and run them across your infrastructure.
+          </p>
+          <div className="mt-8 space-y-4">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/quickstart">
+              <Icon icon="play" />
+              Quickstart
+            </a>
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/sdks/introduction">
+              <Icon icon="code" />
+              Choose an SDK
+            </a>
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/api-reference/python/tilebox.datasets/Client">
+              <Icon icon="book" />
+              API reference
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="px-6 py-16 bg-gray-50 dark:bg-gray-950 border-y border-gray-200 dark:border-gray-800">
+  <div className="max-w-6xl mx-auto">
+    <p className="text-sm font-semibold text-primary dark:text-primary-light uppercase tracking-wide">
+      Learn
+    </p>
+    <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
+      Explore the platform
+    </h2>
+    <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-3xl">
+      Start from the outcome you need. Tilebox combines typed data access, workflow execution on your infrastructure, and shared observability for people and agents working on geospatial systems.
+    </p>
+
+    <div className="mt-8">
+      <Columns cols={3}>
+        <Tile href="/datasets/query/querying-data" title="Query satellite data" description="Search typed datasets by time, location, collection, or datapoint ID.">
+          <img src="/assets/console/datasets-explorer-light.png" alt="Tilebox dataset explorer" className="block dark:hidden" />
+          <img src="/assets/console/datasets-explorer-dark.png" alt="Tilebox dataset explorer" className="hidden dark:block" />
+        </Tile>
+        <Tile href="/workflows/observability/introduction" title="Inspect workflow runs" description="Use logs, traces, progress, and job state to debug workflows and verify results.">
+          <img src="/assets/workflows/observability/logs-light.png" alt="Workflow logs in Tilebox Console" className="block dark:hidden" />
+          <img src="/assets/workflows/observability/logs-dark.png" alt="Workflow logs in Tilebox Console" className="hidden dark:block" />
+        </Tile>
+        <Tile href="/workflows/concepts/runners" title="Deploy to your own compute" description="Connect runners to your own infrastructure and control where workflow tasks execute.">
+          <img src="/assets/workflows/runners/runner-architecture-light.png" alt="Tilebox runner architecture" className="block dark:hidden" />
+          <img src="/assets/workflows/runners/runner-architecture-dark.png" alt="Tilebox runner architecture" className="hidden dark:block" />
+        </Tile>
+      </Columns>
+    </div>
+
+    <div className="mt-8">
+      <Columns cols={3}>
+        <Card title="Run a workflow" icon="diagram-project" href="/workflows/introduction" horizontal />
+        <Card title="Connect storage" icon="folder-open" href="/storage/clients" horizontal />
+        <Card title="Ingest data" icon="database" href="/guides/datasets/ingest" horizontal />
+        <Card title="Sample notebooks" icon="book-open" href="/sdks/python/sample-notebooks" horizontal />
+        <Card title="Spatio-temporal datasets" icon="globe" href="/datasets/types/spatiotemporal" horizontal />
+        <Card title="Jobs" icon="diagram-project" href="/workflows/concepts/jobs" horizontal />
+      </Columns>
+    </div>
+  </div>
+</div>
+
+<div className="px-6 pb-20">
+  <div className="max-w-6xl mx-auto rounded-2xl p-8 bg-white dark:bg-gray-950">
+    <p className="text-sm font-semibold text-primary dark:text-primary-light uppercase tracking-wide">
+      Scale
+    </p>
+    <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
+      From first query to running on your infrastructure
+    </h2>
+    <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-3xl">
+      Start with open data or your own catalogs, turn processing steps into tasks, and run them where your data and infrastructure already live.
+    </p>
+
+    <div className="mt-8">
+      <Steps>
+        <Step title="Discover and query data">
+          Query open datasets or your own Tilebox datasets by time, area of interest, collection, or datapoint ID.
+        </Step>
+        <Step title="Build workflow tasks">
+          Turn processing steps into workflow tasks that can submit subtasks, report progress, use caches, and emit logs and traces.
+        </Step>
+        <Step title="Prototype locally">
+          Develop with local runners, iterate quickly, and prototype your geospatial workflows.
+        </Step>
+        <Step title="Deploy to your own compute">
+          Run workflows across cloud, on-premises, sovereign, air-gapped, or edge environments while Tilebox tracks jobs and distributes work for parallel execution.
+        </Step>
+        <Step title="Inspect and iterate">
+          Query job state, logs, spans, and progress from the Console, SDKs, CLI, or agent tools.
+        </Step>
+      </Steps>
+    </div>
+  </div>
+</div>

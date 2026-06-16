@@ -2,3 +2,58 @@
 * {
   border-radius: 0 !important;
 }
+
+.tilebox-landing-hero {
+  min-height: 740px;
+}
+
+.tilebox-mode-card-preview {
+  min-height: 160px;
+  background-image: radial-gradient(circle, rgba(120, 120, 120, 0.18) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.tilebox-mode-card-image {
+  height: auto;
+  max-height: 160px;
+  max-width: 92%;
+  object-fit: contain;
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .tilebox-landing-hero {
+    min-height: auto;
+  }
+}
+
+
+/* Manually override the Documentation tab being highlighted on the landing/index page */
+html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"] {
+  color: rgb(75 85 99) !important;
+  text-shadow: none !important;
+}
+
+html.dark:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"] {
+  color: rgb(156 163 175) !important;
+}
+
+html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"] > div {
+  background: transparent !important;
+}
+
+html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hover {
+  color: rgb(31 41 55) !important;
+}
+
+html.dark:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hover {
+  color: rgb(209 213 219) !important;
+}
+
+html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hover > div {
+  background: rgb(229 231 235) !important;
+}
+
+html.dark:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hover > div {
+  background: rgb(55 65 81) !important;
+}
