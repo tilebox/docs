@@ -24,8 +24,8 @@
           {
             "group": "Get Started",
             "pages": [
-              "introduction",
               "quickstart",
+              "onboard-your-agent",
               "console",
               "authentication"
             ]
@@ -34,7 +34,6 @@
             "group": "Agentic Development",
             "pages": [
               "agentic-development/overview",
-              "agentic-development/onboard-your-agent",
               "agentic-development/ai-interfaces",
               "agentic-development/tilebox-cli",
               "agentic-development/tilebox-mcp",
