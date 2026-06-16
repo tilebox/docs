@@ -1,0 +1,119 @@
+# Onboard an agent to Tilebox
+
+You are setting up Tilebox for a coding agent. This is for agents that can run terminal commands and edit code: Amp, Codex, Claude Code, Cursor, or similar.
+
+If you are running in ChatGPT instead of Codex, or in claude.ai instead of Claude Code, stop and tell the user to switch to the coding version. Do not suggest MCP.
+
+## Goal
+
+Get the agent ready to use Tilebox from the terminal:
+
+1. Install the Tilebox CLI.
+2. Install the Tilebox skills.
+3. Help the user create an API key.
+4. Give the user the exact shell command to set `TILEBOX_API_KEY` and reload their current environment.
+5. Verify read-only setup. Do not modify Tilebox resources.
+
+## Step 1: install the Tilebox CLI
+
+Run:
+
+```bash
+curl -fsSL https://cli.tilebox.com/install.sh | sh
+```
+
+Then verify:
+
+```bash
+tilebox --help
+tilebox agent-context
+```
+
+If `tilebox` is not on `PATH`, use the installed path directly, usually:
+
+```bash
+$HOME/.local/bin/tilebox --help
+```
+
+## Step 2: install Tilebox skills
+
+Run:
+
+```bash
+npx skills add tilebox/skills --yes --global
+```
+
+Then confirm the Tilebox skills are present in the user's skills directory.
+
+## Step 3: ask the user for an API key
+
+Send the user here:
+
+```text
+https://console.tilebox.com/settings/api-keys
+```
+
+Ask them to create a key with the smallest permissions needed for their task.
+
+Do not ask them to paste the key into chat unless there is no safer option. Prefer that they run a command in their own terminal.
+
+## Step 4: give the exact command for their shell
+
+Detect the user's shell with:
+
+```bash
+basename "$SHELL"
+```
+
+Then give them one of these commands, replacing `YOUR_TILEBOX_API_KEY` with their key.
+
+### zsh
+
+```bash
+echo 'export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"' >> ~/.zshrc && source ~/.zshrc
+```
+
+### bash
+
+```bash
+echo 'export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"' >> ~/.bashrc && source ~/.bashrc
+```
+
+If they use macOS bash login shells, use:
+
+```bash
+echo 'export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"' >> ~/.bash_profile && source ~/.bash_profile
+```
+
+### fish
+
+```fish
+set -Ux TILEBOX_API_KEY "YOUR_TILEBOX_API_KEY"
+```
+
+Fish universal variables apply to new shells automatically. For the current shell, also run:
+
+```fish
+set -gx TILEBOX_API_KEY "YOUR_TILEBOX_API_KEY"
+```
+
+## Step 5: verify safely
+
+Run read-only checks only:
+
+```bash
+tilebox agent-context
+tilebox dataset list --json
+```
+
+Confirm:
+
+- CLI installed
+- skills installed
+- `TILEBOX_API_KEY` is available without printing it
+- `tilebox agent-context` works
+- datasets can be listed
+
+Do not create, update, delete, submit, retry, cancel, deploy, or undeploy anything unless the user explicitly asks.
+
+Keep the response short. Tell the user what is done, what they need to do next, and the one command they should run.
