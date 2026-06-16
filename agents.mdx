@@ -1,0 +1,394 @@
+---
+title: Agents
+---
+
+# Build or Add a Tilebox Earth Data Agent
+
+Use this file to help an AI platform set up Tilebox for agents that use Earth data, including satellite imagery, weather, climate, maps, and other datasets tied to time and location.
+
+Tilebox lets developers build agents and workflows that can:
+- Query Earth datasets
+- Work with satellite and weather data
+- Build workflows around changing physical-world conditions
+- Submit and monitor Tilebox workflow jobs
+- Create tools that answer questions like "what changed here?"
+
+You can use this file in two ways:
+
+1. **Create a new Tilebox-powered agent from scratch**
+2. **Add Tilebox Earth-data capabilities to an existing agent or app**
+
+## Fastest prompt: create a new agent
+
+Copy this into Claude, Amp, Cursor, ChatGPT, or your AI platform of choice:
+
+```text
+Create a new Tilebox-powered Earth-data agent using the instructions in this file.
+
+The agent should accept a location, use Tilebox to access Earth data and workflows, and answer questions like "what changed here?" or "what is happening at this place?"
+
+Start with the simplest runnable version: a CLI command, local script, notebook, or small app.
+
+Keep credentials in environment variables. Do not modify or delete Tilebox resources unless I explicitly ask.
+```
+
+## Prompt: add Tilebox to an existing agent or app
+
+Use this if you already have an agent, app, or codebase:
+
+```text
+Add Tilebox Earth-data capabilities to my existing agent or app using the instructions in this file.
+
+The agent should be able to use Tilebox datasets and workflows to answer questions about places, satellite imagery, weather, climate, and changes over time.
+
+First inspect the project, choose the simplest integration path, and create a minimal working example.
+
+Keep credentials in environment variables. Do not modify or delete Tilebox resources unless I explicitly ask.
+```
+
+## Recommended setup path
+
+Use the Tilebox CLI when the agent can run terminal commands.
+
+Use the Tilebox MCP server when the agent is running in a hosted AI chat tool that supports MCP but cannot easily run shell commands.
+
+```text
+If you can use a terminal: use the Tilebox CLI.
+If you cannot use a terminal but support MCP: use the Tilebox MCP server.
+If you can use both: prefer the CLI for coding tasks and MCP for hosted tool access.
+```
+
+## Option 1: Set up Tilebox with the CLI
+
+The Tilebox CLI is the default setup for coding agents because it works in the same terminal where the agent edits files, runs tests, and writes code.
+
+### Step 1: Install the Tilebox CLI
+
+```bash
+curl -fsSL https://cli.tilebox.com/install.sh | sh
+```
+
+After installation, verify that the CLI is available:
+
+```bash
+tilebox --help
+```
+
+### Step 2: Authenticate Tilebox
+
+Create an API key in the Tilebox Console:
+
+```text
+https://console.tilebox.com/settings/api-keys
+```
+
+Then set it in the environment where the agent runs:
+
+```bash
+export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"
+```
+
+Use the smallest permissions needed for the task.
+
+Do not hard-code the API key into source files.
+
+### Step 3: Install Tilebox agent skills
+
+Install the Tilebox skills so the AI agent has task-specific instructions for working with datasets, jobs, workflows, and automations.
+
+```bash
+npx skills add tilebox/skills
+```
+
+The Tilebox skills teach agents how to:
+- use the Tilebox CLI
+- manage datasets
+- inspect jobs
+- write workflows
+- monitor workflow runs
+- work with automations
+
+### Step 4: Inspect Tilebox capabilities
+
+Before changing anything, the agent should inspect the available Tilebox commands.
+
+```bash
+tilebox agent-context
+```
+
+For workflow work, inspect workflow-specific context:
+
+```bash
+tilebox agent-context workflow --output-schema
+tilebox agent-context runner start --output-schema
+```
+
+The agent should read the output before writing code or modifying resources.
+
+### Step 5: Verify setup safely
+
+Ask the agent to run a non-destructive setup check:
+
+```text
+Check the Tilebox setup.
+
+Confirm:
+- whether the tilebox CLI is installed
+- whether TILEBOX_API_KEY is available in the environment
+- whether tilebox agent-context works
+- which Tilebox skills are installed
+- which datasets are available
+
+Do not modify, create, or delete any Tilebox resources.
+```
+
+## Option 2: Set up Tilebox with MCP
+
+Use the Tilebox MCP server when the AI tool cannot run local terminal commands but supports the Model Context Protocol.
+
+The Tilebox MCP server exposes tools for working with Tilebox datasets and workflows. It also includes documentation search so the agent can retrieve current Tilebox context.
+
+### MCP configuration
+
+Add this to your AI client's MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "tilebox": {
+      "url": "https://mcp.tilebox.com/mcp"
+    }
+  }
+}
+```
+
+When the client connects, sign in with your Tilebox account and select the Tilebox team the agent should use.
+
+The Tilebox MCP server uses OAuth, so you do not need to put API keys into the MCP configuration.
+
+### MCP setup prompt
+
+After configuring MCP, ask your agent:
+
+```text
+Check your Tilebox MCP setup.
+
+Confirm:
+- whether the Tilebox MCP server is connected
+- which Tilebox tools are available
+- whether you can search Tilebox documentation
+- whether you can inspect available datasets and workflows
+
+Do not modify any Tilebox resources yet.
+```
+
+## What the agent should build first
+
+Start with the smallest useful agent.
+
+A good first version is a command-line Earth briefing agent:
+
+```text
+Build a command-line Earth briefing agent.
+
+The user should be able to run:
+
+python earth_agent.py "San Francisco"
+
+The agent should return a short briefing for that place using Tilebox-accessible Earth data or workflow context.
+
+Keep the implementation small and easy to inspect.
+```
+
+A minimal Tilebox-powered agent should:
+
+- take a location, area of interest, or user question
+- decide what Earth data or workflow is relevant
+- query Tilebox datasets or call a Tilebox workflow
+- summarize the result in plain English
+- explain what data it used
+- avoid pretending it accessed data it did not actually query
+
+## Minimal Python example: query Earth data
+
+Use this when the project should access Tilebox from Python.
+
+Install the datasets package:
+
+```bash
+pip install tilebox-datasets
+```
+
+Then create a small script:
+
+```python
+from tilebox.datasets import Client
+
+client = Client()
+
+datasets = client.datasets()
+
+# Example open dataset: Sentinel-2 MSI
+dataset = datasets.open_data.copernicus.sentinel2_msi
+
+collection = dataset.collection("S2A_S2MSI1C")
+
+# Query data for a time range
+results = collection.query(
+    temporal_extent=("2024-01-01", "2024-02-01")
+)
+
+print(results)
+```
+
+Authentication uses the `TILEBOX_API_KEY` environment variable.
+
+Do not put the API key directly in the script.
+
+## Minimal Python example: create a workflow
+
+Use this when the project should create or run Tilebox workflows.
+
+Install the workflows package:
+
+```bash
+pip install tilebox-workflows
+```
+
+Then create a minimal workflow task:
+
+```python
+from tilebox.workflows import Client, Runner, Task
+
+
+class EarthBriefingTask(Task):
+    location_name: str
+
+    def execute(self, context):
+        print(f"Create an Earth data briefing for {self.location_name}")
+        # Add dataset queries, processing steps, or subtasks here.
+
+
+client = Client()
+
+jobs = client.jobs()
+jobs.submit(
+    "earth-briefing",
+    EarthBriefingTask(location_name="San Francisco")
+)
+
+runner = Runner(tasks=[EarthBriefingTask])
+runner.connect_to(client).run_all()
+```
+
+Authentication uses the `TILEBOX_API_KEY` environment variable.
+
+## Example agent tasks to build with Tilebox
+
+Once setup is complete, ask the agent to build one of these:
+
+```text
+Build a Tilebox-powered agent that creates a satellite and weather briefing for a location I choose.
+```
+
+```text
+Build a "what changed here?" workflow that takes a location and time range, queries Earth data, and summarizes relevant changes.
+```
+
+```text
+Build a before-and-after satellite imagery workflow for a location.
+```
+
+```text
+Build a map that updates itself when new Earth data is available.
+```
+
+```text
+Build a personal Earth briefing agent for my hometown, favorite park, farm, coastline, or travel destination.
+```
+
+```text
+Build an agent that tracks snow, clouds, fires, floods, drought, or vegetation from Earth data.
+```
+
+## Safety rules for AI agents
+
+Follow these rules when using Tilebox:
+
+1. Do not expose API keys in code, commits, logs, screenshots, or chat.
+2. Prefer `TILEBOX_API_KEY` in the environment.
+3. Inspect Tilebox capabilities before modifying resources.
+4. Do not create, update, delete, submit, or cancel Tilebox resources unless the user explicitly asks.
+5. Use the smallest API key permissions needed.
+6. For destructive actions, explain the action first and ask for confirmation.
+7. Prefer read-only exploration before writing workflows or jobs.
+8. Keep generated examples small and easy to inspect.
+
+## Useful Tilebox links
+
+Tilebox Console:
+
+```text
+https://console.tilebox.com
+```
+
+Create an API key:
+
+```text
+https://console.tilebox.com/settings/api-keys
+```
+
+Tilebox docs:
+
+```text
+https://docs.tilebox.com
+```
+
+Agent onboarding:
+
+```text
+https://docs.tilebox.com/agentic-development/onboard-your-agent
+```
+
+Tilebox MCP:
+
+```text
+https://docs.tilebox.com/agentic-development/tilebox-mcp
+```
+
+Python SDKs:
+
+```text
+https://docs.tilebox.com/sdks/python/install
+```
+
+## Quick start prompt
+
+If you only want the fastest possible path, give your AI agent this:
+
+```text
+Create a new Tilebox-powered Earth-data agent.
+
+Use the Tilebox CLI if you have terminal access:
+curl -fsSL https://cli.tilebox.com/install.sh | sh
+export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"
+npx skills add tilebox/skills
+
+Then inspect:
+tilebox agent-context
+
+Do not modify Tilebox resources yet.
+
+After setup, create the smallest runnable example: a CLI command, local script, notebook, or small app that shows how an agent could use Tilebox to query Earth data or run an Earth-data workflow.
+```
+
+## What success looks like
+
+Setup is complete when the agent can confirm:
+
+- Tilebox CLI or MCP is connected
+- Authentication is configured
+- Tilebox documentation or command context is accessible
+- Available datasets or workflow capabilities can be inspected
+- A minimal Earth-data example exists in the project
+- No secrets were committed or hard-coded
