@@ -21,8 +21,10 @@ Navigation is defined in `docs.json` and currently follows this top-level struct
 When adding or moving pages:
 
 1. Keep `docs.json` in sync with actual files.
-2. Keep pages grouped by product area (`datasets/`, `workflows/`, `storage/`, `sdks/`, `guides/`, `api-reference/`).
-3. Preserve the current pattern where high-level landing pages link to deeper pages via `Card`/`HeroCard` blocks.
+2. Keep page paths aligned with their navigation section. If a page appears under a named group such as `Agents and AI Tools`, `Run and Inspect`, or `Automations`, place it under the matching slugged folder (`agents-and-ai-tools/`, `workflows/run-and-inspect/`, `workflows/automations/`) so the URL reflects the sidebar structure.
+3. Keep pages grouped by product area (`datasets/`, `workflows/`, `sdks/`, `guides/`, `api-reference/`).
+4. Keep the User Guides nav and the [Tilebox Cookbook](/guides/cookbook) in sync. Whenever you add, remove, rename, or move a `guides/**` page in `docs.json`, update `guides/cookbook.mdx` with the same guide metadata, and vice versa.
+5. Preserve the current pattern where high-level landing pages link to deeper pages via `Card`/`HeroCard` blocks.
 
 ## Diátaxis Mapping
 
@@ -142,10 +144,12 @@ For any substantial docs update, verify all of the following:
 
 1. Page intent matches a single Diátaxis category.
 2. Page is linked in `docs.json` in the correct section.
-3. Internal links resolve and `mintlify broken-links` passes.
-4. Vale warnings/errors are addressed or intentionally accepted.
-5. New screenshots/assets are optimized and use correct paths.
-6. Language and terminology match surrounding Tilebox docs.
+3. The page path, `docs.json` entry, and expected public URL match the navigation group slug.
+4. If the page is under `guides/**`, the User Guides nav and `guides/cookbook.mdx` are both updated.
+5. Internal links resolve and `mintlify broken-links` passes.
+6. Vale warnings/errors are addressed or intentionally accepted.
+7. New screenshots/assets are optimized and use correct paths.
+8. Language and terminology match surrounding Tilebox docs.
 
 ## Notes On API Reference Pages
 

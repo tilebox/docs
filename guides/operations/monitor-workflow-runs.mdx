@@ -1,0 +1,48 @@
+---
+title: Monitor workflow runs
+description: Use the Console, CLI, and SDKs to monitor workflow jobs, task state, logs, traces, and runner behavior.
+icon: eye
+---
+
+Use this guide when you need to follow workflow execution after a job is submitted. Tilebox tracks job state, task state, logs, traces, and runner context for each workflow run.
+
+## Use the Console for live inspection
+
+Open the [Jobs view](https://console.tilebox.com/workflows/jobs) in the Tilebox Console. Use it to inspect the task graph, task states, logs, and trace timing for a job.
+
+The Console is the best first stop when a human is investigating a job interactively.
+
+## Use the command-line tool for automation
+
+Use the Tilebox command-line tool when you need structured output for scripts, CI checks, or coding agents.
+
+```bash
+tilebox job logs <job-id> --json
+tilebox job spans <job-id> --json
+```
+
+Ask agents to keep job IDs and command output in their working notes so they can continue from observed failures instead of guessing.
+
+## Use SDK queries in notebooks or services
+
+Use SDK queries when monitoring is part of a notebook, dashboard, or service.
+
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+job = client.jobs().find("019e07b1-916b-0630-f3ba-f1c33235d174")
+logs = client.jobs().query_logs(job)
+spans = client.jobs().query_spans(job.id)
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Inspect workflow runs" icon="eye" href="/workflows/run-and-inspect/introduction" horizontal>
+    Learn how Tilebox connects logs, traces, task status, and runner context.
+  </Card>
+  <Card title="Debug a failed workflow run" icon="bug" href="/guides/workflows/debug-failed-run" horizontal>
+    Work through a failed or queued job investigation.
+  </Card>
+</Columns>

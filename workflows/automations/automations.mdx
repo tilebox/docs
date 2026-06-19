@@ -1,12 +1,9 @@
 ---
 title: Automations
+sidebarTitle: Trigger jobs automatically
 description: Trigger workflow jobs automatically in response to external events such as schedules or file changes, enabling near-real-time data processing pipelines.
 icon: repeat
 ---
-
-<Note>
-  This feature is only available in the Python SDK.
-</Note>
 
 ## Introduction
 
@@ -16,10 +13,10 @@ By defining trigger conditions, you can automatically submit jobs based on exter
 Tilebox Workflows currently supports the following trigger conditions:
 
 <Columns cols={1}>
-    <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal>
+    <Card title="Cron Triggers" icon="clock" href="/workflows/automations/cron" horizontal>
         Trigger jobs based on a Cron schedule.
     </Card>
-    <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/near-real-time/storage-events" horizontal>
+    <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/automations/storage-events" horizontal>
         Trigger jobs after objects are created or modified in a storage location such as a cloud bucket.
     </Card>
 </Columns>
@@ -35,18 +32,15 @@ To create a trigger, define a special task that serves as a prototype. In respon
 Each automation has a [task identifier](/workflows/concepts/tasks#task-identifiers), a [version](/workflows/concepts/tasks#semantic-versioning), and [input parameters](/workflows/concepts/tasks#input-parameters), just like regular tasks.
 Automations also automatically provide a special `trigger` attribute that contains information about the event that initiated the task's execution.
 
-<Note>
-    Go doesn't support registering automations yet, please use python or the console instead.
-</Note>
-
 ## Automation Client
 
-The Tilebox Workflows client includes a sub-client for managing automations. You can create this sub-client by calling the `automations` method on the main client instance.
+The Tilebox Workflows clients include sub-clients for inspecting automations and storage locations. Python also includes helpers for registering automation prototypes from task classes.
 
 ### Listing Registered Automations
 
-To list all registered automations, use the `all` method on the automation client.
+To list all registered automations, use the automation client.
 
+<CodeGroup>
 ```python Python
 from tilebox.workflows import Client
 
@@ -56,6 +50,27 @@ automations = client.automations()
 automations = automations.all()
 print(automations)
 ```
+```go Go
+ctx := context.Background()
+client := workflows.NewClient()
+
+automations, err := client.Automations.List(ctx)
+if err != nil {
+    slog.ErrorContext(ctx, "failed to list automations", slog.Any("error", err))
+    return
+}
+
+for _, automation := range automations {
+    slog.InfoContext(ctx,
+        "automation",
+        slog.String("id", automation.ID.String()),
+        slog.String("name", automation.Name),
+        slog.Int("cron_triggers", len(automation.CronTriggers)),
+        slog.Int("storage_event_triggers", len(automation.StorageEventTriggers)),
+    )
+}
+```
+</CodeGroup>
 
 ```plaintext Output
 [
@@ -76,11 +91,11 @@ print(automations)
 
 ### Registering Automations
 
-To register an automation, use the `create_*_automation` methods specific to each trigger type provided by the automation client. Refer to the documentation for each trigger type for more details.
+To register an automation from code, use the Python automation client's `create_*_automation` methods for each trigger type. You can also create and manage automations in the Tilebox Console. Refer to the documentation for each trigger type for more details.
 
 <Columns>
-    <Card title="Cron Triggers" icon="clock" href="/workflows/near-real-time/cron" horizontal />
-    <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/near-real-time/storage-events" horizontal />
+    <Card title="Cron Triggers" icon="clock" href="/workflows/automations/cron" horizontal />
+    <Card title="Storage Event Triggers" icon="right-to-line" href="/workflows/automations/storage-events" horizontal />
 </Columns>
 
 ## Overview in the Tilebox Console

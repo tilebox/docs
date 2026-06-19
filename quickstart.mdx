@@ -1,12 +1,12 @@
 ---
 title: Quickstart
-description: Start here to set up Tilebox and get started building.
+description: Start here as a developer to create an API key, query Earth data, and run a small workflow.
 icon: play
 ---
 
-Tilebox works across the [Console](/console), [command line](/agentic-development/tilebox-cli), [SDKs](/sdks), and [coding agents](/onboard-your-agent). The first step is the same for each path: create an API key.
+This quickstart is for developers using Tilebox directly from a terminal, notebook, or SDK. If you want an AI coding agent to work with Tilebox for you, start with [Onboard your agent](/onboard-your-agent).
 
-Follow the steps below to get started.
+You will create an API key, query open Sentinel-2 metadata, and run a small workflow task using the Tilebox [Python SDK](/sdks/python).
 
 ## Start in a Notebook
 
@@ -20,53 +20,58 @@ If you prefer to work locally, follow these steps to get started.
   <Step title="Create an API Key">
     Create an API key by logging into the [Tilebox Console](https://console.tilebox.com), navigating to [Settings -> API Keys](https://console.tilebox.com/settings/api-keys), and clicking the "Create API Key" button.
 
-    <Frame>
-      <img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
-      <img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
-    </Frame>
-
     Then, add it to your environment
 
     ```bash
     export TILEBOX_API_KEY=<your-api-key>
     ```
   </Step>
-  <Step title="Choose your access point">
-    Tilebox can be used from the browser, terminal, via SDKs or coding agents. Choose the access point that matches how you want to start.
+  <Step title="Choose your working environment">
+    Tilebox can be used from the browser, terminal, or via our SDKs running locally or in interactive notebook environments. This quickstart guides you through setting up the Tilebox **Python SDK locally**.
+    Alternatively, you can also check out any of the following ways of using Tilebox.
 
     <CardGroup cols={2}>
-      <Card title="Console" icon="display" href="/console">
-        Use Tilebox from the browser. Create API keys, inspect datasets and monitor jobs without installing anything.
-      </Card>
+      <Card title="Console" icon="display" href="/console" horizontal/>
 
-      <Card title="Command line" icon="terminal" href="/agentic-development/tilebox-cli">
-        Work locally from your terminal. Use this path for setup, local development, and operational commands.
-      </Card>
+      <Card title="Command line" icon="terminal" href="/agents-and-ai-tools/tilebox-cli" horizontal/>
 
-      <Card title="SDKs" icon="code" href="/sdks/introduction">
-        Use Tilebox from your application code in Python or Go.
-      </Card>
+      <Card title="Go SDK" icon="golang" href="/sdks/go" horizontal/> 
 
-      <Card title="Coding agents" icon="robot" href="/onboard-your-agent">
-        Setup your coding agent, and give it access to Tilebox-specific skills and resources for catalogs, workflows, jobs and automations.
-      </Card>
+      <Card title="Agents" icon="robot" href="/onboard-your-agent" horizontal/>
+
+      <Card title="Notebooks" icon="book-open" href="/sdks/python/sample-notebooks" horizontal/>
     </CardGroup>
+
+    To install the python SDK locally, run the following command.
+
+    ```bash
+    uv add tilebox
+    ```
   </Step>
   <Step title="Query Data">
     Use the datasets client to query data from a dataset.
 
     ```python Python
     from tilebox.datasets import Client
+    from shapely import Polygon
+
+    # define a search area (optional)
+    new_york_city = Polygon(
+        [(-74.40, 41.02), (-74.48, 40.27), (-73.37, 40.34),
+        (-73.39, 41.05), (-74.40, 41.02)]
+    )
 
     client = Client(token="YOUR_TILEBOX_API_KEY")
 
     # select a dataset
-    datasets = client.datasets()
-    dataset = datasets.open_data.copernicus.sentinel2_msi
-
-    # and load data from a collection in a given time range
-    collection = dataset.collection("S2A_S2MSI1C")
-    data_january_2022 = collection.query(temporal_extent=("2022-01-01", "2022-02-01"))
+    dataset = client.dataset("open_data.copernicus.sentinel2_msi")
+    # and query data
+    scenes_new_york_january_2026 = dataset.query(
+      collections=["S2A_S2MSI2A", "S2B_S2MSI2A", "S2C_S2MSI2A"],
+      temporal_extent=("2026-01-01", "2026-02-01"),
+      spatial_extent=new_york_city
+    )
+    print(scenes_new_york_january_2026.granule_name)
     ```
   </Step>
   <Step title="Run a Workflow">
@@ -74,6 +79,9 @@ If you prefer to work locally, follow these steps to get started.
 
     ```python Python
     from tilebox.workflows import Client, Runner, Task
+    from tilebox.workflows.observability.logging import configure_console_logging
+
+    configure_console_logging()
 
     # Replace with your actual token
     client = Client(token="YOUR_TILEBOX_API_KEY")
@@ -83,35 +91,42 @@ If you prefer to work locally, follow these steps to get started.
         name: str = "World"
 
         def execute(self, context):
-            print(f"{self.greeting} {self.name}, from the main task!")
+            context.logger.info(f"{self.greeting} {self.name}, from the main task!")
             context.submit_subtask(HelloSubtask(name=self.name))
 
     class HelloSubtask(Task):
         name: str
 
         def execute(self, context):
-            print(f"Hello from the subtask, {self.name}!")
+            context.logger.info(f"Hello from the subtask!", name=self.name)
 
     # Initiate the job
     jobs = client.jobs()
-    jobs.submit("parameterized-hello-world", HelloWorldTask(greeting="Greetings", name="Universe"))
+    job = jobs.submit("parameterized-hello-world", HelloWorldTask(greeting="Greetings", name="Universe"))
 
     # Run the tasks
     runner = Runner(tasks=[HelloWorldTask, HelloSubtask])
     runner.connect_to(client).run_all()
+
+    print("Explore the job you just submitted in the Tilebox Console.")
+    print("Check out tasks, log messages, and execution timining:")
+    print(f"https://console.tilebox.com/workflows/jobs/{job.id}")
     ```
   </Step>
   <Step title="Explore Further">
     Review the following guides to learn more about the modules that make up Tilebox:
 
-    <Columns cols={2}>
+    <Columns cols={1}>
       <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
         Learn how to create a Timeseries dataset using the Tilebox Console.
       </Card>
       <Card title="Ingesting data" icon="up-from-bracket" href="/guides/datasets/ingest" horizontal>
         Learn how to ingest an existing CSV dataset into a Timeseries dataset collection.
       </Card>
-      <Card title="Building workflow releases" icon="rocket" href="/workflows/build-and-deploy/releases" horizontal>
+      <Card title="Debug a failed workflow run" icon="bug" href="/guides/workflows/debug-failed-run" horizontal>
+        Inspect task state, logs and traces when a workflow job fails.
+      </Card>
+      <Card title="Build and deploy a workflow project" icon="rocket" href="/guides/workflows/build-and-deploy-workflow" horizontal>
         Package a Python workflow project, publish a release, and deploy it to a cluster.
       </Card>
       <Card title="Agentic workflow iteration" icon="robot" href="/guides/workflows/agentic-workflow-iteration" horizontal>

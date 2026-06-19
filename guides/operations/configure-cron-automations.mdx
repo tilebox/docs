@@ -1,0 +1,60 @@
+---
+title: Configure cron automations
+description: Register a workflow automation that submits jobs on a cron schedule.
+icon: clock
+---
+
+Use cron automations when a workflow should run on a schedule, such as hourly catalog checks, daily quality-control jobs, or recurring data processing.
+
+Tilebox automations submit workflow jobs when their trigger condition matches. A runner on the target cluster still needs to execute the submitted tasks.
+
+## Define the automation task
+
+Create a task that can run from a scheduled trigger.
+
+```python Python
+from tilebox.workflows import ExecutionContext
+from tilebox.workflows.automations import CronTask
+
+
+class DailyCatalogCheck(CronTask):
+    def execute(self, context: ExecutionContext) -> None:
+        context.logger.info("Running daily catalog check", trigger=str(self.trigger))
+```
+
+## Register the cron automation
+
+Use the automation client to register a schedule and target cluster.
+
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+automations = client.automations()
+
+automations.create_cron_automation(
+    "daily-catalog-check",
+    DailyCatalogCheck(),
+    cron_schedules=["0 6 * * *"],
+)
+```
+
+## Keep a runner available
+
+The automation submits jobs. It does not execute them by itself. Start a runner that can execute the task identifier.
+
+```python Python
+runner = client.runner(tasks=[DailyCatalogCheck])
+runner.run_forever()
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Cron triggers" icon="clock" href="/workflows/automations/cron" horizontal>
+    Read the full cron automation reference.
+  </Card>
+  <Card title="Monitor workflow runs" icon="eye" href="/guides/operations/monitor-workflow-runs" horizontal>
+    Inspect jobs created by automations.
+  </Card>
+</Columns>

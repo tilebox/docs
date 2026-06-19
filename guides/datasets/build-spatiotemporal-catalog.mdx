@@ -1,0 +1,79 @@
+---
+title: Build a spatio-temporal catalog
+description: Create a custom spatio-temporal dataset and ingest geospatial metadata that can be queried by time and location.
+icon: globe
+---
+
+Use a spatio-temporal dataset when each datapoint has both a time and a geometry. This is useful for internal imagery catalogs, derived products, ground truth data, regions of interest, and processing outputs that need geospatial lookup.
+
+This guide shows the shape of the workflow. For the full ingestion guide, see [Ingesting data](/guides/datasets/ingest).
+
+## Create the dataset
+
+Create a dataset in the [Tilebox Console](https://console.tilebox.com/datasets/my-datasets) and choose the **Spatio-temporal** kind. Tilebox adds the required `time`, `id`, `ingestion_time`, and `geometry` fields automatically.
+
+Add fields that describe the products you want to catalog, such as:
+
+| Field | Type | Purpose |
+| --- | --- | --- |
+| `product_id` | `string` | Stable product or scene identifier. |
+| `location` | `string` | Storage path, object key, or provider location. |
+| `cloud_cover` | `float64` | Optional quality or filtering field. |
+| `processing_level` | `string` | Product processing level or category. |
+
+## Prepare datapoints
+
+Load your source metadata into a GeoDataFrame. The geometry column should contain the footprint for each datapoint.
+
+```python Python
+import geopandas as gpd
+
+products = gpd.read_parquet("products.geoparquet")
+products = products.rename(
+    columns={
+        "timestamp": "time",
+        "scene": "product_id",
+        "path": "location",
+    }
+)
+```
+
+## Ingest the catalog
+
+Ingest the prepared records into a collection.
+
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+dataset = client.dataset("my_org.imagery_catalog")
+collection = dataset.collection("processed-scenes")
+
+collection.ingest(products)
+```
+
+## Query by time and location
+
+After ingestion, use the same query model as Tilebox open data catalogs.
+
+```python Python
+from shapely import box
+
+area = box(11.0, 46.0, 12.0, 47.0)
+
+matches = collection.query(
+    temporal_extent=("2026-01-01", "2026-02-01"),
+    spatial_extent=area,
+)
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Spatio-temporal datasets" icon="globe" href="/datasets/types/spatiotemporal" horizontal>
+    Learn the required fields and query behavior.
+  </Card>
+  <Card title="Ingest from common file formats" icon="file-binary" href="/guides/datasets/ingest-format" horizontal>
+    Load CSV, Parquet, GeoParquet, and NetCDF data before ingestion.
+  </Card>
+</Columns>

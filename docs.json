@@ -31,13 +31,13 @@
             ]
           },
           {
-            "group": "Agentic Development",
+            "group": "Agents and AI Tools",
             "pages": [
-              "agentic-development/overview",
-              "agentic-development/ai-interfaces",
-              "agentic-development/tilebox-cli",
-              "agentic-development/tilebox-mcp",
-              "agentic-development/agent-skills"
+              "agents-and-ai-tools/overview",
+              "agents-and-ai-tools/ai-interfaces",
+              "agents-and-ai-tools/tilebox-cli",
+              "agents-and-ai-tools/agent-skills",
+              "agents-and-ai-tools/tilebox-mcp"
             ]
           },
           {
@@ -73,13 +73,8 @@
               "datasets/ingest",
               "datasets/delete",
               "datasets/geometries",
-              "datasets/open-data"
-            ]
-          },
-          {
-            "group": "Storage",
-            "pages": [
-              "storage/clients"
+              "datasets/open-data",
+              "datasets/storage/clients"
             ]
           },
           {
@@ -93,8 +88,8 @@
                   "workflows/concepts/tasks",
                   "workflows/concepts/jobs",
                   "workflows/concepts/runners",
-                  "workflows/concepts/workflow-releases",
-                  "workflows/concepts/clusters"
+                  "workflows/concepts/clusters",
+                  "workflows/concepts/workflow-releases"
                 ]
               },
               {
@@ -107,33 +102,33 @@
                   "workflows/build-and-deploy/cluster-deployments"
                 ]
               },
-              "workflows/caches",
-              "workflows/progress",
               {
-                "group": "Observability",
+                "group": "Run and Inspect",
                 "icon": "eye",
                 "pages": [
-                  "workflows/observability/introduction",
-                  "workflows/observability/tracing",
-                  "workflows/observability/logging",
-                  "workflows/observability/query",
+                  "workflows/run-and-inspect/introduction",
+                  "workflows/run-and-inspect/logging",
+                  "workflows/run-and-inspect/tracing",
+                  "workflows/run-and-inspect/query-telemetry",
+                  "workflows/run-and-inspect/caches",
+                  "workflows/run-and-inspect/progress",
                   {
                     "group": "Integrations",
                     "icon": "plug",
                     "pages": [
-                      "workflows/observability/integrations/open-telemetry",
-                      "workflows/observability/integrations/axiom"
+                      "workflows/run-and-inspect/integrations/open-telemetry",
+                      "workflows/run-and-inspect/integrations/axiom"
                     ]
                   }
                 ]
               },
               {
-                "group": "Near-Real Time",
+                "group": "Automations",
                 "icon": "bolt",
                 "pages": [
-                  "workflows/near-real-time/automations",
-                  "workflows/near-real-time/cron",
-                  "workflows/near-real-time/storage-events"
+                  "workflows/automations/automations",
+                  "workflows/automations/cron",
+                  "workflows/automations/storage-events"
                 ]
               }
             ]
@@ -144,19 +139,41 @@
         "tab": "User Guides",
         "groups": [
           {
+            "group": "Tilebox Guides",
+            "pages": [
+              "guides/cookbook"
+            ]
+          },
+          {
             "group": "Datasets",
             "pages": [
               "guides/datasets/access-sentinel2-data",
+              "guides/datasets/query-satellite-data",
               "guides/datasets/create",
               "guides/datasets/ingest",
-              "guides/datasets/ingest-format"
+              "guides/datasets/ingest-format",
+              "guides/datasets/build-spatiotemporal-catalog"
             ]
           },
           {
             "group": "Workflows",
             "pages": [
+              "guides/workflows/run-your-first-workflow",
+              "guides/workflows/build-and-deploy-workflow",
+              "guides/workflows/deploy-to-your-compute",
+              "guides/workflows/debug-failed-run",
+              "guides/workflows/retry-with-compatible-release",
               "guides/workflows/agentic-workflow-iteration",
               "guides/workflows/multi-language"
+            ]
+          },
+          {
+            "group": "Operations",
+            "pages": [
+              "guides/operations/monitor-workflow-runs",
+              "guides/operations/query-logs-and-spans",
+              "guides/operations/configure-cron-automations",
+              "guides/operations/configure-storage-event-automations"
             ]
           }
         ]

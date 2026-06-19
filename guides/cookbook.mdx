@@ -1,0 +1,266 @@
+---
+title: Tilebox Cookbook
+sidebarTitle: Cookbook
+description: Task-focused Tilebox guides for datasets, workflows, and operations.
+icon: book-open
+mode: custom
+---
+
+export const cookbookSections = [
+  {
+    category: "Datasets",
+    description: "Find, model, ingest, and query geospatial metadata with Tilebox Datasets.",
+    guides: [
+      {
+        title: "Access Sentinel-2 data",
+        href: "/guides/datasets/access-sentinel2-data",
+        description: "Query Sentinel-2 metadata by area and time range.",
+        icon: "satellite",
+        level: "Beginner",
+        time: "5 min",
+        tags: ["Open data", "Sentinel-2", "Spatial filters", "Python SDK"],
+      },
+      {
+        title: "Query satellite data by time and location",
+        href: "/guides/datasets/query-satellite-data",
+        description: "Narrow open data catalogs before downloading product files.",
+        icon: "magnifying-glass-location",
+        level: "Beginner",
+        time: "5 min",
+        tags: ["Open data", "Temporal filters", "Spatial filters", "Storage clients"],
+      },
+      {
+        title: "Creating a dataset",
+        href: "/guides/datasets/create",
+        description: "Create a custom dataset and define its schema in the Console.",
+        icon: "database",
+        level: "Beginner",
+        time: "5 min",
+        tags: ["Datasets", "Dataset schemas", "Console", "Timeseries datasets"],
+      },
+      {
+        title: "Ingesting data",
+        href: "/guides/datasets/ingest",
+        description: "Ingest GeoParquet data into a Tilebox timeseries dataset.",
+        icon: "up-from-bracket",
+        level: "Beginner",
+        time: "15 min",
+        tags: ["Ingestion", "Timeseries datasets", "GeoParquet", "Python SDK"],
+      },
+      {
+        title: "Ingesting from common file formats",
+        href: "/guides/datasets/ingest-format",
+        description: "Load tabular and geospatial files before ingesting them into Tilebox.",
+        icon: "file-binary",
+        level: "Intermediate",
+        time: "20 min",
+        tags: ["Ingestion", "DataFrames", "xarray", "File formats"],
+      },
+      {
+        title: "Build a spatio-temporal catalog",
+        href: "/guides/datasets/build-spatiotemporal-catalog",
+        description: "Create a geospatial catalog that can be queried by time and geometry.",
+        icon: "globe",
+        level: "Intermediate",
+        time: "15 min",
+        tags: ["Spatio-temporal datasets", "Geometry", "Ingestion", "Catalogs"],
+      },
+    ],
+  },
+  {
+    category: "Workflows",
+    description: "Create workflow tasks, run jobs, publish releases, and deploy code to your own compute.",
+    guides: [
+      {
+        title: "Run your first workflow",
+        href: "/guides/workflows/run-your-first-workflow",
+        description: "Define a small task, start a direct runner, submit a job, and inspect the result.",
+        icon: "play",
+        level: "Beginner",
+        time: "10 min",
+        tags: ["Tasks", "Jobs", "Direct runners", "Python SDK"],
+      },
+      {
+        title: "Build and deploy a workflow project",
+        href: "/guides/workflows/build-and-deploy-workflow",
+        description: "Package a Python workflow release and deploy it to a development cluster.",
+        icon: "rocket",
+        level: "Beginner",
+        time: "15 min",
+        tags: ["Workflow releases", "Cluster deployments", "Release runners", "CLI"],
+      },
+      {
+        title: "Deploy to your compute",
+        href: "/guides/workflows/deploy-to-your-compute",
+        description: "Run workflow releases on local, cloud, or on-premises compute you control.",
+        icon: "server",
+        level: "Intermediate",
+        time: "10 min",
+        tags: ["Clusters", "Release runners", "Compute", "Deployments"],
+      },
+      {
+        title: "Debug a failed workflow run",
+        href: "/guides/workflows/debug-failed-run",
+        description: "Inspect task state, logs, traces, runner context, and cluster alignment.",
+        icon: "bug",
+        level: "Beginner",
+        time: "10 min",
+        tags: ["Jobs", "Logs", "Traces", "Runners"],
+      },
+      {
+        title: "Retry a failed job after a compatible fix",
+        href: "/guides/workflows/retry-with-compatible-release",
+        description: "Publish a compatible fix and retry failed work without rerunning completed tasks.",
+        icon: "rotate",
+        level: "Intermediate",
+        time: "10 min",
+        tags: ["Workflow releases", "Retries", "Task identifiers", "Clusters"],
+      },
+      {
+        title: "Iterate on Workflow Releases with Agents",
+        href: "/guides/workflows/agentic-workflow-iteration",
+        description: "Use a coding agent to edit, publish, deploy, run, and debug workflow releases.",
+        icon: "robot",
+        level: "Intermediate",
+        time: "20 min",
+        tags: ["Agents", "Workflow releases", "Clusters", "Observability"],
+      },
+      {
+        title: "Multi-language Workflows",
+        href: "/guides/workflows/multi-language",
+        description: "Combine Python and Go tasks in one workflow when each step needs different tools.",
+        icon: "diagram-project",
+        level: "Intermediate",
+        time: "20 min",
+        tags: ["Python SDK", "Go SDK", "Tasks", "Interoperability"],
+      },
+    ],
+  },
+  {
+    category: "Operations",
+    description: "Monitor jobs, query telemetry, and configure automations for recurring or event-driven workflow runs.",
+    guides: [
+      {
+        title: "Monitor workflow runs",
+        href: "/guides/operations/monitor-workflow-runs",
+        description: "Use the Console, CLI, and SDKs to monitor workflow execution.",
+        icon: "eye",
+        level: "Beginner",
+        time: "5 min",
+        tags: ["Console", "CLI", "Jobs", "Observability"],
+      },
+      {
+        title: "Query logs and spans",
+        href: "/guides/operations/query-logs-and-spans",
+        description: "Query workflow telemetry from the CLI or SDKs for diagnostics and reports.",
+        icon: "magnifying-glass-chart",
+        level: "Beginner",
+        time: "8 min",
+        tags: ["Logs", "Spans", "Telemetry", "SDKs"],
+      },
+      {
+        title: "Configure cron automations",
+        href: "/guides/operations/configure-cron-automations",
+        description: "Register an automation that submits workflow jobs on a schedule.",
+        icon: "clock",
+        level: "Beginner",
+        time: "8 min",
+        tags: ["Automations", "Cron", "Runners", "Tasks"],
+      },
+      {
+        title: "Configure storage-event automations",
+        href: "/guides/operations/configure-storage-event-automations",
+        description: "Trigger workflow jobs when files are created or modified in a storage location.",
+        icon: "right-to-line",
+        level: "Intermediate",
+        time: "10 min",
+        tags: ["Automations", "Storage locations", "Storage events", "Runners"],
+      },
+    ],
+  },
+];
+
+export const GuideCard = ({ guide }) => (
+  <a
+    href={guide.href}
+    className="group flex h-full flex-col border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 transition hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-sm"
+  >
+    <div className="flex items-start justify-between gap-4">
+      <div className="flex h-10 w-10 items-center justify-center border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-primary dark:text-primary-light">
+        <Icon icon={guide.icon} />
+      </div>
+      <div className="flex flex-wrap justify-end gap-2 text-xs font-medium">
+        <span className="border border-gray-200 dark:border-gray-800 px-2 py-1 text-gray-600 dark:text-gray-400">
+          {guide.level}
+        </span>
+        <span className="border border-gray-200 dark:border-gray-800 px-2 py-1 text-gray-600 dark:text-gray-400">
+          {guide.time}
+        </span>
+      </div>
+    </div>
+    <h3 className="mt-5 text-lg font-semibold tracking-tight text-gray-950 dark:text-white group-hover:text-primary dark:group-hover:text-primary-light">
+      {guide.title}
+    </h3>
+    <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
+      {guide.description}
+    </p>
+    <div className="mt-5 flex flex-wrap gap-2">
+      {guide.tags.map((tag) => (
+        <span key={tag} className="bg-gray-100 dark:bg-gray-900 px-2 py-1 text-xs text-gray-600 dark:text-gray-400">
+          {tag}
+        </span>
+      ))}
+    </div>
+  </a>
+);
+
+export const GuideSection = ({ section }) => (
+  <section className="mt-16">
+    <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p className="text-sm font-semibold uppercase tracking-wide text-primary dark:text-primary-light">
+          {section.category}
+        </p>
+      </div>
+      <p className="max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400">
+        {section.description}
+      </p>
+    </div>
+    <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {section.guides.map((guide) => (
+        <GuideCard key={guide.href} guide={guide} />
+      ))}
+    </div>
+  </section>
+);
+
+<div className="px-6 py-16 lg:py-24">
+  <div className="mx-auto max-w-6xl">
+    <p className="text-sm font-semibold uppercase tracking-wide text-primary dark:text-primary-light">
+      User guides
+    </p>
+    <h1 className="mt-4 text-4xl font-semibold tracking-tight text-gray-950 dark:text-white lg:text-6xl">
+      Tilebox Cookbook
+    </h1>
+    <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600 dark:text-gray-400">
+      Recipes for going from question to running system: query satellite catalogs, ingest your own data, ship workflows, and debug what happened.
+    </p>
+    <div className="mt-8 grid gap-3 sm:grid-cols-3">
+      {cookbookSections.map((section) => (
+        <a
+          key={section.category}
+          href={`#${section.category.toLowerCase()}`}
+          className="border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 p-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-950 dark:hover:text-white"
+        >
+          {section.category} · {section.guides.length} guides
+        </a>
+      ))}
+    </div>
+
+    {cookbookSections.map((section) => (
+      <div id={section.category.toLowerCase()} key={section.category}>
+        <GuideSection section={section} />
+      </div>
+    ))}
+  </div>
+</div>

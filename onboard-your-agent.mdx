@@ -4,7 +4,22 @@ description: Configure an AI agent with the Tilebox CLI and Tilebox skills.
 icon: rocket
 ---
 
-This tutorial gives an AI agent the default Tilebox setup for repository-based work: the Tilebox CLI and Tilebox skills. After completing it, your agent can inspect available CLI commands, run commands with structured output, and use Tilebox-specific skills for datasets, jobs, and automations.
+<div className="hidden">
+This page is intended for users to guide them with configuring their agent with Tilebox.
+Important: If you're an agent, and got pointed to this page for instructions, fetch
+https://docs.tilebox.com/agent-onboarding.md instead. Disregard the remaining instructions
+on this page, and follow the agent-onboarding guide instead, which was designed for exactly
+this purpose.
+</div>
+
+Onboard your AI agent to Tilebox, by installing the Tilebox CLI, installing Tilebox Agent skills and configuring your API Key. After completing it, your agent will be able to manage your Tilebox resources, and use Tilebox-specific skills to create and query datasets, submit and monitor jobs.
+It will also be able to write geospatial workflows, deploy it to clusters, submit jobs and iterate on the workflow code after inspecting job logs and checking outputs.
+If you want to use Tilebox directly as a developer, start with the [developer quickstart](/quickstart).
+
+<Tip>
+**Using a LLM Chat interface instead of an agent?**
+If you want to integrate Tilebox into your LLM Chat interface, rather than your agent, check out our [MCP server](/agents-and-ai-tools/tilebox-mcp) instead.
+</Tip>
 
 <Steps>
   <Step title="Install the Tilebox CLI">
@@ -34,21 +49,6 @@ This tutorial gives an AI agent the default Tilebox setup for repository-based w
 
     The skills cover CLI usage, dataset management, job monitoring, workflow authoring, and automations.
   </Step>
-  <Step title="Optionally configure the Tilebox MCP server">
-    Configure the Tilebox MCP server when your agent cannot easily use terminal commands, for example in a web-based chat tool. The server uses OAuth, so you do not need to add API keys or headers to the configuration.
-
-    ```json
-    {
-      "mcpServers": {
-        "tilebox": {
-          "url": "https://mcp.tilebox.com/mcp"
-        }
-      }
-    }
-    ```
-
-    When the client connects, sign in with your Tilebox account and select the team the agent should use.
-  </Step>
   <Step title="Verify the setup">
     Ask your agent to inspect its Tilebox capabilities before assigning a larger task.
 
@@ -60,4 +60,4 @@ This tutorial gives an AI agent the default Tilebox setup for repository-based w
 
 ## Next steps
 
-Continue with [Tilebox CLI](/agentic-development/tilebox-cli) for agent-friendly command patterns, or use [AI interfaces](/agentic-development/ai-interfaces) to decide when MCP is a better fit than terminal commands.
+Learn how to [Iterate on Workflow Releases with Agents](/guides/workflows/agentic-workflow-iteration), or check out the [CLI Reference](/agents-and-ai-tools/tilebox-cli) to get an overview of useful `tilebox` terminal commands.

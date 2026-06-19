@@ -1,0 +1,89 @@
+---
+title: Run your first workflow
+description: Define a small workflow task, start a direct runner, submit a job, and inspect the result.
+icon: play
+---
+
+This guide runs a minimal workflow with a direct runner. It gives you the fastest path to the Tilebox Workflows execution model before publishing workflow releases or deploying to a cluster.
+
+Use this path when you are developing locally as a developer. If you want an agent to do the setup and iteration for you, start with [Onboard your agent](/onboard-your-agent) and then follow [Iterate on workflow releases with agents](/guides/workflows/agentic-workflow-iteration).
+
+## Prerequisites
+
+- You have a [Tilebox API key](/authentication).
+- You have installed the [Python SDK](/sdks/python/install).
+
+```bash
+uv add tilebox
+export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"
+```
+
+## Create a workflow file
+
+Create a file named `hello_workflow.py`.
+
+```python hello_workflow.py
+from tilebox.workflows import Client, ExecutionContext, Runner, Task
+
+
+class HelloWorkflow(Task):
+    name: str
+
+    def execute(self, context: ExecutionContext) -> None:
+        context.logger.info("Running root task", name=self.name)
+        context.submit_subtask(WriteGreeting(name=self.name))
+
+
+class WriteGreeting(Task):
+    name: str
+
+    def execute(self, context: ExecutionContext) -> None:
+        context.logger.info("Hello from Tilebox", name=self.name)
+
+
+if __name__ == "__main__":
+    client = Client()
+    runner = Runner(tasks=[HelloWorkflow, WriteGreeting])
+
+    job = client.jobs().submit(
+        "hello-workflow",
+        HelloWorkflow(name="Earth"),
+    )
+    print(f"Submitted job: {job.id}")
+
+    runner.connect_to(client).run_all()
+```
+
+The root task submits one subtask. Tilebox tracks both tasks as part of the same job, and the direct runner executes all eligible work.
+
+## Run the workflow
+
+Run the file locally.
+
+```bash
+uv run python hello_workflow.py
+```
+
+The script submits a job, starts a direct runner, executes the root task and subtask, and exits after the queued work is complete.
+
+## Inspect the job
+
+Open the job in the [Tilebox Console](https://console.tilebox.com/workflows/jobs) to inspect task state, logs, and the execution trace.
+
+For scripted inspection, use the jobs client or the Tilebox command-line tool:
+
+```bash
+tilebox job logs <job-id> --json
+tilebox job spans <job-id> --json
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Tasks" icon="laptop-code" href="/workflows/concepts/tasks" horizontal>
+    Define task inputs, subtasks, dependencies, retries, and identifiers.
+  </Card>
+  <Card title="Build and deploy a workflow" icon="rocket" href="/guides/workflows/build-and-deploy-workflow" horizontal>
+    Package the same kind of workflow code as a release and deploy it to a cluster.
+  </Card>
+</Columns>

@@ -1,7 +1,6 @@
 ---
-title: Workflow observability
-sidebarTitle: Overview
-description: Inspect workflow logs, traces, task status, and runner behavior.
+title: Inspect workflow runs
+description: Inspect workflow logs, traces, task status, and runner behavior while jobs execute.
 icon: lightbulb
 ---
 
@@ -18,25 +17,25 @@ Use the built-in view for day-to-day debugging and operations. Add structured lo
   <Card
     title="Logging"
     icon="rectangle-terminal"
-    href="/workflows/observability/logging"
+    href="/workflows/run-and-inspect/logging"
     horizontal
   />
   <Card
     title="Tracing"
     icon="chart-gantt"
-    href="/workflows/observability/tracing"
+    href="/workflows/run-and-inspect/tracing"
     horizontal
   />
   <Card
     title="Query telemetry"
     icon="magnifying-glass-chart"
-    href="/workflows/observability/query"
+    href="/workflows/run-and-inspect/query-telemetry"
     horizontal
   />
   <Card
     title="Integrations"
     icon="plug"
-    href="/workflows/observability/integrations/open-telemetry"
+    href="/workflows/run-and-inspect/integrations/open-telemetry"
     horizontal
   />
 </Columns>
@@ -137,4 +136,4 @@ The parent task, spawned subtasks, task logs, and spans share the same job trace
 
 ## Integrate with external observability platforms
 
-If your team uses another observability platform, configure [OpenTelemetry](/workflows/observability/integrations/open-telemetry) or [Axiom](/workflows/observability/integrations/axiom) export in the runner process. Tilebox keeps the workflow state, while your platform receives the same logs and traces for alerting, long-term storage, or analysis.
+If your team uses another observability platform, configure [OpenTelemetry](/workflows/run-and-inspect/integrations/open-telemetry) or [Axiom](/workflows/run-and-inspect/integrations/axiom) export in the runner process. Tilebox keeps the workflow state, while your platform receives the same logs and traces for alerting, long-term storage, or analysis.

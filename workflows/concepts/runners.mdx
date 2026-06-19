@@ -27,7 +27,7 @@ The two modes differ in how the runner gets its task registrations and how you r
 |  | Release runner | Direct runner |
 | --- | --- | --- |
 | Executable tasks | Loaded from workflow releases deployed to the runner's cluster | Registered directly in your script, service, or binary |
-| Runtime | [Tilebox CLI](/agentic-development/tilebox-cli.mdx) invokes the Python workflow project runtime from the release artifact | Your python script or Go binary, implemented with the Tilebox SDK |
+| Runtime | [Tilebox CLI](/agents-and-ai-tools/tilebox-cli.mdx) invokes the Python workflow project runtime from the release artifact | Your python script or Go binary, implemented with the Tilebox SDK |
 | Start command | `tilebox runner start --cluster <cluster-slug>` | `python runner.py`, `./my-runner-binary`, or your own deployment |
 | rollout model | You publish releases and deploy them to clusters, the runner automatically picks up deployment changes | You deploy, restart, scale, and roll back the runner process yourself |
 | Best for | Reproducible releases, fast cluster deployments, and AI-assisted workflow iteration | Custom deployments, Go runners, and direct SDK control |
@@ -113,7 +113,7 @@ Release runners advertise the task identifiers from workflow releases currently 
 
 Start multiple runner processes to execute tasks in parallel. Each runner process claims and executes tasks independently. You can run several release runners, several direct runners, or a mix of both in the same cluster. This allows for high parallelism and can be used to scale the execution of tasks to handle large workloads.
 
-To test this, run multiple instances of the runner script in different terminal windows on your local machine, or use the [CLI](/agentic-development/tilebox-cli) built-in `parallel` subcommand to start multiple runners in parallel.
+To test this, run multiple instances of the runner script in different terminal windows on your local machine, or use the [CLI](/agents-and-ai-tools/tilebox-cli) built-in `parallel` subcommand to start multiple runners in parallel.
 
 ```bash
 # start multiple release runners in parallel
@@ -354,4 +354,4 @@ This mechanism ensures that scenarios such as power outages, hardware failures, 
 
 ## Observability
 
-Tilebox captures logs, spans, task states, and runner context from both runner modes. Use [Workflow observability](/workflows/observability/introduction) to inspect job execution, task failures, and runner behavior.
+Tilebox captures logs, spans, task states, and runner context from both runner modes. Use [Workflow observability](/workflows/run-and-inspect/introduction) to inspect job execution, task failures, and runner behavior.

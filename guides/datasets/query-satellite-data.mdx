@@ -1,0 +1,88 @@
+---
+title: Query satellite data by time and location
+description: Find satellite metadata in a Tilebox open data catalog by combining temporal and spatial filters.
+icon: satellite
+---
+
+Use this guide when you know the area and time range you care about and want to find matching satellite products before downloading any files.
+
+Tilebox Datasets stores searchable metadata for open data catalogs. Querying metadata first lets you narrow a large catalog to the scenes that match your workflow, notebook, or agent task.
+
+## Prerequisites
+
+- You have a [Tilebox API key](/authentication).
+- You have installed the [Python SDK](/sdks/python/install).
+
+```bash
+uv add tilebox shapely
+```
+
+## Define the search area
+
+Create a polygon for the area you want to inspect. This example uses a bounding box around Colorado.
+
+```python Python
+from shapely import Polygon
+
+area = Polygon(
+    [
+        (-109.05, 37.0),
+        (-102.05, 37.0),
+        (-102.05, 41.0),
+        (-109.05, 41.0),
+        (-109.05, 37.0),
+    ]
+)
+```
+
+## Query Sentinel-2 metadata
+
+Select the Sentinel-2 MSI open data catalog and query a collection by time and location.
+
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+sentinel2 = client.dataset("open_data.copernicus.sentinel2_msi")
+collection = sentinel2.collection("S2A_S2MSI2A")
+
+scenes = collection.query(
+    temporal_extent=("2025-10-01", "2025-11-01"),
+    spatial_extent=area,
+    show_progress=True,
+)
+
+print(scenes[["granule_name", "processing_level", "product_type"]])
+```
+
+The result is an `xarray.Dataset` containing scene metadata. Use it to inspect candidate scenes, filter by metadata fields, or pass selected datapoints to a storage client.
+
+## Download matching products
+
+Metadata queries do not download product files. Use a [storage client](/datasets/storage/clients) when you want to read or download the files referenced by a datapoint.
+
+```python Python
+from pathlib import Path
+from tilebox.storage import CopernicusStorageClient
+
+storage = CopernicusStorageClient(
+    cache_directory=Path("./data"),
+    s3_access_key_id="YOUR_COPERNICUS_ACCESS_KEY",
+    s3_secret_access_key="YOUR_COPERNICUS_SECRET_KEY",
+)
+
+first_scene = scenes.isel(time=0)
+path = storage.download(first_scene)
+print(path)
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Access Sentinel-2 data" icon="database" href="/guides/datasets/access-sentinel2-data" horizontal>
+    Follow a longer Sentinel-2 example with output inspection.
+  </Card>
+  <Card title="Storage clients" icon="hard-drive" href="/datasets/storage/clients" horizontal>
+    Configure provider-specific clients for product access.
+  </Card>
+</Columns>

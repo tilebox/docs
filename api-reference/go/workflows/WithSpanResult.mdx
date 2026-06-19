@@ -12,7 +12,7 @@ func WithSpanResult[Result any](
 ) (Result, error)
 ```
 
-Wrap a function with a [tracing span](/workflows/observability/tracing) using the current runner's tracer and return the function result.
+Wrap a function with a [tracing span](/workflows/run-and-inspect/tracing) using the current runner's tracer and return the function result.
 
 Use `WithSpanResult` inside a task `Execute` method. If the context is not a task execution context, the function runs without creating a span.
 

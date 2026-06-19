@@ -9,6 +9,12 @@ mode: custom
 
 export const HomeSearch = () => {
   const openSearch = () => {
+    const searchButton = document.querySelector("#search-bar-entry, #search-bar-entry-mobile");
+    if (searchButton instanceof HTMLButtonElement) {
+      searchButton.click();
+      return;
+    }
+
     const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
     const event = new KeyboardEvent("keydown", {
         key: "k",
@@ -197,7 +203,7 @@ export const HomeSearch = () => {
               <Icon icon="book" />
               Create and deploy workflows
             </a>
-            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/agentic-development/tilebox-mcp">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/agents-and-ai-tools/tilebox-mcp">
               <Icon icon="plug" />
               Connect with MCP
             </a>
@@ -255,7 +261,7 @@ export const HomeSearch = () => {
           <img src="/assets/console/datasets-explorer-light.png" alt="Tilebox dataset explorer" className="block dark:hidden" />
           <img src="/assets/console/datasets-explorer-dark.png" alt="Tilebox dataset explorer" className="hidden dark:block" />
         </Tile>
-        <Tile href="/workflows/observability/introduction" title="Inspect workflow runs" description="Use logs, traces, progress, and job state to debug workflows and verify results.">
+        <Tile href="/workflows/run-and-inspect/introduction" title="Inspect workflow runs" description="Use logs, traces, progress, and job state to debug workflows and verify results.">
           <img src="/assets/workflows/observability/logs-light.png" alt="Workflow logs in Tilebox Console" className="block dark:hidden" />
           <img src="/assets/workflows/observability/logs-dark.png" alt="Workflow logs in Tilebox Console" className="hidden dark:block" />
         </Tile>
@@ -269,7 +275,7 @@ export const HomeSearch = () => {
     <div className="mt-8">
       <Columns cols={3}>
         <Card title="Run a workflow" icon="diagram-project" href="/workflows/introduction" horizontal />
-        <Card title="Connect storage" icon="folder-open" href="/storage/clients" horizontal />
+        <Card title="Connect storage" icon="folder-open" href="/datasets/storage/clients" horizontal />
         <Card title="Ingest data" icon="database" href="/guides/datasets/ingest" horizontal />
         <Card title="Sample notebooks" icon="book-open" href="/sdks/python/sample-notebooks" horizontal />
         <Card title="Spatio-temporal datasets" icon="globe" href="/datasets/types/spatiotemporal" horizontal />

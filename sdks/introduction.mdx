@@ -7,7 +7,9 @@ icon: book-open
 
 import { HeroCard } from '/snippets/components.mdx';
 
-The following language SDKs are currently available for Tilebox. Select one to learn more.
+Use Tilebox SDKs when you want Tilebox in notebooks, scripts, services, or workflow task code. The SDKs expose datasets, storage access, workflow jobs, runners, observability queries, and automation APIs from regular app code.
+
+If you are setting up a coding agent, start with [Onboard your agent](/onboard-your-agent). Agents use the [Tilebox CLI](/agents-and-ai-tools/tilebox-cli) first, then inspect SDK examples or API reference pages when they need to edit code.
 
 <Columns cols={3}>
   <HeroCard
@@ -24,4 +26,21 @@ The following language SDKs are currently available for Tilebox. Select one to l
   >
     <img src="/assets/tilebox-banner-go.svg" alt="Tilebox Go" />
   </HeroCard>
+</Columns>
+
+## Choose an SDK
+
+<Columns cols={2}>
+  <Card title="Python notebooks and data workflows" icon="python" href="/sdks/python/install" horizontal>
+    Use Python for notebooks, xarray-based dataset queries, data ingestion, and Python workflow task code.
+  </Card>
+  <Card title="Go services and typed integrations" icon="golang" href="/sdks/go/install" horizontal>
+    Use Go for backend services, typed dataset access, workflow task submission, and long-running runners.
+  </Card>
+  <Card title="Sample notebooks" icon="book" href="/sdks/python/sample-notebooks" horizontal>
+    Start from working Python notebooks for common Tilebox dataset workflows.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/python/tilebox.datasets/Client" horizontal>
+    Look up method signatures and parameter details for Python and Go clients.
+  </Card>
 </Columns>

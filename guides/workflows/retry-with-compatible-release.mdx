@@ -1,0 +1,69 @@
+---
+title: Retry a failed job after a compatible fix
+description: Publish a fixed workflow release, deploy it to the same cluster, and retry failed work without resubmitting the whole job.
+icon: rotate
+---
+
+When a workflow job fails because of a bug in task code, you can often fix the code, publish a compatible release, deploy it to the same cluster, and retry the failed job. Tilebox resumes from failed tasks instead of rerunning completed work.
+
+## Confirm the fix is compatible
+
+A retry can use the fixed release when the failed task and the new task registration are compatible.
+
+Keep these stable:
+
+- task identifier name
+- task major version
+- task input schema
+
+Use a new major task version and submit a new job when the input schema or behavior is no longer compatible with the failed task.
+
+## Publish the fixed release
+
+After editing the workflow code, publish a new release.
+
+```bash
+RELEASE_ID=$(tilebox workflow publish-release --json | jq -r '.id')
+```
+
+For validation details, build locally first.
+
+```bash
+tilebox workflow build-release --debug --json
+```
+
+## Deploy to the same cluster
+
+Deploy the fixed release to the same cluster that received the original job.
+
+```bash
+tilebox workflow deploy-release --release "$RELEASE_ID" --cluster workflow-dev --json
+```
+
+The job cluster, release deployment cluster, and release runner cluster must match.
+
+## Retry the job
+
+Retry the failed job.
+
+```bash
+tilebox job retry <job-id> --json
+```
+
+Then inspect logs and spans to confirm the fixed task completed.
+
+```bash
+tilebox job logs <job-id> --json
+tilebox job spans <job-id> --json
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Workflow releases" icon="box-open" href="/workflows/concepts/workflow-releases" horizontal>
+    Understand release compatibility and task registrations.
+  </Card>
+  <Card title="Debug a failed workflow run" icon="bug" href="/guides/workflows/debug-failed-run" horizontal>
+    Inspect task state, logs, traces, and runner context.
+  </Card>
+</Columns>
