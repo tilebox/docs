@@ -68,7 +68,7 @@ data = gpd.read_parquet("modis_MCD12Q1.geoparquet")
 </CodeGroup>
 
 <Tip>
-    For a step-by-step guide of ingesting a GeoParquet file, check out our [Ingesting data](/guides/datasets/ingest) guide.
+    For a step-by-step guide to ingesting a GeoParquet file, see [Ingest into a spatio-temporal catalog](/guides/datasets/ingest-into-spatiotemporal-catalog).
 </Tip>
 
 ### Feather
@@ -135,4 +135,3 @@ collection = dataset.get_or_create_collection("Measurements")
 collection.ingest(data)
 ```
 </CodeGroup>
-

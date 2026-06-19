@@ -1,0 +1,172 @@
+---
+title: Execute tasks in parallel
+description: Submit multiple workflow subtasks and process them faster by running multiple direct runners at the same time.
+icon: arrows-split-up-and-left
+---
+
+Use this guide when a workflow can split work into independent tasks. You will create a small workflow that submits 20 sleep subtasks, submit one job, run it with one direct runner, and then run the same workflow with five direct runners in parallel.
+
+The example is intentionally simple. `time.sleep` stands in for real work such as downloading scenes, processing tiles, calling a model, or writing output files.
+
+## Prerequisites
+
+- You have a [Tilebox API key](/authentication).
+- You have installed [`uv`](https://docs.astral.sh/uv/).
+- You have installed the [Tilebox command-line tool](/agents-and-ai-tools/tilebox-cli) if you want to use `tilebox parallel`.
+
+```bash
+export TILEBOX_API_KEY="YOUR_TILEBOX_API_KEY"
+```
+
+## Create the workflow file
+
+Create a file named `parallel_workflow.py`. The script uses inline `uv` dependencies, so you can run it directly with `uv run parallel_workflow.py`.
+
+```python parallel_workflow.py
+# /// script
+# dependencies = ["cyclopts", "tilebox"]
+# ///
+
+import time
+
+from cyclopts import App
+from tilebox.workflows import Client, ExecutionContext, Runner, Task
+
+
+app = App()
+
+
+class ParallelSleepWorkflow(Task):
+    count: int
+    seconds: float
+
+    def execute(self, context: ExecutionContext) -> None:
+        context.logger.info(
+            "Submitting sleep subtasks",
+            count=self.count,
+            seconds=self.seconds,
+        )
+        context.submit_subtasks(
+            [
+                SleepTask(index=index, seconds=self.seconds)
+                for index in range(self.count)
+            ]
+        )
+
+
+class SleepTask(Task):
+    index: int
+    seconds: float
+
+    def execute(self, context: ExecutionContext) -> None:
+        context.current_task.display = f"SleepTask({self.index})"
+        context.logger.info("Starting sleep task", index=self.index)
+        time.sleep(self.seconds)
+        context.logger.info("Finished sleep task", index=self.index)
+
+
+runner = Runner(tasks=[ParallelSleepWorkflow, SleepTask])
+
+
+def submit_job(count: int, seconds: float) -> None:
+    client = Client()
+    job = client.jobs().submit(
+        "parallel-sleep-workflow",
+        ParallelSleepWorkflow(count=count, seconds=seconds),
+    )
+    print(f"Submitted job: {job.id}")
+    print(f"Open in Console: https://console.tilebox.com/workflows/jobs/{job.id}")
+
+
+def run_runner() -> None:
+    client = Client()
+    runner.connect_to(client).run_all()
+
+
+@app.default
+def main(submit: bool = False, count: int = 20, seconds: float = 5.0) -> None:
+    """Run a direct runner, or submit a new job with --submit."""
+    if submit:
+        submit_job(count=count, seconds=seconds)
+        return
+
+    run_runner()
+
+
+if __name__ == "__main__":
+    app()
+```
+
+The root task, `ParallelSleepWorkflow`, does not do the slow work itself. It submits many independent `SleepTask` subtasks. Tilebox tracks the tasks in one job and lets any eligible runner claim queued work.
+
+## Submit a job
+
+Submit one job with 20 subtasks. The script exits after submitting the job, so no work is executed yet.
+
+```bash
+uv run parallel_workflow.py --submit --count 20 --seconds 5
+```
+
+Copy the job ID from the output. You can inspect it in the Console while runners process the queue.
+
+```plaintext Output
+Submitted job: 019f2c8c-3df2-4ed0-9d8f-8a4f19c47a7c
+Open in Console: https://console.tilebox.com/workflows/jobs/
+```
+
+## Run one direct runner
+
+Start one direct runner from the same file.
+
+```bash
+uv run parallel_workflow.py
+```
+
+The runner executes tasks, but only one after the other, and exits when no more work is available. With one runner, the sleep subtasks don't run in parallel at all.
+
+## Run five direct runners
+
+Submit another job, then start five runner processes for the same workflow file.
+
+```bash
+uv run parallel_workflow.py --submit --count 20 --seconds 5
+tilebox parallel -n 5 -- uv run parallel_workflow.py
+```
+
+This starts five direct runners. Each process registers the same task classes and asks Tilebox for work. Tilebox assigns queued tasks across the available runners, so multiple `SleepTask` instances run at the same time.
+
+<Tip>
+  Takeaway: use `tilebox parallel -n 5 -- uv run parallel_workflow.py` to start five local direct runners for the same workflow file.
+</Tip>
+
+## What to expect
+
+The first runner to claim `ParallelSleepWorkflow` submits the subtasks. After that, all runners can claim compatible `SleepTask` tasks from the same job.
+
+In the Console, you should see:
+
+- one root task that submits the subtask fan-out
+- many `SleepTask(index)` tasks
+- multiple tasks running at overlapping times when five runners are active
+- logs from each task attached to the same job
+
+For command-line inspection, query logs or spans for the job:
+
+```bash
+tilebox job logs <job-id> --json
+tilebox job spans <job-id> --json
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Runners" icon="list-check" href="/workflows/concepts/runners" horizontal>
+    Learn how runners claim queued tasks and how direct runners differ from release runners.
+  </Card>
+  <Card title="Tasks" icon="laptop-code" href="/workflows/concepts/tasks" horizontal>
+    Learn how parent tasks submit subtasks, define dependencies, and report progress.
+  </Card>
+  <Card title="Debug a failed workflow run" icon="bug" href="/guides/workflows/debug-failed-run" horizontal>
+    Inspect task state, logs, traces, runner context, and cluster alignment.
+  </Card>
+</Columns>

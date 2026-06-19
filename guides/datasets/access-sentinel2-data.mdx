@@ -1,111 +1,145 @@
 ---
-title: Access Sentinel-2 data
-description: Query Sentinel-2 satellite imagery metadata from a Tilebox dataset, filtering results by geographic area and time range to find exactly the data you need.
+title: Access Copernicus data
+description: Download Copernicus Data Space products with the Tilebox Copernicus storage client, using Sentinel-2 as an example.
 icon: database
 ---
 
-This guide assume you already [signed up](https://console.tilebox.com/sign-up) for a Tilebox account (free) and [created an API key](https://console.tilebox.com/settings/api-keys).
+Use this guide when you already have a Copernicus datapoint from a Tilebox metadata query and want to access the product files behind it. The example uses Sentinel-2 Level-2A data, but the same storage client pattern applies to Copernicus products supported by Tilebox.
 
-## Install Tilebox package
+Tilebox indexes product metadata as datasets. Product files remain in the Copernicus Data Space Ecosystem, so file access uses the `CopernicusStorageClient` with Copernicus S3 credentials.
 
-<CodeGroup>
-```bash uv
-uv add tilebox
+## Prerequisites
+
+- You have a [Tilebox API key](/authentication).
+- You have installed the [Python SDK](/sdks/python/install).
+- You have a [Copernicus Data Space](https://dataspace.copernicus.eu/) account.
+- You have generated Copernicus [S3 credentials](https://eodata-s3keysmanager.dataspace.copernicus.eu/panel/s3-credentials).
+
+```bash
+uv add tilebox shapely
 ```
-```bash pip
-pip install tilebox
-```
-```bash poetry
-poetry add tilebox="*"
-```
-```bash pipenv
-pipenv install tilebox
-```
-</CodeGroup>
 
-## Access Sentinel-2 metadata
+## Select a Sentinel-2 datapoint
 
-Query the Sentinel-2A satellite for level 2A data of October 2025 that cover the state of Colorado.
+Start with a small metadata query and select one datapoint to access. For a deeper guide to open data discovery and metadata filtering, see [Query open data metadata](/guides/datasets/query-satellite-data).
 
-<Note>
-  Replace `YOUR_TILEBOX_API_KEY` with your actual API key, or omit the `token` parameter entirely if the `TILEBOX_API_KEY` environment variable is set.
-</Note>
-
-<CodeGroup>
 ```python Python
-from shapely import MultiPolygon
+from shapely import Polygon
 from tilebox.datasets import Client
 
-area = MultiPolygon(
+area = Polygon(
     [
-        (((-109.05, 41.00), (-109.045, 37.0), (-102.05, 37.0), (-102.05, 41.00), (-109.05, 41.00)),),
+        (-109.05, 37.0),
+        (-102.05, 37.0),
+        (-102.05, 41.0),
+        (-109.05, 41.0),
+        (-109.05, 37.0),
     ]
 )
 
-client = Client(token="YOUR_TILEBOX_API_KEY")
+client = Client()
 collection = client.dataset("open_data.copernicus.sentinel2_msi").collection("S2A_S2MSI2A")
-data = collection.query(
+
+scenes = collection.query(
     temporal_extent=("2025-10-01", "2025-11-01"),
     spatial_extent=area,
     show_progress=True,
 )
-print(data)
+
+selected = scenes.where(scenes.cloud_cover < 10, drop=True).isel(time=0)
+print(selected.granule_name.item())
 ```
-</CodeGroup>
 
-<CodeGroup>
-```plaintext Output
-<xarray.Dataset> Size: 75kB
-Dimensions:                (time: 169)
-Coordinates:
-  * time                   (time) datetime64[ns] 1kB 2025-10-02T18:07:51.0240...
-Data variables: (12/23)
-    id                     (time) <U36 24kB '0199a61b-e8f0-4028-5db1-6ac962c0...
-    ingestion_time         (time) datetime64[ns] 1kB 2025-10-02T23:33:21.4100...
-    geometry               (time) object 1kB POLYGON ((-108.635792 40.626649,...
-    granule_name           (time) object 1kB 'S2A_MSIL2A_20251002T180751_N051...
-    processing_level       (time) uint8 169B 5 5 5 5 5 5 5 5 ... 5 5 5 5 5 5 5 5
-    product_type           (time) object 1kB 'S2MSI2A' 'S2MSI2A' ... 'S2MSI2A'
-    ...                     ...
-    thumbnail              (time) object 1kB 'https://catalogue.dataspace.cop...
-    cloud_cover            (time) float64 1kB 0.06321 0.01205 ... 55.23 35.51
-    resolution             (time) int64 1kB 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0
-    flight_direction       (time) uint8 169B 2 2 2 2 2 2 2 2 ... 2 2 2 2 2 2 2 2
-    acquisition_mode       (time) uint8 169B 20 20 20 20 20 ... 20 20 20 20 20
-    mission_take_id        (time) object 1kB 'GS2A_20251002T180751_053692_N05...
-```
-</CodeGroup>
+## Create the Copernicus storage client
 
-The output shows that the query returned 169 data points metadata. The metadata is returned as an `xarray.Dataset`.
+Create a `CopernicusStorageClient` with your Copernicus S3 credentials. The optional `cache_directory` controls where downloaded files are stored locally.
 
-Now you can check the metadata and decide which data points you want to download.
-
-## Download the data from Copernicus Data Space
-
-Tilebox stores and indexes metadata about datasets but doesn't store the data files.
-Sentinel-2 data is stored in the Copernicus Data Space Ecosystem (CDSE). If you never used the CDSE before, [create an account](https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/auth?client_id=cdse-public&response_type=code&scope=openid&redirect_uri=https%3A//dataspace.copernicus.eu/account/confirmed/1) and then generate [S3 credentials here](https://eodata-s3keysmanager.dataspace.copernicus.eu/panel/s3-credentials).
-
-<CodeGroup>
 ```python Python
+from pathlib import Path
+
 from tilebox.storage import CopernicusStorageClient
 
-storage_client = CopernicusStorageClient(
-    access_key="YOUR_ACCESS_KEY",
-    secret_access_key="YOUR_SECRET_ACCESS_KEY",
+storage = CopernicusStorageClient(
+    access_key="YOUR_COPERNICUS_ACCESS_KEY",
+    secret_access_key="YOUR_COPERNICUS_SECRET_ACCESS_KEY",
+    cache_directory=Path("./data"),
 )
-
-for _, datapoint in data.groupby("time"):
-    downloaded_data = storage_client.download(datapoint)
-    print(f"Downloaded data to {downloaded_data}")
 ```
-</CodeGroup>
 
-This code will download all 169 data points to a cache folder. Now you can work with the data, visualize it, and run your custom processor on it.
+<Note>
+  These credentials are Copernicus Data Space S3 credentials, not your Tilebox API key.
+</Note>
 
-## Next Steps
+## Download the complete product
+
+Use `download` when you need the complete Sentinel-2 product directory. The storage client resolves the product location from the Tilebox datapoint metadata and downloads the matching files into the local cache directory.
+
+```python Python
+product_path = storage.download(selected)
+
+print(f"Downloaded {product_path.name} to {product_path}")
+print("Contents:")
+for path in product_path.iterdir():
+    print(f"- {path.relative_to(product_path)}")
+```
+
+```plaintext Output
+Downloaded S2A_MSIL2A_20251002T180751_N0511_R084_T13TEE_20251002T225842.SAFE to data/Sentinel-2/MSI/L2A/2025/10/02/S2A_MSIL2A_20251002T180751_N0511_R084_T13TEE_20251002T225842.SAFE
+Contents:
+- manifest.safe
+- GRANULE
+- INSPIRE.xml
+- MTD_MSIL2A.xml
+- DATASTRIP
+- HTML
+- rep_info
+- S2A_MSIL2A_20251002T180751_N0511_R084_T13TEE_20251002T225842-ql.jpg
+```
+
+## Download selected product files
+
+Sentinel-2 products contain many files, including metadata, masks, quicklook images, and bands at different resolutions. Use `list_objects` and `download_objects` when you only need specific files.
+
+```python Python
+objects = storage.list_objects(selected)
+
+wanted_bands = ["B02_10m", "B03_10m", "B04_10m", "B08_10m"]
+band_objects = [
+    obj for obj in objects
+    if any(band in obj for band in wanted_bands)
+]
+
+for obj in band_objects:
+    print(obj)
+
+downloaded_files = storage.download_objects(selected, band_objects)
+print(downloaded_files)
+```
+
+Use this pattern when a workflow only needs a few bands or metadata files. It reduces transfer time and local storage compared with downloading the full `.SAFE` product.
+
+## Preview the product
+
+Many Copernicus products include a quicklook image. In a notebook, use `quicklook` to display the product preview without downloading the full product first.
+
+```python Python
+storage.quicklook(selected)
+```
+
+<Frame caption="Sentinel-2 quicklook image © ESA">
+  <img src="/assets/storage/s2_quicklook.jpg" alt="Sentinel-2 quicklook image" />
+</Frame>
+
+## Next steps
 
 <Columns cols={2}>
-  <Card title="Open Data" icon="star" href="https://console.tilebox.com/datasets/open-data" horizontal>
-     Check out available open data datasets on Tilebox
+  <Card title="Query open data metadata" icon="satellite" href="/guides/datasets/query-satellite-data" horizontal>
+    Find Copernicus products by time, location, and metadata fields.
+  </Card>
+  <Card title="Storage clients" icon="hard-drive" href="/datasets/storage/clients" horizontal>
+    Learn about the other Tilebox storage clients for open data products.
+  </Card>
+  <Card title="Access USGS Landsat data" icon="satellite-dish" href="/guides/datasets/access-usgs-landsat-data" horizontal>
+    Download Landsat product files with the USGS Landsat storage client.
   </Card>
 </Columns>
