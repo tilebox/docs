@@ -4,15 +4,12 @@ description: Schedule recurring workflow jobs using cron expressions so that tas
 icon: clock
 ---
 
-<Note>
-  This feature is only available in the Python SDK.
-</Note>
-
 ## Creating Cron tasks
 
 Cron tasks run repeatedly on a specified [cron](https://en.wikipedia.org/wiki/Cron) schedule.
-To create a Cron task, use `tilebox.workflows.automations.CronTask` as your tasks base class instead of the regular `tilebox.workflows.Task`.
+In Python, use `tilebox.workflows.automations.CronTask` as your task base class instead of the regular `tilebox.workflows.Task`. In Go, register an executable task with the same task identifier as the automation prototype.
 
+<CodeGroup>
 ```python Python
 from tilebox.workflows import ExecutionContext
 from tilebox.workflows.automations import CronTask
@@ -30,10 +27,21 @@ class MyCronTask(CronTask):
             trigger_time=self.trigger.time,
         )
 ```
+```go Go
+type MyCronTask struct {
+    Message string
+}
+
+func (t *MyCronTask) Execute(ctx context.Context) error {
+    slog.InfoContext(ctx, "Cron task triggered", slog.String("message", t.Message))
+    return nil
+}
+```
+</CodeGroup>
 
 ## Registering a Cron trigger
 
-After implementing a Cron task, register it to be triggered according to a Cron schedule.
+After implementing a Cron task, register it to be triggered according to a Cron schedule. The Python SDK provides a registration helper, and you can also register cron automations from the Tilebox Console.
 When the Cron expression matches, a new job is submitted consisting of a single task instance derived from the Cron task prototype.
 
 ```python Python
@@ -62,13 +70,34 @@ cron_automation = automations.create_cron_automation(
 With the Cron automation registered, a job is submitted whenever the Cron expression matches. But unless a [runner](/workflows/concepts/runners) is available to execute the Cron task the submitted jobs remain in a task queue.
 Once an [eligible runner](/workflows/concepts/runners#task-selection) becomes available, all jobs in the queue are executed.
 
+<CodeGroup>
 ```python Python
-from tilebox.workflows import Client
+from tilebox.workflows import Client, Runner
 
 client = Client()
-runner = client.runner(tasks=[MyCronTask])
-runner.run_all()
+runner = Runner(tasks=[MyCronTask])
+runner.connect_to(client).run_forever()
 ```
+```go Go
+ctx := context.Background()
+client := workflows.NewClient()
+
+runner, err := client.NewTaskRunner(ctx)
+if err != nil {
+    slog.ErrorContext(ctx, "failed to create task runner", slog.Any("error", err))
+    return
+}
+
+if err := runner.RegisterTasks(&MyCronTask{}); err != nil {
+    slog.ErrorContext(ctx, "failed to register tasks", slog.Any("error", err))
+    return
+}
+
+if err := runner.RunForever(ctx); err != nil {
+    slog.ErrorContext(ctx, "task runner stopped", slog.Any("error", err))
+}
+```
+</CodeGroup>
 
 If this runner runs continuously, its logs may resemble the following:
 
@@ -91,9 +120,44 @@ The [Tilebox Console](https://console.tilebox.com/workflows/automations) provide
 
 Use the console to view, edit, and delete the registered Cron automations.
 
+You can also inspect registered cron triggers from the SDKs.
+
+<CodeGroup>
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+automations = client.automations().all()
+
+for automation in automations:
+    for trigger in automation.cron_triggers:
+        print(automation.name, trigger.schedule)
+```
+```go Go
+ctx := context.Background()
+client := workflows.NewClient()
+
+automations, err := client.Automations.List(ctx)
+if err != nil {
+    slog.ErrorContext(ctx, "failed to list automations", slog.Any("error", err))
+    return
+}
+
+for _, automation := range automations {
+    for _, trigger := range automation.CronTriggers {
+        slog.InfoContext(ctx,
+            "cron trigger",
+            slog.String("automation", automation.Name),
+            slog.String("schedule", trigger.Schedule),
+        )
+    }
+}
+```
+</CodeGroup>
+
 ## Deleting Cron automations
 
-To delete a registered Cron automation, use `automations.delete`. After deletion, no new jobs will be submitted by that Cron trigger. Past jobs already triggered will still remain queued.
+To delete a registered Cron automation from Python, use `automations.delete`. You can also delete cron automations from the Tilebox Console. After deletion, no new jobs will be submitted by that Cron trigger. Past jobs already triggered will still remain queued.
 
 ```python Python
 from tilebox.workflows import Client
@@ -110,7 +174,7 @@ automations.delete("0190bafc-b3b8-88c4-008b-a5db044380d0")
 
 ## Submitting Cron jobs manually
 
-You can submit Cron tasks as regular tasks for testing purposes or as part of a larger workflow. To do so, instantiate the task with a specific trigger time using the `once` method.
+In Python, you can submit Cron tasks as regular tasks for testing purposes or as part of a larger workflow. To do so, instantiate the task with a specific trigger time using the `once` method.
 
 <Note>
     Submitting a job with a Cron task using `once` immediately schedules the task, and a runner may pick it up and execute it. The trigger time set in the `once` method does not influence the execution time; it only sets the `self.trigger.time` attribute for the Cron task.

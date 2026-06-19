@@ -1,0 +1,63 @@
+---
+title: Debug a failed workflow run
+description: Inspect task state, logs, traces, runner context, and cluster alignment when a workflow job fails or stays queued.
+icon: bug
+---
+
+Use this guide when a workflow job fails, runs slower than expected, or stays queued. Tilebox records job state, task state, logs, traces, and runner context so you can identify whether the problem is in task code, task routing, dependencies, or the runner environment.
+
+## Find the job
+
+Open the job in the [Tilebox Console](https://console.tilebox.com/workflows/jobs), or use the Tilebox command-line tool if you already have the job ID.
+
+```bash
+tilebox job logs <job-id> --json
+tilebox job spans <job-id> --json
+```
+
+## Check task state first
+
+Start with the task graph. A failed task often points to task code or runtime dependencies. A queued task often points to cluster, runner, or task registration mismatch.
+
+Common checks:
+
+- The job was submitted to the intended cluster.
+- A runner is connected to the same cluster.
+- The runner advertises the submitted task identifier and compatible version.
+- Any task dependencies are complete.
+- Retry limits have not been exhausted.
+
+## Inspect logs
+
+Logs show messages emitted by task code and runner context attached by Tilebox.
+
+```bash
+tilebox job logs <job-id> --json | jq '.[] | {time, level, body, attributes}'
+```
+
+Use structured log fields in your tasks so the relevant scene ID, product ID, path, or model name appears in the log record.
+
+## Inspect traces
+
+Traces show task timing, parent-child relationships, custom spans, and failures.
+
+```bash
+tilebox job spans <job-id> --json | jq '.[] | {name, status, duration}'
+```
+
+Use traces to find slow subtasks, repeated retries, and failures inside a specific custom span.
+
+## Fix and rerun
+
+For direct runners, fix the code and restart the runner process. For release runners, publish a fixed release and deploy it.
+
+If the fix is compatible with the failed task input schema and task major version, retry the job. If the change is breaking, submit a new job with a new task version.
+
+<Columns cols={2}>
+  <Card title="Retry with a compatible release" icon="rotate" href="/guides/workflows/retry-with-compatible-release" horizontal>
+    Publish a compatible fix, deploy it to the same cluster, and retry failed work.
+  </Card>
+  <Card title="Inspect workflow runs" icon="eye" href="/workflows/run-and-inspect/introduction" horizontal>
+    Learn how logs, traces, task status, and runner context fit together.
+  </Card>
+</Columns>

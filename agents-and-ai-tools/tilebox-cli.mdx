@@ -1,12 +1,12 @@
 ---
 title: Tilebox CLI
-description: Install, authenticate, and use the Tilebox CLI in AI-assisted development workflows.
+description: Install, authenticate, and use the Tilebox CLI for developer workflows, operations, and AI-assisted development.
 icon: terminal
 ---
 
-The Tilebox CLI is a command-line interface for humans, agents, and automation. It helps AI-assisted workflows by exposing Tilebox operations through explicit commands, supporting structured output, and letting agents inspect the command tree before taking action.
+The Tilebox CLI is a command-line interface for developers, operators, agents, and automation. Use it to inspect Tilebox resources, manage datasets and workflows, submit jobs, start release runners, and run operational commands from the shell.
 
-Use the CLI as the default Tilebox interface for coding agents that can run terminal commands. It keeps actions visible in the shell, works with existing development workflows, and pairs with Tilebox skills for multi-step tasks.
+The CLI is also the default Tilebox interface for coding agents that can run terminal commands. It keeps actions visible in the shell, supports structured output, and pairs with Tilebox skills for multi-step tasks.
 
 ## Install the CLI
 
@@ -69,4 +69,4 @@ The Tilebox skills include guidance for using the CLI in agent workflows. Instal
 npx skills add tilebox/skills
 ```
 
-After installing the skills, ask your agent to inspect `tilebox agent-context` and follow the relevant Tilebox skill before running commands that change resources. If your agent cannot use a terminal, configure the [Tilebox MCP server](/agentic-development/tilebox-mcp) instead.
+After installing the skills, ask your agent to inspect `tilebox agent-context` and follow the relevant Tilebox skill before running commands that change resources. If your agent cannot use a terminal, configure the [Tilebox MCP server](/agents-and-ai-tools/tilebox-mcp) instead.

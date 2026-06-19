@@ -170,7 +170,7 @@ task := &ParentTask{numSubtasks: 5}
 
 In this example, a `ParentTask` submits `ChildTask` tasks as subtasks. The number of subtasks to be submitted is based on the `num_subtasks` attribute of the `ParentTask`. The `submit_subtask` method takes an instance of a task as its argument, meaning the task to be submitted must be instantiated with concrete parameters first.
 
-Parent task do not have access to results of subtasks, instead, tasks can use [shared caching](/workflows/caches#storing-and-retrieving-data) to share data between tasks.
+Parent task do not have access to results of subtasks, instead, tasks can use [shared caching](/workflows/run-and-inspect/caches#storing-and-retrieving-data) to share data between tasks.
 
 <Info>
   By submitting a task as a subtask, its execution is scheduled as part of the same job as the parent task. Compared to just directly invoking the subtask's `execute` method, this allows the subtask's execution to occur on a different machine or in parallel with other subtasks. To learn more about how tasks are executed, see the section on [runners](/workflows/concepts/runners).
@@ -982,7 +982,7 @@ This workflow consists of four tasks:
 An important aspect is that there is no dependency between the `PrintHeadlines` and `MostFrequentAuthors` tasks. This means they can execute in parallel, which the Tilebox Workflow Orchestrator will do, provided multiple runners are available.
 
 <Tip>
-  In this example, the results from `FetchNews` are stored in a file. This is not the recommended method for passing data between tasks. When executing on a distributed cluster, the existence of a file written by a dependent task cannot be guaranteed. Instead, it's better to use a [shared cache](/workflows/caches).
+  In this example, the results from `FetchNews` are stored in a file. This is not the recommended method for passing data between tasks. When executing on a distributed cluster, the existence of a file written by a dependent task cannot be guaranteed. Instead, it's better to use a [shared cache](/workflows/run-and-inspect/caches).
 </Tip>
 
 ## Optional Tasks

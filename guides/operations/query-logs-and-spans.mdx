@@ -1,0 +1,56 @@
+---
+title: Query logs and spans
+description: Query workflow logs and spans from the CLI or SDKs for debugging, reports, and automated diagnostics.
+icon: magnifying-glass-chart
+---
+
+Tilebox stores workflow logs and spans for each job. Query them when you need structured diagnostics outside the Console, such as in notebooks, scripts, or agent loops.
+
+## Query from the command line
+
+Use JSON output when another tool or agent will parse the result.
+
+```bash
+tilebox job logs <job-id> --json
+tilebox job spans <job-id> --json
+```
+
+Use `jq` to narrow the output during debugging.
+
+```bash
+tilebox job logs <job-id> --json | jq '.[] | select(.level == "ERROR")'
+```
+
+## Query from Python
+
+Use the jobs client in notebooks and scripts.
+
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+job = client.jobs().find("019e07b1-916b-0630-f3ba-f1c33235d174")
+
+logs = client.jobs().query_logs(job)
+spans = client.jobs().query_spans(job.id)
+
+logs_df = logs.to_pandas()
+spans_df = spans.to_pandas()
+```
+
+## Use the detailed reference pages
+
+<Columns cols={2}>
+  <Card title="Query telemetry" icon="magnifying-glass-chart" href="/workflows/run-and-inspect/query-telemetry" horizontal>
+    Query logs and spans from Python and Go.
+  </Card>
+  <Card title="Logging" icon="rectangle-terminal" href="/workflows/run-and-inspect/logging" horizontal>
+    Emit structured logs from workflow tasks.
+  </Card>
+  <Card title="Tracing" icon="chart-gantt" href="/workflows/run-and-inspect/tracing" horizontal>
+    Add custom spans around important parts of task code.
+  </Card>
+  <Card title="Axiom integration" icon="plug" href="/workflows/run-and-inspect/integrations/axiom" horizontal>
+    Export workflow telemetry to Axiom.
+  </Card>
+</Columns>

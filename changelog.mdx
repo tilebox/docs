@@ -1,9 +1,50 @@
 ---
 title: Product Updates
-description: A chronological record of new features, improvements, and other notable changes shipped across the Tilebox platform. Updated regularly with each new release.
+description: New Tilebox features, product improvements, and workflow capabilities as they ship.
 icon: rss
 mode: center
 ---
+
+<Update label="June 2026">
+    <Frame>
+    <img src="/assets/changelog/2026-06-agentic-workflows-light.png" alt="Closed workflow iteration loop from deploy to run to observe to fix" className="dark:hidden" />
+    <img src="/assets/changelog/2026-06-agentic-workflows-dark.png" alt="Closed workflow iteration loop from deploy to run to observe to fix" className="hidden dark:block" />
+    </Frame>
+
+    ## Agentic Workflows
+
+    Tilebox Workflows now supports workflow release publishing and cluster deployments. This adds a new release-based execution path to the workflow orchestrator: package a Python workflow project, publish an immutable release, deploy it to a cluster, run it on release runners, and inspect the resulting job logs and execution traces.
+
+    The release path is designed for closed-loop workflow iteration by developers and agents. An agent can edit workflow code, publish a release, deploy it to a development cluster, submit a test job, inspect the failed task logs or spans, apply a fix, and retry or submit the next job without leaving the same command-line workflow.
+
+    A typical iteration looks like this:
+
+    ```bash
+    tilebox workflow publish-release --json
+    tilebox workflow deploy-release --latest --target production --json
+    tilebox job submit --task tilebox.com/example/ProcessScene --cluster workflow-dev --json
+    tilebox job wait <job-id>
+    tilebox job logs <job-id> --json
+    ```
+
+    ### What changed
+
+    - **Release runners.** Release runners run in an environment you control, watch a cluster, load the deployed releases for that cluster, and execute compatible tasks without rebuilding the runner process for every workflow code change.
+    - **Workflow release publishing.** A workflow is now a long-lived object with a stable slug, and each release captures a concrete version of the workflow project, runtime entrypoint, selected files, and discovered task identifiers.
+    - **Project-local workflow configuration.** `tilebox.workflow.toml` binds a repository directory to a workflow slug, build inputs, runtime entrypoint, and optional deployment targets, so commands can use the local project as context.
+    - **Cluster deployments.** Publishing and deploying are separate steps. A release can be deployed to one or more clusters, and different clusters can run different releases of the same workflow.
+
+    ### Start here
+
+    <Columns cols={1}>
+      <Card title="Iterate on workflow releases with agents" icon="robot" href="/guides/workflows/agentic-workflow-iteration" horizontal>
+        Use an AI coding agent to edit, publish, deploy, run, inspect, and retry workflow releases.
+      </Card>
+      <Card title="Workflow configuration" icon="file-code" href="/workflows/build-and-deploy/workflow-configuration" horizontal>
+        Configure `tilebox.workflow.toml`, release contents, runtime entrypoints, and deployment targets.
+      </Card>
+    </Columns>
+</Update>
 
 <Update label="May 2026">
     <Frame>
@@ -17,7 +58,7 @@ mode: center
 
     The Console includes a built-in explorer for workflow observability, so you can inspect task logs, trace timing, failures, and runner behavior from the job view.
 
-    See the [Workflow observability documentation](/workflows/observability/introduction) for examples and integration options.
+    See the [Workflow observability documentation](/workflows/run-and-inspect/introduction) for examples and integration options.
 </Update>
 
 <Update label="February 2026">
@@ -41,7 +82,7 @@ mode: center
 
     ## MCP Server for Datasets and Workflows
     
-    Introducing the [Tilebox MCP server](/agentic-development/tilebox-mcp), which provides tools for AI agents to access and interact with Tilebox datasets and workflows.
+    Introducing the [Tilebox MCP server](/agents-and-ai-tools/tilebox-mcp), which provides tools for AI agents to access and interact with Tilebox datasets and workflows.
 </Update>
 
 <Update label="November 2025">
@@ -86,7 +127,7 @@ mode: center
     ![Progress Indicators](/assets/changelog/2025-09-progress-indicators.png)
     </Frame>
 
-    User defined progress indicators for jobs are now available. See the [progress documentation](/workflows/progress) for more details.
+    User defined progress indicators for jobs are now available. See the [progress documentation](/workflows/run-and-inspect/progress) for more details.
 </Update>
 
 <Update label="May 2025">

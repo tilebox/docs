@@ -1,0 +1,77 @@
+---
+title: Configure storage-event automations
+description: Register a workflow automation that submits jobs when files are created or modified in a storage location.
+icon: right-to-line
+---
+
+Use storage-event automations when new or changed files should trigger workflow work, such as processing new uploads in a bucket or reacting to generated products.
+
+Tilebox submits a job when a matching storage event occurs. A runner on the target cluster still needs to execute the submitted task.
+
+## Define the storage-event task
+
+Create a task that handles the event payload.
+
+```python Python
+from tilebox.workflows import ExecutionContext
+from tilebox.workflows.automations import StorageEventTask, StorageEventType
+
+
+class ProcessUploadedObject(StorageEventTask):
+    head_bytes: int = 64
+
+    def execute(self, context: ExecutionContext) -> None:
+        if self.trigger.type == StorageEventType.CREATED:
+            path = self.trigger.location
+            context.logger.info(
+                "Processing uploaded object",
+                path=path,
+            )
+            data = self.trigger.storage.read(path)
+            context.logger.info("Read object data", size_bytes=len(data))
+```
+
+## Register the storage location
+
+Register or select the storage location that Tilebox should watch. Storage locations can represent cloud buckets or local file-system locations supported by Tilebox automations.
+
+```python Python
+from tilebox.workflows import Client
+
+client = Client()
+automations = client.automations()
+locations = automations.storage_locations()
+print(locations)
+```
+
+## Register the automation
+
+Create the automation using the task prototype and storage trigger.
+
+```python Python
+automations.create_storage_event_automation(
+    "process-uploaded-objects",
+    ProcessUploadedObject(),
+    triggers=[(locations[0], "incoming/**")],
+)
+```
+
+## Test and inspect
+
+Create or change a matching object, then inspect the submitted job in the Console or through the Tilebox command-line tool.
+
+```bash
+tilebox job logs <job-id> --json
+tilebox job spans <job-id> --json
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Storage event triggers" icon="right-to-line" href="/workflows/automations/storage-events" horizontal>
+    Read the full storage-event automation reference.
+  </Card>
+  <Card title="Debug a failed workflow run" icon="bug" href="/guides/workflows/debug-failed-run" horizontal>
+    Inspect task state, logs, traces, and runner context.
+  </Card>
+</Columns>

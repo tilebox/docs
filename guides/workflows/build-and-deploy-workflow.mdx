@@ -1,0 +1,121 @@
+---
+title: Build and deploy a workflow project
+description: Structure a Python workflow project, publish a workflow release, and deploy it to a development cluster.
+icon: rocket
+---
+
+Use workflow releases when the code under test should match the code that runners execute. A release packages a Python workflow project, records the discovered task identifiers, and lets release runners load the deployed code from a cluster.
+
+This guide summarizes the build and deploy path. For the underlying model, see [Workflow releases](/workflows/concepts/workflow-releases) and [Release lifecycle](/workflows/build-and-deploy/releases).
+
+## Prerequisites
+
+- You have installed the [Tilebox CLI](/agents-and-ai-tools/tilebox-cli).
+- `TILEBOX_API_KEY` is set in the shell where you run commands.
+- You have a Python workflow project with a `Runner` object.
+
+## Create the project structure
+
+Use a small, importable project layout.
+
+<Tree>
+  <Tree.Folder name="my-workflow" defaultOpen>
+    <Tree.File name="pyproject.toml" />
+    <Tree.File name="uv.lock" />
+    <Tree.File name="tilebox.workflow.toml" />
+    <Tree.Folder name="my_workflow" defaultOpen>
+      <Tree.File name="tasks.py" />
+      <Tree.File name="runner.py" />
+    </Tree.Folder>
+  </Tree.Folder>
+</Tree>
+
+## Configure the workflow
+
+Point `tilebox.workflow.toml` at the exported runner object and include the files the release runner needs.
+
+```toml tilebox.workflow.toml
+[workflow]
+slug = "my-workflow"
+root = "."
+runner = "my_workflow.runner:runner"
+
+[build]
+include = [
+  "pyproject.toml",
+  "uv.lock",
+  "my_workflow/**",
+]
+exclude = [
+  ".venv/**",
+  "**/__pycache__/**",
+  "**/*.pyc",
+]
+use_gitignore = true
+
+[targets.dev]
+clusters = ["workflow-dev"]
+```
+
+## Build and publish the release
+
+Build locally first when you want detailed validation output.
+
+```bash
+tilebox workflow build-release --debug --json
+```
+
+Publish the checked release content.
+
+```bash
+RELEASE_ID=$(tilebox workflow publish-release --json | jq -r '.id')
+```
+
+Publishing creates an immutable release. It does not change what any cluster runs until you deploy it.
+
+## Deploy to a development cluster
+
+Deploy the release to the development target.
+
+```bash
+tilebox workflow deploy-release --release "$RELEASE_ID" --target dev --json
+```
+
+Start a release runner in an environment you control.
+
+```bash
+tilebox runner start --cluster workflow-dev --debug
+```
+
+## Run and inspect a job
+
+Submit a task that matches one of the identifiers discovered from the release.
+
+```bash
+JOB_ID=$(tilebox job submit \
+  --name my-workflow-test \
+  --task tilebox.com/example/ProcessScene \
+  --version v1.0 \
+  --cluster workflow-dev \
+  --input '{"scene_id":"S2A_001"}' \
+  --wait \
+  --json | jq -r '.id')
+```
+
+Inspect the result before making the next change.
+
+```bash
+tilebox job logs "$JOB_ID" --json
+tilebox job spans "$JOB_ID" --json
+```
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Project structure" icon="folder-tree" href="/workflows/build-and-deploy/project-structure" horizontal>
+    Learn the details of Python workflow project layout.
+  </Card>
+  <Card title="Deploy to your compute" icon="server" href="/guides/workflows/deploy-to-your-compute" horizontal>
+    Choose where release runners run and how clusters map to environments.
+  </Card>
+</Columns>

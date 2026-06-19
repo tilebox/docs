@@ -12,17 +12,48 @@ To create an API key, log into the [Tilebox Console](https://console.tilebox.com
 Keep your API keys secure. Deactivate any keys if you suspect they have been compromised.
 </Info>
 
-## Bearer token authentication
+<Frame>
+	<img src="/assets/console/api-keys-light.png" alt="Tilebox Console" className="dark:hidden"  />
+	<img src="/assets/console/api-keys-dark.png" alt="Tilebox Console" className="hidden dark:block" />
+</Frame>
 
-The Tilebox API uses bearer tokens for authentication. You need to pass your API key as the `token` parameter when creating an instance of the client.
+## Set up environment variable
+
+Set `TILEBOX_API_KEY` in your shell environment (optional but recommended). That way, the [Tilebox CLI](/agents-and-ai-tools/tilebox-cli) and SDK clients automatically pick it up.
+
+The following commands persist the variable for future terminal sessions and also make it available in the current session.
+
+<CodeGroup>
+```bash Bash
+echo 'export TILEBOX_API_KEY="<tbx-api-...>"' >> ~/.bashrc
+source ~/.bashrc
+```
+```zsh Zsh
+echo 'export TILEBOX_API_KEY="<tbx-api-...>"' >> ~/.zshrc
+source ~/.zshrc
+```
+```fish Fish
+set -Ux TILEBOX_API_KEY "<tbx-api-...>"
+```
+```powershell PowerShell
+[Environment]::SetEnvironmentVariable("TILEBOX_API_KEY", "<tbx-api-...>", "User")
+$env:TILEBOX_API_KEY = "<tbx-api-...>"
+```
+</CodeGroup>
+
+Open a new terminal after setting the variable to confirm your shell loads it automatically.
+
+## Manual SDK authentication
+
+In case you didn't configure your shell environment, you can also pass your API key as the `token` parameter when creating an instance of the SDK clients.
 
 <CodeGroup>
 ```python Python
 from tilebox.datasets import Client as DatasetsClient
 from tilebox.workflows import Client as WorkflowsClient
 
-datasets_client = DatasetsClient(token="YOUR_TILEBOX_API_KEY")
-workflows_client = WorkflowsClient(token="YOUR_TILEBOX_API_KEY")
+datasets_client = DatasetsClient(token="<tbx-api-...>")
+workflows_client = WorkflowsClient(token="<tbx-api-...>")
 ```
 ```go Go
 import (
@@ -30,8 +61,8 @@ import (
 	"github.com/tilebox/tilebox-go/workflows/v1"
 )
 
-datasetsClient := datasets.NewClient(datasets.WithAPIKey("YOUR_TILEBOX_API_KEY"))
-workflowsClient := workflows.NewClient(workflows.WithAPIKey("YOUR_TILEBOX_API_KEY"))
+datasetsClient := datasets.NewClient(datasets.WithAPIKey("<tbx-api-...>"))
+workflowsClient := workflows.NewClient(workflows.WithAPIKey("<tbx-api-...>"))
 ```
 </CodeGroup>
 

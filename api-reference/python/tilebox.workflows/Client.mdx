@@ -10,6 +10,7 @@ class Client(
     token: str | None = None,
     name: str | None = None,
     client_id: UUID | None = None,
+    transport: Literal["grpc", "http1"] = "grpc",
 )
 ```
 
@@ -31,6 +32,10 @@ Create a Tilebox workflows client.
 
 <ParamField path="client_id" type="UUID | None">
   Optional stable ID used to scope internal loggers. If not set, a random ID is generated.
+</ParamField>
+
+<ParamField path="transport" type='Literal["grpc", "http1"]'>
+  Network transport to use for API requests. Defaults to `"grpc"`. Use `"http1"` to force the Connect protocol over HTTP/1.1 on networks that do not support gRPC over HTTP/2 correctly.
 </ParamField>
 
 ## Sub clients
@@ -87,6 +92,9 @@ client = Client(
     token="YOUR_TILEBOX_API_KEY",
     name="sentinel-2-runner",
 )
+
+# use HTTP/1.1 if your network blocks or breaks gRPC over HTTP/2
+client = Client(transport="http1")
 
 # access sub clients
 job_client = client.jobs()

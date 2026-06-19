@@ -9,6 +9,7 @@ class Client(
     url: str = "https://api.tilebox.com",
     token: str | None = None,
     warn_if_unauthenticated: bool = True,
+    transport: Literal["grpc", "http1"] = "grpc",
 )
 ```
 
@@ -28,6 +29,10 @@ Create a Tilebox datasets client.
   Whether to log a warning when no API key is provided for the Tilebox API URL. Defaults to `True`.
 </ParamField>
 
+<ParamField path="transport" type='Literal["grpc", "http1"]'>
+  Network transport to use for API requests. Defaults to `"grpc"`. Use `"http1"` to force the Connect protocol over HTTP/1.1 on networks that do not support gRPC over HTTP/2 correctly.
+</ParamField>
+
 If no API key is provided, the client uses anonymous open data access for public datasets.
 
 <RequestExample>
@@ -42,5 +47,8 @@ client = Client(
     url="https://api.tilebox.com",
     token="YOUR_TILEBOX_API_KEY",
 )
+
+# use HTTP/1.1 if your network blocks or breaks gRPC over HTTP/2
+client = Client(transport="http1")
 ```
 </RequestExample>

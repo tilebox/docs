@@ -1,0 +1,72 @@
+---
+title: Deploy to your compute
+description: Run Tilebox workflow releases on compute environments you control by using clusters and release runners.
+icon: server
+---
+
+Tilebox manages workflow state, releases, deployments, jobs, logs, and traces. Your compute environment runs the runner process that executes the work. This lets workflows run on local machines, cloud virtual machines, Kubernetes clusters, on-premises systems, or controlled customer infrastructure.
+
+## Choose a cluster for the environment
+
+A cluster is the routing boundary for jobs and runners. Jobs submitted to a cluster can only be claimed by runners connected to the same cluster.
+
+Use separate clusters for environments that should not run the same code by accident, such as development and production-like compute.
+
+```bash
+tilebox cluster create "workflow-dev" --json
+tilebox cluster create "workflow-prod" --json
+```
+
+## Deploy a release to the cluster
+
+Deploy a published workflow release to the cluster or to a target defined in `tilebox.workflow.toml`.
+
+```bash
+tilebox workflow deploy-release --release "$RELEASE_ID" --cluster workflow-dev --json
+```
+
+For repeated deployments, define targets in the workflow configuration.
+
+```toml
+[targets.dev]
+clusters = ["workflow-dev"]
+
+[targets.production]
+clusters = ["workflow-prod"]
+```
+
+Then deploy by target name.
+
+```bash
+tilebox workflow deploy-release --release "$RELEASE_ID" --target dev --json
+```
+
+## Start release runners where the work should run
+
+Start one or more release runners in the environment that has the required network access, credentials, hardware, and data access.
+
+```bash
+tilebox runner start --cluster workflow-dev --debug
+```
+
+The runner watches its cluster, downloads missing release artifacts, starts the workflow runtime, and advertises the tasks it can execute. Updating a deployment changes what the runner can execute without rebuilding the runner process.
+
+## Scale runner processes
+
+Start multiple runners for the same cluster when you want more parallelism.
+
+```bash
+tilebox parallel -n 4 -- tilebox runner start --cluster workflow-dev
+```
+
+You can also run runners through your own process manager, VM image, container platform, or scheduler. Tilebox does not require the compute process to run in Tilebox-managed infrastructure.
+
+## Verify cluster alignment
+
+If a job stays queued, check that these three values match:
+
+1. The job was submitted to the expected cluster.
+2. The workflow release is deployed to that cluster.
+3. A release runner is running for that cluster.
+
+For details, see [Cluster deployments](/workflows/build-and-deploy/cluster-deployments) and [Runners](/workflows/concepts/runners).
