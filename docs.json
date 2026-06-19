@@ -147,18 +147,19 @@
           {
             "group": "Datasets",
             "pages": [
-              "guides/datasets/access-sentinel2-data",
               "guides/datasets/query-satellite-data",
-              "guides/datasets/create",
-              "guides/datasets/ingest",
-              "guides/datasets/ingest-format",
-              "guides/datasets/build-spatiotemporal-catalog"
+              "guides/datasets/access-sentinel2-data",
+              "guides/datasets/access-usgs-landsat-data",
+              "guides/datasets/build-spatiotemporal-catalog",
+              "guides/datasets/ingest-into-spatiotemporal-catalog",
+              "guides/datasets/ingest-format"
             ]
           },
           {
             "group": "Workflows",
             "pages": [
               "guides/workflows/run-your-first-workflow",
+              "guides/workflows/execute-tasks-in-parallel",
               "guides/workflows/build-and-deploy-workflow",
               "guides/workflows/deploy-to-your-compute",
               "guides/workflows/debug-failed-run",

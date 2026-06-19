@@ -51,15 +51,44 @@ tilebox runner start --cluster workflow-dev --debug
 
 The runner watches its cluster, downloads missing release artifacts, starts the workflow runtime, and advertises the tasks it can execute. Updating a deployment changes what the runner can execute without rebuilding the runner process.
 
+## Bundle the release runner in a container
+
+For cloud or Kubernetes deployments, package the release runner into a small container image. The image only needs Python, `uv`, the Tilebox command-line tool, and any system dependencies your workflow runtime needs. The workflow code itself comes from the deployed workflow release.
+
+```dockerfile Dockerfile
+FROM python:3.13-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Install system dependencies.
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl git git-lfs openssh-client \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+RUN curl -fsSL https://cli.tilebox.com/install.sh | TILEBOX_INSTALL_DIR=/usr/local/bin TILEBOX_NO_INSTALL_COMPLETIONS=1 sh
+
+# Required at runtime: set TILEBOX_CLUSTER to a valid cluster slug and
+# TILEBOX_API_KEY to an API key that can read deployments and claim tasks.
+ENV TILEBOX_CLUSTER=""
+ENV TILEBOX_API_KEY=""
+
+CMD ["tilebox", "runner", "start"]
+```
+
+Build and publish this image with your normal container workflow. At runtime, provide `TILEBOX_CLUSTER` and `TILEBOX_API_KEY` through your deployment system rather than baking secrets into the image.
+
+In Kubernetes, run the image as a `Deployment` and store `TILEBOX_API_KEY` in a `Secret`. Set `TILEBOX_CLUSTER` through the pod environment and scale replicas to increase runner concurrency. In Google Cloud, run the same image on Cloud Run jobs, GKE, or Compute Engine depending on your workload constraints. In AWS, run it on ECS, EKS, or EC2 and inject the API key through your secret manager or task definition.
+
 ## Scale runner processes
 
-Start multiple runners for the same cluster when you want more parallelism.
+Scale the number of runner containers or virtual machine instances when you want more parallelism. In Kubernetes, increase the `Deployment` replica count. In GCP or AWS, use the scaling controls of the service that runs the container, such as Cloud Run, GKE, ECS, EKS, or an auto-scaling VM group. Each runner process connects to the same cluster and claims compatible tasks independently.
+
+As an alternative for local testing or constrained environments, you can run multiple runner processes inside one container or shell session. Use `tilebox parallel` only for that case.
 
 ```bash
 tilebox parallel -n 4 -- tilebox runner start --cluster workflow-dev
 ```
 
-You can also run runners through your own process manager, VM image, container platform, or scheduler. Tilebox does not require the compute process to run in Tilebox-managed infrastructure.
+Tilebox does not require the runner process to run in Tilebox-managed infrastructure. Use the process manager, scheduler, or container platform that fits your compute environment.
 
 ## Verify cluster alignment
 

@@ -29,11 +29,33 @@ Use a layout where task code and the runner definition are importable from the p
   </Tree.Folder>
 </Tree>
 
+## Define the Python project
+
+Use a minimal `pyproject.toml` with the dependencies your workflow needs. For this example, only the Tilebox Python package is required.
+
+```toml pyproject.toml
+[project]
+name = "my-workflow"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "tilebox",
+]
+```
+
+Create the package directory and an empty `__init__.py` file so Python can import `my_workflow.runner` from the project root.
+
+```bash
+mkdir -p my_workflow
+touch my_workflow/__init__.py
+uv lock
+```
+
 ## Define tasks
 
 Put task classes in a module that can be imported during release validation.
 
-```python Python
+```python my_workflow/tasks.py
 # my_workflow/tasks.py
 from tilebox.workflows import ExecutionContext, Task
 
@@ -56,7 +78,7 @@ Use explicit identifiers for workflow code that will be published. A stable iden
 
 Create a module that exports a `Runner` object. This object defines the task registrations for the workflow, and release builds import it during validation.
 
-```python Python
+```python my_workflow/runner.py
 # my_workflow/runner.py
 from tilebox.workflows import Runner
 from tilebox.workflows.cache import LocalFileSystemCache

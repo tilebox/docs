@@ -93,9 +93,6 @@ client = Client(
     name="sentinel-2-runner",
 )
 
-# use HTTP/1.1 if your network blocks or breaks gRPC over HTTP/2
-client = Client(transport="http1")
-
 # access sub clients
 job_client = client.jobs()
 cluster_client = client.clusters()

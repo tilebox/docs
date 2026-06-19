@@ -1,12 +1,12 @@
 ---
-title: Query satellite data by time and location
-description: Find satellite metadata in a Tilebox open data catalog by combining temporal and spatial filters.
+title: Query open satellite data
+description: Explore available Tilebox open data catalogs and query Sentinel-2 metadata by time and location.
 icon: satellite
 ---
 
-Use this guide when you know the area and time range you care about and want to find matching satellite products before downloading any files.
+Use this guide when you want to find satellite products in Tilebox open data catalogs before downloading any files. You will first inspect the available open data datasets, then query Sentinel-2 metadata by time and location.
 
-Tilebox Datasets stores searchable metadata for open data catalogs. Querying metadata first lets you narrow a large catalog to the scenes that match your workflow, notebook, or agent task.
+Tilebox Datasets stores searchable metadata for open Earth observation catalogs. Metadata queries are the fastest way to narrow a large catalog to the scenes that match your workflow, notebook, or agent task.
 
 ## Prerequisites
 
@@ -15,6 +15,47 @@ Tilebox Datasets stores searchable metadata for open data catalogs. Querying met
 
 ```bash
 uv add tilebox shapely
+```
+
+## Explore available open data datasets
+
+Tilebox exposes open data catalogs through the same dataset API as your private datasets. To get a list of available open data satellite datasets, run the following snippet.
+
+```python Python
+from tilebox.datasets import Client
+
+client = Client()
+datasets = client.datasets()
+print(datasets.open_data)
+```
+
+The output groups datasets by provider. Open data datasets include Copernicus Sentinel missions, USGS Landsat products, ASF SAR products, and other public catalogs that Tilebox has indexed.
+
+```plaintext Output
+asf:
+    ers_sar: European Remote Sensing Satellite (ERS) Synthetic Aperture Radar ...
+copernicus:
+    sentinel1_sar: The Sentinel-1 mission is the European Radar Observatory ...
+    sentinel2_msi: Sentinel-2 is equipped with an optical instrument payload ...
+    sentinel3_olci: OLCI (Ocean and Land Colour Instrument) is an optical ...
+    ...
+usgs:
+    ...
+    landsat8_oli_tirs: Landsat-8 Operational Land Imager and Thermal Infrared ...
+    landsat9_oli_tirs: Landsat-9 Operational Land Imager and Thermal Infrared ...
+```
+
+You can also browse open data datasets in the [Tilebox Console](https://console.tilebox.com/datasets/open-data) when you want descriptions, provider details, the dataset schema, and available collections before writing code.
+
+## Select the Sentinel-2 catalog
+
+Access the Sentinel-2 MSI dataset by its slug. The dataset contains collections for Sentinel-2 products such as `S2A_S2MSI2A`.
+
+```python Python
+sentinel2 = client.dataset("open_data.copernicus.sentinel2_msi")
+
+for name, collection in sentinel2.collections().items():
+    print(name, collection)
 ```
 
 ## Define the search area
@@ -26,10 +67,12 @@ from shapely import Polygon
 
 area = Polygon(
     [
+        # lon, lat
         (-109.05, 37.0),
         (-102.05, 37.0),
         (-102.05, 41.0),
         (-109.05, 41.0),
+        # close the square (repeat the first element)
         (-109.05, 37.0),
     ]
 )
@@ -37,13 +80,9 @@ area = Polygon(
 
 ## Query Sentinel-2 metadata
 
-Select the Sentinel-2 MSI open data catalog and query a collection by time and location.
+Query the Sentinel-2 Level-2A collection by time and location. This returns metadata for matching scenes; it does not download image products.
 
 ```python Python
-from tilebox.datasets import Client
-
-client = Client()
-sentinel2 = client.dataset("open_data.copernicus.sentinel2_msi")
 collection = sentinel2.collection("S2A_S2MSI2A")
 
 scenes = collection.query(
@@ -55,32 +94,27 @@ scenes = collection.query(
 print(scenes[["granule_name", "processing_level", "product_type"]])
 ```
 
-The result is an `xarray.Dataset` containing scene metadata. Use it to inspect candidate scenes, filter by metadata fields, or pass selected datapoints to a storage client.
+The result is an `xarray.Dataset` containing scene metadata. Use it to inspect candidate scenes, filter by metadata fields, or pass selected datapoints to a workflow task.
 
-## Download matching products
+## Filter the metadata result
 
-Metadata queries do not download product files. Use a [storage client](/datasets/storage/clients) when you want to read or download the files referenced by a datapoint.
+Metadata results behave like regular `xarray.Dataset` objects. You can filter, sort, or select scenes before deciding what to process next.
 
 ```python Python
-from pathlib import Path
-from tilebox.storage import CopernicusStorageClient
+low_cloud = scenes.where(scenes.cloud_cover < 10, drop=True)
+latest = low_cloud.sortby("time").isel(time=-1)
 
-storage = CopernicusStorageClient(
-    cache_directory=Path("./data"),
-    s3_access_key_id="YOUR_COPERNICUS_ACCESS_KEY",
-    s3_secret_access_key="YOUR_COPERNICUS_SECRET_KEY",
-)
-
-first_scene = scenes.isel(time=0)
-path = storage.download(first_scene)
-print(path)
+print(latest.granule_name.item())
+print(latest.cloud_cover.item())
 ```
+
+Metadata queries do not download product files. Use a [storage client](/datasets/storage/clients) when you want to read or download the files referenced by a datapoint.
 
 ## Next steps
 
 <Columns cols={2}>
-  <Card title="Access Sentinel-2 data" icon="database" href="/guides/datasets/access-sentinel2-data" horizontal>
-    Follow a longer Sentinel-2 example with output inspection.
+  <Card title="Access Copernicus data" icon="database" href="/guides/datasets/access-sentinel2-data" horizontal>
+    Download Copernicus product files with the storage client.
   </Card>
   <Card title="Storage clients" icon="hard-drive" href="/datasets/storage/clients" horizontal>
     Configure provider-specific clients for product access.

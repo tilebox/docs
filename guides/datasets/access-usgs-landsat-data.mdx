@@ -1,0 +1,138 @@
+---
+title: Access USGS Landsat data
+description: Download USGS Landsat products with the Tilebox Landsat storage client, using Landsat 8 as an example.
+icon: satellite-dish
+---
+
+Use this guide when you already have a Landsat datapoint from a Tilebox metadata query and want to access the product files behind it. The example uses Landsat 8 Collection 2 Level-2 surface reflectance data.
+
+Tilebox indexes Landsat metadata as datasets. Product files remain in the USGS public cloud archive, so file access uses the `USGSLandsatStorageClient` and your AWS requester-pays setup.
+
+## Prerequisites
+
+- You have a [Tilebox API key](/authentication).
+- You have installed the [Python SDK](/sdks/python/install).
+- You have AWS credentials configured in your environment.
+- Your AWS account can access [requester-pays S3 buckets](https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html).
+
+```bash
+uv add tilebox shapely
+```
+
+<Info>
+  USGS Landsat data is stored in a requester-pays S3 bucket. AWS charges for requests and data transfer according to your AWS account settings.
+</Info>
+
+## Select a Landsat 8 datapoint
+
+Start with a small metadata query and select one datapoint to access. For a deeper guide to open data discovery and metadata filtering, see [Query open data metadata](/guides/datasets/query-satellite-data).
+
+```python Python
+from shapely import Polygon
+from tilebox.datasets import Client
+
+area = Polygon(
+    [
+        (-109.05, 37.0),
+        (-102.05, 37.0),
+        (-102.05, 41.0),
+        (-109.05, 41.0),
+        (-109.05, 37.0),
+    ]
+)
+
+client = Client()
+collection = client.dataset("open_data.usgs.landsat8_oli_tirs").collection("L2_SR")
+
+scenes = collection.query(
+    temporal_extent=("2024-08-01", "2024-08-15"),
+    spatial_extent=area,
+    show_progress=True,
+)
+
+selected = scenes.where(scenes.cloud_cover < 10, drop=True).isel(time=0)
+print(selected.granule_name.item())
+```
+
+## Create the Landsat storage client
+
+Create a `USGSLandsatStorageClient`. The client uses AWS credentials from your environment, such as `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` when needed.
+
+```python Python
+from tilebox.storage import USGSLandsatStorageClient
+
+storage = USGSLandsatStorageClient()
+```
+
+## Download the complete product
+
+Use `download` when you need the complete Landsat product directory. The storage client resolves the product location from the Tilebox datapoint metadata and downloads the matching files into the local cache.
+
+```python Python
+product_path = storage.download(selected)
+
+print(f"Downloaded {product_path.name} to {product_path}")
+print("Contents:")
+for path in product_path.iterdir():
+    print(f"- {path.relative_to(product_path)}")
+```
+
+```plaintext Output
+Downloaded LC08_L2SP_033033_20240808_20240814_02_T1 to ~/.cache/tilebox/collection02/level-2/standard/oli-tirs/2024/033/033/LC08_L2SP_033033_20240808_20240814_02_T1
+Contents:
+- LC08_L2SP_033033_20240808_20240814_02_T1_SR_B1.TIF
+- LC08_L2SP_033033_20240808_20240814_02_T1_SR_B2.TIF
+- LC08_L2SP_033033_20240808_20240814_02_T1_SR_B3.TIF
+- LC08_L2SP_033033_20240808_20240814_02_T1_SR_B4.TIF
+- LC08_L2SP_033033_20240808_20240814_02_T1_SR_B5.TIF
+- LC08_L2SP_033033_20240808_20240814_02_T1_SR_B6.TIF
+- LC08_L2SP_033033_20240808_20240814_02_T1_SR_B7.TIF
+- LC08_L2SP_033033_20240808_20240814_02_T1_QA_PIXEL.TIF
+- LC08_L2SP_033033_20240808_20240814_02_T1_MTL.json
+- LC08_L2SP_033033_20240808_20240814_02_T1_thumb_small.jpeg
+```
+
+## Download selected product files
+
+Landsat products contain surface reflectance bands, quality masks, thermal bands, metadata, and preview images. Use `list_objects` and `download_objects` when you only need specific files.
+
+```python Python
+objects = storage.list_objects(selected)
+
+rgb_bands = ["B4", "B3", "B2"]
+rgb_objects = [
+    obj for obj in objects
+    if any(obj.endswith(f"_{band}.TIF") for band in rgb_bands)
+]
+
+for obj in rgb_objects:
+    print(obj)
+
+downloaded_files = storage.download_objects(selected, rgb_objects)
+print(downloaded_files)
+```
+
+Use this pattern when a workflow only needs a few bands, masks, or metadata files. It reduces transfer time and local storage compared with downloading the full product.
+
+## Preview the product
+
+Many Landsat products include a thumbnail image. In a notebook, use `quicklook` to display the product preview without downloading the full product first.
+
+```python Python
+storage.quicklook(selected)
+```
+
+<Frame caption="Landsat quicklook image © USGS">
+  <img src="/assets/storage/usgs_quicklook.jpg" alt="USGS Landsat quicklook image" />
+</Frame>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Query open data metadata" icon="satellite" href="/guides/datasets/query-satellite-data" horizontal>
+    Find Landsat products by time, location, and metadata fields.
+  </Card>
+  <Card title="Storage clients" icon="hard-drive" href="/datasets/storage/clients" horizontal>
+    Learn about the other Tilebox storage clients for open data products.
+  </Card>
+</Columns>

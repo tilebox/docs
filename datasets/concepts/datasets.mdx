@@ -11,11 +11,11 @@ icon: database
 ## Related Guides
 
 <Columns cols={2}>
-  <Card title="Creating a dataset" icon="database" href="/guides/datasets/create" horizontal>
-    Learn how to create a Timeseries dataset using the Tilebox Console.
+  <Card title="Build a spatio-temporal catalog" icon="database" href="/guides/datasets/build-spatiotemporal-catalog" horizontal>
+    Learn how to create a custom dataset catalog with the Python SDK.
   </Card>
-  <Card title="Ingesting data" icon="up-from-bracket" href="/guides/datasets/ingest" horizontal>
-    Learn how to ingest an existing CSV dataset into a Timeseries dataset collection.
+  <Card title="Ingest into a spatio-temporal catalog" icon="up-from-bracket" href="/guides/datasets/ingest-into-spatiotemporal-catalog" horizontal>
+    Learn how to ingest GeoParquet metadata into an existing spatio-temporal catalog.
   </Card>
 </Columns>
 
@@ -151,7 +151,7 @@ Once you have your dataset object, you can use it to [list the available collect
 
 ## Creating / Updating a dataset
 
-You can create a dataset using the [Tilebox Console](/guides/datasets/create) or by using one of the available [client SDKs](/sdks/introduction).
+You can create a dataset using one of the available [client SDKs](/sdks/introduction), or use the [Tilebox Console](/console) when you prefer a visual schema editor.
 
 <CodeGroup>
 ```python Python
