@@ -1,6 +1,6 @@
 ---
 title: Build and deploy a workflow project
-description: Structure a Python workflow project, publish a workflow release, and deploy it to a development cluster.
+description: Initialize a Python workflow project, publish a workflow release, and deploy it to a development cluster.
 icon: rocket
 ---
 
@@ -12,79 +12,91 @@ This guide summarizes the build and deploy path. For the underlying model, see [
 
 - You have installed the [Tilebox CLI](/agents-and-ai-tools/tilebox-cli).
 - `TILEBOX_API_KEY` is set in the shell where you run commands.
-- You have a Python workflow project with a `Runner` object.
+- `uv` is installed and available on `PATH`.
 
-## Create the project structure
+## Initialize the project
 
-Use a small, importable project layout.
+Create a project directory and initialize it as a Tilebox workflow project.
+
+```bash
+mkdir my-workflow
+cd my-workflow
+tilebox workflow init --name "My Workflow"
+```
+
+The init command creates the Tilebox workflow, writes `tilebox.workflow.toml`, creates a minimal Python project with `runner.py`, adds the `tilebox` dependency, and runs `uv sync`. It aborts if `tilebox.workflow.toml`, `pyproject.toml`, `runner.py`, or `uv.lock` already exists in the current directory.
 
 <Tree>
   <Tree.Folder name="my-workflow" defaultOpen>
     <Tree.File name="pyproject.toml" />
     <Tree.File name="uv.lock" />
     <Tree.File name="tilebox.workflow.toml" />
-    <Tree.Folder name="my_workflow" defaultOpen>
-      <Tree.File name="tasks.py" />
-      <Tree.File name="runner.py" />
-    </Tree.Folder>
+    <Tree.File name="runner.py" />
   </Tree.Folder>
 </Tree>
 
-## Configure the workflow
+## Configure a deployment target
 
-Point `tilebox.workflow.toml` at the exported runner object and include the files the release runner needs.
+Create a logical cluster to deploy our workflow release to, enabling [release runners](/workflows/concepts/runners#release-runners).
+
+```bash
+tilebox cluster create "workflow-dev"
+```
+
+```text Output
+Slug               workflow-dev-<...>
+Name               workflow-dev
+Deletable          true
+```
+
+Add the returned cluster slug to `tilebox.workflow.toml` so deployment commands can refer to a logical environment instead of repeating cluster slugs.
 
 ```toml tilebox.workflow.toml
 [workflow]
-slug = "my-workflow"
+slug = "my-workflow-<...>"
 root = "."
-runner = "my_workflow.runner:runner"
+runner = "runner:runner"
 
 [build]
 include = [
+  "tilebox.workflow.toml",
   "pyproject.toml",
   "uv.lock",
-  "my_workflow/**",
+  "runner.py",
 ]
-exclude = [
-  ".venv/**",
-  "**/__pycache__/**",
-  "**/*.pyc",
-]
-use_gitignore = true
 
 [targets.dev]
-clusters = ["workflow-dev"]
+clusters = ["workflow-dev-<...>"]
 ```
 
 ## Build and publish the release
 
-Build locally first when you want detailed validation output.
+Create a new release of the workflow and publish it to Tilebox.
 
 ```bash
-tilebox workflow build-release --debug --json
-```
-
-Publish the checked release content.
-
-```bash
-RELEASE_ID=$(tilebox workflow publish-release --json | jq -r '.id')
+tilebox workflow publish-release
 ```
 
 Publishing creates an immutable release. It does not change what any cluster runs until you deploy it.
+
+<Tip>
+Build locally first when you want detailed validation output.
+
+`tilebox workflow build-release --debug`
+</Tip>
 
 ## Deploy to a development cluster
 
 Deploy the release to the development target.
 
 ```bash
-tilebox workflow deploy-release --release "$RELEASE_ID" --target dev --json
+tilebox workflow deploy-release --latest --target dev
 ```
 
 Start a release runner in an environment you control.
 
 ```bash
-tilebox runner start --cluster workflow-dev --debug
+tilebox runner start --cluster workflow-dev-9xK2mQ4pL8nR7s --debug
 ```
 
 ## Run and inspect a job
@@ -92,21 +104,24 @@ tilebox runner start --cluster workflow-dev --debug
 Submit a task that matches one of the identifiers discovered from the release.
 
 ```bash
-JOB_ID=$(tilebox job submit \
+tilebox job submit \
   --name my-workflow-test \
-  --task tilebox.com/example/ProcessScene \
-  --version v1.0 \
-  --cluster workflow-dev \
-  --input '{"scene_id":"S2A_001"}' \
-  --wait \
-  --json | jq -r '.id')
+  --task my-workflow-a1b2/HelloWorld \
+  --version v0.0 \
+  --cluster workflow-dev-9xK2mQ4pL8nR7s \
+  --input '{"name":"Tilebox"}' \
+  --wait
+```
+
+```text
+Job submitted: 019ef7a2-56b4-7a86-9c4d-52a1792b1e90
 ```
 
 Inspect the result before making the next change.
 
 ```bash
-tilebox job logs "$JOB_ID" --json
-tilebox job spans "$JOB_ID" --json
+tilebox job logs <JOB_ID>
+tilebox job spans <JOB_ID>
 ```
 
 ## Next steps

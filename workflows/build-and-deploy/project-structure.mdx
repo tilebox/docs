@@ -1,6 +1,6 @@
 ---
 title: Project Structure
-description: Structure a Python workflow project so releases can be built reproducibly and release runners can discover and execute its tasks.
+description: Initialize and structure a Python workflow project so releases can be built reproducibly and release runners can discover and execute its tasks.
 icon: folder-tree
 ---
 
@@ -12,7 +12,21 @@ A Python workflow project contains task classes, a `Runner` definition, and a `t
 
 Keep the project small and importable from its root. Release builds import the configured runner object, check that the Python runtime starts, and package the selected files into an immutable artifact.
 
-## Project structure
+## Scaffold a workflow project
+
+For a new Python workflow project, use the CLI to create the Tilebox workflow and scaffold the local files.
+
+```bash
+tilebox workflow init --name "Scene QA"
+```
+
+The `--name` flag is optional. When omitted, the command derives the local project slug from the current directory name. The command converts the name to a slug, truncates it to at most 40 characters, creates the remote workflow, and writes the API-returned workflow slug to `tilebox.workflow.toml`.
+
+`tilebox workflow init` creates `tilebox.workflow.toml`, `pyproject.toml`, and `runner.py`, adds the `tilebox` Python dependency, and runs `uv sync` to create the local environment and `uv.lock` file. It requires `uv` on `PATH` and aborts without changing the directory if any of `tilebox.workflow.toml`, `pyproject.toml`, `runner.py`, or `uv.lock` already exists.
+
+The generated project is intentionally small. Edit `runner.py` directly for prototypes, or move task code into a package as the workflow grows.
+
+## Manual project structure
 
 Use a layout where task code and the runner definition are importable from the project root.
 

@@ -26,7 +26,13 @@ Load the Tilebox workflow skills. Inspect `tilebox agent-context workflow --outp
 
 ## Create or update the workflow project
 
-Ask the agent to keep the workflow project centered on one reusable `Runner` definition.
+For a new workflow project, ask the agent to initialize the project before editing task code.
+
+```text Prompt
+Inspect `tilebox agent-context workflow init --output-schema`. Then initialize a new Tilebox workflow project with `tilebox workflow init --name "<workflow-name>" --json`. After initialization, update the generated runner.py with the workflow tasks.
+```
+
+For an existing workflow project, ask the agent to keep the project centered on one reusable `Runner` definition.
 
 ```text Prompt
 Update this Python workflow project. Keep task classes in `src/<package>/tasks.py`, export `runner = Runner(tasks=[...])` from `src/<package>/runner.py`, and keep `tilebox.workflow.toml` pointing at that runner object.
