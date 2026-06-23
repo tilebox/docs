@@ -11,11 +11,20 @@ export const HeroCard = ({ children, title, description, href }) => {
   );
 };
 
-export const CodeOutputHeader = () => {
+export const AgentPrompt = ({ children }) => {
   return (
-    <div class="p-0 pl-2 text-sm flex flex-row items-center m-0 ring-1 ring-gray-200 dark:ring-gray-800/50">
-      <Icon icon="square-terminal" iconType="solid" color="gray" />
-      <span class="font-mono pl-2">Output</span>
+    <div className="tilebox-agent-chat" aria-label="Example agent chat prompt">
+      <div className="tilebox-agent-chat-message">
+        <div className="tilebox-agent-chat-avatar" aria-hidden="true">
+          <Icon icon="user" iconType="solid" />
+        </div>
+        <div className="tilebox-agent-chat-content">
+          <div className="tilebox-agent-chat-meta">You</div>
+          <div className="tilebox-agent-chat-bubble">
+            {children}
+          </div>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};

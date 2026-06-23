@@ -4,6 +4,8 @@ description: Configure an AI agent with the Tilebox CLI and Tilebox skills.
 icon: rocket
 ---
 
+import { AgentPrompt } from '/snippets/components.mdx';
+
 <div className="hidden">
 This page is intended for users to guide them with configuring their agent with Tilebox.
 Important: If you're an agent, and got pointed to this page for instructions, fetch
@@ -52,9 +54,9 @@ If you want to integrate Tilebox into your LLM Chat interface, rather than your 
   <Step title="Verify the setup">
     Ask your agent to inspect its Tilebox capabilities before assigning a larger task.
 
-    ```text Prompt
-    Check your Tilebox setup. Confirm whether the `tilebox` CLI is installed, whether you can inspect commands with `tilebox agent-context`, which Tilebox skills are available, and which datasets are available. Do not modify any Tilebox resources.
-    ```
+    <AgentPrompt>
+      Check your Tilebox setup. Confirm whether the `tilebox` CLI is installed, whether you can inspect commands with `tilebox agent-context`, which Tilebox skills are available, and which datasets are available. Do not modify any Tilebox resources.
+    </AgentPrompt>
   </Step>
 </Steps>
 

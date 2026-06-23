@@ -13,8 +13,8 @@ A cluster is the routing boundary for jobs and runners. Jobs submitted to a clus
 Use separate clusters for environments that should not run the same code by accident, such as development and production-like compute.
 
 ```bash
-tilebox cluster create "workflow-dev" --json
-tilebox cluster create "workflow-prod" --json
+tilebox cluster create "workflow-dev"
+tilebox cluster create "workflow-prod"
 ```
 
 ## Deploy a release to the cluster
@@ -22,7 +22,7 @@ tilebox cluster create "workflow-prod" --json
 Deploy a published workflow release to the cluster or to a target defined in `tilebox.workflow.toml`.
 
 ```bash
-tilebox workflow deploy-release --release "$RELEASE_ID" --cluster workflow-dev --json
+tilebox workflow deploy-release --latest --cluster workflow-dev
 ```
 
 For repeated deployments, define targets in the workflow configuration.
@@ -38,7 +38,7 @@ clusters = ["workflow-prod"]
 Then deploy by target name.
 
 ```bash
-tilebox workflow deploy-release --release "$RELEASE_ID" --target dev --json
+tilebox workflow deploy-release --latest --target dev
 ```
 
 ## Start release runners where the work should run

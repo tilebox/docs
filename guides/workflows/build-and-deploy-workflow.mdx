@@ -37,7 +37,7 @@ The init command creates the Tilebox workflow, writes `tilebox.workflow.toml`, c
 
 ## Configure a deployment target
 
-Create a logical cluster to deploy our workflow release to, enabling [release runners](/workflows/concepts/runners#release-runners).
+Create a logical cluster to deploy the workflow release to, enabling [release runners](/workflows/concepts/runners#release-runners).
 
 ```bash
 tilebox cluster create "workflow-dev"
@@ -106,8 +106,8 @@ Submit a task that matches one of the identifiers discovered from the release.
 ```bash
 tilebox job submit \
   --name my-workflow-test \
-  --task my-workflow-a1b2/HelloWorld \
-  --version v0.0 \
+  --task my-workflow/HelloWorld \
+  --version v0.1 \
   --cluster workflow-dev-9xK2mQ4pL8nR7s \
   --input '{"name":"Tilebox"}' \
   --wait

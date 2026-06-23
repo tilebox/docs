@@ -4,6 +4,8 @@ description: Install Tilebox skills that teach AI agents how to work with Tilebo
 icon: wand-magic-sparkles
 ---
 
+import { AgentPrompt } from '/snippets/components.mdx';
+
 Tilebox skills are task-level instructions for AI agents. They explain how to use the Tilebox CLI, which command patterns to prefer, and how to approach common workflows such as dataset management and job monitoring.
 
 ## Install Tilebox skills
@@ -39,9 +41,9 @@ Tilebox skills cover common agent workflows around the CLI, datasets, workflows,
 
 Ask your agent to load the most specific Tilebox skill for the task. For example, use `managing-tilebox-datasets` for schema work and `managing-tilebox-jobs` for workflow execution or observability tasks.
 
-```text Prompt
-Load the relevant Tilebox skills. Use the Tilebox CLI to submit a Sentinel-2 mosaic job, then monitor it until it completes.
-```
+<AgentPrompt>
+  Load the relevant Tilebox skills. Use the Tilebox CLI to submit a Sentinel-2 mosaic job, then monitor it until it completes.
+</AgentPrompt>
 
 Skills work best with the Tilebox CLI. The CLI gives the agent repeatable terminal commands, and skills tell it how to combine those commands safely. Use MCP as an alternative when the agent runs in a web or chat environment without practical terminal access.
 
