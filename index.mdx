@@ -88,17 +88,17 @@ export const HomeSearch = () => {
       
       Then use Tilebox to find which data center sites changed most from space.
       
-      Build a reproducible workflow that:
-         - starting from a user-provided CSV of known data centers
-         - finds cloud-free Sentinel-2 imagery over a target lat/lon in a time window
-         - reads the relevant band products, crops scenes to a 3km area around the target
-         - computes the cloud fraction for the cropped area, filter out scenes > 1%
-         - compares before/after by scoring visible change based on suitable metrics
-         - then create a datacenter site ranking based on score
+      Build a reproducible workflow that starts with a user-provided CSV
+      of known data centers and then:
+        - Finds cloud-free Sentinel-2 imagery over a target lat/lon in a time window
+        - Reads the relevant band products, crops scenes to a 3km area around the target
+        - Computes the cloud fraction for the cropped area, filter out scenes > 1%
+        - Compares before/after by scoring visible change based on suitable metrics
+        - Creates a datacenter site ranking based on score
       
-      Use the provided Tilebox skills to research datasets, storage access and outline the
-      workflow, then implement it. Deploy and run on our GCP cluster, in case of failures
-      inspect runner logs and iterate on the workflow.
+      Use the provided Tilebox skills to research datasets, access storage, outline the
+      workflow, and then implement it. Deploy and run on our GCP cluster, in case of
+      failures inspect runner logs and iterate on the workflow.
       ```
 
       ```bash CLI
@@ -178,7 +178,7 @@ export const HomeSearch = () => {
       Choose how you build
     </h2>
     <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-400 max-w-2xl">
-      Use Tilebox directly as a developer, or give an agent the same tools and documentation context so it can work with Tilebox for you.
+      Use Tilebox directly as a developer, or give an agent the same tools and documentation context so it can operate Tilebox for you.
     </p>
 
     <div className="mt-10 grid lg:grid-cols-2 gap-6">
@@ -291,7 +291,7 @@ export const HomeSearch = () => {
       Scale
     </p>
     <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
-      From first query to running on your infrastructure
+      From query to operational pipelines
     </h2>
     <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-3xl">
       Start with open data or your own catalogs, turn processing steps into tasks, and run them where your data and infrastructure already live.
@@ -300,7 +300,7 @@ export const HomeSearch = () => {
     <div className="mt-8">
       <Steps>
         <Step title="Discover and query data">
-          Query open datasets or your own Tilebox datasets by time, area of interest, collection, or datapoint ID.
+          Query open datasets or your own custom Tilebox datasets by time, area of interest, collection, or datapoint ID.
         </Step>
         <Step title="Build workflow tasks">
           Turn processing steps into workflow tasks that can submit subtasks, report progress, use caches, and emit logs and traces.
@@ -309,7 +309,7 @@ export const HomeSearch = () => {
           Develop with local runners, iterate quickly, and prototype your geospatial workflows.
         </Step>
         <Step title="Deploy to your own compute">
-          Run workflows across cloud, on-premises, sovereign, air-gapped, or edge environments while Tilebox tracks jobs and distributes work for parallel execution.
+          Run workflows across cloud, on premise, sovereign, air-gapped, or edge environments while Tilebox tracks jobs and distributes work for parallel execution.
         </Step>
         <Step title="Inspect and iterate">
           Query job state, logs, spans, and progress from the Console, SDKs, CLI, or agent tools.
