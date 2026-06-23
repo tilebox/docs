@@ -81,90 +81,120 @@ export const HomeSearch = () => {
     </div>
 
     <div className="lg:col-span-7">
-      <CodeGroup>
-      ```text Agent
-      > User
-      Onboard yourself to Tilebox: https://docs.tilebox.com/onboard-your-agent
-      
-      Then use Tilebox to find which data center sites changed most from space.
-      
-      Build a reproducible workflow that:
-         - starting from a user-provided CSV of known data centers
-         - finds cloud-free Sentinel-2 imagery over a target lat/lon in a time window
-         - reads the relevant band products, crops scenes to a 3km area around the target
-         - computes the cloud fraction for the cropped area, filter out scenes > 1%
-         - compares before/after by scoring visible change based on suitable metrics
-         - then create a datacenter site ranking based on score
-      
-      Use the provided Tilebox skills to research datasets, storage access and outline the
-      workflow, then implement it. Deploy and run on our GCP cluster, in case of failures
-      inspect runner logs and iterate on the workflow.
-      ```
+      <Tabs>
+        <Tab title="Agent">
+          <div className="tilebox-agent-chat" aria-label="Example agent chat prompt">
+            <div className="tilebox-agent-chat-message">
+              <div className="tilebox-agent-chat-avatar" aria-hidden="true">
+                U
+              </div>
+              <div className="tilebox-agent-chat-content">
+                <div className="tilebox-agent-chat-meta">You</div>
+                <div className="tilebox-agent-chat-bubble">
+                  <p>
+                    Build a reproducible Tilebox workflow that starts with a user-provided CSV of known data centers and then:
+                  </p>
+                  <ul>
+                    <li>Finds cloud-free Sentinel-2 imagery over a target lat/lon in a time window</li>
+                    <li>Reads the relevant band products and crops scenes to a 3km area around the target</li>
+                    <li>Computes the cloud fraction for the cropped area and filters out scenes &gt; 1%</li>
+                    <li>Compares before/after by scoring visible change based on suitable metrics</li>
+                    <li>Creates a datacenter site ranking based on score</li>
+                  </ul>
+                  <p>
+                    Use the provided Tilebox skills to research datasets, access storage, outline the workflow, and then implement it. Deploy and run on our GCP cluster, in case of failures inspect runner logs and iterate on the workflow.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <a className="tilebox-agent-chat-composer" href="/onboard-your-agent">
+              <span>Ask your agent to build with Tilebox…</span>
+              <span className="tilebox-agent-chat-send">↵</span>
+            </a>
+          </div>
+        </Tab>
 
-      ```bash CLI
-      curl -fsSL https://cli.tilebox.com/install.sh | sh
+        <Tab title="CLI">
+            <div className="tilebox-cli-window" aria-label="Tilebox CLI example">
+              <div className="tilebox-cli-controls" aria-hidden="true">
+                <span className="tilebox-cli-control tilebox-cli-control-red" />
+                <span className="tilebox-cli-control tilebox-cli-control-yellow" />
+                <span className="tilebox-cli-control tilebox-cli-control-green" />
+              </div>
+              <div className="tilebox-cli-code">
+```bash CLI wrap
+curl -fsSL https://cli.tilebox.com/install.sh | sh
 
-      tilebox dataset query
-        open_data.copernicus.sentinel2_msi
-        --last 7d
-        --spatial-extent 'POLYGON((-109.05 41,-109.05 37,-102.05 37,-102.05 41,-109.05 41))'
-        --limit 10
-      
-      tilebox job submit 
-        --name "Datacenter Monitoring"
-        --task "ComputeVisibleChange"
-        --input "{\"before\": \"2024-06-01\", \"after\": \"2026-06-01\"}"
-        --cluster gcp-Drv6L7Li4t7Yvk
-      ```
+tilebox dataset query
+  open_data.copernicus.sentinel2_msi
+  --last 7d
+  --spatial-extent 'POLYGON((-109 41,-109 37,-102 37,-102 41,-109 41))'
+  --limit 10
 
-      ```python Python lines
-      from tilebox.datasets import Client
-      from tilebox.workflows import Task, ExecutionContext
-      
-      class ComputeVisibleChange(Task):
-        before: str
-        after: str
+tilebox job submit
+  --name "Datacenter Monitoring"
+  --task "ComputeVisibleChange"
+  --input "{\"before\": \"2024-06-01\", \"after\": \"2026-06-01\"}"
+  --cluster gcp-Drv6L7Li4t7Yvk
+```
+              </div>
+            </div>
+        </Tab>
 
-        def execute(self, context: ExecutionContext):
-          sentinel2 = Client().dataset(
-            "open_data.copernicus.sentinel2_msi"
-          )
-          scenes = sentinel2.collection("S2A_S2MSI1A").query(
-              temporal_extent=(before, after),
-          )
-          context.logger.info("Found scenes", n=len(scenes.granule_name))
-          context.submit_subtasks([
-            ProcessScene(str(name) for name in scenes.granule_name)
-          ])
-      ```
+        <Tab title="Python">
+```python runner.py lines
+from tilebox.datasets import Client
+from tilebox.workflows import ExecutionContext, Runner, Task
 
-      ```go Go lines
-      type ComputeVisibleChange struct {
-          Before time.Time
-          After  time.Time
-      }
+class ComputeVisibleChange(Task):
+  before: str
+  after: str
 
-      func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
-          client := datasets.NewClient()
-          dataset, _ := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
-          collection, _ := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI1C")
+  def execute(self, context: ExecutionContext):
+    sentinel2 = Client().dataset(
+      "open_data.copernicus.sentinel2_msi"
+    )
+    scenes = sentinel2.collection("S2A_S2MSI1A").query(
+        temporal_extent=(before, after),
+    )
+    context.logger.info("Found scenes", n=len(scenes.granule_name))
+    context.submit_subtasks([
+      ProcessScene(str(name) for name in scenes.granule_name)
+    ])
 
-          var scenes []*examplesv1.Sentinel2Msi
-          _ = client.Datapoints.QueryInto(ctx, dataset.ID, &scenes,
-              datasets.WithCollections(collection),
-              datasets.WithTemporalExtent(query.NewTimeInterval(t.Before, t.After)),
-          )
+runner = Runner(tasks=[ComputeVisibleChange])
+```
+        </Tab>
 
-          slog.InfoContext(ctx, "Found scenes", slog.Int("n", len(scenes)))
-          for _, scene := range scenes {
-              _, _ = workflows.SubmitSubtask(ctx, &ProcessScene{
-                  Name: scene.GetGranuleName(),
-              })
-          }
-          return nil
-      }
-      ```
-      </CodeGroup>
+        <Tab title="Go">
+```go main.go lines
+type ComputeVisibleChange struct {
+    Before time.Time
+    After  time.Time
+}
+
+func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
+    client := datasets.NewClient()
+    dataset, _ := client.Datasets.Get(ctx, "open_data.copernicus.sentinel2_msi")
+    collection, _ := client.Collections.Get(ctx, dataset.ID, "S2A_S2MSI1C")
+
+    var scenes []*examplesv1.Sentinel2Msi
+    _ = client.Datapoints.QueryInto(ctx, dataset.ID, &scenes,
+        datasets.WithCollections(collection),
+        datasets.WithTemporalExtent(query.NewTimeInterval(t.Before, t.After)),
+    )
+
+    slog.InfoContext(ctx, "Found scenes", slog.Int("n", len(scenes)))
+    for _, scene := range scenes {
+        _, _ = workflows.SubmitSubtask(ctx, &ProcessScene{
+            Name: scene.GetGranuleName(),
+        })
+    }
+    return nil
+}
+```
+        </Tab>
+      </Tabs>
     </div>
   </div>
 </div>
@@ -178,7 +208,7 @@ export const HomeSearch = () => {
       Choose how you build
     </h2>
     <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-400 max-w-2xl">
-      Use Tilebox directly as a developer, or give an agent the same tools and documentation context so it can work with Tilebox for you.
+      Use Tilebox directly as a developer, or give an agent the same tools and documentation context so it can operate Tilebox for you.
     </p>
 
     <div className="mt-10 grid lg:grid-cols-2 gap-6">
@@ -256,7 +286,7 @@ export const HomeSearch = () => {
     </p>
 
     <div className="mt-8">
-      <Columns cols={3}>
+      <Columns cols={2}>
         <Tile href="/datasets/query/querying-data" title="Query satellite data" description="Search typed datasets by time, location, collection, or datapoint ID.">
           <img src="/assets/console/datasets-explorer-light.png" alt="Tilebox dataset explorer" className="block dark:hidden" />
           <img src="/assets/console/datasets-explorer-dark.png" alt="Tilebox dataset explorer" className="hidden dark:block" />
@@ -268,6 +298,10 @@ export const HomeSearch = () => {
         <Tile href="/workflows/concepts/runners" title="Deploy to your own compute" description="Connect runners to your own infrastructure and control where workflow tasks execute.">
           <img src="/assets/workflows/runners/runner-architecture-light.png" alt="Tilebox runner architecture" className="block dark:hidden" />
           <img src="/assets/workflows/runners/runner-architecture-dark.png" alt="Tilebox runner architecture" className="hidden dark:block" />
+        </Tile>
+        <Tile href="/guides/cookbook" title="Browse practical recipes" description="Find task-focused guides for querying data, building workflows, connecting storage, and operating Tilebox.">
+          <img src="/assets/landing/cookbook-recipes-light.png" alt="Recipe cards for common Tilebox guides" className="block dark:hidden" />
+          <img src="/assets/landing/cookbook-recipes-dark.png" alt="Recipe cards for common Tilebox guides" className="hidden dark:block" />
         </Tile>
       </Columns>
     </div>
@@ -291,7 +325,7 @@ export const HomeSearch = () => {
       Scale
     </p>
     <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
-      From first query to running on your infrastructure
+      From query to operational pipelines
     </h2>
     <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-3xl">
       Start with open data or your own catalogs, turn processing steps into tasks, and run them where your data and infrastructure already live.
@@ -300,7 +334,7 @@ export const HomeSearch = () => {
     <div className="mt-8">
       <Steps>
         <Step title="Discover and query data">
-          Query open datasets or your own Tilebox datasets by time, area of interest, collection, or datapoint ID.
+          Query open datasets or your own custom Tilebox datasets by time, area of interest, collection, or datapoint ID.
         </Step>
         <Step title="Build workflow tasks">
           Turn processing steps into workflow tasks that can submit subtasks, report progress, use caches, and emit logs and traces.
@@ -309,7 +343,7 @@ export const HomeSearch = () => {
           Develop with local runners, iterate quickly, and prototype your geospatial workflows.
         </Step>
         <Step title="Deploy to your own compute">
-          Run workflows across cloud, on-premises, sovereign, air-gapped, or edge environments while Tilebox tracks jobs and distributes work for parallel execution.
+          Run workflows across cloud, on premise, sovereign, air-gapped, or edge environments while Tilebox tracks jobs and distributes work for parallel execution.
         </Step>
         <Step title="Inspect and iterate">
           Query job state, logs, spans, and progress from the Console, SDKs, CLI, or agent tools.
