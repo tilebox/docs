@@ -126,6 +126,13 @@ CI notes:
 2. CI installs `mdx2vast` before running Vale.
 3. CI runs `vale sync && vale .` and `mintlify broken-links`.
 
+Vale expectations:
+
+1. Run `vale .` after documentation changes and make sure it passes.
+2. When writing original content, follow the active Vale rules from the start, including rules for concise language.
+3. If the user provides exact copy and it fails Vale, do not rewrite it without approval. Show the issue and ask whether to edit the copy or add an exception.
+4. If a larger rewrite is needed to satisfy Vale, or a new or updated rule creates many alerts at once, stop and ask how to proceed.
+
 ## Documentation Graphics And Workflow DAG Assets
 
 For normal documentation graphics, use the `creating-documentation-graphics` skill and generate PNGs with painter from the start. This applies to architecture diagrams, concept diagrams, release/deployment diagrams, data-flow diagrams, and other visual explainers embedded in docs pages.

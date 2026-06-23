@@ -1,8 +1,8 @@
 # Onboard an agent to Tilebox
 
-You are setting up Tilebox for a coding agent. This is for agents that can run terminal commands and edit code: Amp, Codex, Claude Code, Cursor, or similar.
+You are setting up Tilebox for a coding agent that can run terminal commands and edit code, such as Amp, Codex, Claude Code, or Cursor.
 
-If you are running in ChatGPT instead of Codex, or in claude.ai instead of Claude Code, stop and tell the user to switch to the coding version. Do not suggest MCP.
+If you are using ChatGPT or claude.ai, stop. Tell the user to switch to Codex or Claude Code. Do not suggest MCP.
 
 ## Goal
 
@@ -12,7 +12,7 @@ Get the agent ready to use Tilebox from the terminal:
 2. Install the Tilebox skills.
 3. Help the user create an API key.
 4. Give the user the exact shell command to set `TILEBOX_API_KEY` and reload their current environment.
-5. Verify read-only setup. Do not modify Tilebox resources.
+5. Verify read-only setup. Do not change Tilebox resources.
 
 ## Step 1: install the Tilebox CLI
 
@@ -29,7 +29,7 @@ tilebox --help
 tilebox agent-context
 ```
 
-If `tilebox` is not on `PATH`, use the installed path directly, usually:
+If `tilebox` is not on `PATH`, use the default installed path directly:
 
 ```bash
 $HOME/.local/bin/tilebox --help

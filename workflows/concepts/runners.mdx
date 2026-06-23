@@ -40,7 +40,7 @@ A release runner runs Python workflow releases deployed to a cluster. Start it w
 tilebox runner start --cluster dev-cluster
 ```
 
-The release runner can run releases from multiple workflows at the same time, however only one release per workflow. It continously polls the selected cluster for deployment updates, downloads missing release artifacts, validates and starts python processes for each workflow release, and requests work for all the task identifiers from it's deployed releases. When a new release is deployed or removed, the runner updates the task set it can execute.
+The release runner can run releases from multiple workflows at the same time, but only one release per workflow. It continuously polls the selected cluster for deployment updates, downloads missing release artifacts, checks them, starts Python processes for each workflow release, and requests work for every task identifier from its deployed releases. When a new release is deployed or removed, the runner updates the task set it can execute.
 
 <Info>
   Release runners currently only support Python workflow projects. The Tilebox CLI invokes the Python runner environment from the published release artifact using `uv`.
@@ -48,7 +48,7 @@ The release runner can run releases from multiple workflows at the same time, ho
 
 ### Direct runners
 
-A direct runner connects to the Tilebox API from your own code. It is useful when you want full control over the process, deployment environment, dependencies, startup behavior, and scaling. You are responsible for deploying the script or binary, keeping it running, rolling out code changes, and rolling back when needed.
+A direct runner connects to the Tilebox API from your own code. Use it when you want full control over the process, deployment environment, dependencies, startup behavior, and scaling. You are responsible for deploying the script or binary, keeping it running, rolling out code changes, and rolling back when needed.
 
 Define a `Runner` instance once and connect it to a `Client` during startup.
 
@@ -97,21 +97,21 @@ func main() {
 
 ## Task selection
 
-For a runner to pick up a submitted task, all of these conditions must match:
+For a runner to pick up a submitted task, these conditions must match:
 
 1. The task was submitted to the same [cluster](/workflows/concepts/clusters) as the runner.
 2. The runner advertises a [task identifier with the same name](/workflows/concepts/tasks#task-identifiers) and a [compatible version](/workflows/concepts/tasks#semantic-versioning).
-3. The task must be in `QUEUED` [state](/workflows/concepts/tasks#task-states), its [dependencies](/workflows/concepts/tasks#dependencies) are met and it's [maximum retries](/workflows/concepts/tasks#retry-handling) aren't exhausted.
+3. The task must be in `QUEUED` [state](/workflows/concepts/tasks#task-states), its [dependencies](/workflows/concepts/tasks#dependencies) are met, and its [maximum retries](/workflows/concepts/tasks#retry-handling) aren't exhausted.
 
 Release runners advertise the task identifiers from workflow releases currently deployed to the cluster. Direct runners advertise the task identifiers they register in the running process.
 
 <Tip>
-  If multiple tasks match those conditions, Tilebox picks one and assigns it to a runner. The remaining tasks stay queued until another matching runner is available. Parallel runner processes can speed up the job execution in such cases. 
+  If multiple tasks match those conditions, Tilebox picks one and assigns it to a runner. The remaining tasks stay queued until another matching runner is available. Parallel runner processes can speed up the job execution in such cases.
 </Tip>
 
 ## Parallelism
 
-Start multiple runner processes to execute tasks in parallel. Each runner process claims and executes tasks independently. You can run several release runners, several direct runners, or a mix of both in the same cluster. This allows for high parallelism and can be used to scale the execution of tasks to handle large workloads.
+Start multiple runner processes to execute tasks in parallel. Each runner process claims and executes tasks independently. You can run multiple release runners, multiple direct runners, or a mix of both in the same cluster. This increases parallelism and helps handle large workloads.
 
 To test this, run multiple instances of the runner script in different terminal windows on your local machine, or use the [CLI](/agents-and-ai-tools/tilebox-cli) built-in `parallel` subcommand to start multiple runners in parallel.
 
@@ -125,7 +125,7 @@ To test this, run multiple instances of the runner script in different terminal 
 
 ## Scaling
 
-One key benefit of this runner architecture is the **ability to scale even while workflows are executing**. You can start new runners at any time, and they can immediately pick up queued tasks to execute. It's not necessary to have an entire processing cluster available at the start of a workflow, as additional runners can be started and stopped as needed.
+One key benefit of this runner architecture is the **ability to scale even while workflows are executing**. You can start new runners at any time, and they can immediately pick up queued tasks to execute. You do not need an entire processing cluster available at the start of a workflow, because you can start and stop more runners as needed.
 
 This is particularly beneficial in cloud environments, where runners can be automatically started and stopped based on current workload, measured by metrics such as CPU usage. Here's an example scenario:
 

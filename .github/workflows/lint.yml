@@ -11,7 +11,7 @@ jobs:
           lfs: true
       - name: Install Vale
         run: |
-          curl -L "https://github.com/errata-ai/vale/releases/download/v3.13.1/vale_3.13.1_Linux_64-bit.tar.gz" -o vale.tar.gz
+          curl -L "https://github.com/errata-ai/vale/releases/download/v3.15.1/vale_3.15.1_Linux_64-bit.tar.gz" -o vale.tar.gz
           tar -xzf vale.tar.gz -C /usr/local/bin vale
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -33,6 +33,6 @@ jobs:
         with:
           node-version: 24
       - name: Install Mintlify CLI
-        run: npm install -g mintlify
+        run: npm install -g mint
       - name: Run Mintlify broken-links
-        run: mintlify broken-links
+        run: mint broken-links

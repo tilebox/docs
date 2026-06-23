@@ -70,3 +70,6 @@ reprojected
 (?i)geospatial
 (?i)cartesian
 (?i)OAuth
+(?i)zsh
+(?i)undeploy
+(?i)subcommand
