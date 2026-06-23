@@ -54,6 +54,8 @@ Common page flow patterns in this repo:
 3. Step-by-step sections for procedures.
 4. `Next steps` links/cards at the end.
 
+For command examples in user guides, optimize for reader copy/paste rather than fully scripted automation. Prefer direct `tilebox` commands and simple shell setup commands such as `cd`, `mkdir`, and `export`. Avoid Bash command substitution, uppercase helper variables such as `RELEASE_ID` or `JOB_ID`, `jq` pipelines, heredocs, and `--json` unless the page is explicitly about structured output or automation. When a later command needs a value returned by an earlier command, show the earlier command output and use a placeholder such as `<JOB_ID>` in follow-up commands.
+
 ## Terminology, Capitalization, And Naming
 
 Use consistent product language:
@@ -125,6 +127,13 @@ CI notes:
 1. CI installs Node `24`.
 2. CI installs `mdx2vast` before running Vale.
 3. CI runs `vale sync && vale .` and `mintlify broken-links`.
+
+Vale expectations:
+
+1. Run `vale .` after documentation changes and make sure it passes.
+2. When writing original content, follow the active Vale rules from the start, including rules for concise language.
+3. If the user provides exact copy and it fails Vale, do not rewrite it without approval. Show the issue and ask whether to edit the copy or add an exception.
+4. If a larger rewrite is needed to satisfy Vale, or a new or updated rule creates many alerts at once, stop and ask how to proceed.
 
 ## Documentation Graphics And Workflow DAG Assets
 

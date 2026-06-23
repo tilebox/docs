@@ -11,8 +11,8 @@ Use this guide when a workflow job fails, runs slower than expected, or stays qu
 Open the job in the [Tilebox Console](https://console.tilebox.com/workflows/jobs), or use the Tilebox command-line tool if you already have the job ID.
 
 ```bash
-tilebox job logs <job-id> --json
-tilebox job spans <job-id> --json
+tilebox job logs <job-id>
+tilebox job spans <job-id>
 ```
 
 ## Check task state first
@@ -32,7 +32,7 @@ Common checks:
 Logs show messages emitted by task code and runner context attached by Tilebox.
 
 ```bash
-tilebox job logs <job-id> --json | jq '.[] | {time, level, body, attributes}'
+tilebox job logs <job-id>
 ```
 
 Use structured log fields in your tasks so the relevant scene ID, product ID, path, or model name appears in the log record.
@@ -42,7 +42,7 @@ Use structured log fields in your tasks so the relevant scene ID, product ID, pa
 Traces show task timing, parent-child relationships, custom spans, and failures.
 
 ```bash
-tilebox job spans <job-id> --json | jq '.[] | {name, status, duration}'
+tilebox job spans <job-id>
 ```
 
 Use traces to find slow subtasks, repeated retries, and failures inside a specific custom span.

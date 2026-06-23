@@ -4,6 +4,8 @@ description: Use a coding agent with the Tilebox command-line tool to edit, publ
 icon: robot
 ---
 
+import { AgentPrompt } from '/snippets/components.mdx';
+
 This guide shows the recommended loop for AI-assisted workflow development. The agent edits Python workflow code, publishes a release, deploys it to a development cluster, starts a release runner, submits a test job, and inspects logs or spans before iterating.
 
 Use this loop when you want the code under test to match the artifact that release runners execute.
@@ -20,17 +22,23 @@ npx skills add tilebox/skills
 
 Ask the agent to inspect the command-line tool before changing resources.
 
-```text Prompt
-Load the Tilebox workflow skills. Inspect `tilebox agent-context workflow --output-schema` and `tilebox agent-context runner start --output-schema`. Do not modify Tilebox resources yet.
-```
+<AgentPrompt>
+  Load the Tilebox workflow skills. Inspect `tilebox agent-context workflow --output-schema` and `tilebox agent-context runner start --output-schema`. Do not modify Tilebox resources yet.
+</AgentPrompt>
 
 ## Create or update the workflow project
 
-Ask the agent to keep the workflow project centered on one reusable `Runner` definition.
+For a new workflow project, ask the agent to initialize the project before editing task code.
 
-```text Prompt
-Update this Python workflow project. Keep task classes in `src/<package>/tasks.py`, export `runner = Runner(tasks=[...])` from `src/<package>/runner.py`, and keep `tilebox.workflow.toml` pointing at that runner object.
-```
+<AgentPrompt>
+  Inspect `tilebox agent-context workflow init --output-schema`. Then initialize a new Tilebox workflow project with `tilebox workflow init --name "<workflow-name>"`. After initialization, update the generated runner.py with the workflow tasks.
+</AgentPrompt>
+
+For an existing workflow project, ask the agent to keep the project centered on one reusable `Runner` definition.
+
+<AgentPrompt>
+  Update this Python workflow project. Keep task classes in `src/<package>/tasks.py`, export `runner = Runner(tasks=[...])` from `src/<package>/runner.py`, and keep `tilebox.workflow.toml` pointing at that runner object.
+</AgentPrompt>
 
 The direct runner path and release runner path should use the same `Runner` object. Direct execution uses `runner.connect_to(Client(), cluster=...)`; release execution uses `tilebox.workflow.toml` and `tilebox runner start`.
 
@@ -39,7 +47,7 @@ The direct runner path and release runner path should use the same `Runner` obje
 Create a development cluster if you do not already have one.
 
 ```bash
-tilebox cluster create "workflow-dev" --json
+tilebox cluster create "workflow-dev"
 ```
 
 Add the cluster slug to `tilebox.workflow.toml`.
@@ -54,21 +62,21 @@ clusters = ["workflow-dev-abc123"]
 Ask the agent to build locally first when it needs detailed validation output.
 
 ```bash
-tilebox workflow build-release --debug --json
+tilebox workflow build-release --debug
 ```
 
 Then publish the release.
 
 ```bash
-RELEASE_ID=$(tilebox workflow publish-release --json | jq -r '.id')
+tilebox workflow publish-release
 ```
 
 ## Deploy to the development cluster
 
-Deploy the exact release the agent just published.
+Deploy the latest release the agent just published.
 
 ```bash
-tilebox workflow deploy-release --release "$RELEASE_ID" --target dev --json
+tilebox workflow deploy-release --latest --target dev
 ```
 
 This updates cluster deployment state. It does not submit a job.
@@ -88,21 +96,24 @@ Keep this runner running while the agent iterates. It can run multiple deployed 
 Submit a root task to the same cluster.
 
 ```bash
-JOB_ID=$(tilebox job submit \
+tilebox job submit \
   --name my-workflow-test \
   --task tilebox.com/example/ProcessScene \
   --version v1.0 \
   --cluster workflow-dev-abc123 \
   --input '{"scene_id":"S2A_001"}' \
-  --wait \
-  --json | jq -r '.id')
+  --wait
+```
+
+```text
+Job submitted: 019ef7a2-56b4-7a86-9c4d-52a1792b1e90
 ```
 
 Inspect logs and spans when the job fails or takes longer than expected.
 
 ```bash
-tilebox job logs "$JOB_ID" --json
-tilebox job spans "$JOB_ID" --json
+tilebox job logs <JOB_ID>
+tilebox job spans <JOB_ID>
 ```
 
 ## Iterate safely
@@ -110,9 +121,9 @@ tilebox job spans "$JOB_ID" --json
 For compatible fixes, keep the task identifier name and major version stable. Publish and deploy the fix, then retry the failed job.
 
 ```bash
-RELEASE_ID=$(tilebox workflow publish-release --json | jq -r '.id')
-tilebox workflow deploy-release --release "$RELEASE_ID" --target dev --json
-tilebox job retry "$JOB_ID" --json
+tilebox workflow publish-release
+tilebox workflow deploy-release --latest --target dev
+tilebox job retry <JOB_ID>
 ```
 
 For breaking input or behavior changes, bump the task major version and submit a new test job.

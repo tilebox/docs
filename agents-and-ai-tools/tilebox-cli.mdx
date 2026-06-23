@@ -46,6 +46,16 @@ Use `--json` when the agent needs to parse command output. Structured output is 
 tilebox dataset list --json
 ```
 
+## Scaffold workflow projects
+
+Use the CLI to create a Tilebox workflow and scaffold a Python release project.
+
+```bash
+tilebox workflow init --name "Scene QA" --json
+```
+
+The command creates the remote workflow, writes `tilebox.workflow.toml`, creates Python project files, adds the `tilebox` dependency, and runs `uv sync`. See [Project Structure](/workflows/build-and-deploy/project-structure) for the generated files and release project layout.
+
 ## Use files and standard input for generated input
 
 For larger inputs, prefer file-based flags instead of long shell-quoted strings. The CLI supports input patterns such as `--schema-file`, `--input-file`, `--spatial-extent-file`, and `--description-file`. Many file flags also support `-` for reading from standard input.

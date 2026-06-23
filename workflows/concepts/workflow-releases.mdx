@@ -6,6 +6,8 @@ icon: box-open
 
 A workflow is a set of interrelated tasks. You can run those tasks directly without registering the workflow with Tilebox. Registering a workflow with the Tilebox API gives it a stable slug, which lets you publish immutable release artifacts to it and deploy a release to one or more clusters.
 
+For a new Python release project, `tilebox workflow init` creates the workflow object and scaffolds the local project files used to build releases.
+
 That release path enables [release runners](/workflows/concepts/runners#release-runners). Release runners operate on a cluster, pick up all the releases deployed to that cluster, and execute tasks. This provides an easy way of deploying workflows to a compute cluster, including a quick and agent-accessible iteration loop: change code, publish a release, deploy it, run a job, and inspect the result.
 
 ## Workflows and releases

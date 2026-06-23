@@ -49,9 +49,16 @@
 }
 
 .dark .tilebox-agent-chat-avatar {
-  background: rgb(251 113 133);
-  box-shadow: 10px 12px 18px rgb(251 113 133 / 0.20);
+  background: rgb(244 63 94);
+  box-shadow: 10px 12px 18px rgb(244 63 94 / 0.20);
   color: rgb(255 255 255);
+}
+
+.tilebox-agent-chat-avatar svg {
+  background-color: rgb(255 255 255);
+  height: 0.9rem;
+  fill: currentColor;
+  width: 0.9rem;
 }
 
 .tilebox-agent-chat-content {
@@ -67,15 +74,16 @@
 }
 
 .dark .tilebox-agent-chat-meta {
-  color: rgb(156 163 175);
+  color: rgb(161 161 170);
 }
 
 .tilebox-agent-chat-bubble {
   background: rgb(255 255 255);
   border: 1px solid rgb(229 231 235);
   box-shadow: 0 12px 28px rgb(15 23 42 / 0.07);
-  color: rgb(17 24 39);
+  color: rgb(63 63 70);
   display: block !important;
+  font-family: "Geist", var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   font-size: 0.82rem;
   line-height: 1.62;
   margin: 0;
@@ -101,10 +109,11 @@
 
 .tilebox-agent-chat-bubble li {
   display: list-item;
+  padding-left: 0.3em !important;
 }
 
 .tilebox-agent-chat-bubble li::marker {
-  color: rgb(17 24 39);
+  color: rgb(63 63 70);
   content: "-";
   font-size: 1.2em;
 }
@@ -115,14 +124,14 @@
 }
 
 .dark .tilebox-agent-chat-bubble {
-  background: rgb(17 24 39);
-  border-color: rgb(55 65 81);
+  background: rgb(24 24 27);
+  border-color: rgb(63 63 70);
   box-shadow: 0 12px 28px rgb(0 0 0 / 0.30);
-  color: rgb(229 231 235);
+  color: rgb(212 212 216);
 }
 
 .dark .tilebox-agent-chat-bubble li::marker {
-  color: rgb(229 231 235);
+  color: rgb(212 212 216);
 }
 
 .tilebox-agent-chat-composer {
@@ -131,6 +140,7 @@
   border: 1px solid rgb(229 231 235);
   color: rgb(107 114 128);
   display: flex;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 0.88rem;
   justify-content: space-between;
   margin-left: 2.875rem;
@@ -145,14 +155,14 @@
 }
 
 .dark .tilebox-agent-chat-composer {
-  background: rgb(3 7 18);
-  border-color: rgb(31 41 55);
-  color: rgb(156 163 175);
+  background: rgb(24 24 27);
+  border-color: rgb(63 63 70);
+  color: rgb(161 161 170);
 }
 
 .dark .tilebox-agent-chat-composer:hover {
-  border-color: rgb(75 85 99);
-  color: rgb(229 231 235);
+  border-color: rgb(82 82 91);
+  color: rgb(228 228 231);
 }
 
 .tilebox-agent-chat-send {
@@ -168,9 +178,9 @@
 }
 
 .dark .tilebox-agent-chat-send {
-  background: rgb(17 24 39);
-  border-color: rgb(55 65 81);
-  color: rgb(209 213 219);
+  background: rgb(39 39 42);
+  border-color: rgb(63 63 70);
+  color: rgb(212 212 216);
 }
 
 .tilebox-cli-window {
@@ -265,7 +275,7 @@ html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"] {
 }
 
 html.dark:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"] {
-  color: rgb(156 163 175) !important;
+  color: rgb(161 161 170) !important;
 }
 
 html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"] > div {
@@ -277,7 +287,7 @@ html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hove
 }
 
 html.dark:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hover {
-  color: rgb(209 213 219) !important;
+  color: rgb(212 212 216) !important;
 }
 
 html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hover > div {
@@ -285,5 +295,5 @@ html:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hove
 }
 
 html.dark:has(.tilebox-home-marker) .nav-tabs .nav-tabs-item[data-active="true"]:hover > div {
-  background: rgb(55 65 81) !important;
+  background: rgb(63 63 70) !important;
 }

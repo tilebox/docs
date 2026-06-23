@@ -31,15 +31,15 @@ export const HomeSearch = () => {
     <button
       type="button"
       onClick={openSearch}
-      className="mt-8 w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-4 py-3 text-left shadow-sm hover:border-gray-300 dark:hover:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+      className="mt-8 w-full rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 text-left shadow-sm hover:border-gray-300 dark:hover:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-primary"
       aria-label="Search Tilebox documentation"
     >
       <span className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
+        <span className="flex items-center gap-3 text-gray-500 dark:text-zinc-400">
           <Icon icon="magnifying-glass" />
           <span>What do you want to build?</span>
         </span>
-        <kbd className="hidden sm:inline-flex px-1.5 py-0.5 text-xs text-gray-500 dark:text-gray-400">
+        <kbd className="hidden sm:inline-flex px-1.5 py-0.5 text-xs text-gray-500 dark:text-zinc-400">
           ⌘K
         </kbd>
       </span>
@@ -58,22 +58,22 @@ export const HomeSearch = () => {
       <h1 className="mt-4 text-4xl lg:text-6xl font-semibold tracking-tight text-gray-950 dark:text-white">
         Start building with Tilebox
       </h1>
-      <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-400">
+      <p className="mt-6 text-lg leading-8 text-gray-600 dark:text-zinc-400">
         Query Earth Data. Build, run, debug, and scale geospatial workflows across environments. One API for humans and agents.
       </p>
 
       <HomeSearch />
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-950 dark:hover:text-white" href="/quickstart">
+        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-zinc-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:border-gray-300 dark:hover:border-zinc-700 hover:text-gray-950 dark:hover:text-white" href="/quickstart">
           <Icon icon="play" />
           Quickstart
         </a>
-        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-950 dark:hover:text-white" href="/authentication">
+        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-zinc-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:border-gray-300 dark:hover:border-zinc-700 hover:text-gray-950 dark:hover:text-white" href="/authentication">
           <Icon icon="key" />
           Get API Key
         </a>
-        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-950 dark:hover:text-white" href="/guides/datasets/ingest-into-spatiotemporal-catalog">
+        <a className="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-zinc-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:border-gray-300 dark:hover:border-zinc-700 hover:text-gray-950 dark:hover:text-white" href="/guides/datasets/ingest-into-spatiotemporal-catalog">
           <Icon icon="database" />
           Ingest data
         </a>
@@ -86,7 +86,7 @@ export const HomeSearch = () => {
           <div className="tilebox-agent-chat" aria-label="Example agent chat prompt">
             <div className="tilebox-agent-chat-message">
               <div className="tilebox-agent-chat-avatar" aria-hidden="true">
-                U
+                <Icon icon="user" iconType="regular" />
               </div>
               <div className="tilebox-agent-chat-content">
                 <div className="tilebox-agent-chat-meta">You</div>
@@ -106,7 +106,7 @@ export const HomeSearch = () => {
                   </p>
                 </div>
               </div>
-            </div>
+            </div>  
             <a className="tilebox-agent-chat-composer" href="/onboard-your-agent">
               <span>Ask your agent to build with Tilebox…</span>
               <span className="tilebox-agent-chat-send">↵</span>
@@ -207,13 +207,13 @@ func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
     <h2 className="mt-3 text-3xl font-semibold tracking-tight text-gray-950 dark:text-white">
       Choose how you build
     </h2>
-    <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-400 max-w-2xl">
+    <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-zinc-400 max-w-2xl">
       Use Tilebox directly as a developer, or give an agent the same tools and documentation context so it can operate Tilebox for you.
     </p>
 
     <div className="mt-10 grid lg:grid-cols-2 gap-6">
-      <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
-        <div className="tilebox-mode-card-preview flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
+      <div className="border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
+        <div className="tilebox-mode-card-preview flex items-center justify-center border-b border-gray-200 dark:border-zinc-800">
           <img src="/assets/landing/agent-mode-light.png" alt="Agent connected to Earth data and workflow observability tools" className="tilebox-mode-card-image dark:hidden" />
           <img src="/assets/landing/agent-mode-dark.png" alt="Agent connected to Earth data and workflow observability tools" className="tilebox-mode-card-image hidden dark:block" />
         </div>
@@ -221,19 +221,19 @@ func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
           <h3 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
             Use an agent
           </h3>
-          <p className="mt-3 text-gray-600 dark:text-gray-400 leading-7">
+          <p className="mt-3 text-gray-600 dark:text-zinc-400 leading-7">
             Configure a coding agent with the Tilebox CLI, agent skills, and optional MCP access. Agents can inspect datasets, write workflow code, submit jobs, and debug runs with Tilebox context.
           </p>
           <div className="mt-8 space-y-4">
-            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/onboard-your-agent">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-gray-950 dark:hover:text-white" href="/onboard-your-agent">
               <Icon icon="play" />
               Onboard your agent
             </a>
-            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/guides/workflows/agentic-workflow-iteration">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-gray-950 dark:hover:text-white" href="/guides/workflows/agentic-workflow-iteration">
               <Icon icon="book" />
               Create and deploy workflows
             </a>
-            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/agents-and-ai-tools/tilebox-mcp">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-gray-950 dark:hover:text-white" href="/agents-and-ai-tools/tilebox-mcp">
               <Icon icon="plug" />
               Connect with MCP
             </a>
@@ -241,8 +241,8 @@ func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
         </div>
       </div>
 
-      <div className="border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
-        <div className="tilebox-mode-card-preview flex items-center justify-center border-b border-gray-200 dark:border-gray-800">
+      <div className="border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
+        <div className="tilebox-mode-card-preview flex items-center justify-center border-b border-gray-200 dark:border-zinc-800">
           <img src="/assets/landing/developer-mode-light.png" alt="Developer terminal connected to code debugging and dataset tools" className="tilebox-mode-card-image dark:hidden" />
           <img src="/assets/landing/developer-mode-dark.png" alt="Developer terminal connected to code debugging and dataset tools" className="tilebox-mode-card-image hidden dark:block" />
         </div>
@@ -250,19 +250,19 @@ func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
           <h3 className="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
             Build as a developer
           </h3>
-          <p className="mt-3 text-gray-600 dark:text-gray-400 leading-7">
+          <p className="mt-3 text-gray-600 dark:text-zinc-400 leading-7">
             Use the Console, Python SDK, Go SDK, and CLI to query data, ingest your own catalogs, create workflow tasks, and run them across your infrastructure.
           </p>
           <div className="mt-8 space-y-4">
-            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/quickstart">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-gray-950 dark:hover:text-white" href="/quickstart">
               <Icon icon="play" />
               Quickstart
             </a>
-            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/sdks/introduction">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-gray-950 dark:hover:text-white" href="/sdks/introduction">
               <Icon icon="code" />
               Choose an SDK
             </a>
-            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white" href="/api-reference/python/tilebox.datasets/Client">
+            <a className="flex items-center gap-3 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:text-gray-950 dark:hover:text-white" href="/api-reference/python/tilebox.datasets/Client">
               <Icon icon="book" />
               API reference
             </a>
@@ -273,7 +273,7 @@ func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
   </div>
 </div>
 
-<div className="px-6 py-16 bg-gray-50 dark:bg-gray-950 border-y border-gray-200 dark:border-gray-800">
+<div className="px-6 py-16 bg-gray-50 dark:bg-zinc-950 border-y border-gray-200 dark:border-zinc-800">
   <div className="max-w-6xl mx-auto">
     <p className="text-sm font-semibold text-primary dark:text-primary-light uppercase tracking-wide">
       Learn
@@ -281,7 +281,7 @@ func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
     <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
       Explore the platform
     </h2>
-    <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-3xl">
+    <p className="mt-3 text-gray-600 dark:text-zinc-400 max-w-3xl">
       Start from the outcome you need. Tilebox combines typed data access, workflow execution on your infrastructure, and shared observability for people and agents working on geospatial systems.
     </p>
 
@@ -320,14 +320,14 @@ func (t *ComputeVisibleChange) Execute(ctx context.Context) error {
 </div>
 
 <div className="px-6 pb-20">
-  <div className="max-w-6xl mx-auto rounded-2xl p-8 bg-white dark:bg-gray-950">
+  <div className="max-w-6xl mx-auto rounded-2xl p-8 bg-white dark:bg-zinc-950">
     <p className="text-sm font-semibold text-primary dark:text-primary-light uppercase tracking-wide">
       Scale
     </p>
     <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
       From query to operational pipelines
     </h2>
-    <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-3xl">
+    <p className="mt-3 text-gray-600 dark:text-zinc-400 max-w-3xl">
       Start with open data or your own catalogs, turn processing steps into tasks, and run them where your data and infrastructure already live.
     </p>
 

@@ -15,10 +15,10 @@ tilebox job logs <job-id> --json
 tilebox job spans <job-id> --json
 ```
 
-Use `jq` to narrow the output during debugging.
+Limit or sort the output during debugging.
 
 ```bash
-tilebox job logs <job-id> --json | jq '.[] | select(.level == "ERROR")'
+tilebox job logs <job-id> --limit 10 --sort desc
 ```
 
 ## Query from Python

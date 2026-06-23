@@ -23,13 +23,13 @@ Use a new major task version and submit a new job when the input schema or behav
 After editing the workflow code, publish a new release.
 
 ```bash
-RELEASE_ID=$(tilebox workflow publish-release --json | jq -r '.id')
+tilebox workflow publish-release
 ```
 
 For validation details, build locally first.
 
 ```bash
-tilebox workflow build-release --debug --json
+tilebox workflow build-release --debug
 ```
 
 ## Deploy to the same cluster
@@ -37,7 +37,7 @@ tilebox workflow build-release --debug --json
 Deploy the fixed release to the same cluster that received the original job.
 
 ```bash
-tilebox workflow deploy-release --release "$RELEASE_ID" --cluster workflow-dev --json
+tilebox workflow deploy-release --latest --cluster workflow-dev
 ```
 
 The job cluster, release deployment cluster, and release runner cluster must match.
@@ -47,14 +47,14 @@ The job cluster, release deployment cluster, and release runner cluster must mat
 Retry the failed job.
 
 ```bash
-tilebox job retry <job-id> --json
+tilebox job retry <job-id>
 ```
 
 Then inspect logs and spans to confirm the fixed task completed.
 
 ```bash
-tilebox job logs <job-id> --json
-tilebox job spans <job-id> --json
+tilebox job logs <job-id>
+tilebox job spans <job-id>
 ```
 
 ## Next steps

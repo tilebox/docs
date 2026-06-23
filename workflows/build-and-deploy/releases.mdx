@@ -12,7 +12,7 @@ The release lifecycle separates code packaging from cluster rollout. Building an
 
 | Stage | What it does | What changes |
 | --- | --- | --- |
-| Workflow creation | Creates the long-lived workflow object and slug. | Adds a workflow record. |
+| Workflow initialization | Creates the long-lived workflow object and local project configuration. | Adds a workflow record and, when using `tilebox workflow init`, local scaffold files. |
 | Local build | Resolves files, creates a deterministic artifact, and checks the configured Python runtime. | Writes local build output and cache entries. |
 | Publishing | Uploads the artifact when needed and creates an immutable release record. | Adds or reuses a workflow release. |
 | Deployment | Maps a release to one or more clusters. | Changes which release runners can execute the release. |
@@ -22,7 +22,7 @@ The release lifecycle separates code packaging from cluster rollout. Building an
 
 A workflow is the stable object that releases belong to. It has a slug, such as `my-workflow`, which is referenced from `tilebox.workflow.toml`. The workflow object is not the executable code itself; it provides the long-lived name under which releases are published.
 
-Create the workflow object once, then keep publishing new releases to it as the code changes. This gives release runners and deployment commands a stable workflow identity while each release remains immutable.
+Create the workflow object once, then keep publishing new releases to it as the code changes. For new Python workflow projects, `tilebox workflow init` creates the workflow object and writes the returned slug into `tilebox.workflow.toml`. This gives release runners and deployment commands a stable workflow identity while each release remains immutable.
 
 ## Release artifact
 
