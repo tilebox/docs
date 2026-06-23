@@ -6,14 +6,14 @@ icon: download
 
 ## Package Overview
 
-Tilebox offers a Go SDK for accessing Tilebox services. It additionally includes a command-line tool (tilebox-generate) that can be installed separately.
+Tilebox offers a Go SDK for accessing Tilebox services. The Tilebox command-line tool includes `tilebox dataset generate`, which generates Go protobuf types for Tilebox datasets.
 
 <Columns cols={2}>
   <Card title="tilebox-go" icon="golang" href="https://github.com/tilebox/tilebox-go" horizontal>
     Datasets and workflows client for Tilebox
   </Card>
-  <Card title="tilebox-generate" icon="terminal" href="https://github.com/tilebox/tilebox-generate" horizontal>
-    Command-line tool to generate Tilebox datasets types for Go
+  <Card title="Tilebox CLI" icon="terminal" href="/agents-and-ai-tools/tilebox-cli" horizontal>
+    Command-line tools to query datasets, run workflows, and generate Go dataset types
   </Card>
 </Columns>
 
@@ -25,8 +25,8 @@ Add `tilebox-go` to your project.
 go get github.com/tilebox/tilebox-go
 ```
 
-Install `tilebox-generate` command-line tool on your machine.
+Install the Tilebox command-line tool on your machine.
 
 ```bash Shell
-go install github.com/tilebox/tilebox-generate@latest
+curl -fsSL https://cli.tilebox.com/install.sh | sh
 ```

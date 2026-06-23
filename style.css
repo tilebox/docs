@@ -21,6 +21,236 @@
   width: 100%;
 }
 
+.tilebox-agent-chat {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  padding-left: 0.25rem;
+  padding-top: 0.25rem;
+}
+
+.tilebox-agent-chat-message {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.875rem;
+}
+
+.tilebox-agent-chat-avatar {
+  align-items: center;
+  background: rgb(244 63 94);
+  border-radius: 999px !important;
+  box-shadow: 10px 12px 18px rgb(244 63 94 / 0.18);
+  color: rgb(255 255 255);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 700;
+  height: 2rem;
+  justify-content: center;
+  width: 2rem;
+}
+
+.dark .tilebox-agent-chat-avatar {
+  background: rgb(251 113 133);
+  box-shadow: 10px 12px 18px rgb(251 113 133 / 0.20);
+  color: rgb(255 255 255);
+}
+
+.tilebox-agent-chat-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tilebox-agent-chat-meta {
+  color: rgb(75 85 99);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+}
+
+.dark .tilebox-agent-chat-meta {
+  color: rgb(156 163 175);
+}
+
+.tilebox-agent-chat-bubble {
+  background: rgb(255 255 255);
+  border: 1px solid rgb(229 231 235);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 0.07);
+  color: rgb(17 24 39);
+  display: block !important;
+  font-size: 0.82rem;
+  line-height: 1.62;
+  margin: 0;
+  max-height: 440px;
+  overflow: auto;
+  overflow-wrap: normal;
+  padding: 1rem;
+  text-align: left !important;
+  word-break: normal;
+}
+
+.tilebox-agent-chat-bubble p,
+.tilebox-agent-chat-bubble ul,
+.tilebox-agent-chat-bubble li {
+  margin: 0;
+  padding: 0;
+}
+
+.tilebox-agent-chat-bubble ul {
+  list-style-position: outside;
+  padding-left: 1.05em;
+}
+
+.tilebox-agent-chat-bubble li {
+  display: list-item;
+}
+
+.tilebox-agent-chat-bubble li::marker {
+  color: rgb(17 24 39);
+  content: "-";
+  font-size: 1.2em;
+}
+
+.tilebox-agent-chat-bubble li::before {
+  content: none !important;
+  display: none !important;
+}
+
+.dark .tilebox-agent-chat-bubble {
+  background: rgb(17 24 39);
+  border-color: rgb(55 65 81);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.30);
+  color: rgb(229 231 235);
+}
+
+.dark .tilebox-agent-chat-bubble li::marker {
+  color: rgb(229 231 235);
+}
+
+.tilebox-agent-chat-composer {
+  align-items: center;
+  background: rgb(255 255 255);
+  border: 1px solid rgb(229 231 235);
+  color: rgb(107 114 128);
+  display: flex;
+  font-size: 0.88rem;
+  justify-content: space-between;
+  margin-left: 2.875rem;
+  margin-top: 1rem;
+  padding: 0.85rem 0.95rem;
+  text-decoration: none;
+}
+
+.tilebox-agent-chat-composer:hover {
+  border-color: rgb(209 213 219);
+  color: rgb(31 41 55);
+}
+
+.dark .tilebox-agent-chat-composer {
+  background: rgb(3 7 18);
+  border-color: rgb(31 41 55);
+  color: rgb(156 163 175);
+}
+
+.dark .tilebox-agent-chat-composer:hover {
+  border-color: rgb(75 85 99);
+  color: rgb(229 231 235);
+}
+
+.tilebox-agent-chat-send {
+  align-items: center;
+  background: rgb(243 244 246);
+  border: 1px solid rgb(229 231 235);
+  color: rgb(75 85 99);
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 1.75rem;
+  justify-content: center;
+  width: 1.75rem;
+}
+
+.dark .tilebox-agent-chat-send {
+  background: rgb(17 24 39);
+  border-color: rgb(55 65 81);
+  color: rgb(209 213 219);
+}
+
+.tilebox-cli-window {
+  background: rgb(244 244 245);
+  border: 1px solid rgb(187 187 187 / 0.5);
+  box-shadow: 0 24px 36px rgb(0 0 0 / 0.18);
+  overflow: hidden;
+}
+
+.dark .tilebox-cli-window {
+  background: rgb(31 31 31);
+}
+
+.tilebox-cli-controls {
+  background: rgb(244 244 245);
+  display: flex;
+  gap: 0.52rem;
+  margin: 0;
+  padding: 1rem 1.2rem 1rem;
+}
+
+.dark .tilebox-cli-controls {
+  background: rgb(31 31 31);
+}
+
+.tilebox-cli-control {
+  border-radius: 999px !important;
+  display: block;
+  height: 0.9rem;
+  width: 0.9rem;
+}
+
+.tilebox-cli-control-red {
+  background: rgb(255 91 87);
+}
+
+.tilebox-cli-control-yellow {
+  background: rgb(255 189 46);
+}
+
+.tilebox-cli-control-green {
+  background: rgb(40 201 64);
+}
+
+.tilebox-cli-code {
+  color: rgb(229 229 184);
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0;
+  overflow: visible;
+  tab-size: 2;
+  white-space: pre;
+}
+
+.tilebox-cli-code .code-block {
+  border: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.tilebox-cli-code [data-component-part="code-block-header"] {
+  display: none !important;
+}
+
+.tilebox-cli-code .code-block-background {
+  margin: 0 !important;
+  padding: 1.35rem 1.55rem 1.65rem !important;
+}
+
+.tilebox-cli-code pre,
+.tilebox-cli-code code {
+  margin: 0 !important;
+}
+
+.tilebox-cli-code code {
+  font: inherit;
+}
+
 @media (max-width: 1023px) {
   .tilebox-landing-hero {
     min-height: auto;

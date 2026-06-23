@@ -9,18 +9,18 @@ Tilebox uses [Protocol Buffers](https://protobuf.dev/), with a custom generation
 [Protocol Buffers](https://protobuf.dev/) (often referred to as `protobuf`) is a schema definition language with an efficient binary format and native language support for lots of languages, including Go.
 Protocol buffers are open source since 2008 and are maintained by Google.
 
-## tilebox-generate
+## Generate Go types
 
 Protobuf schemas are typically defined in a `.proto` file, and then converted to a native Go struct using the protobuf compiler.
-Tilebox datasets already define a protobuf schema as well, and automate the generation of Go structs for existing datasets through a quick `tilebox-generate` command-line tool.
+Tilebox datasets already define a protobuf schema as well. Use `tilebox dataset generate` to generate Go structs for existing datasets.
 
-See [Installation](/sdks/go/install) for more details on how to install `tilebox-generate`.
+See [Installation](/sdks/go/install) for more details on how to install the Tilebox command-line tool.
 
 ```sh
-tilebox-generate --dataset open_data.copernicus.sentinel1_sar
+tilebox dataset generate --slug open_data.copernicus.sentinel1_sar
 ```
 
-The preceding command will generate a `./protogen/tilebox/v1/sentinel1_sar.pb.go` file. More flags can be set to change the default output folders, package name, etc.
+The preceding command will generate a `./protogen/tilebox/v1/sentinel1_sar.pb.go` file. Use `--out`, `--package`, and `--name` to change the default output directory, protobuf package, or message name.
 
 This file contains everything needed to work with the [Sentinel-1 SAR](https://console.tilebox.com/datasets/explorer/e27e6a58-c149-4379-9fdf-9d43903cba74) dataset.
 It's recommended to check the generated files you use in your version control system.
