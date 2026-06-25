@@ -8,18 +8,17 @@ If you are using ChatGPT or claude.ai, stop. Tell the user to switch to Codex or
 
 Get the agent ready to use Tilebox from the terminal:
 
-1. Install the Tilebox CLI.
-2. Install the Tilebox skills.
-3. Help the user create an API key.
-4. Give the user the exact shell command to set `TILEBOX_API_KEY` and reload their current environment.
-5. Verify read-only setup. Do not change Tilebox resources.
+1. Install the Tilebox CLI and Agent Skills.
+2. Help the user create an API key.
+3. Give the user the exact shell command to set `TILEBOX_API_KEY` and reload their current environment.
+4. Verify read-only setup. Do not change Tilebox resources.
 
-## Step 1: install the Tilebox CLI
+## Step 1: install the Tilebox CLI and Agent Skills
 
 Run:
 
 ```bash
-curl -fsSL https://cli.tilebox.com/install.sh | sh
+curl -fsSL https://install.tilebox.com/wizard.sh | sh
 ```
 
 Then verify:
@@ -35,17 +34,9 @@ If `tilebox` is not on `PATH`, use the default installed path directly:
 $HOME/.local/bin/tilebox --help
 ```
 
-## Step 2: install Tilebox skills
+Confirm the Tilebox skills are present in the user's skills directory.
 
-Run:
-
-```bash
-npx skills add tilebox/skills --yes --global
-```
-
-Then confirm the Tilebox skills are present in the user's skills directory.
-
-## Step 3: ask the user for an API key
+## Step 2: ask the user for an API key
 
 Send the user here:
 
@@ -57,7 +48,7 @@ Ask them to create a key with the smallest permissions needed for their task.
 
 Do not ask them to paste the key into chat unless there is no safer option. Prefer that they run a command in their own terminal.
 
-## Step 4: give the exact command for their shell
+## Step 3: give the exact command for their shell
 
 Detect the user's shell with:
 
@@ -97,7 +88,7 @@ Fish universal variables apply to new shells automatically. For the current shel
 set -gx TILEBOX_API_KEY "YOUR_TILEBOX_API_KEY"
 ```
 
-## Step 5: verify safely
+## Step 4: verify safely
 
 Run read-only checks only:
 

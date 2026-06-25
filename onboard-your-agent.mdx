@@ -14,7 +14,7 @@ on this page, and follow the agent-onboarding guide instead, which was designed 
 this purpose.
 </div>
 
-Onboard your AI agent to Tilebox, by installing the Tilebox CLI, installing Tilebox Agent skills and configuring your API Key. After completing it, your agent will be able to manage your Tilebox resources, and use Tilebox-specific skills to create and query datasets, submit and monitor jobs.
+Onboard your AI agent to Tilebox by installing the Tilebox CLI and Agent Skills, then configuring your API key. After completing it, your agent will be able to manage your Tilebox resources and use Tilebox-specific skills to create and query datasets, submit and monitor jobs.
 It will also be able to write geospatial workflows, deploy it to clusters, submit jobs and iterate on the workflow code after inspecting job logs and checking outputs.
 If you want to use Tilebox directly as a developer, start with the [developer quickstart](/quickstart).
 
@@ -24,14 +24,14 @@ If you want to integrate Tilebox into your LLM Chat interface, rather than your 
 </Tip>
 
 <Steps>
-  <Step title="Install the Tilebox CLI">
-    Install the Tilebox CLI with the install script.
+  <Step title="Install the Tilebox CLI and Agent Skills">
+    Install the Tilebox CLI and Tilebox Agent Skills with the setup wizard.
 
     ```bash
-    curl -fsSL https://cli.tilebox.com/install.sh | sh
+    curl -fsSL https://install.tilebox.com/wizard.sh | sh
     ```
 
-    The CLI is the default interface for coding agents because it works in the same terminal where the agent edits files, runs tests, and applies changes.
+    The CLI is the default interface for coding agents because it works in the same terminal where the agent edits files, runs tests, and applies changes. The skills add task-level instructions for CLI usage, dataset management, job monitoring, workflow authoring, and automations.
   </Step>
   <Step title="Authenticate the CLI">
     Set `TILEBOX_API_KEY` in the environment where your agent runs. You can create an API key in the [Tilebox Console](https://console.tilebox.com/settings/api-keys).
@@ -41,15 +41,6 @@ If you want to integrate Tilebox into your LLM Chat interface, rather than your 
     ```
 
     Use a key with the smallest permissions needed for the task you want the agent to perform.
-  </Step>
-  <Step title="Install Tilebox skills">
-    Install the Tilebox skills so your agent has task-level instructions for working with the CLI and Tilebox resources.
-
-    ```bash
-    npx skills add tilebox/skills
-    ```
-
-    The skills cover CLI usage, dataset management, job monitoring, workflow authoring, and automations.
   </Step>
   <Step title="Verify the setup">
     Ask your agent to inspect its Tilebox capabilities before assigning a larger task.

@@ -8,9 +8,16 @@ import { AgentPrompt } from '/snippets/components.mdx';
 
 Tilebox skills are task-level instructions for AI agents. They explain how to use the Tilebox CLI, which command patterns to prefer, and how to approach common workflows such as dataset management and job monitoring.
 
-## Install Tilebox skills
+## Install Tilebox skills and the CLI
 
-Install the skills from the Tilebox skills repository.
+Many skill operations require the [Tilebox CLI](/agents-and-ai-tools/tilebox-cli),
+which is why it's recommended to use our installation wizard that sets up both Skills and the CLI on your system.
+
+```bash
+curl -fsSL https://install.tilebox.com/wizard.sh | sh
+```
+
+If you want to customize the skill installation directory, or select just a subset of the skills to install, you can use
 
 ```bash
 npx skills add tilebox/skills
