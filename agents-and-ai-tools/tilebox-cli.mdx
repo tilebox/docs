@@ -13,8 +13,16 @@ The CLI is also the default Tilebox interface for coding agents that can run ter
 Install the Tilebox CLI with the install script.
 
 ```bash
-curl -fsSL https://cli.tilebox.com/install.sh | sh
+curl -fsSL https://install.tilebox.com/cli.sh | sh
 ```
+
+<Tip>
+If you want to install the Tilebox CLI and Agent Skills together, use the setup wizard instead.
+
+```bash
+curl -fsSL https://install.tilebox.com/wizard.sh | sh
+```
+</Tip>
 
 ## Authenticate
 
@@ -76,7 +84,7 @@ This pattern is safer for agents because generated JSON, geometry, and descripti
 The Tilebox skills include guidance for using the CLI in agent workflows. Install them when you want an agent to combine CLI commands into higher-level tasks such as managing datasets, monitoring jobs, or configuring automations.
 
 ```bash
-npx skills add tilebox/skills
+curl -fsSL https://install.tilebox.com/skills.sh | sh
 ```
 
 After installing the skills, ask your agent to inspect `tilebox agent-context` and follow the relevant Tilebox skill before running commands that change resources. If your agent cannot use a terminal, configure the [Tilebox MCP server](/agents-and-ai-tools/tilebox-mcp) instead.

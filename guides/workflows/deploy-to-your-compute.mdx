@@ -64,7 +64,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-RUN curl -fsSL https://cli.tilebox.com/install.sh | TILEBOX_INSTALL_DIR=/usr/local/bin TILEBOX_NO_INSTALL_COMPLETIONS=1 sh
+RUN curl -fsSL https://install.tilebox.com/cli.sh | TILEBOX_INSTALL_DIR=/usr/local/bin TILEBOX_NO_INSTALL_COMPLETIONS=1 sh
 
 # Required at runtime: set TILEBOX_CLUSTER to a valid cluster slug and
 # TILEBOX_API_KEY to an API key that can read deployments and claim tasks.
