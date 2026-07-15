@@ -4,7 +4,11 @@ icon: circle-nodes
 ---
 
 ```python
-def ClusterClient.create(name: str): Cluster
+def ClusterClient.create(
+    name: str,
+    description: str | None = None,
+    slug: str | None = None,
+) -> Cluster
 ```
 
 Create a cluster.
@@ -12,15 +16,25 @@ Create a cluster.
 ## Parameters
 
 <ParamField path="name" type="string">
-  A display name for the cluster
+  A display name for the cluster.
+</ParamField>
+<ParamField path="description" type="str | None">
+  Optional cluster description.
+</ParamField>
+<ParamField path="slug" type="str | None">
+  Optional cluster slug. If omitted, Tilebox generates a slug from the cluster name.
 </ParamField>
 
 ## Returns
 
-The created cluster object.
+The created cluster object, including its slug, display name, description, whether it can be deleted, and deployed workflows.
 
 <RequestExample>
 ```python Python
-cluster = cluster_client.create("My cluster")
+cluster = cluster_client.create(
+    "My cluster",
+    description="Development workloads",
+    slug="dev",
+)
 ```
 </RequestExample>

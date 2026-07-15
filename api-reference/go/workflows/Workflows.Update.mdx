@@ -1,0 +1,47 @@
+---
+title: Workflows.Update
+sidebarTitle: Workflows.Update
+icon: diagram-project
+---
+
+```go
+func (workflowClient) Update(
+    ctx context.Context,
+    slug string,
+    options ...workflow.UpdateOption,
+) (*workflows.Workflow, error)
+```
+
+Update a workflow.
+
+## Parameters
+
+<ParamField path="slug" type="string" required>
+  The workflow slug.
+</ParamField>
+<ParamField path="workflow.WithName(name string)" type="workflow.UpdateOption">
+  Optional new display name for the workflow.
+</ParamField>
+<ParamField path="workflow.WithDescription(description string)" type="workflow.UpdateOption">
+  Optional new workflow description. Pass an empty string to clear the description.
+</ParamField>
+
+## Returns
+
+The updated workflow object.
+
+<RequestExample>
+```go Go
+updatedWorkflow, err := client.Workflows.Update(ctx,
+    "scene-processing",
+    workflow.WithName("Scene processing"),
+    workflow.WithDescription("Process new scenes into analysis-ready outputs."),
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="workflow not found">
+  The specified workflow does not exist.
+</ParamField>

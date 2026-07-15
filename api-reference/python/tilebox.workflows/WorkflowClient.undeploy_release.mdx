@@ -1,0 +1,40 @@
+---
+title: WorkflowClient.undeploy_release
+icon: diagram-project
+---
+
+```python
+def WorkflowClient.undeploy_release(
+    workflow_or_slug: Workflow | str,
+    release_or_id: WorkflowRelease | UUID | str,
+    clusters: Cluster | str | list[Cluster | str] | None = None,
+) -> WorkflowReleaseDeployment
+```
+
+Remove a workflow release from one or more clusters.
+
+## Parameters
+
+<ParamField path="workflow_or_slug" type="Workflow | str" required>
+  The workflow or workflow slug containing the release to remove from clusters.
+</ParamField>
+<ParamField path="release_or_id" type="WorkflowRelease | UUID | str" required>
+  The workflow release or release ID to remove from clusters.
+</ParamField>
+<ParamField path="clusters" type="Cluster | str | list[Cluster | str] | None">
+  The cluster or clusters to remove the release from. If omitted, the API uses the default cluster.
+</ParamField>
+
+## Returns
+
+The result, including the release and affected clusters.
+
+<RequestExample>
+```python Python
+deployment = workflow_client.undeploy_release(
+    workflow,
+    release.id,
+    clusters="production",
+)
+```
+</RequestExample>

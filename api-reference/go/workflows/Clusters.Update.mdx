@@ -1,0 +1,47 @@
+---
+title: Clusters.Update
+sidebarTitle: Clusters.Update
+icon: circle-nodes
+---
+
+```go
+func (*ClusterClient) Update(
+    ctx context.Context,
+    slug string,
+    options ...cluster.UpdateOption,
+) (*workflows.Cluster, error)
+```
+
+Update a cluster.
+
+## Parameters
+
+<ParamField path="slug" type="string">
+  The slug of the cluster to update.
+</ParamField>
+<ParamField path="cluster.WithName(name string)" type="cluster.UpdateOption">
+  Optional new display name for the cluster.
+</ParamField>
+<ParamField path="cluster.WithDescription(description string)" type="cluster.UpdateOption">
+  Optional new cluster description. Pass an empty string to clear the description.
+</ParamField>
+
+## Returns
+
+The updated cluster object, including its slug, name, description, whether it can be deleted, and deployed workflows.
+
+<RequestExample>
+```go Go
+updatedCluster, err := client.Clusters.Update(ctx,
+    "dev",
+    cluster.WithName("Development"),
+    cluster.WithDescription("Development workloads"),
+)
+```
+</RequestExample>
+
+## Errors
+
+<ParamField path="not_found" type="cluster not found">
+  The specified cluster does not exist.
+</ParamField>
