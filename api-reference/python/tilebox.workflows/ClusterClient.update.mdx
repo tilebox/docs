@@ -1,0 +1,40 @@
+---
+title: ClusterClient.update
+icon: circle-nodes
+---
+
+```python
+def ClusterClient.update(
+    cluster_or_slug: Cluster | str,
+    name: str | None = None,
+    description: str | None = None,
+) -> Cluster
+```
+
+Update a cluster.
+
+## Parameters
+
+<ParamField path="cluster_or_slug" type="Cluster | str">
+  The cluster or cluster slug to update.
+</ParamField>
+<ParamField path="name" type="str | None">
+  Optional new display name for the cluster. If omitted, the display name is unchanged.
+</ParamField>
+<ParamField path="description" type="str | None">
+  Optional new cluster description. Pass an empty string to clear the description. If omitted, the description is unchanged.
+</ParamField>
+
+## Returns
+
+The updated cluster object, including its slug, display name, description, whether it can be deleted, and deployed workflows.
+
+<RequestExample>
+```python Python
+cluster = cluster_client.update(
+    "dev",
+    name="Development",
+    description="Development workloads",
+)
+```
+</RequestExample>

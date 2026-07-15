@@ -1,0 +1,40 @@
+---
+title: WorkflowClient.deploy_release
+icon: diagram-project
+---
+
+```python
+def WorkflowClient.deploy_release(
+    workflow_or_slug: Workflow | str,
+    release_or_id: WorkflowRelease | UUID | str,
+    clusters: Cluster | str | list[Cluster | str] | None = None,
+) -> WorkflowReleaseDeployment
+```
+
+Deploy a workflow release to one or more clusters.
+
+## Parameters
+
+<ParamField path="workflow_or_slug" type="Workflow | str" required>
+  The workflow or workflow slug containing the release to deploy.
+</ParamField>
+<ParamField path="release_or_id" type="WorkflowRelease | UUID | str" required>
+  The workflow release or release ID to deploy.
+</ParamField>
+<ParamField path="clusters" type="Cluster | str | list[Cluster | str] | None">
+  The cluster or clusters to deploy the release to. If omitted, the API uses the default cluster.
+</ParamField>
+
+## Returns
+
+The deployment result, including the release and affected clusters.
+
+<RequestExample>
+```python Python
+deployment = workflow_client.deploy_release(
+    workflow,
+    release.id,
+    clusters="production",
+)
+```
+</RequestExample>

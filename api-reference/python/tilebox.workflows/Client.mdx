@@ -55,6 +55,12 @@ def Client.clusters() -> ClusterClient
 A client for managing clusters.
 
 ```python
+def Client.workflows() -> WorkflowClient
+```
+
+A client for managing workflows and workflow release deployments.
+
+```python
 def Client.automations() -> AutomationClient
 ```
 
@@ -96,6 +102,7 @@ client = Client(
 # access sub clients
 job_client = client.jobs()
 cluster_client = client.clusters()
+workflow_client = client.workflows()
 automation_client = client.automations()
 
 # or instantiate a runner

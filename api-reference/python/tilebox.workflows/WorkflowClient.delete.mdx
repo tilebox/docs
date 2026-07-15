@@ -1,0 +1,22 @@
+---
+title: WorkflowClient.delete
+icon: diagram-project
+---
+
+```python
+def WorkflowClient.delete(workflow_or_slug: Workflow | str) -> None
+```
+
+Delete a workflow.
+
+## Parameters
+
+<ParamField path="workflow_or_slug" type="Workflow | str" required>
+  The workflow or workflow slug to delete.
+</ParamField>
+
+<RequestExample>
+```python Python
+workflow_client.delete("scene-processing")
+```
+</RequestExample>

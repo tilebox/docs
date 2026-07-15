@@ -8,6 +8,7 @@ icon: circle-nodes
 func (*ClusterClient) Create(
     ctx context.Context,
     name string,
+    options ...cluster.CreateOption,
 ) (*workflows.Cluster, error)
 ```
 
@@ -16,17 +17,25 @@ Create a cluster.
 ## Parameters
 
 <ParamField path="name" type="string">
-  A display name for the cluster
+  A display name for the cluster.
+</ParamField>
+<ParamField path="cluster.WithDescription(description string)" type="cluster.CreateOption">
+  Optional cluster description.
+</ParamField>
+<ParamField path="cluster.WithSlug(slug string)" type="cluster.CreateOption">
+  Optional cluster slug. If omitted, Tilebox generates a slug from the cluster name.
 </ParamField>
 
 ## Returns
 
-The created cluster object.
+The created cluster object, including its slug, name, description, whether it can be deleted, and deployed workflows.
 
 <RequestExample>
 ```go Go
-cluster, err := client.Clusters.Create(ctx,
-    "My cluster"
+createdCluster, err := client.Clusters.Create(ctx,
+    "My cluster",
+    cluster.WithDescription("Development workloads"),
+    cluster.WithSlug("dev"),
 )
 ```
 </RequestExample>

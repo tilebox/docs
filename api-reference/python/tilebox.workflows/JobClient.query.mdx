@@ -10,6 +10,7 @@ def JobClient.query(
     job_states: JobState | list[JobState] | None = None,
     name: str | None = None,
     task_states: TaskState | list[TaskState] | None = None,
+    clusters: Cluster | str | list[Cluster | str] | None = None,
 ) -> list[Job]
 ```
 
@@ -42,6 +43,9 @@ Query jobs in the specified interval.
 <ParamField path="task_states" type="TaskState | list[TaskState] | None">
   A task state or list of task states to filter jobs by. If specified, only jobs that have at least one task in any of the given states are returned. Useful for finding jobs with [optional](/workflows/concepts/tasks#optional-tasks) task failures, e.g. `task_states=TaskState.FAILED_OPTIONAL`.
 </ParamField>
+<ParamField path="clusters" type="Cluster | str | list[Cluster | str] | None">
+  A cluster or list of clusters to filter jobs by. Pass actual cluster slugs or cluster objects. `None` and `[]` apply no cluster filter. Empty string cluster slugs are not accepted.
+</ParamField>
 
 ## Returns
 
@@ -50,5 +54,6 @@ A list of jobs.
 <RequestExample>
 ```python Python
 jobs = job_client.query(("2025-01-01", "2025-02-01"))
+jobs_on_cluster = job_client.query(("2025-01-01", "2025-02-01"), clusters="production")
 ```
 </RequestExample>

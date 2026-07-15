@@ -1,0 +1,32 @@
+---
+title: WorkflowClient.create
+icon: diagram-project
+---
+
+```python
+def WorkflowClient.create(name: str, description: str = "") -> Workflow
+```
+
+Create a workflow.
+
+## Parameters
+
+<ParamField path="name" type="str" required>
+  The workflow display name.
+</ParamField>
+<ParamField path="description" type="str">
+  Optional workflow description.
+</ParamField>
+
+## Returns
+
+The created workflow object.
+
+<RequestExample>
+```python Python
+workflow = workflow_client.create(
+    "Scene processing",
+    description="Process new scenes into analysis-ready outputs.",
+)
+```
+</RequestExample>

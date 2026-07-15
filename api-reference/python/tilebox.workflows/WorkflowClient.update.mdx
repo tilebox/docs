@@ -1,0 +1,40 @@
+---
+title: WorkflowClient.update
+icon: diagram-project
+---
+
+```python
+def WorkflowClient.update(
+    workflow_or_slug: Workflow | str,
+    name: str | None = None,
+    description: str | None = None,
+) -> Workflow
+```
+
+Update a workflow.
+
+## Parameters
+
+<ParamField path="workflow_or_slug" type="Workflow | str" required>
+  The workflow or workflow slug to update.
+</ParamField>
+<ParamField path="name" type="str | None">
+  Optional new display name for the workflow. If omitted, the display name is unchanged.
+</ParamField>
+<ParamField path="description" type="str | None">
+  Optional new workflow description. Pass an empty string to clear the description. If omitted, the description is unchanged.
+</ParamField>
+
+## Returns
+
+The updated workflow object.
+
+<RequestExample>
+```python Python
+workflow = workflow_client.update(
+    "scene-processing",
+    name="Scene processing",
+    description="Process new scenes into analysis-ready outputs.",
+)
+```
+</RequestExample>

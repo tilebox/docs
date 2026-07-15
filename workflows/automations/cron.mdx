@@ -6,8 +6,7 @@ icon: clock
 
 ## Creating Cron tasks
 
-Cron tasks run repeatedly on a specified [cron](https://en.wikipedia.org/wiki/Cron) schedule.
-In Python, use `tilebox.workflows.automations.CronTask` as your task base class instead of the regular `tilebox.workflows.Task`. In Go, register an executable task with the same task identifier as the automation prototype.
+Cron tasks run repeatedly on a specified [cron](https://en.wikipedia.org/wiki/Cron) schedule. Define the task that the automation submits, then register its implementation with a runner.
 
 <CodeGroup>
 ```python Python
@@ -39,10 +38,9 @@ func (t *MyCronTask) Execute(ctx context.Context) error {
 ```
 </CodeGroup>
 
-## Registering a Cron trigger
+## Registering a cron trigger
 
-After implementing a Cron task, register it to be triggered according to a Cron schedule. The Python SDK provides a registration helper, and you can also register cron automations from the Tilebox Console.
-When the Cron expression matches, a new job is submitted consisting of a single task instance derived from the Cron task prototype.
+After implementing a cron task, register it with one or more schedules. The Python SDK provides a registration helper, and you can also register cron automations from the Tilebox Console. Each matching schedule submits a new job containing one task instance derived from the cron task prototype.
 
 ```python Python
 from tilebox.workflows import Client
@@ -53,24 +51,85 @@ cron_automation = automations.create_cron_automation(
     "my-cron-automation",  # name of the cron automation
     MyCronTask(message="World"),  # the task (and its input parameters) to run repeatedly
     cron_schedules=[
-        "12 * * * *",  # run every hour at minute 12
-        "45 18 * * *",  # run every day at 18:45
-        "30 13 * * 3",  # run every Wednesday at 13:30
+        "*/15 * * * 1-5",  # every 15 minutes on weekdays in UTC
+        "CRON_TZ=Europe/Vienna 0 9 * * 1-5",  # 09:00 on weekdays in Vienna
+        "@daily",  # every day at midnight UTC
+        "CRON_TZ=Europe/Vienna @daily",  # every day at midnight in Vienna
     ],
 )
 ```
 
 <Tip>
-    The syntax for specifying the cron triggers is a [CRON expression](https://en.wikipedia.org/wiki/Cron#CRON_expression).
-    A helpful tool to test your cron expressions is [crontab.guru](https://crontab.guru/).
+  Use [crontab.guru](https://crontab.guru/) to check standard five-field expressions. Remove any `CRON_TZ=...` prefix before entering an expression there.
 </Tip>
 
-## Starting a Cron runner
+## Cron schedule syntax
 
-With the Cron automation registered, a job is submitted whenever the Cron expression matches. But unless a [runner](/workflows/concepts/runners) is available to execute the Cron task the submitted jobs remain in a task queue.
-Once an [eligible runner](/workflows/concepts/runners#task-selection) becomes available, all jobs in the queue are executed.
+Cron triggers accept standard five-field expressions. The fields specify the minute, hour, day of the month, month, and day of the week in that order.
 
-<CodeGroup>
+```text
+┌───────────── minute (0–59)
+│ ┌─────────── hour (0–23)
+│ │ ┌───────── day of month (1–31)
+│ │ │ ┌─────── month (1–12 or JAN–DEC)
+│ │ │ │ ┌───── day of week (0–6 or SUN–SAT; 0 is Sunday)
+│ │ │ │ │
+* * * * *
+```
+
+Use `*` for every value, `,` for a list, `-` for a range, and `/` for a step. For example, `*/15 * * * *` runs every 15 minutes, while `0 9-17 * * 1-5` runs hourly from 09:00 through 17:00 on weekdays.
+
+If both day of month and day of week contain specific values, a trigger runs when either field matches. For example, `0 9 1 * MON` runs at 09:00 on the first day of every month and on every Monday.
+
+Schedules without an explicit timezone use UTC. Prefix a schedule with `CRON_TZ=<timezone>` to interpret it in an [IANA timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones):
+
+```text
+CRON_TZ=Europe/Vienna 0 9 * * 1-5
+```
+
+This expression runs at 09:00 Vienna local time on weekdays. The corresponding UTC time changes automatically when Vienna enters or leaves daylight saving time.
+
+<Warning>
+  Timezone schedules follow traditional cron behavior during daylight saving transitions. A local time skipped when clocks move forward does not trigger. A local time that occurs twice when clocks move backward triggers twice.
+</Warning>
+
+### Schedule helpers
+
+You can replace a five-field expression with one of these helpers. Helpers use UTC unless you add a `CRON_TZ` prefix.
+
+| Helper | Cron expression | Meaning |
+| --- | --- | --- |
+| `@yearly` or `@annually` | `0 0 1 1 *` | At midnight on January 1 |
+| `@monthly` | `0 0 1 * *` | At midnight on the first day of each month |
+| `@weekly` | `0 0 * * 0` | At midnight every Sunday |
+| `@daily` or `@midnight` | `0 0 * * *` | At midnight every day |
+| `@hourly` | `0 * * * *` | At the start of every hour |
+
+Timezone prefixes also work with helpers:
+
+```text
+CRON_TZ=Europe/Vienna @daily
+```
+
+This schedule runs every day at midnight in Vienna.
+
+### Schedule examples
+
+| Schedule | Meaning |
+| --- | --- |
+| `0 * * * *` | At the start of every hour in UTC |
+| `*/15 * * * *` | Every 15 minutes in UTC |
+| `30 13 * * 3` | Every Wednesday at 13:30 UTC |
+| `0 9 1 * MON` | At 09:00 UTC on every Monday and every first day of the month |
+| `CRON_TZ=Europe/Vienna 0 9 * * 1-5` | At 09:00 Vienna time on weekdays |
+| `@daily` | Every day at midnight UTC |
+| `CRON_TZ=Europe/Vienna @daily` | Every day at midnight in Vienna |
+| `@weekly` | Every Sunday at midnight UTC |
+
+## Starting a cron runner
+
+Cron tasks run on any regular [runner](/workflows/concepts/runners) that has the task registered. Keep at least one such runner available to execute jobs submitted by the automation.
+
 ```python Python
 from tilebox.workflows import Client, Runner
 
@@ -78,26 +137,6 @@ client = Client()
 runner = Runner(tasks=[MyCronTask])
 runner.connect_to(client).run_forever()
 ```
-```go Go
-ctx := context.Background()
-client := workflows.NewClient()
-
-runner, err := client.NewTaskRunner(ctx)
-if err != nil {
-    slog.ErrorContext(ctx, "failed to create task runner", slog.Any("error", err))
-    return
-}
-
-if err := runner.RegisterTasks(&MyCronTask{}); err != nil {
-    slog.ErrorContext(ctx, "failed to register tasks", slog.Any("error", err))
-    return
-}
-
-if err := runner.RunForever(ctx); err != nil {
-    slog.ErrorContext(ctx, "task runner stopped", slog.Any("error", err))
-}
-```
-</CodeGroup>
 
 If this runner runs continuously, its logs may resemble the following:
 
