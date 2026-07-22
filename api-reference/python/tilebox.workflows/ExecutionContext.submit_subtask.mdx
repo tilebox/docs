@@ -15,6 +15,8 @@ def ExecutionContext.submit_subtask(
 
 Submit a [subtask](/workflows/concepts/tasks#subtasks-and-task-composition) from a currently executing task.
 
+For larger fan-out, prefer [`submit_subtasks`](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtasks) when many subtasks share the same dependency shape. See [dependency groups and fan-out limits](/workflows/concepts/tasks#dependency-groups-and-fan-out-limits) for how Tilebox groups subtasks.
+
 ## Parameters
 
 <ParamField path="task" type="Task">

@@ -72,6 +72,10 @@ Tasks often require input parameters to operate. These inputs can range from sim
 </Info>
 
 <Info>
+  Keep task inputs small. Task inputs are part of the workflow graph and are not intended for large manifests, file lists, arrays, or binary payloads. Store large data in object storage or the [job cache](/workflows/run-and-inspect/caches), then pass a compact reference such as a cache key, object prefix, scene ID, shard index, or time range.
+</Info>
+
+<Info>
   In Go, task parameters must be exported fields of the task struct (starting with an uppercase letter), otherwise they will not be serialized to JSON.
 </Info>
 
@@ -80,6 +84,8 @@ Supported types for input parameters include:
 - Basic types such as `str`, `int`, `float`, `bool`
 - Lists and dictionaries of basic types
 - Nested data classes that are also JSON-serializable or protobuf-serializable
+
+For example, avoid passing a list of 1,000 file paths as a task parameter. Write the list as a manifest in a cache or bucket, then submit subtasks with small parameters such as `manifest_key="inputs/job-123.json"` and `shard=17`.
 
 <CodeGroup>
     ```python Python
@@ -661,6 +667,43 @@ Tasks often rely on other tasks. For example, a task that processes data might d
 <Note>
   The `depends_on` argument accepts a list of tasks, enabling a task to depend on multiple other tasks.
 </Note>
+
+### Dependency groups and fan-out limits
+
+When a task submits subtasks, Tilebox compacts subtasks with the same dependency shape into submission groups. A single task execution can submit up to 64 of these groups. This is often much higher than 64 subtasks: thousands of independent subtasks are one group, and thousands of subtasks that all depend on the same previous task are also one group.
+
+Tilebox can handle large jobs, including jobs with millions of tasks. You do not need to reduce concurrency to scale. Instead, keep each task's submitted graph compact: use homogeneous stages, shared dependency shapes, stage-wrapper tasks, and small task inputs.
+
+Stage wrappers can depend on each other. For example, a root task can submit a read-stage wrapper, a compute-stage wrapper that depends on the read stage, and an export-stage wrapper that depends on the compute stage. Each stage can submit its own homogeneous children, and the stage does not complete until its submitted descendants complete.
+
+You run into the group limit when each subtask has a different dependency shape. Long chains and pairwise dependencies are common examples, because every task depends on a different predecessor.
+
+<CodeGroup>
+```python Good: many tasks share one dependency shape
+def execute(self, context: ExecutionContext):
+    # All map tasks are independent, so they form one submission group.
+    maps = context.submit_subtasks([MapItem(i) for i in range(200)])
+
+    # The reducer depends on the whole map group, so this adds one more group.
+    context.submit_subtask(ReduceItems(), depends_on=maps)
+```
+
+```python Avoid: each task has a different dependency shape
+def execute(self, context: ExecutionContext):
+    previous = None
+    for i in range(70):
+        # Each task depends on a different previous task.
+        # This creates 70 submission groups and exceeds the limit.
+        previous = context.submit_subtask(Step(i), depends_on=previous)
+```
+</CodeGroup>
+
+For large fan-out, prefer stage-shaped graphs:
+
+- submit many independent tasks together with `submit_subtasks` inside a stage-wrapper or shard task
+- make the next stage depend on the previous stage wrapper when that expresses the stage barrier more cleanly than depending on every individual leaf task
+- add a small barrier or reducer task between stages only when it makes the dependency shape simpler
+- use recursive decomposition or shard tasks when you truly need many sequential or pairwise relationships, or when one task execution would submit too many children
 
 A workflow with dependencies might look like this:
 

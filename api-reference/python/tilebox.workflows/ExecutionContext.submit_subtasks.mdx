@@ -15,6 +15,8 @@ def ExecutionContext.submit_subtasks(
 
 Submit multiple [subtasks](/workflows/concepts/tasks#subtasks-and-task-composition) from a currently executing task. Same as [submit_subtask](/api-reference/python/tilebox.workflows/ExecutionContext.submit_subtask), but accepts a sequence of tasks.
 
+Use this method for large homogeneous fan-out. The subtasks with the same dependency shape are submitted as a compact group, so a batch can contain many more than 64 tasks. See [dependency groups and fan-out limits](/workflows/concepts/tasks#dependency-groups-and-fan-out-limits) for details.
+
 ## Parameters
 
 <ParamField path="tasks" type="Sequence[Task]">
