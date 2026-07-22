@@ -72,6 +72,10 @@ Tasks often require input parameters to operate. These inputs can range from sim
 </Info>
 
 <Info>
+  Keep task inputs small. Task inputs are part of the workflow graph and are not intended for large manifests, file lists, arrays, or binary payloads. Store large data in object storage or the [job cache](/workflows/run-and-inspect/caches), then pass a compact reference such as a cache key, object prefix, scene ID, shard index, or time range.
+</Info>
+
+<Info>
   In Go, task parameters must be exported fields of the task struct (starting with an uppercase letter), otherwise they will not be serialized to JSON.
 </Info>
 
@@ -661,6 +665,34 @@ Tasks often rely on other tasks. For example, a task that processes data might d
 <Note>
   The `depends_on` argument accepts a list of tasks, enabling a task to depend on multiple other tasks.
 </Note>
+
+### Dependency limit for subtasks
+
+When a task finishes, Tilebox automatically groups its submitted subtasks by their dependencies. One task execution can create up to 64 groups. This limit applies to distinct sets of dependencies, not the number of subtasks: independent subtasks form one group, as do subtasks that all depend on the same tasks.
+
+A workflow reaches the limit when one task creates many subtasks with different dependencies. Long chains and pairwise dependencies are common examples because every subtask depends on a different predecessor.
+
+<CodeGroup>
+```python Good: many tasks share one dependency shape
+def execute(self, context: ExecutionContext):
+    # All map tasks are independent, so they form one submission group.
+    maps = context.submit_subtasks([MapItem(i) for i in range(200)])
+
+    # The reducer depends on the whole map group, so this adds one more group.
+    context.submit_subtask(ReduceItems(), depends_on=maps)
+```
+
+```python Avoid: each task has a different dependency shape
+def execute(self, context: ExecutionContext):
+    previous = None
+    for i in range(70):
+        # Each task depends on a different previous task.
+        # This creates 70 submission groups and exceeds the limit.
+        previous = context.submit_subtask(Step(i), depends_on=previous)
+```
+</CodeGroup>
+
+If one task would create more than 64 groups, split the submissions across multiple tasks so that each task creates fewer distinct dependency sets.
 
 A workflow with dependencies might look like this:
 
