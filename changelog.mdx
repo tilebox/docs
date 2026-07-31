@@ -5,6 +5,38 @@ icon: rss
 mode: center
 ---
 
+<Update label="August 2026">
+    ## Queryable custom dataset fields
+
+    Custom dataset schemas can now mark selected fields as queryable. Tilebox evaluates these field expressions on the
+    server together with temporal, spatial, and collection filters, so clients only receive matching datapoints.
+
+    Filters support comparisons, boolean logic, and null checks.
+
+    ```python
+    from tilebox.datasets import Client, field
+
+    dataset = Client().dataset("open_data.aws_earth.sentinel2")
+    data = dataset.query(
+        collections=["L2A"],
+        temporal_extent=("2026-07-20", "2026-07-28"),
+        filter=(
+            (field("cloud_cover") < 1)
+            & (field("platform") == "sentinel-2c")
+        ),
+    )
+    ```
+
+    Queryable fields support strings, booleans, signed and unsigned integers, and floating-point values. Dataset authors
+    select queryable fields before ingesting datapoints.
+
+    <Columns cols={1}>
+      <Card title="Filter by custom fields" icon="filter-list" href="/datasets/query/filter-by-fields" horizontal>
+        Define queryable fields and filter matching datapoints.
+      </Card>
+    </Columns>
+</Update>
+
 <Update label="July 2026">
     <Frame>
     <img src="/assets/changelog/2026-07-workflow-deployment-rollback.gif" alt="Deploying a workflow release to a cluster and rolling the cluster back to an earlier release in the Tilebox Console" />

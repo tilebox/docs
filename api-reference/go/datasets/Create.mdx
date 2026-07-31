@@ -17,6 +17,9 @@ func (datasetClient) Create(
 
 Create a dataset with the given code name, display name, schema kind, and custom fields.
 
+Fields created with `field.String`, `field.Bool`, `field.Int32`, `field.Int64`, `field.Uint64`, or `field.Float64` can be
+marked queryable. Queryable fields cannot be repeated, and a dataset can contain at most two queryable string fields.
+
 ## Parameters
 
 <ParamField path="kind" type="datasets.DatasetKind" required>
@@ -44,6 +47,12 @@ Create a dataset with the given code name, display name, schema kind, and custom
   Set the dataset's markdown description.
 </ParamField>
 
+## Field options
+
+<ParamField path="Queryable()">
+  Make the field available for server-side custom field filters. Choose queryable fields before ingesting datapoints.
+</ParamField>
+
 ## Dataset kinds
 
 <ParamField path="datasets.KindTemporal" type="datasets.DatasetKind">
@@ -64,10 +73,13 @@ dataset, err := client.Datasets.Create(ctx,
     "my_catalog",
     "My catalog",
     []datasets.Field{
-        field.String("source").Description("Source system"),
-        field.Float64("cloud_cover"),
+        field.String("source").Description("Source system").Queryable(),
+        field.Float64("cloud_cover").Queryable(),
     },
     datasets.WithSummary("Scenes prepared for analysis"),
 )
 ```
 </RequestExample>
+
+See [Queryable fields](/datasets/concepts/datasets#queryable-fields) for schema constraints and
+[Filter by custom fields](/datasets/query/filter-by-fields) for query syntax.

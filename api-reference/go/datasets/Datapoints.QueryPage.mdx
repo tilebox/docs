@@ -42,6 +42,10 @@ Use `QueryPage` when you need manual pagination. Use [`Datapoints.Query`](/api-r
 <ParamField path="datasets.WithCollectionIDs(collectionIDs ...uuid.UUID)">
   Restrict the query to specific dataset collections by collection ID.
 </ParamField>
+<ParamField path="datasets.WithFilters(filters ...query.Expression)">
+  Filter by fields marked queryable in the dataset schema. Multiple expressions are combined with each other and with
+  temporal, spatial, and collection filters using logical AND.
+</ParamField>
 <ParamField path="datasets.WithSkipData()" default="false">
   Skip datapoint data and return only required and generated fields.
 </ParamField>
@@ -62,6 +66,7 @@ page, err := client.Datapoints.QueryPage(ctx,
     dataset.ID,
     datasets.WithTemporalExtent(queryInterval),
     datasets.WithCollectionIDs(collection.ID),
+    datasets.WithFilters(query.Field("quality").GreaterThanOrEqual(80)),
     datasets.WithLimit(100),
 )
 if err != nil {
@@ -73,6 +78,7 @@ if page.NextCursor != nil {
         dataset.ID,
         datasets.WithTemporalExtent(queryInterval),
         datasets.WithCollectionIDs(collection.ID),
+        datasets.WithFilters(query.Field("quality").GreaterThanOrEqual(80)),
         datasets.WithCursor(page.NextCursor),
         datasets.WithLimit(100),
     )
@@ -81,3 +87,5 @@ if page.NextCursor != nil {
 }
 ```
 </RequestExample>
+
+See [Filter by custom fields](/datasets/query/filter-by-fields) for comparisons, boolean expressions, and null checks.

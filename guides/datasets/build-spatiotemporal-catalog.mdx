@@ -1,12 +1,12 @@
 ---
 title: Build a spatio-temporal catalog
-description: Create a custom spatio-temporal dataset catalog with the Python SDK, document its schema, ingest geospatial metadata, and query it by time and location.
+description: Create a custom spatio-temporal dataset catalog with the Python SDK, ingest geospatial metadata, and query it by time, location, and custom fields.
 icon: globe
 ---
 
 Use a spatio-temporal dataset when each datapoint has both a time and a geometry. This is useful for internal imagery catalogs, derived products, ground truth data, regions of interest, and processing outputs that need geospatial lookup.
 
-This guide creates an imagery catalog from code. You will define the dataset schema with the Python SDK, add field descriptions and examples for generated schema documentation, create a collection, ingest geospatial metadata, and query the catalog by time and location.
+This guide creates an imagery catalog from code. You will define the dataset schema with the Python SDK, add field descriptions and examples for generated schema documentation, create a collection, ingest geospatial metadata, and query the catalog by time, location, and custom fields.
 
 ## Prerequisites
 
@@ -47,17 +47,21 @@ fields = [
         "type": float,
         "description": "Cloud cover percentage for the product footprint.",
         "example_value": "3.2",
+        "queryable": True,
     },
     {
         "name": "processing_level",
         "type": str,
         "description": "Processing level or product type assigned by the source provider.",
         "example_value": "L2_SR",
+        "queryable": True,
     },
 ]
 ```
 
 Use field names that are stable and descriptive. Changing or removing fields after ingesting datapoints requires emptying the affected collections first, because existing datapoints must continue to match the dataset schema.
+The same rule applies to queryable fields: choose them before ingestion because you cannot make an existing field
+queryable or add a new queryable field to a non-empty dataset.
 
 ## Create the dataset
 
@@ -86,16 +90,16 @@ Tilebox uses the dataset kind and field annotations to document the schema. Requ
 
 For this catalog, the complete schema includes:
 
-| Field | Type | Purpose |
-| --- | --- | --- |
-| `time` | Required | Timestamp associated with the datapoint. |
-| `id` | Required | Tilebox-generated UUID for the datapoint. |
-| `ingestion_time` | Required | Time when Tilebox ingested the datapoint. |
-| `geometry` | Required | Geometry used for spatial queries. |
-| `product_id` | Custom | Stable product or scene identifier. |
-| `location` | Custom | Storage path or provider product location. |
-| `cloud_cover` | Custom | Cloud cover percentage for filtering. |
-| `processing_level` | Custom | Provider processing level or product type. |
+| Field | Type | Queryable | Purpose |
+| --- | --- | --- | --- |
+| `time` | Required | Dedicated time filter | Timestamp associated with the datapoint. |
+| `id` | Required | Dedicated ID filter | Tilebox-generated UUID for the datapoint. |
+| `ingestion_time` | Required | No | Time when Tilebox ingested the datapoint. |
+| `geometry` | Required | Dedicated spatial filter | Geometry used for spatial queries. |
+| `product_id` | Custom | No | Stable product or scene identifier. |
+| `location` | Custom | No | Storage path or provider product location. |
+| `cloud_cover` | Custom | Yes | Cloud cover percentage for filtering. |
+| `processing_level` | Custom | Yes | Provider processing level or product type. |
 
 The descriptions and example values you provided in the SDK call appear in the dataset schema documentation.
 
@@ -162,18 +166,21 @@ Ingest the prepared records into a collection.
 collection.ingest(products)
 ```
 
-## Query by time and location
+## Query by time, location, and custom fields
 
-After ingestion, use the same query model as Tilebox open data catalogs.
+After ingestion, combine the queryable custom fields with temporal and spatial filters. Tilebox applies all three filters
+on the server before returning matching datapoints.
 
 ```python Python
 from shapely import box
+from tilebox.datasets import field
 
 area = box(11.0, 46.0, 12.0, 47.0)
 
 matches = collection.query(
     temporal_extent=("2026-01-01", "2026-02-01"),
     spatial_extent=area,
+    filter=(field("cloud_cover") < 10) & (field("processing_level") == "L2_SR"),
 )
 ```
 
@@ -182,6 +189,9 @@ matches = collection.query(
 <Columns cols={2}>
   <Card title="Spatio-temporal datasets" icon="globe" href="/datasets/types/spatiotemporal" horizontal>
     Learn the required fields and query behavior.
+  </Card>
+  <Card title="Filter by custom fields" icon="filter-list" href="/datasets/query/filter-by-fields" horizontal>
+    Combine queryable field expressions with temporal and spatial filters.
   </Card>
   <Card title="Ingest from common file formats" icon="file-binary" href="/guides/datasets/ingest-format" horizontal>
     Load CSV, Parquet, GeoParquet, and NetCDF data before ingestion.

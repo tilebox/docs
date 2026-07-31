@@ -54,6 +54,13 @@ Common page flow patterns in this repo:
 3. Step-by-step sections for procedures.
 4. `Next steps` links/cards at the end.
 
+When documenting behavior shared by Tilebox clients and the CLI:
+
+1. State the behavior once as a Tilebox capability. Treat support across Python, Go, and the CLI as the default instead of enumerating each interface in prose.
+2. Let code examples show interface-specific syntax. Use `CodeGroup` when every alternative is a single code snippet. Use `Tabs` only when alternatives contain other elements such as text, tables, or multiple code blocks.
+3. Name a specific client only when documenting a real difference, limitation, version requirement, or unavailable feature. Put syntax-only guidance inside the relevant example tab when possible.
+4. Keep introductions to examples brief. State the feature facts and let the code demonstrate the mechanics instead of describing each snippet line by line.
+
 For command examples in user guides, optimize for reader copy/paste rather than fully scripted automation. Prefer direct `tilebox` commands and simple shell setup commands such as `cd`, `mkdir`, and `export`. Avoid Bash command substitution, uppercase helper variables such as `RELEASE_ID` or `JOB_ID`, `jq` pipelines, heredocs, and `--json` unless the page is explicitly about structured output or automation. When a later command needs a value returned by an earlier command, show the earlier command output and use a placeholder such as `<JOB_ID>` in follow-up commands.
 
 ## Terminology, Capitalization, And Naming

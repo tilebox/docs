@@ -16,6 +16,9 @@ def Client.create_or_update_dataset(
 
 Create a dataset, or update the existing dataset with the same code name.
 
+New non-queryable fields can be added to a non-empty dataset. Changing whether an existing field is queryable or adding
+a new queryable field is only supported while the dataset is empty.
+
 ## Parameters
 
 <ParamField path="kind" type="DatasetKind">
@@ -89,6 +92,26 @@ Note that the type can also be a list of one of the types, indicating that the f
 <ParamField path="example_value" type="str">
   Set the example value of the field for documentation purposes
 </ParamField>
+<ParamField path="source_json_pointer" type="str | None">
+  Optional. Set the RFC 6901 path to this field in the source JSON, such as `/properties/eo:cloud_cover`. This is useful
+  when transforming datapoints to JSON because Tilebox can reconstruct nested source objects from flattened dataset
+  fields.
+</ParamField>
+<ParamField path="queryable" type="bool">
+  Make the field available for server-side custom field filters. Queryable fields must be non-repeated `str`, `bool`,
+  `int`, `np.uint64`, or `float` fields. A dataset can contain at most two queryable string fields.
+</ParamField>
+<ParamField path="json_schema_ref" type="str | None">
+  Optional. Set a JSON Schema reference URI or URI fragment for the field. Use this when the field follows a well-known
+  schema, such as a STAC extension. Tilebox emits the reference as `$ref` when advertising the field in STAC queryables.
+</ParamField>
+<ParamField path="roles" type='list[FieldRole] | list[Literal["primary_title"]]'>
+  Set semantic display roles for the field. The only currently supported role is `primary_title`.
+</ParamField>
+
+Queryable string values can contain at most 1,024 Unicode code points. See
+[Queryable fields](/datasets/concepts/datasets#queryable-fields) for schema constraints and
+[Filter by custom fields](/datasets/query/filter-by-fields) for query syntax.
 
 ## Returns
 
@@ -107,18 +130,24 @@ dataset = client.create_or_update_dataset(
     code_name="my_catalog",
     fields=[
         {
-            "name": "field1",
+            "name": "platform",
             "type": str,
+            "queryable": True,
         },
         {
-            "name": "field2",
+            "name": "cloud_cover",
+            "type": float,
+            "queryable": True,
+        },
+        {
+            "name": "shape",
             "type": list[int],
         },
         {
-            "name": "field3",
+            "name": "footprint",
             "type": Geometry,
-            "description": "Field 3",
-            "example_value": "Value 3",
+            "description": "Source product footprint",
+            "example_value": "POLYGON ((11 46, 12 46, 12 47, 11 47, 11 46))",
         },
     ],
     name="My personal catalog",
