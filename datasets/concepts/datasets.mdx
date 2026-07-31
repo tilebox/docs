@@ -4,10 +4,6 @@ description: Datasets are strongly typed containers in which every data point wi
 icon: database
 ---
 
-<Tip>
-  You can create your own, Custom Datasets via the [Tilebox Console](/console).
-</Tip>
-
 ## Related Guides
 
 <Columns cols={2}>
@@ -89,6 +85,21 @@ When defining the data schema, you can specify each field's type. The following 
 | Type | Description | Example value |
 | --- | --- | --- |
 | <span class="text-primary dark:text-primary-light font-mono font-semibold">Geometry</span> | Geospatial geometries of type Point, LineString, Polygon or MultiPolygon. | `POLYGON ((12.3 -5.4, 12.5 -5.4, ...))` |
+
+### STAC metadata
+
+Structured STAC types preserve common metadata without flattening it into separate custom fields. In Python, import these types from `tilebox.datasets.schema`.
+
+| Type | Description | Example contents |
+| --- | --- | --- |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">Assets</span> | Files associated with a datapoint, based on the [STAC Asset Object](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md#asset-object). | Image bands and thumbnails |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">Authentication</span> | Authentication schemes described by the [STAC Authentication Extension](https://github.com/stac-extensions/authentication). | S3 credentials |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">Links</span> | Relationships to other resources, based on the [STAC Link Object](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md#link-object). | Canonical and related links |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">ProcessingSoftware</span> | Software and versions described by the [STAC Processing Extension](https://github.com/stac-extensions/processing). | Processor name and version |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">Provider</span> | Organizations that produced, processed, hosted, or licensed the data. | Producer and host details |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">Storage</span> | Storage-system details described by the [STAC Storage Extension](https://github.com/stac-extensions/storage). | S3 region and requester-pays settings |
+
+See [Assets and storage](/datasets/assets-and-storage/overview) for the asset access model.
 
 ### Arrays
 

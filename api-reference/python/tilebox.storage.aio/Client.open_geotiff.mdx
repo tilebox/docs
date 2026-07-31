@@ -1,0 +1,33 @@
+---
+title: Client.open_geotiff
+icon: map
+---
+
+```python
+async def Client.open_geotiff(
+    asset: Asset,
+    *,
+    prefetch: int = 32768,
+    multiplier: float = 2.0,
+) -> GeoTIFF
+```
+
+Open a GeoTIFF through its resolved object store without reading pixel data.
+
+<Note>This method requires Python 3.11 or newer.</Note>
+
+## Parameters
+
+<ParamField path="asset" type="Asset">
+  The GeoTIFF asset to resolve and open.
+</ParamField>
+<ParamField path="prefetch" type="int">
+  The initial metadata range size in bytes. Defaults to `32768`.
+</ParamField>
+<ParamField path="multiplier" type="float">
+  The growth factor for later metadata range requests. Defaults to `2.0`.
+</ParamField>
+
+## Returns
+
+An async-geotiff `GeoTIFF` backed by the resolved object store.

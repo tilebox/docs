@@ -1,0 +1,41 @@
+---
+title: window_from_bounds
+icon: crop-simple
+---
+
+```python
+def window_from_bounds(
+    geotiff: GeoTIFF,
+    bounds: tuple[float, float, float, float],
+    *,
+    crs: str | int | CRS | Proj,
+    require_fully_contained: bool = False,
+) -> Window
+```
+
+Convert geographic bounds to an outward-rounded GeoTIFF pixel window clipped to the image.
+
+<Note>
+  This function requires Python 3.11 or newer and is imported from
+  `tilebox.storage.geotiff`.
+</Note>
+
+## Parameters
+
+<ParamField path="geotiff" type="GeoTIFF">
+  The open async-geotiff image.
+</ParamField>
+<ParamField path="bounds" type="tuple[float, float, float, float]">
+  Coordinates in `(left, bottom, right, top)` order.
+</ParamField>
+<ParamField path="crs" type="str | int | CRS | Proj">
+  The coordinate reference system of `bounds`.
+</ParamField>
+<ParamField path="require_fully_contained" type="bool">
+  Whether to reject bounds that extend beyond the image instead of clipping
+  them. Defaults to `False`.
+</ParamField>
+
+## Returns
+
+An async-geotiff `Window` containing every pixel touched by the bounds.

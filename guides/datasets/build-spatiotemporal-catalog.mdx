@@ -6,7 +6,7 @@ icon: globe
 
 Use a spatio-temporal dataset when each datapoint has both a time and a geometry. This is useful for internal imagery catalogs, derived products, ground truth data, regions of interest, and processing outputs that need geospatial lookup.
 
-This guide creates an imagery catalog from code. You will define the dataset schema with the Python SDK, add field descriptions and examples for generated schema documentation, create a collection, ingest geospatial metadata, and query the catalog by time, location, and custom fields.
+This guide creates an imagery catalog from code. You will define the dataset schema with the Python SDK, reference the image files as assets, ingest geospatial metadata, and query the catalog by time, location, and custom fields.
 
 ## Prerequisites
 
@@ -21,11 +21,12 @@ uv add tilebox geopandas shapely
 
 Start by choosing the spatio-temporal dataset kind and the custom fields for your catalog. Tilebox adds the required `time`, `id`, `ingestion_time`, and `geometry` fields automatically.
 
-The example catalog tracks imagery products with a provider product ID, a storage location, cloud cover, and processing level. Field descriptions and example values become part of the generated schema documentation.
+The example catalog tracks imagery products with a provider product ID, file assets, cloud cover, and processing level. Field descriptions and example values become part of the generated schema documentation.
 
 ```python Python
 from tilebox.datasets import Client
 from tilebox.datasets.data.datasets import DatasetKind
+from tilebox.datasets.schema import Assets
 
 client = Client()
 
@@ -37,10 +38,9 @@ fields = [
         "example_value": "LC08_L2SP_033033_20240808_20240814_02_T1",
     },
     {
-        "name": "location",
-        "type": str,
-        "description": "Storage path, object key, or provider-specific product location.",
-        "example_value": "s3://example-bucket/landsat/LC08_L2SP_033033_20240808_20240814_02_T1",
+        "name": "assets",
+        "type": Assets,
+        "description": "Files associated with the imagery product.",
     },
     {
         "name": "cloud_cover",
@@ -97,7 +97,7 @@ For this catalog, the complete schema includes:
 | `ingestion_time` | Required | No | Time when Tilebox ingested the datapoint. |
 | `geometry` | Required | Dedicated spatial filter | Geometry used for spatial queries. |
 | `product_id` | Custom | No | Stable product or scene identifier. |
-| `location` | Custom | No | Storage path or provider product location. |
+| `assets` | Custom | No | Files associated with the imagery product. |
 | `cloud_cover` | Custom | Yes | Cloud cover percentage for filtering. |
 | `processing_level` | Custom | Yes | Provider processing level or product type. |
 
@@ -149,21 +149,46 @@ products = products.rename(
     columns={
         "timestamp": "time",
         "scene": "product_id",
-        "path": "location",
+        "path": "source_href",
     }
 )
 
 products = products[
-    ["time", "geometry", "product_id", "location", "cloud_cover", "processing_level"]
+    ["time", "geometry", "product_id", "source_href", "cloud_cover", "processing_level"]
 ]
 ```
+
+## Add asset references
+
+Convert each source file into an asset collection, then add its dataset fields to the record:
+
+```python Python
+from tilebox.datasets.assets import Asset, AssetCollection, AssetLocation, MediaType
+
+records = []
+for record in products.to_dict(orient="records"):
+    source_href = record.pop("source_href")
+    assets = AssetCollection.from_assets(
+        [
+            Asset(
+                key="image",
+                primary=AssetLocation(source_href),
+                media_type=MediaType.CLOUD_OPTIMIZED_GEOTIFF,
+                roles=frozenset({"data"}),
+            )
+        ]
+    )
+    records.append({**record, **assets.to_fields()})
+```
+
+`AssetCollection.from_assets` validates and normalizes the metadata into the structure consumed by the storage client. It does not upload the referenced file or test its availability.
 
 ## Ingest the catalog
 
 Ingest the prepared records into a collection.
 
 ```python Python
-collection.ingest(products)
+collection.ingest(records)
 ```
 
 ## Query by time, location, and custom fields

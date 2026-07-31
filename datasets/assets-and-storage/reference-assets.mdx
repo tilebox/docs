@@ -1,0 +1,156 @@
+---
+title: Reference assets in a dataset
+sidebarTitle: Reference your assets
+description: Add references to files in external storage when ingesting Tilebox datapoints.
+icon: link
+---
+
+Reference files that already exist in object storage, behind HTTP URLs, or on a local filesystem by adding asset fields to your dataset schema and ingestion records.
+
+## Add structured STAC fields
+
+Tilebox provides the following structured field types for STAC-compatible datasets. See [dataset field types](/datasets/concepts/datasets#field-types) for the complete list of supported types.
+
+| Field type | Purpose |
+| --- | --- |
+| `Assets` | References files associated with a datapoint, including their locations, media types, roles, and optional metadata. |
+| `Storage` | Describes reusable storage schemes. |
+| `Authentication` | Describes reusable access methods. |
+| `Links` | References related STAC resources. |
+| `Provider` | Identifies organizations that produce, process, license, or host data. |
+| `ProcessingSoftware` | Records software and versions used to process data. |
+
+Both `Assets` and `Links` can reference entries in the storage and authentication registries. In Python, `AssetCollection` combines assets with optional storage and authentication entries needed to access them.
+
+Add the assets, storage, and authentication fields explicitly when you create the dataset:
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client
+from tilebox.datasets.data.datasets import DatasetKind
+from tilebox.datasets.schema import Assets, Authentication, Storage
+
+client = Client()
+dataset = client.create_or_update_dataset(
+    kind=DatasetKind.SPATIOTEMPORAL,
+    code_name="imagery_catalog",
+    fields=[
+        {"name": "product_id", "type": str},
+        {"name": "assets", "type": Assets},
+        {"name": "storage", "type": Storage},
+        {"name": "authentication", "type": Authentication},
+    ],
+    name="Imagery catalog",
+)
+collection = dataset.get_or_create_collection("products")
+```
+
+```go Go
+import (
+	"github.com/tilebox/tilebox-go/datasets/v1"
+	"github.com/tilebox/tilebox-go/datasets/v1/field"
+	stacv1 "github.com/tilebox/tilebox-go/protogen/datasets/stac/v1"
+)
+
+fields := []datasets.Field{
+	field.String("product_id"),
+	field.Message("assets", &stacv1.Assets{}),
+	field.Message("storage", &stacv1.Storage{}),
+	field.Message("authentication", &stacv1.Authentication{}),
+}
+
+dataset, err := client.Datasets.CreateOrUpdate(
+	ctx,
+	datasets.KindSpatiotemporal,
+	"imagery_catalog",
+	"Imagery catalog",
+	fields,
+)
+```
+</CodeGroup>
+
+## Prepare assets for ingestion
+
+Construct assets from their source locations, then check and normalize the collection. This ensures that the storage client can read the referenced bytes. `to_fields()` converts the collection into fields for a complete datapoint record.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets.assets import (
+    Asset,
+    AssetCollection,
+    AssetLocation,
+    MediaType,
+)
+from shapely import box
+
+assets = AssetCollection.from_assets([
+    Asset(
+        key="image",
+        primary=AssetLocation("s3://example-bucket/scenes/scene-1.tif"),
+        media_type=MediaType.CLOUD_OPTIMIZED_GEOTIFF,
+        roles=frozenset({"data"}),
+    ),
+])
+
+record = {
+    "time": "2026-07-31T10:00:00Z",
+    "geometry": box(16.25, 48.15, 16.35, 48.22),
+    "product_id": "scene-1",
+    **assets.to_fields(),
+}
+
+collection.ingest([record])
+```
+
+```go Go
+import stacv1 "github.com/tilebox/tilebox-go/protogen/datasets/stac/v1"
+
+profileIndex := uint32(0)
+href := "scenes/scene-1.tif"
+mediaType := stacv1.KnownMediaType_KNOWN_MEDIA_TYPE_CLOUD_OPTIMIZED_GEOTIFF
+
+assets := stacv1.Assets_builder{
+	AccessProfiles: []*stacv1.AssetAccessProfile{
+		stacv1.AssetAccessProfile_builder{
+			BaseHref: "https://example-bucket.s3.eu-central-1.amazonaws.com/",
+		}.Build(),
+	},
+	Assets: []*stacv1.Asset{
+		stacv1.Asset_builder{
+			Key: "image",
+			Primary: stacv1.AssetLocation_builder{
+				AccessProfileIndex: &profileIndex,
+				Href:               &href,
+			}.Build(),
+			MediaType: stacv1.MediaType_builder{Known: &mediaType}.Build(),
+			Roles: []stacv1.KnownAssetRole{
+				stacv1.KnownAssetRole_KNOWN_ASSET_ROLE_DATA,
+			},
+		}.Build(),
+	},
+}.Build()
+
+// Use the generated datapoint type for your dataset.
+record := catalogv1.Scene_builder{
+	Time:      timestamp,
+	Geometry:  geometry,
+	ProductId: new("scene-1"),
+	Assets:    assets,
+}.Build()
+```
+</CodeGroup>
+
+Pass the complete record to the [standard datapoint ingestion API](/datasets/ingest).
+
+## Add more asset metadata
+
+Assets can also describe alternate locations, bands, and metadata from STAC extensions such as Raster, Electro-Optical, and Projection. See the [`Asset` API reference](/api-reference/python/tilebox.datasets.assets/Asset) for the available fields.
+
+<Columns cols={2}>
+  <Card title="Build a spatio-temporal catalog" icon="globe" href="/guides/datasets/build-spatiotemporal-catalog" horizontal>
+    Create a dataset that combines searchable metadata with file references.
+  </Card>
+  <Card title="Read and download assets" icon="download" href="/datasets/assets-and-storage/read-and-download" horizontal>
+    Access the referenced files with the storage client.
+  </Card>
+</Columns>

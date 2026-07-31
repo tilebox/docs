@@ -76,147 +76,102 @@ func main() {
 ```
 </CodeGroup>
 
-## Preparing data for ingestion
+## Prepare data for ingestion
 
-Ingestion can be done either in Python or Go.
+Ingestion is available in Python and Go.
 
 ### Python
 
-[`collection.ingest`](/api-reference/python/tilebox.datasets/Collection.ingest) supports a wide range of input types. Below is an example of using either a `pandas.DataFrame` or an `xarray.Dataset` as input.
+Every datapoint passed to [`collection.ingest`](/api-reference/python/tilebox.datasets/Collection.ingest) must include `time`. Omit `id` and `ingestion_time`; Tilebox generates both fields during ingestion.
+
+#### Record-oriented data
+
+Use an iterable of mappings when you construct datapoints individually. Optional fields can be absent from individual records. `None` and common tabular missing values also leave optional fields unset.
+
+```python Python
+records = [
+    {
+        "time": "2025-03-28T11:44:23Z",
+        "value": 45.16,
+        "sensor": "A",
+        "sensor_history": [-12.15, 13.45, -8.2, 16.5, 45.16],
+    },
+    {
+        "time": "2025-03-28T11:45:19Z",
+        "value": 273.15,
+        "sensor": "B",
+    },
+]
+
+datapoint_ids = collection.ingest(records)
+```
+
+#### Column-oriented data
+
+Use a mapping of field names to equally sized sequences when your data is already organized by column.
+
+```python Python
+columns = {
+    "time": [
+        "2025-03-28T11:44:23Z",
+        "2025-03-28T11:45:19Z",
+    ],
+    "value": [45.16, 273.15],
+    "sensor": ["A", "B"],
+}
+
+collection.ingest(columns)
+```
+
+<Note>
+  A mapping is always interpreted as column-oriented data. To ingest one record, wrap it in a list: `collection.ingest([record])`.
+</Note>
 
 #### pandas DataFrame
 
-A [pandas.DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) is a representation of two-dimensional, potentially heterogeneous tabular data. It's a powerful tool for working with structured data, and Tilebox supports it as input for `ingest`.
+Tilebox treats each DataFrame row as one datapoint and maps column names to dataset fields.
 
-The example below shows how to construct a `pandas.DataFrame` from scratch, that matches the schema of the `MyCustomDataset` dataset and can be ingested into it.
-
-<CodeGroup>
 ```python Python
 import pandas as pd
 
 data = pd.DataFrame({
     "time": [
-      "2025-03-28T11:44:23Z",
-      "2025-03-28T11:45:19Z",
+        "2025-03-28T11:44:23Z",
+        "2025-03-28T11:45:19Z",
     ],
     "value": [45.16, 273.15],
     "sensor": ["A", "B"],
-    "precise_time": [
-      "2025-03-28T11:44:23.345761444Z",
-      "2025-03-28T11:45:19.128742312Z",
-    ],
-    "sensor_history": [
-      [-12.15, 13.45, -8.2, 16.5, 45.16],
-      [300.16, 280.12, 273.15],
-    ],
 })
-print(data)
-```
-</CodeGroup>
 
-<CodeGroup>
-```plaintext Output
-                   time   value sensor                    precise_time                      sensor_history
-0  2025-03-28T11:44:23Z   45.16      A  2025-03-28T11:44:23.345761444Z  [-12.15, 13.45, -8.2, 16.5, 45.16]
-1  2025-03-28T11:45:19Z  273.15      B  2025-03-28T11:45:19.128742312Z            [300.16, 280.12, 273.15]
-```
-</CodeGroup>
-
-Once you have the data ready in this format, you can `ingest` it into a collection.
-
-<CodeGroup>
-```python Python
-# now that we have the data frame in the correct format
-# we can ingest it into the Tilebox dataset
 collection.ingest(data)
-
-# To verify it now contains the 2 data points
-print(collection.info())
 ```
-</CodeGroup>
-
-<CodeGroup>
-```plaintext Output
-Measurements: [2025-03-28T11:44:23.000 UTC, 2025-03-28T11:45:19.000 UTC] (2 data points)
-```
-</CodeGroup>
-
-<Tip>
-  You can now also head on over to the [Tilebox Console](/console) and view the newly ingested data points there.
-</Tip>
 
 #### xarray Dataset
 
-[`xarray.Dataset`](/sdks/python/xarray) is the default format in which Tilebox Datasets returns data when
-[querying data](/datasets/query/querying-data) from a collection.
-Tilebox also supports it as input for ingestion. The example below shows how to construct an `xarray.Dataset`
-from scratch, that matches the schema of the `MyCustomDataset` dataset and can then be ingested into it.
-To learn more about `xarray.Dataset`, visit Tilebox dedicated [Xarray documentation page](/sdks/python/xarray).
+Tilebox also accepts [`xarray.Dataset`](/sdks/python/xarray), the format returned when [querying data](/datasets/query/querying-data).
 
-<CodeGroup>
 ```python Python
-import pandas as pd
+import numpy as np
+import xarray as xr
 
 data = xr.Dataset({
     "time": ("time", [
-      "2025-03-28T11:46:13Z",
-      "2025-03-28T11:46:54Z",
+        "2025-03-28T11:46:13Z",
+        "2025-03-28T11:46:54Z",
     ]),
     "value": ("time", [48.1, 290.12]),
-    "sensor": ("time", ["A", "B"]),
-    "precise_time": ("time", [
-      "2025-03-28T11:46:13.345761444Z",
-      "2025-03-28T11:46:54.128742312Z",
-    ]),
     "sensor_history": (("time", "n_sensor_history"), [
-      [13.45, -8.2, 16.5, 45.16, 48.1],
-      [280.12, 273.15, 290.12, np.nan, np.nan],
+        [13.45, -8.2, 16.5, 45.16, 48.1],
+        [280.12, 273.15, 290.12, np.nan, np.nan],
     ]),
 })
-print(data)
-```
-</CodeGroup>
 
-<CodeGroup>
-```plaintext Output
-<xarray.Dataset> Size: 504B
-Dimensions:         (time: 2, n_sensor_history: 5)
-Coordinates:
-  * time            (time) <U20 160B '2025-03-28T11:46:13Z' '2025-03-28T11:46...
-Dimensions without coordinates: n_sensor_history
-Data variables:
-    value           (time) float64 16B 48.1 290.1
-    sensor          (time) <U1 8B 'A' 'B'
-    precise_time    (time) <U30 240B '2025-03-28T11:46:13.345761444Z' '2025-0...
-    sensor_history  (time, n_sensor_history) float64 80B 13.45 -8.2 ... nan nan
+collection.ingest(data)
 ```
-</CodeGroup>
 
 <Note>
-  Array fields manifest in xarray using an extra dimension, in this case `n_sensor_history`. In case
-  of different array sizes for each data point, remaining values are filled up with a fill value, depending on the
-  `dtype` of the array. For `float64` this is `np.nan` (not a number).
-  Don't worry - when ingesting data into a Tilebox dataset, Tilebox will automatically skip those padding fill values
-  and not store them in the dataset.
+  Array fields use an extra xarray dimension, such as `n_sensor_history`. If array lengths differ, pad shorter values at the end with the fill value for that data type. Tilebox omits this trailing padding during ingestion.
 </Note>
-
-Now that you have the `xarray.Dataset` in the correct format, you can ingest it into the Tilebox dataset collection.
-
-<CodeGroup>
-```python Python
-collection = dataset.get_or_create_collection("OtherMeasurements")
-collection.ingest(data)
-
-# To verify it now contains the 2 data points
-print(collection.info())
-```
-</CodeGroup>
-
-<CodeGroup>
-```plaintext Output
-OtherMeasurements: [2025-03-28T11:46:13.000 UTC, 2025-03-28T11:46:54.000 UTC] (2 data points)
-```
-</CodeGroup>
 
 ### Go
 
@@ -399,6 +354,10 @@ Through the usage of `xarray` and `pandas` you can also easily ingest existing d
 formats, such as CSV, [Parquet](https://parquet.apache.org/), [Feather](https://arrow.apache.org/docs/python/feather.html) and more.
 
 Check out the [Ingestion from common file formats](/guides/datasets/ingest-format) guide for examples of how to achieve this.
+
+## Assets
+
+To ingest datapoints that reference files in external storage, see [Reference assets in a dataset](/datasets/assets-and-storage/reference-assets).
 
 ## Geometries
 

@@ -1,0 +1,31 @@
+---
+title: Client.download
+icon: download
+---
+
+```python
+async def Client.download(
+    asset: Asset,
+    destination: str | PathLike[str],
+    *,
+    overwrite: bool = False,
+) -> Path
+```
+
+Atomically download an asset to an exact local path.
+
+## Parameters
+
+<ParamField path="asset" type="Asset">
+  The asset to resolve and download.
+</ParamField>
+<ParamField path="destination" type="str | PathLike[str]">
+  The destination path. Missing parent directories are created.
+</ParamField>
+<ParamField path="overwrite" type="bool">
+  Whether to replace an existing destination. Defaults to `False`.
+</ParamField>
+
+## Returns
+
+The destination as a `Path`.

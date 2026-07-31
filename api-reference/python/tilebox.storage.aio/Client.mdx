@@ -1,0 +1,27 @@
+---
+title: Client
+icon: hard-drive
+---
+
+```python
+class Client(
+    *,
+    policy: AssetAccessPolicy | None = None,
+)
+```
+
+Create an asynchronous client that resolves and accesses dataset assets through reusable object stores.
+
+## Parameters
+
+<ParamField path="policy" type="AssetAccessPolicy | None">
+  The location-selection policy. The default prefers local, S3, Google Cloud,
+  Azure, HTTPS, and HTTP locations in that order.
+</ParamField>
+
+```python Python
+from tilebox.storage.aio import Client
+
+client = Client()
+data = await client.read_bytes(asset)
+```

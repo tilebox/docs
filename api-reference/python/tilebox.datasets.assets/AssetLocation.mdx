@@ -1,0 +1,33 @@
+---
+title: AssetLocation
+icon: location-dot
+---
+
+```python
+class AssetLocation(
+    href: str,
+    alternate_name: str | None = None,
+    storage_schemes: Mapping[str, StorageScheme] = {},
+    authentication_schemes: Mapping[str, AuthenticationScheme] = {},
+)
+```
+
+Describe an asset URL and the storage and authentication schemes that apply to it.
+
+## Fields
+
+<ParamField path="href" type="str">
+  The fully resolved asset URL.
+</ParamField>
+<ParamField path="alternate_name" type="str | None">
+  The optional STAC alternate-assets display name.
+</ParamField>
+<ParamField path="storage_schemes" type="Mapping[str, StorageScheme]">
+  Storage schemes keyed by their exact registry keys.
+</ParamField>
+<ParamField
+  path="authentication_schemes"
+  type="Mapping[str, AuthenticationScheme]"
+>
+  Authentication schemes keyed by their exact registry keys.
+</ParamField>

@@ -78,6 +78,25 @@ datapoint = await collection.find(datapoint_uuid)
   `await some_async_call()` as the output of a code cell.
 </Note>
 
+## Accessing assets asynchronously
+
+The storage client is asynchronous. Resolve the assets from one queried datapoint, then await the storage operation:
+
+```python Python
+from tilebox.datasets.assets import AssetCollection
+from tilebox.storage.aio import Client as StorageClient
+
+datasets = await client.datasets()
+collections = await datasets.open_data.aws_earth.sentinel2.collections()
+data = await collections["L2A"].query(temporal_extent=("2025-01-01", "2025-01-02"))
+
+assets = AssetCollection.from_datapoint(data.isel(time=0))
+storage = StorageClient()
+contents = await storage.read_bytes(assets["thumbnail"], max_bytes=10_000_000)
+```
+
+See [Read and download assets](/datasets/assets-and-storage/read-and-download) for streaming, downloads, and GeoTIFF window reads.
+
 ## Fetching data concurrently
 
 The primary benefit of the async client is that it allows concurrent requests, enhancing performance.

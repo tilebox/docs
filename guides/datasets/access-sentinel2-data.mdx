@@ -1,19 +1,19 @@
 ---
-title: Access Copernicus data
-description: Download Copernicus Data Space products with the Tilebox Copernicus storage client, using Sentinel-2 as an example.
-icon: database
+title: Access Sentinel-2 assets
+description: Query Sentinel-2 metadata and read or download the corresponding image assets.
+icon: satellite
 ---
 
-Use this guide when you already have a Copernicus datapoint from a Tilebox metadata query and want to access the product files behind it. The example uses Sentinel-2 Level-2A data, but the same storage client pattern applies to Copernicus products supported by Tilebox.
+Tilebox indexes Sentinel-2 metadata and asset locations in the `open_data.aws_earth.sentinel2` dataset. Query the metadata first, then use the storage client to read only the image data you need.
 
-Tilebox indexes product metadata as datasets. Product files remain in the Copernicus Data Space Ecosystem, so file access uses the `CopernicusStorageClient` with Copernicus S3 credentials.
+<Note>
+  Asset collections and the storage client are currently available in the Python SDK.
+</Note>
 
 ## Prerequisites
 
 - You have a [Tilebox API key](/authentication).
-- You have installed the [Python SDK](/sdks/python/install).
-- You have a [Copernicus Data Space](https://dataspace.copernicus.eu/) account.
-- You have generated Copernicus [S3 credentials](https://eodata-s3keysmanager.dataspace.copernicus.eu/panel/s3-credentials).
+- You have installed the [Python SDK](/sdks/python/install) with Python 3.11 or newer.
 
 ```bash
 uv add tilebox shapely
@@ -21,125 +21,88 @@ uv add tilebox shapely
 
 ## Select a Sentinel-2 datapoint
 
-Start with a small metadata query and select one datapoint to access. For a deeper guide to open data discovery and metadata filtering, see [Query open data metadata](/guides/datasets/query-satellite-data).
+Query a small time and area of interest, then select one low-cloud observation:
 
 ```python Python
-from shapely import Polygon
-from tilebox.datasets import Client
+from shapely import box
+from tilebox.datasets import Client, field
 
-area = Polygon(
-    [
-        (-109.05, 37.0),
-        (-102.05, 37.0),
-        (-102.05, 41.0),
-        (-109.05, 41.0),
-        (-109.05, 37.0),
-    ]
-)
-
-client = Client()
-collection = client.dataset("open_data.copernicus.sentinel2_msi").collection("S2A_S2MSI2A")
+datasets = Client()
+collection = datasets.dataset("open_data.aws_earth.sentinel2").collection("L2A")
 
 scenes = collection.query(
     temporal_extent=("2025-10-01", "2025-11-01"),
-    spatial_extent=area,
-    show_progress=True,
+    spatial_extent=box(-106.0, 38.0, -105.9, 38.1),
+    filter=field("cloud_cover") < 10,
 )
 
-selected = scenes.where(scenes.cloud_cover < 10, drop=True).isel(time=0)
-print(selected.granule_name.item())
+datapoint = scenes.isel(time=0)
+print(datapoint.stac_id.item())
 ```
 
-## Create the Copernicus storage client
+See [Query open data metadata](/guides/datasets/query-satellite-data) for more query patterns.
 
-Create a `CopernicusStorageClient` with your Copernicus S3 credentials. The optional `cache_directory` controls where downloaded files are stored locally.
+## Resolve the assets
+
+Turn the selected datapoint into an asset collection. Each asset describes one file and the locations from which it can be accessed.
 
 ```python Python
-from pathlib import Path
+from tilebox.datasets.assets import AssetCollection
 
-from tilebox.storage import CopernicusStorageClient
+assets = AssetCollection.from_datapoint(datapoint)
 
-storage = CopernicusStorageClient(
-    access_key="YOUR_COPERNICUS_ACCESS_KEY",
-    secret_access_key="YOUR_COPERNICUS_SECRET_ACCESS_KEY",
-    cache_directory=Path("./data"),
-)
+for key, asset in assets.items():
+    print(key, asset.media_type)
+
+red = assets["red"]
 ```
 
-<Note>
-  These credentials are Copernicus Data Space S3 credentials, not your Tilebox API key.
-</Note>
+## Read a Cloud Optimized GeoTIFF window
 
-## Download the complete product
-
-Use `download` when you need the complete Sentinel-2 product directory. The storage client resolves the product location from the Tilebox datapoint metadata and downloads the matching files into the local cache directory.
+The Sentinel-2 image assets are Cloud Optimized GeoTIFFs (COGs). Open an image remotely and request a pixel window without downloading the complete file:
 
 ```python Python
-product_path = storage.download(selected)
+import asyncio
 
-print(f"Downloaded {product_path.name} to {product_path}")
-print("Contents:")
-for path in product_path.iterdir():
-    print(f"- {path.relative_to(product_path)}")
+from tilebox.storage.aio import Client
+from tilebox.storage.geotiff import window_from_bounds
+
+async def read_area():
+    storage = Client()
+    geotiff = await storage.open_geotiff(red)
+    window = window_from_bounds(
+        geotiff,
+        (-106.0, 38.0, -105.9, 38.1),
+        crs="EPSG:4326",
+    )
+    return await geotiff.read(window=window)
+
+pixels = asyncio.run(read_area())
+print(pixels.shape)
 ```
 
-```plaintext Output
-Downloaded S2A_MSIL2A_20251002T180751_N0511_R084_T13TEE_20251002T225842.SAFE to data/Sentinel-2/MSI/L2A/2025/10/02/S2A_MSIL2A_20251002T180751_N0511_R084_T13TEE_20251002T225842.SAFE
-Contents:
-- manifest.safe
-- GRANULE
-- INSPIRE.xml
-- MTD_MSIL2A.xml
-- DATASTRIP
-- HTML
-- rep_info
-- S2A_MSIL2A_20251002T180751_N0511_R084_T13TEE_20251002T225842-ql.jpg
-```
+`window_from_bounds` transforms geographic bounds into the image coordinate system and clips the resulting window to the image.
 
-## Download selected product files
+## Download an asset
 
-Sentinel-2 products contain many files, including metadata, masks, quicklook images, and bands at different resolutions. Use `list_objects` and `download_objects` when you only need specific files.
+Use `download` when you need the complete file locally:
 
 ```python Python
-objects = storage.list_objects(selected)
+async def download_red_band():
+    storage = Client()
+    return await storage.download(red, "data/sentinel-2-red.tif")
 
-wanted_bands = ["B02_10m", "B03_10m", "B04_10m", "B08_10m"]
-band_objects = [
-    obj for obj in objects
-    if any(band in obj for band in wanted_bands)
-]
-
-for obj in band_objects:
-    print(obj)
-
-downloaded_files = storage.download_objects(selected, band_objects)
-print(downloaded_files)
+path = asyncio.run(download_red_band())
+print(path)
 ```
-
-Use this pattern when a workflow only needs a few bands or metadata files. It reduces transfer time and local storage compared with downloading the full `.SAFE` product.
-
-## Preview the product
-
-Many Copernicus products include a quicklook image. In a notebook, use `quicklook` to display the product preview without downloading the full product first.
-
-```python Python
-storage.quicklook(selected)
-```
-
-<Frame caption="Sentinel-2 quicklook image © ESA">
-  <img src="/assets/storage/s2_quicklook.jpg" alt="Sentinel-2 quicklook image" />
-</Frame>
 
 ## Next steps
 
 <Columns cols={2}>
-  <Card title="Query open data metadata" icon="satellite" href="/guides/datasets/query-satellite-data" horizontal>
-    Find Copernicus products by time, location, and metadata fields.
+  <Card title="Read and download assets" icon="download" href="/datasets/assets-and-storage/read-and-download" horizontal>
+    Learn about streaming, downloads, GeoTIFF access, and location selection.
   </Card>
-  <Card title="Storage clients" icon="hard-drive" href="/datasets/storage/clients" horizontal>
-    Learn about the other Tilebox storage clients for open data products.
-  </Card>
-  <Card title="Access USGS Landsat data" icon="satellite-dish" href="/guides/datasets/access-usgs-landsat-data" horizontal>
-    Download Landsat product files with the USGS Landsat storage client.
+  <Card title="Assets and storage" icon="boxes-stacked" href="/datasets/assets-and-storage/overview" horizontal>
+    Understand how asset metadata connects dataset queries to file storage.
   </Card>
 </Columns>

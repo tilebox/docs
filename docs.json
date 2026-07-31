@@ -75,7 +75,16 @@
               "datasets/delete",
               "datasets/geometries",
               "datasets/open-data",
-              "datasets/storage/clients"
+              {
+                "group": "Assets and storage",
+                "icon": "boxes-stacked",
+                "pages": [
+                  "datasets/assets-and-storage/overview",
+                  "datasets/assets-and-storage/read-and-download",
+                  "datasets/assets-and-storage/reference-assets",
+                  "datasets/storage/clients"
+                ]
+              }
             ]
           },
           {
@@ -150,7 +159,6 @@
             "pages": [
               "guides/datasets/query-satellite-data",
               "guides/datasets/access-sentinel2-data",
-              "guides/datasets/access-usgs-landsat-data",
               "guides/datasets/build-spatiotemporal-catalog",
               "guides/datasets/ingest-into-spatiotemporal-catalog",
               "guides/datasets/ingest-format"
@@ -233,6 +241,32 @@
                   "api-reference/python/tilebox.datasets/Collection.info",
                   "api-reference/python/tilebox.datasets/Collection.ingest",
                   "api-reference/python/tilebox.datasets/Collection.query"
+                ]
+              },
+              {
+                "group": "tilebox.datasets.assets",
+                "pages": [
+                  "api-reference/python/tilebox.datasets.assets/Asset",
+                  "api-reference/python/tilebox.datasets.assets/AssetLocation",
+                  "api-reference/python/tilebox.datasets.assets/Band",
+                  "api-reference/python/tilebox.datasets.assets/AssetCollection",
+                  "api-reference/python/tilebox.datasets.assets/AssetCollection.from_datapoint",
+                  "api-reference/python/tilebox.datasets.assets/AssetCollection.from_assets",
+                  "api-reference/python/tilebox.datasets.assets/AssetCollection.to_fields"
+                ]
+              },
+              {
+                "group": "tilebox.storage.aio",
+                "pages": [
+                  "api-reference/python/tilebox.storage.aio/Client",
+                  "api-reference/python/tilebox.storage.aio/AssetAccessPolicy",
+                  "api-reference/python/tilebox.storage.aio/ResolvedAsset",
+                  "api-reference/python/tilebox.storage.aio/Client.resolve",
+                  "api-reference/python/tilebox.storage.aio/Client.read_bytes",
+                  "api-reference/python/tilebox.storage.aio/Client.iter_bytes",
+                  "api-reference/python/tilebox.storage.aio/Client.download",
+                  "api-reference/python/tilebox.storage.aio/Client.open_geotiff",
+                  "api-reference/python/tilebox.storage.aio/window_from_bounds"
                 ]
               },
               {

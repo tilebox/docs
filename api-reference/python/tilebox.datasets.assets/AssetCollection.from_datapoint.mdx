@@ -1,0 +1,29 @@
+---
+title: AssetCollection.from_datapoint
+icon: folder-open
+---
+
+```python
+@classmethod
+def AssetCollection.from_datapoint(
+    datapoint: xarray.Dataset,
+    *,
+    fields: AssetFieldNames | None = None,
+) -> AssetCollection
+```
+
+Resolve the assets attached to exactly one scalar xarray datapoint.
+
+## Parameters
+
+<ParamField path="datapoint" type="xarray.Dataset">
+  A scalar dataset containing exactly one datapoint.
+</ParamField>
+<ParamField path="fields" type="AssetFieldNames | None">
+  Optional names for the `assets`, `storage`, and `authentication` variables
+  when automatic discovery is ambiguous.
+</ParamField>
+
+## Returns
+
+An `AssetCollection` keyed by asset key.

@@ -1,0 +1,31 @@
+---
+title: AssetCollection.to_fields
+icon: folder-open
+---
+
+```python
+def AssetCollection.to_fields(
+    *,
+    fields: AssetFieldNames | None = None,
+    storage: Storage | None = None,
+    authentication: Authentication | None = None,
+) -> dict[str, Assets | Storage | Authentication]
+```
+
+Convert the collection to fields ready for dataset ingestion.
+
+## Parameters
+
+<ParamField path="fields" type="AssetFieldNames | None">
+  Optional output names for the assets, storage, and authentication fields.
+</ParamField>
+<ParamField path="storage" type="Storage | None">
+  Additional storage registry entries to retain.
+</ParamField>
+<ParamField path="authentication" type="Authentication | None">
+  Additional authentication registry entries to retain.
+</ParamField>
+
+## Returns
+
+A field-name mapping containing `Assets` and any nonempty `Storage` or `Authentication` fields.

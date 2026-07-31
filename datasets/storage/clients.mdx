@@ -1,8 +1,12 @@
 ---
-title: Storage Clients
-description: Configure and use storage clients in the Tilebox Python SDK to access satellite data products from public providers and local file systems.
+title: Legacy storage clients
+description: Deprecated provider-specific clients for downloading open data products.
 icon: hard-drive
 ---
+
+<Warning>
+  The provider-specific storage clients on this page are deprecated. Use [asset collections and the storage client](/datasets/assets-and-storage/overview) for new integrations. Migration guidance for existing integrations will follow.
+</Warning>
 
 Tilebox does not host the actual open data satellite products but instead relies on publicly accessible storage providers for data access.
 Tilebox ingests available metadata as [datasets](/datasets/concepts/datasets) to enable high performance querying and structured access of the data as [xarray.Dataset](/sdks/python/xarray).

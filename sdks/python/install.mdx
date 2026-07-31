@@ -15,6 +15,9 @@ Tilebox offers a Python SDK for accessing Tilebox services. The SDK includes sep
   <Card title="tilebox-workflows" icon="network-wired" href="https://pypi.org/project/tilebox-workflows/" horizontal>
     Workflow client and runner for Tilebox
   </Card>
+  <Card title="tilebox-storage" icon="hard-drive" href="https://pypi.org/project/tilebox-storage/" horizontal>
+    Read and download assets from object storage
+  </Card>
 </Columns>
 
 ## Installation
@@ -68,8 +71,8 @@ from tilebox.datasets import Client
 client = Client()
 datasets = client.datasets()
 
-collection = datasets.open_data.copernicus.landsat8_oli_tirs.collection("L1T")
-data = collection.query(temporal_extent=("2015-01-01", "2020-01-01"), show_progress=True)
+collection = datasets.open_data.aws_earth.sentinel2.collection("L2A")
+data = collection.query(temporal_extent=("2025-01-01", "2025-01-02"), show_progress=True)
 data
 ```
 

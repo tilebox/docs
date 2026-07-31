@@ -1,0 +1,40 @@
+---
+title: Band
+icon: layer-group
+---
+
+```python
+class Band(
+    name: str | None = None,
+    description: str | None = None,
+    data_type: DataType = DataType.UNSPECIFIED,
+    nodata: float | None = None,
+    unit: str | None = None,
+    eo: EOProperties | None = None,
+    raster: RasterProperties | None = None,
+    classes: tuple[ClassificationClass, ...] = (),
+    sar: SARProperties | None = None,
+)
+```
+
+Describe one asset band, with unspecified values inherited from the asset when an `AssetCollection` is created.
+
+## Fields
+
+<ParamField path="name" type="str | None">
+  The band name.
+</ParamField>
+<ParamField path="description" type="str | None">
+  A human-readable description.
+</ParamField>
+<ParamField path="data_type" type="DataType">
+  The raster data type.
+</ParamField>
+<ParamField path="nodata" type="float | None">
+  The nodata value.
+</ParamField>
+<ParamField path="unit" type="str | None">
+  The unit name.
+</ParamField>
+
+The `eo`, `raster`, `classes`, and `sar` fields hold generated extension metadata.

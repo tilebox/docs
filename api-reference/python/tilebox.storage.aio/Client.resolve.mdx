@@ -1,0 +1,20 @@
+---
+title: Client.resolve
+icon: hard-drive
+---
+
+```python
+def Client.resolve(asset: Asset) -> ResolvedAsset
+```
+
+Select the best supported asset location without making a network request.
+
+## Parameters
+
+<ParamField path="asset" type="Asset">
+  The asset to resolve.
+</ParamField>
+
+## Returns
+
+A `ResolvedAsset` containing the selected location, object store, path, and access metadata.

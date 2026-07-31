@@ -24,10 +24,13 @@ Ingest data into a collection.
   The data to ingest.
 
   Supported `IngestionData` data types are:
-  - A `pandas.DataFrame`, mapping the column names to dataset fields.
-  - An `xarray.Dataset`, mapping variables and coordinates to dataset fields.
-  - An `Iterable`, `dict` or `nd-array`: ingest any object that can be converted to a `pandas.DataFrame` using
-    its constructor, equivalent to `ingest(pd.DataFrame(data))`.
+  - An iterable of mappings, with one mapping per datapoint.
+  - A mapping from field names to ordered sequences, `numpy.ndarray` objects, or `pandas.Series` objects.
+  - A `pandas.DataFrame`, with column names mapped to dataset fields.
+  - An `xarray.Dataset`, with variables and coordinates mapped to dataset fields.
+
+  A mapping is always interpreted as column-oriented data. Wrap a single record in an iterable, such as `[record]`.
+  Every datapoint must include `time`. Tilebox generates `id` and `ingestion_time`. Missing optional values leave their corresponding fields unset.
 </ParamField>
 <ParamField path="allow_existing" type="bool">
   Datapoint fields are used to generate a deterministic unique `UUID` for each
@@ -47,16 +50,18 @@ List of datapoint IDs that were ingested, including the IDs of existing data poi
 
 <RequestExample>
 ```python Python
-import pandas as pd
-
-collection.ingest(pd.DataFrame({
-    "time": [
-      "2023-05-01T12:00:00Z",
-      "2023-05-02T12:00:00Z",
-    ],
-    "value": [1, 2],
-    "sensor": ["A", "B"],
-}))
+collection.ingest([
+    {
+        "time": "2023-05-01T12:00:00Z",
+        "value": 1,
+        "sensor": "A",
+    },
+    {
+        "time": "2023-05-02T12:00:00Z",
+        "value": 2,
+        "sensor": "B",
+    },
+])
 ```
 </RequestExample>
 

@@ -1,0 +1,23 @@
+---
+title: AssetCollection.from_assets
+icon: folder-open
+---
+
+```python
+@classmethod
+def AssetCollection.from_assets(
+    assets: Iterable[Asset],
+) -> AssetCollection
+```
+
+Create a normalized semantic asset collection.
+
+## Parameters
+
+<ParamField path="assets" type="Iterable[Asset]">
+  Assets with nonempty, unique keys.
+</ParamField>
+
+## Returns
+
+A read-only `AssetCollection` keyed by each asset's key.

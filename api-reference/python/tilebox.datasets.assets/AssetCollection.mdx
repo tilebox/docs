@@ -1,0 +1,12 @@
+---
+title: AssetCollection
+icon: folder-open
+---
+
+```python
+class AssetCollection(Mapping[str, Asset])
+```
+
+Represent the assets belonging to one dataset datapoint as a read-only mapping keyed by asset key.
+
+Create a collection with `AssetCollection.from_assets`, resolve one from a scalar datapoint with `AssetCollection.from_datapoint`, or convert it to ingestion fields with `AssetCollection.to_fields`.

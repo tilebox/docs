@@ -1,0 +1,70 @@
+---
+title: Asset
+icon: file
+---
+
+```python
+class Asset(
+    key: str,
+    primary: AssetLocation,
+    alternates: Mapping[str, AssetLocation] = {},
+    media_type: MediaType | str | None = None,
+    title: str | None = None,
+    description: str | None = None,
+    roles: frozenset[KnownAssetRole | str] = frozenset(),
+    gsd: float | None = None,
+    bands: tuple[Band, ...] = (),
+    data_type: DataType = DataType.UNSPECIFIED,
+    nodata: float | None = None,
+    statistics: Statistics | None = None,
+    unit: str | None = None,
+    eo: EOProperties | None = None,
+    raster: RasterProperties | None = None,
+    projection: Projection | None = None,
+    view: View | None = None,
+    classes: tuple[ClassificationClass, ...] = (),
+    file: File | None = None,
+    sar: SARProperties | None = None,
+    satellite: SatelliteProperties | None = None,
+    product: ProductProperties | None = None,
+)
+```
+
+Describe an asset and its primary and alternate locations.
+
+## Fields
+
+<ParamField path="key" type="str">
+  The asset's unique key within its datapoint.
+</ParamField>
+<ParamField path="primary" type="AssetLocation">
+  The primary asset location.
+</ParamField>
+<ParamField path="alternates" type="Mapping[str, AssetLocation]">
+  Alternate locations keyed by their STAC alternate-assets key.
+</ParamField>
+<ParamField path="media_type" type="MediaType | str | None">
+  The exact media type.
+</ParamField>
+<ParamField path="roles" type="frozenset[KnownAssetRole | str]">
+  Known or custom STAC asset roles.
+</ParamField>
+<ParamField path="bands" type="tuple[Band, ...]">
+  Ordered band metadata.
+</ParamField>
+
+The other fields contain optional STAC metadata defined by extensions such as [Electro-Optical](https://github.com/stac-extensions/eo), [Projection](https://github.com/stac-extensions/projection), and [Raster](https://github.com/stac-extensions/raster).
+
+## Media types
+
+Import `MediaType` with the authoring types from `tilebox.datasets.assets`. Its members are strings, such as `MediaType.GEOTIFF`, `MediaType.CLOUD_OPTIMIZED_GEOTIFF`, `MediaType.PNG`, and `MediaType.NETCDF`. You can also pass a custom media type string.
+
+```python Python
+from tilebox.datasets.assets import Asset, AssetLocation, MediaType
+
+asset = Asset(
+    key="image",
+    primary=AssetLocation("s3://bucket/image.tif"),
+    media_type=MediaType.CLOUD_OPTIMIZED_GEOTIFF,
+)
+```
