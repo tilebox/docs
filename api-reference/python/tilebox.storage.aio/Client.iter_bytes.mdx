@@ -1,0 +1,22 @@
+---
+title: Client.iter_bytes
+icon: hard-drive
+---
+
+```python
+async def Client.iter_bytes(
+    asset: Asset,
+) -> AsyncIterator[bytes]
+```
+
+Stream an asset as provider-dependent byte chunks.
+
+## Parameters
+
+<ParamField path="asset" type="Asset">
+  The asset to resolve and stream.
+</ParamField>
+
+## Yields
+
+Byte chunks whose sizes are selected by the storage provider.

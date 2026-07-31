@@ -1,0 +1,20 @@
+---
+title: AssetAccessPolicy
+icon: list-ol
+---
+
+```python
+class AssetAccessPolicy(
+    preferred_schemes: tuple[str, ...] = (
+        "file", "s3", "gs", "az", "https", "http"
+    ),
+)
+```
+
+Control the order in which `Client.resolve` considers asset location schemes.
+
+## Fields
+
+<ParamField path="preferred_schemes" type="tuple[str, ...]">
+  URI schemes in descending preference order.
+</ParamField>

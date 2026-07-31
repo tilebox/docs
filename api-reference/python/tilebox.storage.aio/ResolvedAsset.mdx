@@ -1,0 +1,42 @@
+---
+title: ResolvedAsset
+icon: file-circle-check
+---
+
+```python
+class ResolvedAsset(
+    asset: Asset,
+    location: AssetLocation,
+    href: str,
+    store: ObjectStore,
+    path: str,
+    storage_scheme: StorageScheme | None,
+    authentication_scheme: AuthenticationScheme | None,
+)
+```
+
+Describe the selected asset location and object-store access details returned by `Client.resolve`.
+
+## Fields
+
+<ParamField path="asset" type="Asset">
+  The source asset.
+</ParamField>
+<ParamField path="location" type="AssetLocation">
+  The selected location.
+</ParamField>
+<ParamField path="href" type="str">
+  The selected location's URL.
+</ParamField>
+<ParamField path="store" type="ObjectStore">
+  The configured object store.
+</ParamField>
+<ParamField path="path" type="str">
+  The object path within the store.
+</ParamField>
+<ParamField path="storage_scheme" type="StorageScheme | None">
+  The applicable storage scheme.
+</ParamField>
+<ParamField path="authentication_scheme" type="AuthenticationScheme | None">
+  The applicable authentication scheme.
+</ParamField>

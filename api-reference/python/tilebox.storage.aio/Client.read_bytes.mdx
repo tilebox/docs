@@ -1,0 +1,27 @@
+---
+title: Client.read_bytes
+icon: hard-drive
+---
+
+```python
+async def Client.read_bytes(
+    asset: Asset,
+    *,
+    max_bytes: int | None = None,
+) -> bytes
+```
+
+Read an entire asset into memory.
+
+## Parameters
+
+<ParamField path="asset" type="Asset">
+  The asset to resolve and read.
+</ParamField>
+<ParamField path="max_bytes" type="int | None">
+  An optional maximum accepted object size in bytes.
+</ParamField>
+
+## Returns
+
+The complete object contents as `bytes`.

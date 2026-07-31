@@ -1,0 +1,38 @@
+---
+title: Assets in Tilebox
+sidebarTitle: Overview
+description: Understand how Tilebox datapoints reference files in external storage.
+icon: diagram-project
+---
+
+Assets connect searchable Tilebox datapoints to files such as images and previews. Tilebox stores those references with the datapoint, while the files remain in their original storage.
+
+<Frame>
+  <img src="/assets/datasets/assets-and-storage/overview-light.png" alt="An application queries datapoint metadata from Tilebox and fetches the referenced files from an external storage bucket" className="dark:hidden" />
+  <img src="/assets/datasets/assets-and-storage/overview-dark.png" alt="An application queries datapoint metadata from Tilebox and fetches the referenced files from an external storage bucket" className="hidden dark:block" />
+</Frame>
+
+## Reusable file access model
+
+A structured asset model lets the Tilebox storage client access files through one interface. The same client reads assets from Tilebox open data datasets and from datasets you create that reference files in private buckets.
+
+## Assets belong to datapoints
+
+A datapoint can reference named assets such as `red`, `nir`, or `thumbnail`. Each asset contains a primary location, optional alternate locations, and metadata such as its media type, roles, or bands.
+
+Asset locations can reference storage and authentication schemes. These describe provider settings such as region and requester-pays behavior and how access is authenticated, allowing the storage client to select and configure a compatible location.
+
+Assets can also include metadata compatible with common STAC extensions, including [Electro-Optical](https://github.com/stac-extensions/eo), [Projection](https://github.com/stac-extensions/projection), and [Raster](https://github.com/stac-extensions/raster).
+
+In Python, [`AssetCollection`](/api-reference/python/tilebox.datasets.assets/AssetCollection) provides read-only, key-based access to the assets of one datapoint.
+
+## Work with assets
+
+<Columns cols={2}>
+  <Card title="Read and download assets" icon="download" href="/datasets/assets-and-storage/read-and-download" horizontal>
+    Query an asset-enabled dataset, then read, stream, download, or open its files.
+  </Card>
+  <Card title="Reference your own assets" icon="link" href="/datasets/assets-and-storage/reference-assets" horizontal>
+    Add references to your own files when ingesting datapoints.
+  </Card>
+</Columns>

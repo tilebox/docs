@@ -1,0 +1,157 @@
+---
+title: Read and download assets
+description: Use the Python storage client to read, stream, download, and open files referenced by Tilebox datapoints.
+icon: download
+---
+
+The storage client reads assets from local files, S3, Google Cloud Storage, Azure, and HTTP locations. It selects a compatible location from the metadata attached to each asset.
+
+## Resolve assets from a datapoint
+
+Query an asset-enabled dataset and select one datapoint. See [Querying data](/datasets/query/querying-data) for the complete query API.
+
+```python Python
+from shapely import box
+from tilebox.datasets import Client, field
+from tilebox.datasets.assets import AssetCollection
+
+collection = Client().dataset("open_data.aws_earth.sentinel2").collection("L2A")
+data = collection.query(
+    temporal_extent=("2026-07-20", "2026-07-28"),
+    spatial_extent=box(16.25, 48.15, 16.35, 48.22),
+    filter=field("cloud_cover") < 10,
+)
+
+assets = AssetCollection.from_datapoint(data.isel(time=0))
+print(list(assets))
+red = assets["red"]
+thumbnail = assets["thumbnail"]
+```
+
+An asset exposes its media type, roles, bands, primary location, and alternate locations. `from_datapoint` accepts one selected datapoint; for multiple results, resolve each datapoint separately.
+
+Create one client and reuse it across assets so it can reuse the underlying object stores:
+
+```python Python
+from tilebox.storage.aio import Client as StorageClient
+
+storage = StorageClient()
+await storage.download(thumbnail, "thumbnail.jpg")
+```
+
+## Storage operations
+
+### Read an asset into memory
+
+Use `read_bytes` for small files. Set `max_bytes` to reject unexpectedly large objects.
+
+```python Python
+content = await storage.read_bytes(thumbnail, max_bytes=10_000_000)
+```
+
+### Stream asset bytes
+
+Use `iter_bytes` when you can process the file incrementally.
+
+```python Python
+async for chunk in storage.iter_bytes(red):
+    process(chunk)
+```
+
+### Download an asset
+
+`download` writes atomically to the exact destination path and does not replace an existing file unless requested.
+
+```python Python
+path = await storage.download(red, "data/red.tif")
+```
+
+### Open a GeoTIFF
+
+`open_geotiff` opens TIFF metadata without downloading the complete file. The [COG and GeoTIFF section](#work-with-cog-and-geotiff-assets) shows how to read a region.
+
+```python Python
+geotiff = await storage.open_geotiff(red)
+```
+
+### Inspect the selected location
+
+`resolve` selects a location without making a network request. Most code can let the other operations call it automatically.
+
+```python Python
+resolved = storage.resolve(red)
+print(resolved.href, resolved.path)
+```
+
+## Work with COG and GeoTIFF assets
+
+A Cloud Optimized GeoTIFF (COG) supports range requests, so you can read the pixels for one region without downloading the complete image. Use `window_from_bounds` to convert geographic bounds into a pixel window.
+
+```python Python
+from tilebox.storage.geotiff import window_from_bounds
+
+geotiff = await storage.open_geotiff(red)
+window = window_from_bounds(
+    geotiff,
+    bounds=(16.25, 48.15, 16.35, 48.22),  # west, south, east, north
+    crs="EPSG:4326",
+)
+pixels = await geotiff.read(window=window)
+```
+
+The storage client does not apply scale, offset, no-data masks, band stacking, or coordinate transformations. GeoTIFF access requires Python 3.11 or newer.
+
+## Read RGB bands in parallel
+
+Use `asyncio.gather` to fetch independent assets concurrently. This example reads the same 512 × 512 pixel window from the red, green, and blue COGs and stacks the results into an RGB array.
+
+```python Python
+import asyncio
+
+import numpy as np
+from async_geotiff import Window
+
+window = Window(col_off=4096, row_off=4096, width=512, height=512)
+
+async def read_band(key):
+    geotiff = await storage.open_geotiff(assets[key])
+    raster = await geotiff.read(window=window)
+    return raster.data[0]
+
+red_data, green_data, blue_data = await asyncio.gather(
+    read_band("red"),
+    read_band("green"),
+    read_band("blue"),
+)
+rgb = np.stack((red_data, green_data, blue_data), axis=-1)
+print(rgb.shape)  # (512, 512, 3)
+```
+
+## Choose a location
+
+Assets can provide primary and alternate locations. By default, the client prefers local files, S3, Google Cloud Storage, Azure, HTTPS, and HTTP, in that order. Configure an [`AssetAccessPolicy`](/api-reference/python/tilebox.storage.aio/AssetAccessPolicy) to change that order.
+
+```python Python
+from tilebox.storage.aio import AssetAccessPolicy, Client as StorageClient
+
+storage = StorageClient(
+    policy=AssetAccessPolicy(preferred_schemes=("https", "s3")),
+)
+```
+
+Storage metadata can provide regions, endpoints, and requester-pays settings.
+
+## Authentication
+
+Asset locations can reference authentication metadata. The storage client currently supports S3 credentials from the standard AWS credential environment. Authenticated HTTP locations are not yet supported.
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Access Sentinel-2 assets" icon="satellite" href="/guides/datasets/access-sentinel2-data" horizontal>
+    Query Sentinel-2 and read a selected image region.
+  </Card>
+  <Card title="Reference your own assets" icon="link" href="/datasets/assets-and-storage/reference-assets" horizontal>
+    Attach file references to datapoints you ingest.
+  </Card>
+</Columns>

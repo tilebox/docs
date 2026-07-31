@@ -75,6 +75,24 @@ a new queryable field is only supported while the dataset is empty.
 <ParamField path="shapely.Geometry" type="type">
   A geometry field
 </ParamField>
+<ParamField path="Assets" type="type">
+  STAC asset metadata. Import from `tilebox.datasets.schema`.
+</ParamField>
+<ParamField path="Authentication" type="type">
+  STAC authentication metadata. Import from `tilebox.datasets.schema`.
+</ParamField>
+<ParamField path="Links" type="type">
+  STAC link metadata. Import from `tilebox.datasets.schema`.
+</ParamField>
+<ParamField path="ProcessingSoftware" type="type">
+  STAC processing software metadata. Import from `tilebox.datasets.schema`.
+</ParamField>
+<ParamField path="Provider" type="type">
+  STAC provider metadata. Import from `tilebox.datasets.schema`.
+</ParamField>
+<ParamField path="Storage" type="type">
+  STAC storage metadata. Import from `tilebox.datasets.schema`.
+</ParamField>
 
 Note that the type can also be a list of one of the types, indicating that the field is an array, e.g. `list[str]`.
 

@@ -25,6 +25,7 @@ When adding or moving pages:
 3. Keep pages grouped by product area (`datasets/`, `workflows/`, `sdks/`, `guides/`, `api-reference/`).
 4. Keep the User Guides nav and the [Tilebox Cookbook](/guides/cookbook) in sync. Whenever you add, remove, rename, or move a `guides/**` page in `docs.json`, update `guides/cookbook.mdx` with the same guide metadata, and vice versa.
 5. Preserve the current pattern where high-level landing pages link to deeper pages via `Card`/`HeroCard` blocks.
+6. Give overview and landing pages an icon distinct from the icon of their containing navigation group.
 
 ## Diátaxis Mapping
 
