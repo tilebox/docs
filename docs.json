@@ -67,6 +67,7 @@
                   "datasets/query/querying-data",
                   "datasets/query/filter-by-time",
                   "datasets/query/filter-by-location",
+                  "datasets/query/filter-by-fields",
                   "datasets/query/filter-by-id"
                 ]
               },

@@ -8,6 +8,7 @@ def Dataset.query(
     *,
     collections: list[str] | list[UUID] | list[Collection] | list[CollectionInfo] | list[CollectionClient] | dict[str, CollectionClient] | None = None,
     temporal_extent: TimeIntervalLike,
+    filter: Expression | None = None,
     spatial_extent: SpatialFilterLike | None = None,
     skip_data: bool = False,
     show_progress: bool | Callable[[float], None] = False,
@@ -35,6 +36,11 @@ If no data matches the filters, an empty `xarray.Dataset` is returned.
 
 <ParamField path="temporal_extent" type="TimeIntervalLike">
   The time or time interval to query. This can be a single time scalar, a tuple of two time scalars, or a `TimeInterval` object.
+</ParamField>
+
+<ParamField path="filter" type="Expression | None">
+  Optional expression over fields marked queryable in the dataset schema. Build expressions with `field()` and combine
+  them with `&`, `|`, and `~`. See [Filter by custom fields](/datasets/query/filter-by-fields).
 </ParamField>
 
 <ParamField path="spatial_extent" type="SpatialFilterLike | None">
@@ -69,9 +75,17 @@ An [`xarray.Dataset`](/sdks/python/xarray) containing matching datapoints.
 
 <RequestExample>
 ```python Python
+from tilebox.datasets import field
+
 # query all collections in the dataset
 data = dataset.query(
     temporal_extent=("2025-04-01", "2025-05-01"),
+)
+
+# query using custom fields marked queryable in the dataset schema
+data = dataset.query(
+    temporal_extent=("2026-07-20", "2026-07-28"),
+    filter=(field("cloud_cover") < 1) & (field("platform") == "sentinel-2c"),
 )
 
 # query selected collections by name

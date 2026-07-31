@@ -1,0 +1,177 @@
+---
+title: Filter by custom fields
+description: Filter datapoints server-side with queryable custom dataset fields.
+icon: filter-list
+---
+
+Queryable fields let you filter datapoints by custom metadata before Tilebox returns the query result. You can combine
+custom field expressions with temporal, spatial, and collection filters in the same query.
+
+## Find queryable fields
+
+The dataset schema identifies which fields are queryable. Inspect the schema to find fields available for filtering.
+
+```bash
+tilebox dataset get open_data.aws_earth.sentinel2
+```
+
+The `open_data.aws_earth.sentinel2` dataset exposes these queryable fields:
+
+| Field | Type |
+| --- | --- |
+| `stac_id` | `string` |
+| `platform` | `string` |
+| `cloud_cover` | `float64` |
+| `nodata_pixel_percentage` | `float64` |
+
+## Filter datapoints
+
+This query returns Sentinel-2C Level-2A datapoints with less than one percent cloud cover between July 20 and July 28,
+2026.
+
+<CodeGroup>
+```python Python
+from tilebox.datasets import Client, field
+
+client = Client()
+dataset = client.dataset("open_data.aws_earth.sentinel2")
+
+data = dataset.query(
+    collections=["L2A"],
+    temporal_extent=("2026-07-20", "2026-07-28"),
+    filter=(field("cloud_cover") < 1) & (field("platform") == "sentinel-2c"),
+)
+```
+```go Go
+startDate := time.Date(2026, 7, 20, 0, 0, 0, 0, time.UTC)
+endDate := time.Date(2026, 7, 28, 0, 0, 0, 0, time.UTC)
+
+dataset, err := client.Datasets.Get(ctx, "open_data.aws_earth.sentinel2")
+if err != nil {
+    return err
+}
+collection, err := client.Collections.Get(ctx, dataset.ID, "L2A")
+if err != nil {
+    return err
+}
+
+page, err := client.Datapoints.QueryPage(ctx,
+    dataset.ID,
+    datasets.WithCollections(collection),
+    datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+    datasets.WithFilters(
+        query.Field("cloud_cover").LessThan(1.0),
+        query.Field("platform").Equal("sentinel-2c"),
+    ),
+)
+if err != nil {
+    return err
+}
+fmt.Println(len(page.Datapoints))
+```
+```bash CLI
+tilebox dataset query open_data.aws_earth.sentinel2 \
+  --collections L2A \
+  --after 2026-07-20 \
+  --before 2026-07-28 \
+  --filter "cloud_cover < 1 AND platform = 'sentinel-2c'"
+```
+</CodeGroup>
+
+Tilebox combines custom field expressions with temporal, spatial, and collection filters using `AND`.
+
+## Operators
+
+Custom field filters support comparisons, boolean composition, and null checks.
+
+<Tabs>
+  <Tab title="Python">
+| Operation | Syntax |
+| --- | --- |
+| Equal | `field("x") == value` |
+| Not equal | `field("x") != value` |
+| Less than | `field("x") < value` |
+| Less than or equal | `field("x") <= value` |
+| Greater than | `field("x") > value` |
+| Greater than or equal | `field("x") >= value` |
+| AND | `left & right` |
+| OR | `left \| right` |
+| NOT | `~expression` |
+| Is null | `field("x").is_null()` |
+| Is not null | `field("x").is_not_null()` |
+
+Use `&`, `|`, and `~` instead of `and`, `or`, and `not`, and place each comparison in parentheses.
+  </Tab>
+  <Tab title="Go">
+| Operation | Syntax |
+| --- | --- |
+| Equal | `query.Field("x").Equal(value)` |
+| Not equal | `query.Field("x").NotEqual(value)` |
+| Less than | `query.Field("x").LessThan(value)` |
+| Less than or equal | `query.Field("x").LessThanOrEqual(value)` |
+| Greater than | `query.Field("x").GreaterThan(value)` |
+| Greater than or equal | `query.Field("x").GreaterThanOrEqual(value)` |
+| AND | `query.And(left, right)` |
+| OR | `query.Or(left, right)` |
+| NOT | `query.Not(expression)` |
+| Is null | `query.Field("x").IsNull()` |
+| Is not null | `query.Field("x").IsNotNull()` |
+  </Tab>
+  <Tab title="CLI">
+The CLI accepts a subset of the [CQL2 Text](https://docs.ogc.org/is/21-065r2/21-065r2.html) syntax.
+
+| Operation | Syntax |
+| --- | --- |
+| Equal | `x = value` |
+| Not equal | `x <> value` |
+| Less than | `x < value` |
+| Less than or equal | `x <= value` |
+| Greater than | `x > value` |
+| Greater than or equal | `x >= value` |
+| AND | `left AND right` |
+| OR | `left OR right` |
+| NOT | `NOT expression` |
+| Is null | `x IS NULL` |
+| Is not null | `x IS NOT NULL` |
+
+String, boolean, and numeric literals and parentheses are supported. Repeating `--filter` combines expressions with `AND`.
+  </Tab>
+</Tabs>
+
+Fields of type `bool` support only equality and inequality.
+
+## Missing and null values
+
+Filter expressions use three-valued logic: `true`, `false`, and `null` (unknown). A datapoint matches only when the
+complete expression is `true`. Comparisons against a missing or explicitly null field return `null` and do not match.
+
+This behavior also applies to inequality. For example, `quality != 1` requires `quality` to be present. Combine the
+comparison with an explicit null check when missing values should also match.
+
+<CodeGroup>
+```python Python
+filter = (field("quality") != 1) | field("quality").is_null()
+```
+```go Go
+filter := query.Or(
+    query.Field("quality").NotEqual(1),
+    query.Field("quality").IsNull(),
+)
+```
+</CodeGroup>
+
+## Query safeguards
+
+A single query can contain filters with at most 64 top-level expressions or operands, 256 expression nodes in total,
+and eight levels of nesting. These safeguards keep query evaluation bounded.
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Dataset schemas" icon="database" href="/datasets/concepts/datasets" horizontal>
+    Learn how dataset kinds, custom fields, and schema updates work.
+  </Card>
+  <Card title="Build a spatio-temporal catalog" icon="globe" href="/guides/datasets/build-spatiotemporal-catalog" horizontal>
+    Create a custom catalog, ingest metadata, and query its custom fields.
+  </Card>
+</Columns>

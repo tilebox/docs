@@ -47,11 +47,12 @@ The required fields of the dataset type, as well as the custom fields specific t
 **dataset schema**.
 
 Once a **dataset schema** is defined, existing fields cannot be removed or edited as soon as data has been ingested into it.
-You can always add new fields to a dataset, since all fields are always optional.
+You can add new non-queryable fields to a non-empty dataset because all custom fields are optional. You cannot add a new
+queryable field or change whether an existing field is queryable after ingesting data.
 
 <Tip>
-    The only exception to this rule are empty datasets. If you empty all collections in a dataset, you can freely
-    edit the data schema, since no conflicts with existing data points can occur.
+    Empty datasets are the exception. If all collections are empty, you can freely edit the data schema and its
+    queryable field annotations because no existing datapoints can conflict with the change.
 </Tip>
 
 ## Field types
@@ -63,6 +64,7 @@ When defining the data schema, you can specify each field's type. The following 
 | Type | Description | Example value |
 | --- | --- | --- |
 | <span class="text-primary dark:text-primary-light font-mono font-semibold">string</span> | A string of characters of arbitrary length. | `Some string` |
+| <span class="text-primary dark:text-primary-light font-mono font-semibold">int32</span> | A 32-bit signed integer. | `123` |
 | <span class="text-primary dark:text-primary-light font-mono font-semibold">int64</span> | A 64-bit signed integer. | `123` |
 | <span class="text-primary dark:text-primary-light font-mono font-semibold">uint64</span> | A 64-bit unsigned integer. | `123` |
 | <span class="text-primary dark:text-primary-light font-mono font-semibold">float64</span> | A 64-bit floating-point number. | `123.45` |
@@ -91,6 +93,26 @@ When defining the data schema, you can specify each field's type. The following 
 ### Arrays
 
 Every type is also available as an array, allowing to ingest multiple values of the underlying type for each data point. The size of the array is flexible, and can be different for each data point.
+
+## Queryable fields
+
+Custom fields can be marked as queryable when you define the dataset schema. Tilebox projects these fields into query
+storage so you can [filter datapoints by their values](/datasets/query/filter-by-fields) together with temporal, spatial,
+and collection filters.
+
+| Constraint | Limit |
+| --- | --- |
+| Supported types | `string`, `bool`, `int32`, `int64`, `uint64`, and `float64` |
+| Repeated fields | Not supported |
+| Queryable string fields | At most two per dataset |
+| Queryable string values | At most 1,024 Unicode code points |
+| Field location | Top-level custom fields only |
+| Field names | Snake case, starting with a letter, and at most 100 characters |
+
+<Warning>
+  Select queryable fields before ingesting datapoints. For a non-empty dataset, you cannot change whether an existing
+  field is queryable or add a new queryable field.
+</Warning>
 
 ## Listing datasets
 
@@ -151,10 +173,12 @@ Once you have your dataset object, you can use it to [list the available collect
 
 ## Creating / Updating a dataset
 
-You can create a dataset using one of the available [client SDKs](/sdks/introduction), or use the [Tilebox Console](/console) when you prefer a visual schema editor.
+Create a dataset by defining its kind, custom fields, and field annotations. The [Tilebox Console](/console) provides a
+visual schema editor.
 
-<CodeGroup>
-```python Python
+<Tabs>
+  <Tab title="Python">
+```python
 from datetime import timedelta
 from tilebox.datasets import Client
 from tilebox.datasets.data.datasets import DatasetKind
@@ -170,12 +194,14 @@ dataset = client.create_or_update_dataset(
             "type": str,
             "description": "The name of the Landsat-8 granule.",
             "example_value": "LE07_L1TP_174061_20010913_20200917_02_T1",
+            "queryable": True,
         },
         {
             "name": "cloud_cover",
             "type": float,
             "description": "Cloud cover percentage",
             "example_value": "91",
+            "queryable": True,
         },
         {
             "name": "proj_shape",
@@ -187,22 +213,62 @@ dataset = client.create_or_update_dataset(
     name="Personal Landsat-8 catalog",
 )
 ```
-```go Go
+  </Tab>
+  <Tab title="Go">
+```go
 dataset, err := client.Datasets.Create(ctx,
   datasets.KindSpatiotemporal,
   "my_landsat8_oli_tirs",
   "Personal Landsat-8 catalog",
   []datasets.Field{
-    field.String("granule_name").Description("The name of the Earth View Granule").ExampleValue("20220830_185202_SN18_10N_552149_5297327"),
-    field.Float64("cloud_cover").Description("Cloud cover percentage").ExampleValue("91"),
+    field.String("granule_name").Description("The name of the Earth View Granule").ExampleValue("20220830_185202_SN18_10N_552149_5297327").Queryable(),
+    field.Float64("cloud_cover").Description("Cloud cover percentage").ExampleValue("91").Queryable(),
     field.Int64("proj_shape").Repeated().Description("Raster shape").ExampleValue("[6971, 7801]"),
   }
 )
 ```
-</CodeGroup>
+  </Tab>
+  <Tab title="CLI">
+```json schema.json
+{
+  "kind": "spatiotemporal",
+  "fields": [
+    {
+      "name": "granule_name",
+      "type": "string",
+      "description": "The name of the Landsat-8 granule.",
+      "example_value": "LE07_L1TP_174061_20010913_20200917_02_T1",
+      "queryable": true
+    },
+    {
+      "name": "cloud_cover",
+      "type": "float64",
+      "description": "Cloud cover percentage",
+      "example_value": "91",
+      "queryable": true
+    },
+    {
+      "name": "proj_shape",
+      "type": "int64",
+      "repeated": true,
+      "description": "Raster shape",
+      "example_value": "[6971, 7801]"
+    }
+  ]
+}
+```
+
+```bash
+tilebox dataset create \
+  --name "Personal Landsat-8 catalog" \
+  --code-name my_landsat8_oli_tirs \
+  --schema-file schema.json
+```
+  </Tab>
+</Tabs>
 
 This code will create a new catalog with 7 fields in total.
-4 of those fields are auto-generated by choosing the spatio-temporal dataset type, and 3 (`granule_name`, `cloud_cover`, `proj_shape`) are custom fields that are defined.
+4 of those fields are auto-generated by choosing the spatio-temporal dataset type, and 3 (`granule_name`, `cloud_cover`, `proj_shape`) are custom fields that are defined. `granule_name` and `cloud_cover` can be used in custom field filters; the repeated `proj_shape` field cannot be queryable.
 
 <Tip>
   If a dataset with the same `code_name` already exists, it will be updated instead.

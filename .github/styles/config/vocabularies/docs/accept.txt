@@ -25,6 +25,7 @@ Opendata
 APIs
 (?i)datapoint
 (?i)datapoints
+(?i)queryable
 dataclass
 subtask
 subtasks

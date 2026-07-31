@@ -45,6 +45,10 @@ The output sequence can be transformed into a typed `proto.Message` using [Colle
 <ParamField path="WithCollectionIDs(collectionIDs ...uuid.UUID)">
   Restrict the query to specific dataset collections by collection ID.
 </ParamField>
+<ParamField path="WithFilters(filters ...query.Expression)">
+  Filter by fields marked queryable in the dataset schema. Multiple expressions are combined with each other and with
+  temporal, spatial, and collection filters using logical AND.
+</ParamField>
 <ParamField path="WithSkipData()" default="false">
   Skip the data when querying datapoints.
   If set, only the required and auto-generated fields will be returned.
@@ -82,3 +86,5 @@ datapoints, err := datasets.CollectAs[*v1.Sentinel1Sar](
 )
 ```
 </RequestExample>
+
+See [Filter by custom fields](/datasets/query/filter-by-fields) for comparisons, boolean expressions, and null checks.

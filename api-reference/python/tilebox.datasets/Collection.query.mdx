@@ -7,6 +7,7 @@ icon: layer-group
 def Collection.query(
     *,
     temporal_extent: TimeIntervalLike,
+    filter: Expression | None = None,
     spatial_extent: SpatialFilterLike | None = None,
     skip_data: bool = False,
     show_progress: bool | Callable[[float], None] = False,
@@ -33,6 +34,11 @@ If no data exists for the requested time or interval, an empty `xarray.Dataset` 
 
 </ParamField>
 
+<ParamField path="filter" type="Expression | None">
+  Optional expression over fields marked queryable in the dataset schema. Build expressions with `field()` and combine
+  them with `&`, `|`, and `~`. See [Filter by custom fields](/datasets/query/filter-by-fields).
+</ParamField>
+
 <ParamField path="spatial_extent" type="SpatialFilterLike | None">
   Optional spatial filter. Use this for spatial queries in spatio-temporal datasets.
 </ParamField>
@@ -52,6 +58,7 @@ An [`xarray.Dataset`](/sdks/python/xarray) containing the requested data points.
 <RequestExample>
 ```python Python
 from datetime import datetime
+from tilebox.datasets import field
 from tilebox.datasets.query import TimeInterval
 
 # querying a specific time
@@ -72,6 +79,7 @@ data = collection.query(
 data = collection.query(
   temporal_extent=interval,
   spatial_extent=geometry,
+  filter=(field("cloud_cover") < 10) & (field("platform") == "sentinel-2c"),
 )
 
 # querying a time interval with TimeInterval

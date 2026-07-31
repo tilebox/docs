@@ -18,6 +18,7 @@ func (datasetClient) CreateOrUpdate(
 Create a dataset or update an existing dataset if a dataset with the given `codeName` already exists.
 
 If the dataset already exists, Tilebox applies the same schema update rules as a direct update. New fields can be added to non-empty datasets. Breaking schema changes are only allowed for empty datasets.
+New queryable fields and changes to an existing field's queryable annotation are also only allowed for empty datasets.
 
 ## Parameters
 
@@ -66,6 +67,9 @@ If the dataset already exists, Tilebox applies the same schema update rules as a
 <ParamField path="field.Bool(name string)" type="Field">
   A boolean field
 </ParamField>
+<ParamField path="field.Int32(name string)" type="Field">
+  A 32-bit signed integer field
+</ParamField>
 <ParamField path="field.Int64(name string)" type="Field">
   A 64-bit signed integer field
 </ParamField>
@@ -99,6 +103,26 @@ If the dataset already exists, Tilebox applies the same schema update rules as a
 <ParamField path="ExampleValue(exampleValue string)">
   Set the example value of the field for documentation purposes
 </ParamField>
+<ParamField path="SourceJSONPointer(sourceJSONPointer string)">
+  Optional. Set the RFC 6901 path to this field in the source JSON, such as `/properties/eo:cloud_cover`. This is useful
+  when transforming datapoints to JSON because Tilebox can reconstruct nested source objects from flattened dataset
+  fields.
+</ParamField>
+<ParamField path="Queryable()">
+  Make a non-repeated `String`, `Bool`, `Int32`, `Int64`, `Uint64`, or `Float64` field available for server-side custom
+  field filters. A dataset can contain at most two queryable string fields.
+</ParamField>
+<ParamField path="JSONSchemaRef(jsonSchemaRef string)">
+  Optional. Set a JSON Schema reference URI or URI fragment for the field. Use this when the field follows a well-known
+  schema, such as a STAC extension. Tilebox emits the reference as `$ref` when advertising the field in STAC queryables.
+</ParamField>
+<ParamField path="Roles(roles ...FieldRole)">
+  Set semantic display roles for the field. The only currently supported role is `field.RolePrimaryTitle`.
+</ParamField>
+
+Queryable string values can contain at most 1,024 Unicode code points. See
+[Queryable fields](/datasets/concepts/datasets#queryable-fields) for schema constraints and
+[Filter by custom fields](/datasets/query/filter-by-fields) for query syntax.
 
 ## Returns
 
@@ -111,9 +135,10 @@ dataset, err := client.Datasets.CreateOrUpdate(ctx,
     "my_catalog",
     "My catalog",
     []datasets.Field{
-        field.String("field1"),
-        field.Int64("field2").Repeated(),
-        field.Geometry("field3").Description("Field 3").ExampleValue("Value 3"),
+        field.String("platform").Queryable(),
+        field.Float64("cloud_cover").Queryable(),
+        field.Int64("shape").Repeated(),
+        field.Geometry("footprint").Description("Source product footprint"),
     },
     datasets.WithSummary("Scenes prepared for analysis"),
 )

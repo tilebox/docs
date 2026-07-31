@@ -1,12 +1,13 @@
 ---
 title: Querying data
 sidebarTitle: Querying data
-description: Access and filter data stored in your datasets using time-based and spatial queries, with built-in support for pagination and progress tracking.
+description: Access and filter data stored in your datasets by time, location, and custom fields, with built-in pagination and progress tracking.
 icon: magnifying-glass
 ---
 
 Tilebox offers a powerful and flexible querying API to access and filter data from your datasets. When querying, you can
-[filter by time](/datasets/query/filter-by-time) and for [Spatio-temporal datasets](/datasets/types/spatiotemporal) optionally also [filter by a location in the form of a geometry](/datasets/query/filter-by-location).
+[filter by time](/datasets/query/filter-by-time), [filter by custom fields](/datasets/query/filter-by-fields), and for
+[Spatio-temporal datasets](/datasets/types/spatiotemporal), optionally [filter by a location in the form of a geometry](/datasets/query/filter-by-location).
 
 ## Running a query
 
@@ -112,8 +113,8 @@ if err != nil {
 ```
 </CodeGroup>
 
-To learn more about how to specify filters to narrow down the query results, check out the following sections about filtering by
-time, by geometry or by datapoint ID.
+To learn more about how to narrow down query results, see the following pages about filtering by time, geometry, custom
+fields, or datapoint ID.
 
 <Columns cols={2}>
   <Card
@@ -131,6 +132,14 @@ time, by geometry or by datapoint ID.
     horizontal
   >
     Learn how to filter your query results by a certain geographical extent.
+  </Card>
+  <Card
+    title="Filter by custom fields"
+    icon="filter-list"
+    href="/datasets/query/filter-by-fields"
+    horizontal
+  >
+    Filter datapoints by queryable fields in the dataset schema.
   </Card>
   <Card
     title="Filter by Datapoint ID"
