@@ -46,6 +46,10 @@ The release runner can run releases from multiple workflows at the same time, bu
   Release runners currently only support Python workflow projects. The Tilebox CLI invokes the Python runner environment from the published release artifact using `uv`.
 </Info>
 
+<Tip>
+  Tilebox publishes a ready-to-run release runner container at `ghcr.io/tilebox/runner`. See [Deploy to your compute](/guides/workflows/deploy-to-your-compute) for Docker and Kubernetes examples.
+</Tip>
+
 ### Direct runners
 
 A direct runner connects to the Tilebox API from your own code. Use it when you want full control over the process, deployment environment, dependencies, startup behavior, and scaling. You are responsible for deploying the script or binary, keeping it running, rolling out code changes, and rolling back when needed.
