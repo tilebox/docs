@@ -97,130 +97,45 @@ contents = await storage.read_bytes(assets["thumbnail"], max_bytes=10_000_000)
 
 See [Read and download assets](/datasets/assets-and-storage/read-and-download) for streaming, downloads, and GeoTIFF window reads.
 
-## Fetching data concurrently
+## Downloading assets concurrently
 
-The primary benefit of the async client is that it allows concurrent requests, enhancing performance.
-In below example, data is fetched from multiple collections. The synchronous approach retrieves data sequentially, while the async approach does so concurrently, resulting in faster execution.
+Run independent storage operations concurrently with `asyncio.gather`. This example continues from the preceding query and downloads the datapoint's red, green, and blue bands:
 
-<CodeGroup>
-```python Python (Sync)
-# Example: fetching data sequentially
-
-# switch to the async example to compare the differences
-import time
-from tilebox.datasets import Client
-from tilebox.datasets.sync.timeseries import TimeseriesCollection
-
-client = Client()
-datasets = client.datasets()
-collections = datasets.open_data.copernicus.landsat8_oli_tirs.collections()
-
-def stats_for_2020(collection: TimeseriesCollection) -> None:
-    """Fetch data for 2020 and print the number of data points that were loaded."""
-    data = collection.query(temporal_extent=("2020-01-01", "2021-01-01"), show_progress=True)
-    n = data.sizes['time'] if 'time' in data else 0
-    return (collection.name, n)
-
-start = time.monotonic()
-results = [stats_for_2020(collections[name]) for name in collections]
-duration = time.monotonic() - start
-
-for collection_name, n in results:
-    print(f"There are {n} datapoints in {collection_name} for 2020.")
-print(f"Fetching data took {duration:.2f} seconds")
-```
-
-```python Python (Async)
-# Example: fetching data concurrently
-
+```python Python
 import asyncio
-import time
-from tilebox.datasets.aio import Client
-from tilebox.datasets.aio.timeseries import TimeseriesCollection
 
-client = Client()
-datasets = await client.datasets()
-collections = await datasets.open_data.copernicus.landsat8_oli_tirs.collections()
-
-async def stats_for_2020(collection: TimeseriesCollection) -> None:
-    """Fetch data for 2020 and print the number of data points that were loaded."""
-    data = await collection.query(temporal_extent=("2020-01-01", "2021-01-01"), show_progress=True)
-    n = data.sizes['time'] if 'time' in data else 0
-    return (collection.name, n)
-
-start = time.monotonic()
-
-# Initiate all requests concurrently
-requests = [stats_for_2020(collections[name]) for name in collections]
-# Wait for all requests to finish in parallel
-results = await asyncio.gather(*requests)
-
-duration = time.monotonic() - start
-
-for collection_name, n in results:
-    print(f"There are {n} datapoints in {collection_name} for 2020.")
-print(f"Fetching data took {duration:.2f} seconds")
+await asyncio.gather(
+    storage.download(assets["red"], "red.tif"),
+    storage.download(assets["green"], "green.tif"),
+    storage.download(assets["blue"], "blue.tif"),
+)
 ```
-</CodeGroup>
-
-The output demonstrates that the async approach runs approximately 30% faster for this example. With `show_progress` enabled, the progress bars update concurrently.
-
-<CodeGroup>
-```plaintext Python (Sync)
-There are 19624 datapoints in L1GT for 2020.
-There are 1281 datapoints in L1T for 2020.
-There are 65313 datapoints in L1TP for 2020.
-There are 25375 datapoints in L2SP for 2020.
-Fetching data took 10.92 seconds
-```
-
-```plaintext Python (Async)
-There are 19624 datapoints in L1GT for 2020.
-There are 1281 datapoints in L1T for 2020.
-There are 65313 datapoints in L1TP for 2020.
-There are 25375 datapoints in L2SP for 2020.
-Fetching data took 7.45 seconds
-```
-</CodeGroup>
 
 ## Async workflows
 
-The Tilebox workflows Python client does not have an async client. This is because workflows are designed for distributed and concurrent execution outside a single async event loop. But within a single task, you may use still use`async` code to take advantage of asynchronous execution, such as parallel data loading. You can achieve this by wrapping your async code in `asyncio.run`.
+Python workflow tasks can define `execute` with `async def`. The runner waits for the method to complete, so you can await asynchronous APIs such as Tilebox Storage directly without wrapping the task code in `asyncio.run()`.
 
-Below is an example of using async code within a workflow task.
+For example, a task can read a small group of assets concurrently:
 
-<CodeGroup>
-```python Python (Async)
+```python Python
 import asyncio
-import xarray as xr
 
-from tilebox.datasets.aio import Client as DatasetsClient
-from tilebox.datasets.query import TimeIntervalLike
-from tilebox.workflows import Task, ExecutionContext
+from tilebox.datasets.assets import Asset
+from tilebox.storage.aio import Client as StorageClient
+from tilebox.workflows import ExecutionContext, Task
 
-class FetchData(Task):
-    def execute(self, context: ExecutionContext) -> None:
-        # The task execution itself is synchronous
-        # But we can leverage async code within the task using asyncio.run
+storage = StorageClient()
 
-        # This will fetch three months of data in parallel
-        data_jan, data_feb, data_mar = asyncio.run(load_first_three_months())
-        
-async def load_data(interval: TimeIntervalLike):
-    datasets = await DatasetsClient().datasets()
-    collections = await datasets.open_data.copernicus.landsat8_oli_tirs.collections()
-    return await collections["L1T"].query(temporal_extent=interval)
+class ReadAssets(Task):
+    assets: list[Asset]
 
-async def load_first_three_months() -> tuple[xr.Dataset, xr.Dataset, xr.Dataset]:
-    jan = load_data(("2020-01-01", "2020-02-01"))
-    feb = load_data(("2020-02-01", "2020-03-01"))
-    mar = load_data(("2020-03-01", "2020-04-01"))
-    # load the three months in parallel
-    jan, feb, mar = await asyncio.gather(jan, feb, mar)
-    return jan, feb, mar
+    async def execute(self, context: ExecutionContext) -> None:
+        contents = await asyncio.gather(
+            *(storage.read_bytes(asset, max_bytes=10_000_000) for asset in self.assets)
+        )
+        context.logger.info("Read assets", count=len(contents))
 ```
-</CodeGroup>
 
-<Tip>
-    If you encounter an error like `RuntimeError: asyncio.run() cannot be called from a running event loop`, it means you're trying to start another asyncio event loop (with `asyncio.run`) from within an existing one. This often happens in Jupyter notebooks since they automatically start an event loop. A way to resolve this is by using [nest-asyncio](https://pypi.org/project/nest-asyncio/).
-</Tip>
+The Tilebox Storage client can be reused across task executions. Follow the documented lifetime of other async clients because some clients are tied to the event loop where they were created.
+
+The task runner APIs remain synchronous, and making `execute` asynchronous does not cause separate workflow tasks to run concurrently within one runner. It only lets one task perform related I/O concurrently.

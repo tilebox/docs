@@ -47,6 +47,10 @@ For python, the key components of this task are:
   </Accordion>
 </AccordionGroup>
 
+<Tip>
+  Python tasks can also define `execute` with `async def`. This lets you await asynchronous APIs directly inside a task without calling `asyncio.run()`. See [Async support](/sdks/python/async#async-workflows) for an example.
+</Tip>
+
 For Go, the key components are:
 
 <AccordionGroup>
