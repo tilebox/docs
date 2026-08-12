@@ -5,7 +5,7 @@ icon: code
 
 ```python
 class Task:
-    def execute(context: ExecutionContext) -> None
+    def execute(context: ExecutionContext) -> Awaitable[None] | None
 
     @staticmethod
     def identifier() -> tuple[str, str]
@@ -17,10 +17,10 @@ Inheriting also automatically applies the dataclass decorator.
 ## Methods
 
 ```python
-def Task.execute(context: ExecutionContext) -> None
+def Task.execute(context: ExecutionContext) -> Awaitable[None] | None
 ```
 
-The entry point for the execution of the task.
+The entry point for the execution of the task. Define it as either `def execute(...) -> None` or `async def execute(...) -> None`. The runner waits for an asynchronous method to complete.
 
 ```python
 @staticmethod
