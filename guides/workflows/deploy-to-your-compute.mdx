@@ -131,10 +131,10 @@ docker run --rm \
 
 Scale the number of runner containers or virtual machine instances when you want more parallelism. In Kubernetes, increase the `Deployment` replica count. In GCP or AWS, use the scaling controls of the service that runs the container, such as GKE, ECS, EKS, or an auto-scaling VM group. Each runner process connects to the same cluster and claims compatible tasks independently.
 
-As an alternative for local testing or constrained environments, you can run multiple runner processes inside one container or shell session. Use `tilebox parallel` only for that case.
+As an alternative for local testing or constrained environments, use `-n` to run multiple independent release runners inside one CLI process.
 
 ```bash
-tilebox parallel -n 4 -- tilebox runner start --cluster workflow-dev
+tilebox runner start -n 3 --cluster workflow-dev
 ```
 
 Tilebox does not require the runner process to run in Tilebox-managed infrastructure. Use the process manager, scheduler, or container platform that fits your compute environment.

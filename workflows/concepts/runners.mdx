@@ -117,14 +117,14 @@ Release runners advertise the task identifiers from workflow releases currently 
 
 Start multiple runner processes to execute tasks in parallel. Each runner process claims and executes tasks independently. You can run multiple release runners, multiple direct runners, or a mix of both in the same cluster. This increases parallelism and helps handle large workloads.
 
-To test this, run multiple instances of the runner script in different terminal windows on your local machine, or use the [CLI](/agents-and-ai-tools/tilebox-cli) built-in `parallel` subcommand to start multiple runners in parallel.
+For release runners, use `tilebox runner start -n <count>` to run multiple independent runners in one CLI process. For direct runners, run multiple instances of the runner script in different terminal windows or use the [CLI](/agents-and-ai-tools/tilebox-cli) built-in `parallel` subcommand.
 
 ```bash
-# start multiple release runners in parallel
-> tilebox parallel -n 5 -- tilebox runner start --cluster <dev-cluster>
+# release runner mode
+> tilebox runner start -n 3 --cluster <dev-cluster>
 
-# or direct runner mode
-> tilebox parallel -n 5 -- python your_direct_runner.py
+# direct runner mode
+> tilebox parallel -n 3 -- python your_direct_runner.py
 ```
 
 ## Scaling
