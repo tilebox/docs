@@ -1,0 +1,168 @@
+---
+title: Python task inputs
+sidebarTitle: Task inputs
+description: Supported Python types for Tilebox workflow task inputs, including geospatial and raster types.
+icon: list-check
+---
+
+Python tasks are data classes. Annotate each task field with one of the supported types below, and Tilebox reconstructs that type before the task runs.
+
+This page applies to tasks executed by Python runners. For tasks submitted and executed across different languages, use an input schema supported by both SDKs. See [Multi-language workflows](/guides/workflows/multi-language).
+
+The examples focus on task input declarations and omit the `execute` method.
+
+## Python standard library
+
+These types require no extra packages:
+
+- **Values:** [`str`](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str), [`int`](https://docs.python.org/3/library/functions.html#int), [`float`](https://docs.python.org/3/library/functions.html#float), [`bool`](https://docs.python.org/3/library/functions.html#bool), [`bytes`](https://docs.python.org/3/library/stdtypes.html#bytes), and [`bytearray`](https://docs.python.org/3/library/stdtypes.html#bytearray)
+- **Collections:** [`list`](https://docs.python.org/3/library/stdtypes.html#list), [`tuple`](https://docs.python.org/3/library/stdtypes.html#tuple), [`dict`](https://docs.python.org/3/library/stdtypes.html#dict), [`set`](https://docs.python.org/3/library/stdtypes.html#set), and [`frozenset`](https://docs.python.org/3/library/stdtypes.html#frozenset)
+- **Type annotations:** [`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional), [`Union`](https://docs.python.org/3/library/typing.html#typing.Union), and [`Literal`](https://docs.python.org/3/library/typing.html#typing.Literal)
+- **Structured values:** [data classes](https://docs.python.org/3/library/dataclasses.html#dataclasses.dataclass) and [`Enum`](https://docs.python.org/3/library/enum.html#enum.Enum)
+- **Dates and times:** [`datetime`](https://docs.python.org/3/library/datetime.html#datetime.datetime), [`date`](https://docs.python.org/3/library/datetime.html#datetime.date), [`time`](https://docs.python.org/3/library/datetime.html#datetime.time), [`timedelta`](https://docs.python.org/3/library/datetime.html#datetime.timedelta), and [`ZoneInfo`](https://docs.python.org/3/library/zoneinfo.html#zoneinfo.ZoneInfo)
+- **Other values:** [`UUID`](https://docs.python.org/3/library/uuid.html#uuid.UUID), [`Decimal`](https://docs.python.org/3/library/decimal.html#decimal.Decimal), and [`PurePath`](https://docs.python.org/3/library/pathlib.html#pathlib.PurePath) subclasses such as [`Path`](https://docs.python.org/3/library/pathlib.html#pathlib.Path)
+
+**Example usage**
+
+```python
+from datetime import datetime
+from pathlib import Path
+from uuid import UUID
+
+from tilebox.workflows import Task
+
+class BuildSentinel2Mosaic(Task):
+    scene_ids: list[UUID]
+    bands: tuple[str, ...]
+    acquired_after: datetime
+    output_path: Path
+```
+
+## Protocol buffers
+
+`protobuf` provides generated message classes for strongly typed schemas and is installed with `tilebox-workflows`.
+
+Tilebox supports [`Message`](https://googleapis.dev/python/protobuf/latest/google/protobuf/message.html#google.protobuf.message.Message) and its generated subclasses.
+
+**Example usage**
+
+```python
+from google.protobuf.timestamp_pb2 import Timestamp
+from tilebox.workflows import Task
+
+class ProcessSceneAcquisition(Task):
+    scene_id: str
+    acquired_at: Timestamp
+```
+
+## Tilebox Datasets
+
+`tilebox-datasets` provides value types for dataset and job queries and is installed with `tilebox-workflows`.
+
+| Type | Use in a workflow |
+| --- | --- |
+| [`TimeInterval`](/datasets/query/filter-by-time#manual-endpoint-inclusivity), [`IDInterval`](/api-reference/python/tilebox.workflows/JobClient.query) | Pass dataset or job query ranges to a task |
+| [`SpatialFilter`](/datasets/query/filter-by-location) | Pass a dataset spatial query to a task; its geometry requires Shapely |
+
+**Example usage**
+
+```python
+from tilebox.datasets.data.data_access import SpatialFilter
+from tilebox.datasets.query import TimeInterval
+from tilebox.workflows import Task
+
+class QuerySentinel2Scenes(Task):
+    collections: list[str]
+    temporal_extent: TimeInterval
+    spatial_extent: SpatialFilter
+```
+
+## Shapely
+
+`shapely` provides geometry types for vector features, footprints, and areas of interest.
+
+- **Single geometries:** [`Geometry`](https://shapely.readthedocs.io/en/stable/reference/shapely.Geometry.html), [`Point`](https://shapely.readthedocs.io/en/stable/reference/shapely.Point.html), [`LineString`](https://shapely.readthedocs.io/en/stable/reference/shapely.LineString.html), [`LinearRing`](https://shapely.readthedocs.io/en/stable/reference/shapely.LinearRing.html), and [`Polygon`](https://shapely.readthedocs.io/en/stable/reference/shapely.Polygon.html)
+- **Geometry collections:** [`MultiPoint`](https://shapely.readthedocs.io/en/stable/reference/shapely.MultiPoint.html), [`MultiLineString`](https://shapely.readthedocs.io/en/stable/reference/shapely.MultiLineString.html), [`MultiPolygon`](https://shapely.readthedocs.io/en/stable/reference/shapely.MultiPolygon.html), and [`GeometryCollection`](https://shapely.readthedocs.io/en/stable/reference/shapely.GeometryCollection.html)
+
+**Example usage**
+
+```python
+from shapely import MultiPolygon
+from tilebox.workflows import Task
+
+class ComputeSentinel2CloudStatistics(Task):
+    area_of_interest: MultiPolygon
+    preceding_hours: int
+```
+
+## Coordinate systems and raster transforms
+
+`affine` provides two-dimensional affine transformation matrices. `pyproj` provides coordinate reference systems and coordinate transformations.
+
+| Type | Use in a workflow |
+| --- | --- |
+| [`Affine`](https://affine.readthedocs.io/en/latest/index.html#affine.Affine) | Preserve the pixel-to-world transform for raster processing |
+| [`pyproj.CRS`](https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS) | Pass a coordinate reference system without reducing it to a string |
+
+**Example usage**
+
+```python
+from affine import Affine
+from pyproj import CRS
+from tilebox.workflows import Task
+
+class ReprojectRasterTile(Task):
+    source_crs: CRS
+    target_crs: CRS
+    source_transform: Affine
+```
+
+## ODC Geo
+
+`odc-geo` provides projection-aware geometry and raster grid types.
+
+| Type | Use in a workflow |
+| --- | --- |
+| [`CRS`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.crs.CRS.html) | Preserve an ODC coordinate reference system |
+| [`Geometry`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.geom.Geometry.html), [`BoundingBox`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.geom.BoundingBox.html) | Pass projection-aware geometries and bounds |
+| [`XY`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.XY.html), [`Resolution`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.Resolution.html) | Describe grid coordinates and spatial resolution |
+| [`Index2d`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.Index2d.html), [`Shape2d`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.Shape2d.html) | Describe a grid index or shape |
+| [`GeoBox`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.geobox.GeoBox.html) | Preserve an aligned, georeferenced raster grid |
+| [`GeoboxTiles`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.geobox.GeoboxTiles.html), [`AnchorEnum`](https://odc-geo.readthedocs.io/en/latest/_api/odc.geo.AnchorEnum.html) | Partition and align a `GeoBox` for tiled processing |
+
+**Example usage**
+
+```python
+from odc.geo import GeoBox
+from tilebox.workflows import Task
+
+class ReprojectSentinel2Product(Task):
+    product_location: str
+    source_grid: GeoBox
+    target_grid: GeoBox
+```
+
+## Raster windows
+
+`rasterio` provides raster data access and processing. `async-geotiff` provides asynchronous GeoTIFF and Cloud Optimized GeoTIFF reads. Install either package separately when your workflow uses its window type.
+
+| Type | Use in a workflow |
+| --- | --- |
+| [`rasterio.windows.Window`](https://rasterio.readthedocs.io/en/stable/api/rasterio.windows.html#rasterio.windows.Window) | Pass a rectangular pixel region to a task that uses `rasterio` |
+| [`async_geotiff.Window`](https://developmentseed.org/async-geotiff/latest/api/window/) | Pass a rectangular pixel region to an async GeoTIFF task |
+
+**Example usage**
+
+```python
+from rasterio.windows import Window
+from tilebox.workflows import Task
+
+class ComputeHyperspectralChunkStatistics(Task):
+    product_path: str
+    window: Window
+    output_key: str
+```
+
+## Keep task inputs compact
+
+Task inputs are part of the workflow graph and are not intended for large arrays, file contents, pandas DataFrames, clients, or open files. Store large data in object storage or the [job cache](/workflows/run-and-inspect/caches), then pass a compact reference such as an ID, object prefix, cache key, time interval, geometry, or raster window.

@@ -5,6 +5,26 @@ icon: rss
 mode: center
 ---
 
+<Update label="August 18, 2026">
+    ## Understand and debug workflow jobs faster
+
+    <Frame>
+    <img src="/assets/changelog/2026-08-18-job-view.webp" alt="Updated job details page" />
+    </Frame>
+
+    The redesigned job details page makes it easier to understand what a workflow is doing, where it spends time, and why it failed. Job progress, execution statistics, tasks, traces, and logs now form one connected view, so you can move from the state of the whole job to the work of an individual task without losing context.
+
+    Tasks appear in their workflow hierarchy instead of a flat list. Expand the branches you care about, follow state and timing through nested work, and navigate large jobs without loading the entire task graph at once.
+
+    Select any task to see its input, timing, retries, compute location, execution trace, and logs together. A failed or slow task is no longer an isolated telemetry record: you can see where it sits in the workflow, inspect what it received, and trace exactly what happened during its execution.
+
+    <Columns cols={1}>
+      <Card title="Workflow observability" icon="chart-tree-map" href="/workflows/run-and-inspect/introduction" horizontal>
+        Learn how Tilebox connects job tasks, execution traces, logs, and runner context.
+      </Card>
+    </Columns>
+</Update>
+
 <Update label="August 3, 2026">
     ## Sentinel-2 imagery, ready to query and read
 

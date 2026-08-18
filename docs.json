@@ -201,6 +201,7 @@
             "group": "Python",
             "pages": [
               "sdks/python/install",
+              "sdks/python/task-inputs",
               "sdks/python/sample-notebooks",
               "sdks/python/xarray",
               "sdks/python/async"
