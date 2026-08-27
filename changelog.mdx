@@ -5,6 +5,38 @@ icon: rss
 mode: center
 ---
 
+<Update label="August 27, 2026">
+    ## Your workflow operations, at a glance
+
+    The new Tilebox Console Dashboard puts workflow health front and center. See queue pressure, recent job outcomes, workflow logs, workspace activity, and usage in one operational view, then drill directly into the jobs and logs that need attention.
+
+    <Columns cols={1}>
+      <Card title="Open the Console Dashboard" icon="gauge-high" href="https://console.tilebox.com/home" horizontal>
+        Monitor your workflows and investigate issues.
+      </Card>
+    </Columns>
+</Update>
+
+<Update label="August 26, 2026">
+    ## Sentinel-1 radar imagery, ready day or night
+
+    <Frame>
+    <img src="/assets/changelog/2026-08-26-sentinel1-cloud-reveal.gif" alt="Cloud-covered Sentinel-2 optical imagery of Venice transitioning to Sentinel-1 radar imagery captured on the same day" />
+    </Frame>
+
+    The new `open_data.aws_earth.sentinel1` dataset provides credentials-free access to global Sentinel-1 Level-1 Ground Range Detected (GRD) scenes and their public AWS assets. Unlike optical sensors, Sentinel-1 uses synthetic aperture radar (SAR) to observe the surface through clouds and without sunlight, so you can keep analyzing conditions when optical imagery is unavailable.
+
+    Query scenes by time, location, or satellite platform, then open the available polarization measurements as Cloud Optimized GeoTIFFs (COGs). Each datapoint also includes acquisition and orbit details, SAR metadata, a preview image, and the product, calibration, noise, and SAFE manifest files needed for further processing.
+
+    These consistent, all-weather observations are well suited to flood and disaster mapping, sea-ice and maritime monitoring, forest disturbance detection, and tracking changes in crops, soil moisture, and infrastructure. You can move from a spatial query to a focused pixel read in one workflow, without configuring separate AWS credentials or downloading a complete scene first.
+
+    <Columns cols={1}>
+      <Card title="Create a Sentinel-1 radar image" icon="radar" href="/guides/datasets/access-sentinel1-data" horizontal>
+        Query a GRD scene and render a monochrome image from its public VV measurement.
+      </Card>
+    </Columns>
+</Update>
+
 <Update label="August 18, 2026">
     ## Understand and debug workflow jobs faster
 
@@ -39,8 +71,8 @@ mode: center
     This makes it practical to move from catalog search to image processing in one workflow: find a low-cloud scene, select a band, crop it to a geographic region, and pass the resulting data into your analysis without first downloading an entire scene.
 
     <Columns cols={1}>
-      <Card title="Visualize Sentinel-2 imagery" icon="satellite" href="/guides/datasets/access-sentinel2-data" horizontal>
-        Query a Sentinel-2 scene, read RGB band windows, and display a true-color image.
+      <Card title="Create a Sentinel-2 RGB image" icon="satellite" href="/guides/datasets/access-sentinel2-data" horizontal>
+        Query a cloud-free scene and combine its red, green, and blue COG assets.
       </Card>
     </Columns>
 </Update>
