@@ -1,10 +1,10 @@
 ---
-title: Visualize Sentinel-2 imagery
-description: Query a Sentinel-2 scene, read its RGB bands, and display a true-color image.
+title: Create a Sentinel-2 RGB image
+description: Query a cloud-free Sentinel-2 scene and render an RGB image from its public COG assets.
 icon: satellite
 ---
 
-Tilebox indexes Sentinel-2 metadata and asset locations in the `open_data.aws_earth.sentinel2` dataset. In this guide, you query a low-cloud scene over Sandwich Harbour in Namibia, read its RGB bands, and display a true-color image.
+Tilebox indexes Sentinel-2 metadata and public asset locations in the `open_data.aws_earth.sentinel2` dataset. In this guide, you query a cloud-free scene over Sandwich Harbour in Namibia, read a small window from its red, green, and blue Cloud Optimized GeoTIFFs (COGs), and combine the bands into an RGB image.
 
 <Note>
   Asset collections and the storage client are currently available in the Python SDK.
@@ -13,26 +13,24 @@ Tilebox indexes Sentinel-2 metadata and asset locations in the `open_data.aws_ea
 ## Prerequisites
 
 - You have a [Tilebox API key](/authentication).
-- You have installed the [Python SDK](/sdks/python/install) with Python 3.11 or newer.
+- You have Python 3.11 or newer.
 
 ```bash
-uv add tilebox shapely numpy matplotlib
+uv add tilebox shapely numpy pillow
 ```
 
-## Select a Sentinel-2 datapoint
+## Select a cloud-free scene
 
-Define a small area around the Sandwich Harbour lagoon and dune coast. Query Level-2A observations from a known clear period, sort them by scene-level cloud cover, and select the clearest result:
+Define a small area around Sandwich Harbour and query Sentinel-2 Level-2A scenes from June 17, 2024. Select the result with the least cloud cover.
 
 ```python Python
 from shapely import box
 from tilebox.datasets import Client, field
 
-area_bounds = (14.42, -23.43, 14.58, -23.25)  # west, south, east, north
-area = box(*area_bounds)
+# west, south, east, north
+area = box(14.42, -23.43, 14.58, -23.25)  # Sandwich Harbour, Namibia
 
-datasets = Client()
-collection = datasets.dataset("open_data.aws_earth.sentinel2").collection("L2A")
-
+collection = Client().dataset("open_data.aws_earth.sentinel2").collection("L2A")
 scenes = collection.query(
     temporal_extent=("2024-06-17", "2024-06-18"),
     spatial_extent=area,
@@ -43,26 +41,21 @@ datapoint = scenes.sortby("cloud_cover").isel(time=0)
 print(datapoint.stac_id.item(), datapoint.cloud_cover.item())
 ```
 
-The selected observation is `S2B_T33KVQ_20240617T090616_L2A`, acquired on June 17, 2024, with `0.008524` percent scene-level cloud cover. The cloud-cover value describes the complete Sentinel-2 tile, not only the area of interest.
-
-See [Query open data metadata](/guides/datasets/query-satellite-data) for more query patterns.
+See [Query open data metadata](/guides/datasets/query-satellite-data) for broader temporal, spatial, and field-filtering patterns.
 
 ## Resolve the RGB assets
 
-Turn the selected datapoint into an asset collection, then resolve its 10-meter red, green, and blue COGs:
+Convert the datapoint into an asset collection:
 
 ```python Python
 from tilebox.datasets.assets import AssetCollection
 
 assets = AssetCollection.from_datapoint(datapoint)
-red = assets["red"]
-green = assets["green"]
-blue = assets["blue"]
 ```
 
-## Read the COG windows
+## Read and combine the bands
 
-Use the storage client to read the area of interest from each COG:
+Open the three COGs and read only the window that covers the area of interest. The bands share the same pixel grid, so you can fetch them concurrently and stack them directly.
 
 ```python Python
 import asyncio
@@ -73,52 +66,57 @@ from tilebox.storage.geotiff import window_from_bounds
 
 async def read_rgb():
     storage = StorageClient()
-    bands = []
 
-    for asset in (red, green, blue):
+    async def read_band(key):
+        asset = assets[key]
         geotiff = await storage.open_geotiff(asset)
-        window = window_from_bounds(geotiff, area_bounds, crs="EPSG:4326")
+        window = window_from_bounds(geotiff, area.bounds, crs="EPSG:4326")
         raster = await geotiff.read(window=window)
-        bands.append(raster.data[0])
+        pixels = raster.data[0].astype(np.float32)
+        return pixels * asset.raster.scale + asset.raster.offset
 
-    return np.stack(bands, axis=-1).astype(np.float32)
+    red, green, blue = await asyncio.gather(
+        read_band("red"),
+        read_band("green"),
+        read_band("blue"),
+    )
+    return np.stack((red, green, blue), axis=-1)
 
 rgb = asyncio.run(read_rgb())
 ```
 
-`window_from_bounds` converts the longitude and latitude bounds to the COG's pixel grid. Each read returns a `(2000, 1643)` array of `uint16` values; stacking the bands creates a `(2000, 1643, 3)` RGB array.
+The asset metadata supplies the scale and offset that convert stored pixel values to surface reflectance.
 
-## Display the true-color image
+## Render the RGB image
 
-Apply one contrast stretch across all three channels to preserve their relative color balance, then display the image:
+Apply a display stretch, gamma correction, and a small contrast clip, then save the array as a PNG:
 
 ```python Python
-import matplotlib.pyplot as plt
+from PIL import Image, ImageOps
 
-low, high = np.percentile(rgb, (2, 98))
-display_rgb = np.clip((rgb - low) / (high - low), 0, 1)
-display_rgb = display_rgb ** (1 / 1.1)
-
-fig, ax = plt.subplots(figsize=(8, 10))
-ax.imshow(display_rgb)
-ax.set_axis_off()
-plt.tight_layout(pad=0)
-plt.show()
+display_rgb = np.power(np.clip(rgb / 0.3, 0, 1), 1 / 2.2)
+image = Image.fromarray((display_rgb * 255).astype(np.uint8))
+image = ImageOps.autocontrast(image, cutoff=0.5)
+image.save("sentinel2-sandwich-harbour.png")
 ```
 
-The percentile stretch and gamma correction bring out the coastline, lagoon, and dune textures in a beautiful true-color visualization.
+<Tip>
+`ImageOps.autocontrast` is only intended for visualization. Keep the original reflectance values when calculating indices or running quantitative analysis.
+</Tip>
 
-<Frame caption="Sentinel-2 true-color visualization of Sandwich Harbour, Namibia, acquired June 17, 2024. Contains modified Copernicus Sentinel data (2024).">
-  <img src="/assets/guides/sentinel2/sandwich-harbour-true-color.webp" alt="Sentinel-2 true-color view of the Atlantic Ocean, Sandwich Harbour lagoon, and orange dunes of the Namib Sand Sea" />
+<Frame>
+  <img src="/assets/guides/datasets/sentinel2-rgb-sandwich-harbour.webp" alt="Cloud-free Sentinel-2 RGB image of Sandwich Harbour and the Namib dune coast" />
 </Frame>
+
+
 
 ## Next steps
 
 <Columns cols={2}>
+  <Card title="Create a Sentinel-1 radar image" icon="radar" href="/guides/datasets/access-sentinel1-data" horizontal>
+    Render an all-weather SAR observation over Venice.
+  </Card>
   <Card title="Read and download assets" icon="download" href="/datasets/assets-and-storage/read-and-download" horizontal>
     Learn about streaming, downloads, GeoTIFF access, and location selection.
-  </Card>
-  <Card title="Assets and storage" icon="boxes-stacked" href="/datasets/assets-and-storage/overview" horizontal>
-    Understand how asset metadata connects dataset queries to file storage.
   </Card>
 </Columns>
