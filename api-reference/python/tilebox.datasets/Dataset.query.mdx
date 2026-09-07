@@ -44,7 +44,7 @@ If no data matches the filters, an empty `xarray.Dataset` is returned.
 </ParamField>
 
 <ParamField path="spatial_extent" type="SpatialFilterLike | None">
-  Optional spatial filter. Use this for spatial queries in spatio-temporal datasets.
+  Optional spatial filter for spatio-temporal datasets. Pass a geometry to use the default intersection behavior, or configure a [spatial filter mode](/datasets/query/filter-by-location#spatial-filter-modes).
 </ParamField>
 
 <ParamField path="skip_data" type="bool">

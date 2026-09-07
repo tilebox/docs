@@ -78,24 +78,24 @@ if err != nil {
 ```
 </CodeGroup>
 
-## Intersection mode
+## Spatial filter modes
 
-By default, queries return all datapoints that intersect with the specified geometry. You can alter this behavior to return only datapoints fully contained within the geometry. Tilebox supports this by allowing you to specify a mode for the spatial filter.
+The spatial filter mode controls the relationship between the filter geometry and each returned datapoint geometry. Containment mode names identify which geometry contains the other.
 
-<Columns cols={2}>
-    <Frame caption="mode: intersects">
-        <img src="/assets/datasets/queries/intersection-mode-intersects-light.png" alt="Query results with intersects mode" className="dark:hidden" />
-        <img src="/assets/datasets/queries/intersection-mode-intersects-dark.png" alt="Query results with intersects mode" className="hidden dark:block" />
-    </Frame>
-    <Frame caption="mode: contains">
-        <img src="/assets/datasets/queries/intersection-mode-contains-light.png" alt="Query results with contains mode" className="dark:hidden" />
-        <img src="/assets/datasets/queries/intersection-mode-contains-dark.png" alt="Query results with contains mode" className="hidden dark:block" />
-    </Frame>
-</Columns>
+| Mode | Relationship |
+| --- | --- |
+| `intersects` | The datapoint geometry intersects the filter geometry |
+| `filter_contains_geometry` | The filter geometry contains the datapoint geometry |
+| `geometry_contains_filter` | The datapoint geometry contains the filter geometry |
+
+<Frame caption="The three spatial filter modes">
+    <img src="/assets/datasets/queries/spatial-filter-modes-light.png" alt="Examples of intersects, filter contains geometry, and geometry contains filter modes" className="dark:hidden" />
+    <img src="/assets/datasets/queries/spatial-filter-modes-dark.png" alt="Examples of intersects, filter contains geometry, and geometry contains filter modes" className="hidden dark:block" />
+</Frame>
 
 ### Intersects
 
-The `intersects` mode is the default for spatial queries. It matches all datapoints whose geometries intersect with the query geometry.
+The `intersects` mode is the default for spatial queries. It matches all datapoints whose geometries intersect with the filter geometry.
 
 <CodeGroup>
 ```python Python
@@ -138,9 +138,9 @@ if err != nil {
 There are 27 Sentinel-2A granules intersecting the area of Colorado on April 2nd, 2025
 ```
 
-### Contains
+### Filter contains geometry
 
-The `contains` mode matches all datapoints whose geometries are fully contained within the query geometry.
+The `filter_contains_geometry` mode matches datapoints whose geometries are fully contained within the filter geometry.
 
 <CodeGroup>
 ```python Python
@@ -150,7 +150,7 @@ area = Polygon(  # area roughly covering the state of Colorado
 
 data = collection.query(
     temporal_extent=("2025-04-01", "2025-05-02"),
-    spatial_extent={"geometry": area, "mode": "contains"},
+    spatial_extent={"geometry": area, "mode": "filter_contains_geometry"},
 )
 print(f"There are {data.sizes['time']} Sentinel-2A granules fully contained within the area of Colorado on April 2nd, 2025")
 ```
@@ -169,7 +169,7 @@ err = client.Datapoints.QueryInto(ctx,
     datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
     datasets.WithSpatialExtentFilter(&query.SpatialFilter{
         Geometry: area,
-        Mode:     datasetsv1.SpatialFilterMode_SPATIAL_FILTER_MODE_CONTAINS,
+        Mode:     datasetsv1.SpatialFilterMode_SPATIAL_FILTER_MODE_FILTER_CONTAINS_GEOMETRY,
     }),
 )
 if err != nil {
@@ -181,6 +181,45 @@ if err != nil {
 ```plaintext Output
 There are 16 Sentinel-2A granules fully contained within the area of Colorado on April 2nd, 2025
 ```
+
+### Geometry contains filter
+
+The `geometry_contains_filter` mode matches datapoints whose geometries fully contain the filter geometry. For example, a small filter geometry within Colorado can match a datapoint whose geometry covers the entire state.
+
+<CodeGroup>
+```python Python
+area = Polygon(  # a small area around Denver
+    ((-105.1, 39.8), (-105.1, 39.6), (-104.8, 39.6), (-104.8, 39.8), (-105.1, 39.8)),
+)
+
+data = collection.query(
+    temporal_extent=("2025-04-01", "2025-05-02"),
+    spatial_extent={"geometry": area, "mode": "geometry_contains_filter"},
+)
+```
+```go Go
+startDate := time.Date(2025, 4, 2, 0, 0, 0, 0, time.UTC)
+endDate := time.Date(2025, 5, 2, 0, 0, 0, 0, time.UTC)
+area := orb.Polygon{  // a small area around Denver
+    {{-105.1, 39.8}, {-105.1, 39.6}, {-104.8, 39.6}, {-104.8, 39.8}, {-105.1, 39.8}},
+}
+
+var datapoints []*examplesv1.Sentinel2Msi
+err = client.Datapoints.QueryInto(ctx,
+    dataset.ID,
+    &datapoints,
+    datasets.WithCollectionIDs(collection.ID),
+    datasets.WithTemporalExtent(query.NewTimeInterval(startDate, endDate)),
+    datasets.WithSpatialExtentFilter(&query.SpatialFilter{
+        Geometry: area,
+        Mode:     datasetsv1.SpatialFilterMode_SPATIAL_FILTER_MODE_GEOMETRY_CONTAINS_FILTER,
+    }),
+)
+if err != nil {
+    log.Fatalf("Failed to query datapoints: %v", err)
+}
+```
+</CodeGroup>
 
 ## Antimeridian Crossings
 
